@@ -58,9 +58,11 @@ var UdaciTests = function(title, tests, code, refreshRate) {
       return context[func].apply(this, args);
     }
 
+
+    // TODO: introduce idea of sets into tests so that I can run subsequent
+    // sets of tests based on whether or not one series passes
     var gradeLoop = setInterval(function() {
       for (i in tests) {
-        // var testCorrect = tests[i].test(tests[i].params);
         var testCorrect = executeFunctionByName(tests[i].test, that, tests[i].params);
         var testObj = {
           desc: tests[i].desc,
@@ -99,11 +101,6 @@ var UdaciTests = function(title, tests, code, refreshRate) {
 
   this.title = title;
   var iframeElem;
-
-  this.testing = function(){
-    console.log("testing!");
-    return true;
-  }
 
   this.testMediaQueries = function(udArr) {
     /*
@@ -258,7 +255,6 @@ UdaciTests.prototype.testViewportWidth = function(expected) {
   var isCorrect = false;
   var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
   width === expected[0] ? isCorrect = true : isCorrect = false;
-  // console.log("width: " + isCorrect);
   return isCorrect;
 }
 UdaciTests.prototype.testViewportHeight = function(expected) {
@@ -380,9 +376,28 @@ UdaciTests.prototype.testDOMelemAbsolutePosition = function(udArr) {
   })
   return correctSpot;
 }
-UdaciTests.prototype.testDOMelemAttr = function(udArr) {
+UdaciTests.prototype.testDOMelemAttrExists = function(udArr) {
+  var hasAttr = false;
+  var elem = document.querySelector(udArr[0].selector);
+  var attr = udArr[0].attr;
+  var theirAttr = elem.getAttribute(attr);
+
+  if (theirAttr || theirAttr === "") hasAttr = true;
+  return hasAttr;
 }
-UdaciTests.prototype.testDOMelemCSS = function(udArr) {
+UdaciTests.prototype.testDOMelemAttrContent = function(udArr) {
+  // TODO: handle comma separated values
+  var hasAttr = false;
+  var elem = document.querySelector(udArr[0].selector);
+  var attr = udArr[0].attr;
+  var udAttrValue = udArr[0].value;
+  var theirAttrValue = elem.getAttribute(attr);
+
+  // search for comma
+  // if so, turn it into an array
+  // compare values in array
+
+  // otherwise, compare the two
 }
 
 
