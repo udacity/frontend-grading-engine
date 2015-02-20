@@ -330,8 +330,55 @@ UdaciTests.prototype.testDOMelemsHorizontalSeparation = function(udArr) {
   return separatedCorrectly;
 }
 UdaciTests.prototype.testDOMelemAbsolutePosition = function(udArr) {
-  var rightSpot = false;
-  
+  var correctSpot = false;
+  var elem = document.querySelector(udArr[0].selector);
+
+  var udTop,udBottom,udLeft,udRight;
+  udTop = null || udArr[0].top;
+  udBottom = null || udArr[0].bottom;
+  udLeft = null || udArr[0].left;
+  udRight = null || udArr[0].right;
+
+  var sides = [
+    {
+      ours: udTop,
+      theirs: elem.offsetTop
+    },
+    {
+      ours: udBottom,
+      theirs: elem.offsetTop + elem.offsetHeight
+    },
+    {
+      ours: udLeft,
+      theirs: elem.offsetLeft
+    },
+    {
+      ours: udRight,
+      theirs: elem.offsetLeft + elem.offsetWidth
+    }
+  ]
+
+  var foundSide = 0;
+
+  sides.forEach(function(val, index) {
+    var us = val.ours;
+    var them = val.theirs;
+    if (us === "max" && (index === 0 || index === 1)) {
+      us = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    }
+    if (us === "max" && (index === 2 || index === 3)) {
+      us = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    }
+
+    if (us > -1) foundSide += 1;
+
+    if (us > -1 && foundSide === 1) {
+      correctSpot = (us === them);
+    } else if (us && foundSide > 1) {
+      correctSpot = (us === them) && correctSpot;
+    }
+  })
+  return correctSpot;
 }
 UdaciTests.prototype.testDOMelemAttr = function(udArr) {
 }
