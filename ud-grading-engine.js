@@ -6,10 +6,34 @@ Version 0.03
 Cameron Pittman 2015
 */
 
+// Thanks StackOverflow!
+// http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
+// attach the .equals method to Array's prototype to call it on any array
+function arrEquals(array1, array2) {
+  // if the other array is a falsy value, return
+  if (!array1 || !array2)
+    return false;
+
+  // compare lengths - can save a lot of time 
+  if (array1.length != array2.length)
+    return false;
+
+  for (var i = 0, l=array1.length; i < l; i++) {
+    // Check if we have nested arrays
+    if (array1[i] instanceof Array && array2[i] instanceof Array) {
+      // recurse into the nested arrays
+      if (!array1[i].equals(array2[i]))
+        return false;       
+    } else if (array1[i] != array2[i]) { 
+      // Warning - two different object instances will never be equal: {x:20} != {x:20}
+      return false;   
+    }           
+  }       
+  return true;
+}
+
 /*
 Class describes an instance of the Udacity test engine.
-Abstraction allows us to create multiple scopes for test runs.
-
 */
 var UdaciTests = function(title, tests, code, refreshRate) {
   var that = this;
@@ -386,18 +410,27 @@ UdaciTests.prototype.testDOMelemAttrExists = function(udArr) {
   return hasAttr;
 }
 UdaciTests.prototype.testDOMelemAttrContent = function(udArr) {
-  // TODO: handle comma separated values
-  var hasAttr = false;
+  var hasCorrectAttr = false;
   var elem = document.querySelector(udArr[0].selector);
-  var attr = udArr[0].attr;
-  var udAttrValue = udArr[0].value;
-  var theirAttrValue = elem.getAttribute(attr);
+  var theirAttrValue = elem.getAttribute(udArr[0].attr);
 
-  // search for comma
-  // if so, turn it into an array
-  // compare values in array
+  udArr[0].values.forEach(function(val) {
+    if (val.search(",") > -1) {
+      var us = val.replace(" ,", ",").replace(", ", ",");
+      us = us.split(",").sort();
+      try {
+        var them = theirAttrValue.replace(" ,", ",").replace(", ", ",");
+        them = them.split(",").sort();
+      } catch (e) {
+        var them = [];
+      }
+      if (arrEquals(us, them)) hasCorrectAttr = true;
+    } else {
+      if (us === them) hasCorrectAttr = true;
+    }
+  })
 
-  // otherwise, compare the two
+  return hasCorrectAttr;
 }
 
 
