@@ -8,7 +8,6 @@ Cameron Pittman 2015
 
 // Thanks StackOverflow!
 // http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
-// attach the .equals method to Array's prototype to call it on any array
 function arrEquals(array1, array2) {
   // if the other array is a falsy value, return
   if (!array1 || !array2)
@@ -204,6 +203,88 @@ var UdaciTests = function(title, tests, code, refreshRate) {
 
     return hasCorrectStyles;
   }
+  this.testPictureMediaQueries = function(udArr) {
+
+    // div[data="foo"] 
+
+    /*
+    This is an insane piece of code that's not fully functional.
+
+    To test whether or not breakpoints are set correctly,
+    we create an iframe off the viewport containing the current page.
+    Then, we resize the iframe's width and query it for styles.
+
+    Seems simple, but it isn't. IFRAMES ARE CRAZY!
+
+    Also, this will need to be refactored for more robustness at
+    some point.
+    */
+    var contentCopy = document.body.parentElement.innerHTML;
+    
+    // Why all the replaces? To make sure that no JS runs in the iframe.
+    // JS in the iframe was an incredibly annoying source of bugs during
+    // development.
+    contentCopy = contentCopy.replace(/<script/g, "<!-- <script");
+    contentCopy = contentCopy.replace(/<\/script>/g, "<\/script> -->");
+    contentCopy = contentCopy.replace(/<iframe/g, "<!-- <iframe");
+    contentCopy = contentCopy.replace(/<\/iframe>/g, "<\/iframe> -->");
+
+    iframeElem = iframeElem || document.querySelector('iframe.mq-test');
+    
+    if (!iframeElem) {
+      iframeElem = document.createElement('iframe');
+      iframeElem.classList.add('mq-test');
+      iframeElem.src = 'about:blank';
+      document.body.appendChild(iframeElem);
+      iframeElem.style.position = 'absolute';
+      iframeElem.style.left = '100%';
+    }
+
+    function setIframeWidth(_width) {
+      iframeElem.style.width = _width;
+    }
+
+    // Not sure why, but any selector other than 'body' seems to fail...
+    // TODO: make other selectors work
+    function getFilenameFromIframe(_selector, _property) {
+      // var computedStyles = getComputedStyle(iframeElem.contentDocument.querySelector(_selector));
+      var computedFile = getComputedStyle(iframeElem.contentDocument.querySelector(_selector));
+      return computedStyles[_property];
+    }
+
+    setIframeWidth(udArr[0].width);
+
+    // This is a strange situation. Accessing .innerWidth forces layout... I'm pretty sure.
+    // This needs to happen otherwise the iframe width won't resize and everything breaks.
+    // Wow. JS is super weird.
+    // TODO: find a less janky way to force layout? 
+    if (iframeElem.contentWindow.innerWidth === "") {
+      console.log(iframeElem.contentWindow.innerWidth);
+    }
+
+    var hasCorrectStyles = false;
+    // iterate through styles and get values
+    udArr.forEach(function(obj, a) {
+      obj.styles.forEach(function(sel, b) {
+        sel.css.forEach(function(pv, c) {
+          var stdValue = getStyleFromIframe(sel.selector, pv.property);
+          if (stdValue === pv.value && c === 0) {
+            hasCorrectStyles = true;
+          } else if (stdValue === pv.value) {
+            hasCorrectStyles = hasCorrectStyles && true;
+          } else {
+            hasCorrectStyles = hasCorrectStyles && false;
+          }
+        })
+      })
+    })
+
+    try {
+      iframeElem.contentDocument.body.parentElement.innerHTML = contentCopy;
+    } catch (e){}
+
+    return hasCorrectStyles;
+  }
   this.createResultsDisplay = function(name) {
     // TODO: display a title for the results display
     var head = document.querySelector('head');
@@ -328,6 +409,24 @@ UdaciTests.prototype.testDOMelemCount = function(udArr) {
   if ((elems.length) === udArr[0].count) rightCount = true;
   return rightCount;
 }
+UdaciTests.prototype.testDOMelemsCounts = function(udArr) {
+  // for multiple sets of the same parent > child counts
+  // run tests like: make sure all pictures have two sources
+  var rightCounts = false;
+  var parentElems = document.querySelectorAll(udArr[0].parentSelector);
+  parentElems = Array.prototype.slice.apply(parentElems);
+
+  parentElems.forEach(function(val, index) {
+    var childElems = val.querySelectorAll(udArr[0].childSelector);
+    if (childElems.length === udArr[0].count && index === 0) {
+      rightCounts = true;
+    }
+    else if ((childElems.length) === udArr[0].count) {
+      rightCounts = rightCounts && true;
+    }
+  })
+  return rightCounts;
+}
 UdaciTests.prototype.testDOMelemExists = function(udArr) {
   var exists = false;
   var elems = document.querySelectorAll(udArr[0].selector);
@@ -410,6 +509,7 @@ UdaciTests.prototype.testDOMelemAttrExists = function(udArr) {
   return hasAttr;
 }
 UdaciTests.prototype.testDOMelemAttrContent = function(udArr) {
+  // for elems that must exist
   var hasCorrectAttr = false;
   var elem = document.querySelector(udArr[0].selector);
   var theirAttrValue = elem.getAttribute(udArr[0].attr);
@@ -432,7 +532,47 @@ UdaciTests.prototype.testDOMelemAttrContent = function(udArr) {
 
   return hasCorrectAttr;
 }
+UdaciTests.prototype.testDOMelemAttrApproxContent = function(udArr) {
+  // for elems that may or may not exist
+  // TODO: too much looping, try using more ||
+  var hasCorrectAttr = false;
+  var elems = document.querySelectorAll(udArr[0].selector);
+  elems = Array.prototype.slice.apply(elems);
 
+  elems.forEach(function(elem) {
+    udArr[0].attrs.forEach(function(attr, index) {
+      var theirAttrValue = elem.getAttribute(attr);
+      udArr[0].values.forEach(function(udValue, jindex) {
+        if (udValue.search(",") > -1) {
+          var us = value.replace(" ,", ",").replace(", ", ",");
+          us = us.split(",").sort();
+          try {
+            var them = theirAttrValue.replace(" ,", ",").replace(", ", ",");
+            them = them.split(",").sort();
+          } catch (e) {
+            var them = [];
+          }
+          if (arrEquals(us, them)) {
+            hasCorrectAttr = true;
+            return hasCorrectAttr;
+          }
+        } else if (theirAttrValue) {
+          if (theirAttrValue.search(udValue) > -1) {
+            hasCorrectAttr = true;
+            return hasCorrectAttr;
+          }
+        }
+      })
+    })
+  })
+  return hasCorrectAttr;
+}
+UdaciTests.prototype.testDOMelemChildrenExist = function(udArr) {
+
+}
+UdaciTests.prototype.testPictureElemSources = function(udArr) {
+
+}
 
 
 
