@@ -1,32 +1,14 @@
-<script>
-  // import tests
-  var link = document.createElement('link');
-  link.rel = 'import';
-  link.href = '../../../../frontend-grading-engine/templates/active-test.html'
-  link.onload = function(e) {};
-  link.onerror = function(e) {};
-  document.head.appendChild(link);
-
-  var head = document.querySelector('head');
-  var fontAwesome = document.createElement('link');
-  fontAwesome.rel = 'stylesheet';
-  fontAwesome.href = 'http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css';
-  head.appendChild(fontAwesome);
-
-</script>
+<link rel="import" href="/frontend-grading-engine/templates/active-test.html">
 
 <template id="test-suite">
-    <style scoped>
-        #test-suite {
-          postion: absolute;
-          min-width: 200px;
-          background-color: rgba(112, 128, 144, 0.5);
-          right: 0px;
-          top: 0px;
-          padding: 0.5em;
-        }
-    </style>
-    Hello world!
+  <style scoped>
+    .suite-title {
+      font-size: 1.25em;
+    }
+  </style>
+  <div class="suite">
+    <div class="suite-title"></div>
+  </div>
 </template>
 
 <script>
@@ -48,10 +30,18 @@
       root.appendChild(clone);
     };
 
+    proto.attachedCallback = function() {
+      var suite = this.shadowRoot.querySelector('.suite');
+      this.shadowRoot.querySelector('.suite-title').innerHTML = this.suite.name;
+    
+      this.suite.tests.forEach(function(val, index, arr) {
+        var at = document.createElement('active-test');
+        at.test = val;
+        suite.appendChild(at);
+      })
+
+    };
+
     document.registerElement('test-suite', {prototype: proto});
   })();
-  
-  var ts = document.createElement('test-suite');
-  document.body.appendChild(ts);
-
 </script>

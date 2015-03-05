@@ -1,28 +1,52 @@
 <template id="active-test">
-    <style scoped>
-        
-    </style>
-    <content></content>
+  <style scoped>
+    .correct::after {
+      content: "  ✓";
+    }
+    .wrong::after {
+      content: "  ✗";
+    }
+  </style>
+  <div class="test">Test!</div>
 </template>
 <script>
-    // (function() {
-    //     var importDoc = document.currentScript.ownerDocument; // importee
+  (function() {
+    var importDoc = document.currentScript.ownerDocument; // importee
 
-    //     // Define and register <shadow-element>
-    //     // that uses Shadow DOM and a template.
-    //     var proto2 = Object.create(HTMLElement.prototype);
+    // Define and register <shadow-element>
+    // that uses Shadow DOM and a template.
+    var proto = Object.create(HTMLElement.prototype);
 
-    //     proto2.createdCallback = function() {
-    //       // get template in import
-    //       var template = importDoc.querySelector('#suite');
+    proto.createdCallback = function() {
+      // get template in import
+      var template = importDoc.querySelector('#active-test');
 
-    //       // import template into
-    //       var clone = document.importNode(template.content, true);
+      // import template into
+      var clone = document.importNode(template.content, true);
 
-    //       var root = this.createShadowRoot();
-    //       root.appendChild(clone);
-    //     };
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+    };
 
-    //     document.registerElement('test-suite', {prototype: proto2});
-    //   })();
+    proto.attachedCallback = function() {
+      /*
+      Thank you StackOverflow!
+      http://stackoverflow.com/questions/359788/how-to-execute-a-javascript-function-when-i-have-its-name-as-a-string
+      */
+      function executeFunctionByName(functionName, context) {
+        var args = [].slice.call(arguments).splice(2);
+        var namespaces = functionName.split(".");
+        var func = namespaces.pop();
+        for(var i = 0; i < namespaces.length; i++) {
+          context = context[namespaces[i]];
+        }
+        return context[func].apply(this, args);
+      }
+
+      var testCorrect = executeFunctionByName(this.test.func, grader, this.params);
+      console.log(testCorrect);
+    };
+
+    document.registerElement('active-test', {prototype: proto});
+  })();
 </script>

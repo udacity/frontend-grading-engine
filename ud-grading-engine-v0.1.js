@@ -35,7 +35,7 @@ function arrEquals(array1, array2) {
 Class describes an instance of the Udacity test engine.
 */
 var UdaciTests = function(props) {
-  this.tests = props.tests;
+  this.suites = props.suites;
   this.code = props.code;
   function supportsImports() {
     return 'import' in document.createElement('link');

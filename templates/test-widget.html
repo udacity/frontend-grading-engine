@@ -1,0 +1,66 @@
+<link rel="import" href="/frontend-grading-engine/templates/test-suite.html">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro">
+
+<template id="test-widget">
+  <style scoped>
+    * {
+      font-family: 'Source Sans Pro', sans-serif;
+    }
+
+    .test-widget-display {
+      position: absolute;
+      min-width: 200px;
+      background-color: rgba(112, 128, 144, 0.5);
+      right: 0px;
+      top: 0px;
+      padding: 0.5em;
+    }
+  </style>
+  <div class="test-widget-display"></div>
+</template>
+
+<script>
+  (function() {
+    var importDoc = document.currentScript.ownerDocument; // importee
+
+    // Define and register <test-suite>
+    // that uses Shadow DOM and a template.
+    var proto = Object.create(HTMLElement.prototype);
+
+    proto.createdCallback = function() {
+      // get template in import
+      var template = importDoc.querySelector('#test-widget');
+
+      // import template into
+      var clone = document.importNode(template.content, true);
+
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+    };
+
+    proto.attachedCallback = function() {
+      var twd = this.shadowRoot.querySelector('.test-widget-display');
+
+      grader.suites.forEach(function(val, index, arr) {
+        var ts = document.createElement('test-suite');
+        ts.suite = val;
+        twd.appendChild(ts)
+      })
+    };
+
+    document.registerElement('test-widget', {prototype: proto});
+  })();
+  
+  var tw = document.createElement('test-widget');
+  document.body.appendChild(tw);
+
+  // logic to create test suites
+  // var twd = tw.shadowRoot.querySelector('.test-widget-display');
+
+  // grader.suites.forEach(function(val, index, arr) {
+  //   var ts = document.createElement('test-suite');
+  //   ts.suite = val;
+  //   twd.appendChild(ts)
+  // })
+
+</script>
