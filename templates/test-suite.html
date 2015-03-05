@@ -1,0 +1,57 @@
+<script>
+  // import tests
+  var link = document.createElement('link');
+  link.rel = 'import';
+  link.href = '../../../../frontend-grading-engine/templates/active-test.html'
+  link.onload = function(e) {};
+  link.onerror = function(e) {};
+  document.head.appendChild(link);
+
+  var head = document.querySelector('head');
+  var fontAwesome = document.createElement('link');
+  fontAwesome.rel = 'stylesheet';
+  fontAwesome.href = 'http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css';
+  head.appendChild(fontAwesome);
+
+</script>
+
+<template id="test-suite">
+    <style scoped>
+        #test-suite {
+          postion: absolute;
+          min-width: 200px;
+          background-color: rgba(112, 128, 144, 0.5);
+          right: 0px;
+          top: 0px;
+          padding: 0.5em;
+        }
+    </style>
+    Hello world!
+</template>
+
+<script>
+  (function() {
+    var importDoc = document.currentScript.ownerDocument; // importee
+
+    // Define and register <test-suite>
+    // that uses Shadow DOM and a template.
+    var proto = Object.create(HTMLElement.prototype);
+
+    proto.createdCallback = function() {
+      // get template in import
+      var template = importDoc.querySelector('#test-suite');
+
+      // import template into
+      var clone = document.importNode(template.content, true);
+
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+    };
+
+    document.registerElement('test-suite', {prototype: proto});
+  })();
+  
+  var ts = document.createElement('test-suite');
+  document.body.appendChild(ts);
+
+</script>
