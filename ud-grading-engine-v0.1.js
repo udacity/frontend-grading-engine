@@ -515,8 +515,11 @@ UdaciTests.prototype.testPageSize = function(udArr) {
   // PageSpeed Insights API.
   var callbacks = {};
 
-  callbacks.logResults = function(results) {
-    console.log(results)
+  // callbacks.logResults = function(results) {
+  //   console.log(results)
+  // };
+  callbacks.isInByteRange = function(results) {
+    console.log(udArr);
   };
 
   // Invokes the PageSpeed Insights API. The response will contain
