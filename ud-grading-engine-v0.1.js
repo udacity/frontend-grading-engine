@@ -3,7 +3,7 @@ Udacity's (growing) library for immediate front-end feedback.
 
 Version 0.10
 
-Built with HTML Imports and Web Components
+Built with Web Components
 
 Resources:
 http://www.html5rocks.com/en/tutorials/webcomponents/imports/
@@ -60,14 +60,12 @@ var UdaciTests = function(props) {
   link.rel = 'import';
   link.href = '/frontend-grading-engine/templates/test-widget.html'
   link.onload = function(e) {
-    console.log('Loaded import: ' + e.target.href);
+    console.log('Loaded Udacity Grading Engine');
   };
   link.onerror = function(e) {
     console.log('Error loading import: ' + e.target.href);
   };
   document.head.appendChild(link);
-
-
 }
 
 UdaciTests.prototype.testMediaQueries = function(udArr) {
@@ -441,11 +439,131 @@ UdaciTests.prototype.testDOMelemAttrApproxContent = function(udArr) {
   })
   return hasCorrectAttr;
 }
-UdaciTests.prototype.testDOMelemChildrenExist = function(udArr) {
+UdaciTests.prototype.testDOMelemCSS = function(udArr) {
+  // TODO: make this applicable to more than px and %
+  var isCorrect = false;
+  var elem = document.querySelector(udArr[0].selector);
+  var prop = udArr[0].property;
+  var udValue = udArr[0].value;
+  var stdValue = getComputedStyle(elem).getPropertyValue(prop);
 
-}
-UdaciTests.prototype.testPictureElemSources = function(udArr) {
+  // expects us to be a string with px at the end
+  // ranges take the form of: "500-800px" and are inclusive
+  // them could be a single value, eg. "500px"
+  function inPixelRange(us, them) {
+    var isInRange = false;
 
+    // sanity checking
+    if (us.indexOf("px") === -1) {
+      return false;
+    }
+
+    var hyphen = us.indexOf("-");
+    if (hyphen !== -1) {
+      us = us.replace("px", "");
+      var lowerBound = parseInt(us.slice(0,hyphen));
+      var upperBound = parseInt(us.slice(hyphen + 1));
+      them = parseInt(them.replace("px", ""));
+      if (them <= upperBound && them >= lowerBound) isInRange = true;
+    } else {
+      if (us === them) isInRange = true;
+    }
+    return isInRange;
+  };
+
+  // expects us to be a string with % at the end
+  // ranges take the form of: "50-80%" and are inclusive
+  // them could be a single value, eg. "50%"
+  function inPercentageRange(us, them) {
+    var isInRange = false;
+
+    // sanity checking
+    if (us.indexOf("%") === -1) {
+      return false;
+    }
+
+    var hyphen = us.indexOf("-");
+    if (hyphen !== -1) {
+      us = us.replace("%", "");
+      var lowerBound = parseInt(us.slice(0,hyphen));
+      var upperBound = parseInt(us.slice(hyphen + 1));
+      them = parseInt(them.replace("%", ""));
+      if (them <= upperBound && them >= lowerBound) isInRange = true;
+    } else {
+      if (us === them) isInRange = true;
+    }
+    return isInRange;
+  };
+
+  if (udValue.indexOf("px") !== -1) {
+    isCorrect = inPixelRange(udValue, stdValue);
+  } else if (udValue.indexOf("%") !== -1) {
+    isCorrect = inPercentageRange(udValue, stdValue);
+  }
+
+  return isCorrect;
 }
+UdaciTests.prototype.testPageSize = function(udArr) {
+  // Using PageSpeed Insights
+
+  var API_KEY = 'AIzaSyBZJLTe2gcYkWQe3_b8voBIUEaelRpz6U0';
+  var URL_TO_GET_RESULTS_FOR = location.href;
+
+  var API_URL = 'https://www.googleapis.com/pagespeedonline/v1/runPagespeed?';
+
+  // Object that will hold the callbacks that process results from the
+  // PageSpeed Insights API.
+  var callbacks = {};
+
+  callbacks.logResults = function(results) {
+    console.log(results)
+  };
+
+  // Invokes the PageSpeed Insights API. The response will contain
+  // JavaScript that invokes our callback with the PageSpeed results.
+  function runPagespeed() {
+    var s = document.createElement('script');
+    s.type = 'text/javascript';
+    s.async = true;
+    var query = [
+      'url=' + URL_TO_GET_RESULTS_FOR,
+      'callback=runPagespeedCallbacks',
+      'key=' + API_KEY,
+    ].join('&');
+    s.src = API_URL + query;
+    document.head.insertBefore(s, null);
+  }
+
+  // Our JSONP callback. Checks for errors, then invokes our callback handlers.
+  function runPagespeedCallbacks(result) {
+    if (result.error) {
+      var errors = result.error.errors;
+      for (var i = 0, len = errors.length; i < len; ++i) {
+        if (errors[i].reason == 'badRequest' && API_KEY == 'yourAPIKey') {
+          alert('Please specify your Google API key in the API_KEY variable.');
+        } else {
+          // NOTE: your real production app should use a better
+          // mechanism than alert() to communicate the error to the user.
+          alert(errors[i].message);
+        }
+      }
+      return;
+    }
+
+    // Dispatch to each function on the callbacks object.
+    for (var fn in callbacks) {
+      var f = callbacks[fn];
+      if (typeof f == 'function') {
+        callbacks[fn](result);
+      }
+    }
+  }
+
+  // Invoke the callback that fetches results. Async here so we're sure
+  // to discover any callbacks registered below, but this can be
+  // synchronous in your code.
+  setTimeout(runPagespeed, 0); 
+
+};
 
 var grader = new UdaciTests(graderProperties);
