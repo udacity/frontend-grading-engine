@@ -1,3 +1,12 @@
+<!--
+This component describes a single test.
+
+It creates a setInterval to run the test function as defined in the
+grader.js file.
+
+The test bubbles an 'test-passed' event to the <test-suite> when it passes.
+-->
+
 <template id="active-test">
   <style scoped>
     .correct {
@@ -20,19 +29,13 @@
 </template>
 <script>
   (function() {
-    var importDoc = document.currentScript.ownerDocument; // importee
-
-    // Define and register <shadow-element>
-    // that uses Shadow DOM and a template.
+    var importDoc = document.currentScript.ownerDocument;
     var proto = Object.create(HTMLElement.prototype);
 
     proto.createdCallback = function() {
-      // get template in import
+      // I call them 'active-tests' because they run themselves
       var template = importDoc.querySelector('#active-test');
-
-      // import template into
       var clone = document.importNode(template.content, true);
-
       var root = this.createShadowRoot();
       root.appendChild(clone);
     };
@@ -46,7 +49,7 @@
       td.innerHTML = testDesc;
       
       /*
-      Thank you StackOverflow!
+      Thanks StackOverflow!
       http://stackoverflow.com/questions/359788/how-to-execute-a-javascript-function-when-i-have-its-name-as-a-string
       */
       function executeFunctionByName(functionName, context) {

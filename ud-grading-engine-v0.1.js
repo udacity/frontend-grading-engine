@@ -3,6 +3,12 @@ Udacity's (growing) library for immediate front-end feedback.
 
 Version 0.10
 
+Built with HTML Imports and Web Components
+
+Resources:
+http://www.html5rocks.com/en/tutorials/webcomponents/imports/
+http://www.html5rocks.com/en/tutorials/webcomponents/customelements/
+
 Cameron Pittman 2015
 */
 
@@ -46,7 +52,7 @@ var UdaciTests = function(props) {
     // Cool!
   } else {
     // Use other libraries/require systems to load files.
-    alert("It is recommended that you complete this quiz with Chrome");
+    alert("You must use Google Chrome to complete this quiz. Sorry!");
   }
 
   // import templates

@@ -1,3 +1,14 @@
+<!--
+This component describes a suite of tests.
+
+It creates a series of tests (<active-test>) as defined in the
+grader.js file.
+
+The component listens for 'test-passed' events from its tests.
+When all tests pass, it emits a 'suite-passed' event to the 
+<test-widget>.
+-->
+
 <link rel="import" href="/frontend-grading-engine/templates/active-test.html">
 
 <template id="test-suite">
@@ -31,19 +42,12 @@
 
 <script>
   (function() {
-    var importDoc = document.currentScript.ownerDocument; // importee
-
-    // Define and register <test-suite>
-    // that uses Shadow DOM and a template.
+    var importDoc = document.currentScript.ownerDocument;
     var proto = Object.create(HTMLElement.prototype);
 
     proto.createdCallback = function() {
-      // get template in import
       var template = importDoc.querySelector('#test-suite');
-
-      // import template into
       var clone = document.importNode(template.content, true);
-
       var root = this.createShadowRoot();
       root.appendChild(clone);
     };

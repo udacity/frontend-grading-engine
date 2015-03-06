@@ -1,3 +1,13 @@
+<!--
+This component (<test-widget>) describes the grader as a whole.
+
+It creates suites of tests (<test-suite>) as defined in the
+grader.js file.
+
+Listens for 'suite-passed' events. Emits a 'grader-passed' event
+when all suites pass.
+-->
+
 <link rel="import" href="/frontend-grading-engine/templates/test-suite.html">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro">
 
@@ -36,7 +46,7 @@
   (function() {
     var importDoc = document.currentScript.ownerDocument; // importee
 
-    // Define and register <test-suite>
+    // Define and register <test-widget>
     // that uses Shadow DOM and a template.
     var proto = Object.create(HTMLElement.prototype);
 
@@ -55,17 +65,8 @@
       var graderSuites = grader.suites;
       var twd = this.shadowRoot.querySelector('.test-widget-display');
 
-      /*
-      Time calculations thanks to StackOverflow:
-      http://stackoverflow.com/questions/1210701/compute-elapsed-time
-      */
-      function calcTimeDiffMinutes(start, end) {
-        var timeDiff = end - startTime;
-        var timeDiff = timeDiff / 1000;
-        var seconds = Math.round(timeDiff % 60);
-        timeDiff = Math.floor(timeDiff / 60);
-        var minutes = Math.round(timeDiff % 60);
-        return minutes;
+      window.onscroll = function() {
+        twd.style.top = window.scrollY + "px";
       };
 
       var eventCollector = [];
