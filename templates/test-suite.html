@@ -4,9 +4,19 @@
   <style scoped>
     .suite {
       width: 100%;
+      margin-bottom: 10px;
     }
     .suite-title {
       font-size: 1.25em;
+    }
+    .suite-code {
+      background: rgba(0,0,0,0.6);
+      color: #EEE;
+      margin: 6px -0.5em;
+    }
+    .suite-code > div {
+      padding: 6px 0.5em;
+      text-align: center;
     }
     img {
       height: 2.25em;
@@ -45,10 +55,10 @@
 
       var suite = this.shadowRoot.querySelector('.suite');
       var sc = this.shadowRoot.querySelector('.suite-code');
-      this.shadowRoot.querySelector('.suite-title').innerHTML = suiteName;
+      this.shadowRoot.querySelector('.suite-title').innerHTML = suiteName + " Tests";
     
       function displayCode() {
-        sc.innerHTML = '<img src="/frontend-grading-engine/images/udacity_logo.svg" alt="Udacity Logo"> code:<br><code>' + suiteCode + "</code>";
+        sc.innerHTML = "<div>" + suiteName + " Code: " + suiteCode + "</div>";
       };
 
       var eventCollector = [];

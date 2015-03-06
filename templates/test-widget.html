@@ -10,13 +10,26 @@
     .test-widget-display {
       position: absolute;
       min-width: 200px;
-      background-color: rgba(112, 128, 144, 0.5);
+      max-width: 400px;
+      background-color: rgba(230, 230, 230, 0.8);
+      opacity: 0.5;
+      transition: opacity 0.3s;
       right: 0px;
       top: 0px;
       padding: 0.5em;
     }
+
+    .test-widget-display:hover {
+      opacity: 1;
+    }
+
+    .udacity-header {
+      font-size: 2em;
+    }
   </style>
-  <div class="test-widget-display"></div>
+  <div class="test-widget-display">
+    <div class="udacity-header">Udacity Feedback</div>
+  </div>
 </template>
 
 <script>
