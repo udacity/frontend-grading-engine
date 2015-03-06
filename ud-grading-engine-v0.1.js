@@ -36,7 +36,9 @@ Class describes an instance of the Udacity test engine.
 */
 var UdaciTests = function(props) {
   this.suites = props.suites;
-  this.code = props.code;
+  
+  document.body.addEventListener('grader-passed', function (e) {console.log("All tests passed!")}, false)
+  
   function supportsImports() {
     return 'import' in document.createElement('link');
   }
@@ -58,6 +60,8 @@ var UdaciTests = function(props) {
     console.log('Error loading import: ' + e.target.href);
   };
   document.head.appendChild(link);
+
+
 }
 
 UdaciTests.prototype.testMediaQueries = function(udArr) {
@@ -439,34 +443,3 @@ UdaciTests.prototype.testPictureElemSources = function(udArr) {
 }
 
 var grader = new UdaciTests(graderProperties);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

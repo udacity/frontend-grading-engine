@@ -39,9 +39,35 @@
     };
 
     proto.attachedCallback = function() {
+      var graderSuites = grader.suites;
       var twd = this.shadowRoot.querySelector('.test-widget-display');
 
-      grader.suites.forEach(function(val, index, arr) {
+      /*
+      Time calculations thanks to StackOverflow:
+      http://stackoverflow.com/questions/1210701/compute-elapsed-time
+      */
+      function calcTimeDiffMinutes(start, end) {
+        var timeDiff = end - startTime;
+        var timeDiff = timeDiff / 1000;
+        var seconds = Math.round(timeDiff % 60);
+        timeDiff = Math.floor(timeDiff / 60);
+        var minutes = Math.round(timeDiff % 60);
+        return minutes;
+      };
+
+      var eventCollector = [];
+      this.addEventListener('suite-passed', function (e) {
+        if (eventCollector.indexOf(e.detail) === -1) {
+          eventCollector.push(e.detail);
+          if (eventCollector.length === graderSuites.length) {
+            console.log(eventCollector.length, graderSuites.length);
+            var passEvent = new CustomEvent('grader-passed', {'detail': 'TBD'});
+            twd.dispatchEvent(passEvent);
+          }
+        }
+      });
+
+      graderSuites.forEach(function(val, index, arr) {
         var ts = document.createElement('test-suite');
         ts.suite = val;
         twd.appendChild(ts)
@@ -53,14 +79,4 @@
   
   var tw = document.createElement('test-widget');
   document.body.appendChild(tw);
-
-  // logic to create test suites
-  // var twd = tw.shadowRoot.querySelector('.test-widget-display');
-
-  // grader.suites.forEach(function(val, index, arr) {
-  //   var ts = document.createElement('test-suite');
-  //   ts.suite = val;
-  //   twd.appendChild(ts)
-  // })
-
 </script>

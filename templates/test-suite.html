@@ -2,12 +2,20 @@
 
 <template id="test-suite">
   <style scoped>
+    .suite {
+      width: 100%;
+    }
     .suite-title {
       font-size: 1.25em;
+    }
+    img {
+      height: 2.25em;
+      margin-bottom: -0.75em;
     }
   </style>
   <div class="suite">
     <div class="suite-title"></div>
+    <div class="suite-code"></div>
   </div>
 </template>
 
@@ -31,13 +39,34 @@
     };
 
     proto.attachedCallback = function() {
+      var suiteTests = this.suite.tests;
+      var suiteName = this.suite.name;
+      var suiteCode = this.suite.code;
+
       var suite = this.shadowRoot.querySelector('.suite');
-      this.shadowRoot.querySelector('.suite-title').innerHTML = this.suite.name;
+      var sc = this.shadowRoot.querySelector('.suite-code');
+      this.shadowRoot.querySelector('.suite-title').innerHTML = suiteName;
     
-      this.suite.tests.forEach(function(val, index, arr) {
+      function displayCode() {
+        sc.innerHTML = '<img src="/frontend-grading-engine/images/udacity_logo.svg" alt="Udacity Logo"> code:<br><code>' + suiteCode + "</code>";
+      };
+
+      var eventCollector = [];
+      this.addEventListener('test-passed', function (e) {
+        if (eventCollector.indexOf(e.detail) === -1) {
+          eventCollector.push(e.detail);
+          if (eventCollector.length === suiteTests.length) {
+            var passEvent = new CustomEvent('suite-passed', {'detail': suiteName});
+            suite.dispatchEvent(passEvent);
+            displayCode();
+          }
+        }
+      });
+
+      suiteTests.forEach(function(val, index, arr) {
         var at = document.createElement('active-test');
         at.test = val;
-        suite.appendChild(at);
+        suite.insertBefore(at, sc);
       })
 
     };

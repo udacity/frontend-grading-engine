@@ -1,13 +1,22 @@
 <template id="active-test">
   <style scoped>
+    .correct {
+      color: green;
+    }
     .correct::after {
       content: "  ✓";
     }
-    .wrong::after {
+    .incorrect {
+      color: red;
+    }
+    .incorrect::after {
       content: "  ✗";
     }
+    .test-desc {
+      width: 100%;
+    }
   </style>
-  <div class="test">Test!</div>
+  <div class="test-desc incorrect"></div>
 </template>
 <script>
   (function() {
@@ -29,6 +38,13 @@
     };
 
     proto.attachedCallback = function() {
+      var testFunc = this.test.func;
+      var testParams = this.test.params;
+      var testDesc = this.test.desc;
+
+      var td = this.shadowRoot.querySelector('.test-desc');
+      td.innerHTML = testDesc;
+      
       /*
       Thank you StackOverflow!
       http://stackoverflow.com/questions/359788/how-to-execute-a-javascript-function-when-i-have-its-name-as-a-string
@@ -43,8 +59,18 @@
         return context[func].apply(this, args);
       }
 
-      var testCorrect = executeFunctionByName(this.test.func, grader, this.params);
-      console.log(testCorrect);
+      var testCorrect = false;
+      var gradeRunner = setInterval(function() {
+        testCorrect = executeFunctionByName(testFunc, grader, testParams);
+        if (testCorrect) {
+          td.classList.toggle('incorrect');
+          td.classList.toggle('correct');
+          var passEvent = new CustomEvent('test-passed', {'detail': testDesc});
+          td.dispatchEvent(passEvent);
+          clearInterval(gradeRunner);
+        }
+      }, 1000)
+
     };
 
     document.registerElement('active-test', {prototype: proto});
