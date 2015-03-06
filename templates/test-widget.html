@@ -69,6 +69,10 @@ when all suites pass.
         twd.style.top = window.scrollY + "px";
       };
 
+      window.onload = function() {
+        twd.style.top = window.scrollY + "px";
+      };
+
       var eventCollector = [];
       this.addEventListener('suite-passed', function (e) {
         if (eventCollector.indexOf(e.detail) === -1) {

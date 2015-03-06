@@ -305,6 +305,12 @@ UdaciTests.prototype.testDOMelemExists = function(udArr) {
   if ((elems.length) > 0) exists = true;
   return exists;
 }
+UdaciTests.prototype.testDOMelemDoesntExist = function(udArr) {
+  var doesntExist = false;
+  var elems = document.querySelectorAll(udArr[0].selector);
+  if ((elems.length) === 0) doesntExist = true;
+  return doesntExist;
+}
 UdaciTests.prototype.testDOMelemsHorizontalSeparation = function(udArr) {
   // TODO: figure out how to do % width
   /*
@@ -503,9 +509,14 @@ UdaciTests.prototype.testDOMelemCSS = function(udArr) {
 
   return isCorrect;
 }
-UdaciTests.prototype.testPageSize = function(udArr) {
-  // Using PageSpeed Insights
+UdaciTests.prototype.testPageSizeHosted = function(udArr) {
+  // Currently broken. Also, it's not useable for localhost...
+  // TODO: return a value!
+  var isCorrect = false;
+  var minSize = udArr[0].minSize || null;
+  var maxSize = udArr[0].maxSize || null;
 
+  // Using PageSpeed Insights
   var API_KEY = 'AIzaSyBZJLTe2gcYkWQe3_b8voBIUEaelRpz6U0';
   var URL_TO_GET_RESULTS_FOR = location.href;
 
@@ -515,11 +526,27 @@ UdaciTests.prototype.testPageSize = function(udArr) {
   // PageSpeed Insights API.
   var callbacks = {};
 
-  // callbacks.logResults = function(results) {
-  //   console.log(results)
-  // };
-  callbacks.isInByteRange = function(results) {
-    console.log(udArr);
+  callbacks.isInByteRange = function(result) {
+    var stats = result.pageStats;
+    var data = [];
+    var totalBytes = 0;
+    for (var i = 0, len = RESOURCE_TYPE_INFO.length; i < len; ++i) {
+      if (field in stats) {
+        var val = Number(stats[field]);
+        totalBytes += val;
+      }
+    }
+
+    // logic for minsize, maxsize
+    if (minSize && minSize <= totalBytes && !maxSize) {
+      isCorrect = true;
+    }
+    if (maxSize && maxSize >= totalBytes && !minSize) {
+      isCorrect = true;
+    }
+    if (minSize && maxSize && minSize <= totalBytes && maxSize >= totalBytes) {
+      isCorrect = true;
+    }
   };
 
   // Invokes the PageSpeed Insights API. The response will contain
@@ -565,7 +592,22 @@ UdaciTests.prototype.testPageSize = function(udArr) {
   // Invoke the callback that fetches results. Async here so we're sure
   // to discover any callbacks registered below, but this can be
   // synchronous in your code.
-  setTimeout(runPagespeed, 0); 
+  // setTimeout(runPagespeed, 0);
+  return runPagespeed();
 };
+UdaciTests.prototype.testPageSizeLocal = function(udArr) {
+  //TODO
+}
+UdaciTests.prototype.testFindStringInHTML = function(udArr) {
+  var isCorrect = false;
+  var stringOpts = udArr[0].stringOpts;
+  var docString = document.documentElement.innerHTML;
+  stringOpts.forEach(function(val, index, arr) {
+    if (docString.indexOf(val) !== -1) isCorrect = true;
+  })
+  return isCorrect;
+}
+
+
 
 var grader = new UdaciTests(graderProperties);
