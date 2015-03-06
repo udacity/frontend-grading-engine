@@ -64,7 +64,8 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
 
       var testCorrect = false;
       var gradeRunner = setInterval(function() {
-        testCorrect = executeFunctionByName(testFunc, grader, testParams);
+        // testCorrect = executeFunctionByName(testFunc, grader, testParams);
+        testCorrect = grader[testFunc](testParams);
         if (testCorrect) {
           td.classList.toggle('incorrect');
           td.classList.toggle('correct');

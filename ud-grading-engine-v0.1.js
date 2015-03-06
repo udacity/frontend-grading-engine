@@ -563,7 +563,6 @@ UdaciTests.prototype.testPageSize = function(udArr) {
   // to discover any callbacks registered below, but this can be
   // synchronous in your code.
   setTimeout(runPagespeed, 0); 
-
 };
 
 var grader = new UdaciTests(graderProperties);
