@@ -37,6 +37,11 @@ function arrEquals(array1, array2) {
   return true;
 }
 
+// TODO: replace all the complicated Array prototype calls to this function
+function nodeListToArray(nL) {
+  return Array.prototype.slice.apply(nL);
+}
+
 /*
 Class describes an instance of the Udacity test engine.
 */
@@ -255,7 +260,6 @@ UdaciTests.prototype.testDPR = function(expected) {
 }
 UdaciTests.prototype.testViewportMetaTagContent = function(expected) {
   var hasRightMeta = false;
-  // TODO: refactor so that content comes from expected
   var correctViewportContent = 'width=device-width,initial-scale=1.0';
   var metas = document.querySelectorAll('meta');
   metas = Array.prototype.slice.apply(metas);
@@ -270,6 +274,27 @@ UdaciTests.prototype.testViewportMetaTagContent = function(expected) {
       name = "";
     }
     if (name === 'viewport' && content === correctViewportContent) {
+      hasRightMeta = true;
+    }
+  })
+  return hasRightMeta;
+}
+UdaciTests.prototype.testMetaTagContent = function(udArr) {
+  var hasRightMeta = false;
+  // TODO: refactor so that content comes from expected
+  var attr = udArr[0].attr;
+  var udValue = udArr[0].value;
+  var metas = document.querySelectorAll('meta');
+  metas = Array.prototype.slice.apply(metas);
+  metas.forEach(function(val) {
+    var content, name;
+    // TODO: compactify logic
+    try {
+      stdValue = val.getAttribute(attr);
+    } catch (e) {
+      stdAttr = "";
+    }
+    if (stdValue === udValue) {
       hasRightMeta = true;
     }
   })
@@ -304,6 +329,24 @@ UdaciTests.prototype.testDOMelemExists = function(udArr) {
   var elems = document.querySelectorAll(udArr[0].selector);
   if ((elems.length) > 0) exists = true;
   return exists;
+}
+UdaciTests.prototype.testDOMelemsChildPosition = function(udArr) {
+  // assumes 1 child
+  var isCorrect = false;
+
+  var parents = document.querySelectorAll(udArr[0].parentSelector);
+  parents = nodeListToArray(parents);
+  var childSelector = udArr[0].childSelector;
+  var loc = udArr[0].location;
+
+  parents.forEach(function(val, index, arr) {
+    var child = val.querySelectorAll(childSelector)[0];
+    var position = udArr[0].position;
+
+    if (position < 0) position = nodeListToArray(val).length + position;
+    if (nodeListToArray(val).indexOf(child) === position) isCorrect = true;
+  });
+  return isCorrect;
 }
 UdaciTests.prototype.testDOMelemDoesntExist = function(udArr) {
   var doesntExist = false;
@@ -388,39 +431,153 @@ UdaciTests.prototype.testDOMelemAttrExists = function(udArr) {
 }
 UdaciTests.prototype.testDOMelemAttrContent = function(udArr) {
   // for elems that must exist
-  var hasCorrectAttr = false;
+  var isCorrect = false;
   var elem = document.querySelector(udArr[0].selector);
   var theirAttrValue = elem.getAttribute(udArr[0].attr);
+  var values = udArr[0].values || [];
 
-  udArr[0].values.forEach(function(val) {
-    if (val.search(",") > -1) {
-      var us = val.replace(" ,", ",").replace(", ", ",");
-      us = us.split(",").sort();
-      try {
-        var them = theirAttrValue.replace(" ,", ",").replace(", ", ",");
-        them = them.split(",").sort();
-      } catch (e) {
-        var them = [];
+  function multiUdValues(udVals, stdVal) {
+    var hasAllValues = false;
+    udVals.forEach(function(udVal, index, arr) {
+      if (udVal.search(",") > -1) {
+        udVal = udVal.replace(" ,", ",").replace(", ", ",");
+        udVal = udVal.split(",").sort();
+        try {
+          stdValue = stdValue.replace(" ,", ",").replace(", ", ",");
+          stdValue = stdValue.split(",").sort();
+        } catch (e) {
+          var stdValue = [];
+        }
       }
-      if (arrEquals(us, them)) hasCorrectAttr = true;
-    } else {
-      if (us === them) hasCorrectAttr = true;
+      if (arrEquals(udVal, stdValue) && index === 0) {
+          hasAllValues = true;
+      } else if (udVal === stdValue && index === 0) {
+          hasAllValues = true;
+      } else if (arrEquals(udVal, stdValue) && index > 0) {
+          hasAllValues = hasAllValues && true;
+      } else if (udVal === stdValue && index > 0) {
+          hasAllValues = hasAllValues && true;
+      } 
+    })
+    return hasAllValues;
+  }
+
+  function singleUdValue(udVal, stdVal) {
+    var hasRightValue = false;
+    if (udVal === stdVal) hasRightValue = true;
+    return hasRightValue;
+  }
+
+  function noUdValue(stdVal) {
+    var hasSomeValue = false;
+    if (stdVal.length > 0) hasSomeValue = true;
+    return hasSomeValue;
+  }
+
+  var stdValue = elem.getAttribute(attr) || "";
+  switch (udValues.length) {
+    case 0:
+      isCorrect = noUdValue(stdValue);
+      break;
+    case 1:
+      isCorrect = singleUdValue(udValues[0], stdValue);
+      break;
+    default:
+      isCorrect = multiUdValue(udValues, stdValue);
+  }
+
+  return isCorrect;
+}
+UdaciTests.prototype.testDOMelemsAttrContent = function(udArr) {
+  // same as above but, it checks an attr against a collection of elems
+  // if no values are specified, it just checks to make sure attr exists.
+  var isCorrect = false;
+  var selector = udArr[0].selector;
+  var elems = document.querySelectorAll(selector);
+  elems = nodeListToArray(elems);
+  var attr = udArr[0].attr;
+  var udValues = udArr[0].values || [];
+
+  function multiUdValues(udVals, stdVal) {
+    var hasAllValues = false;
+    udVals.forEach(function(udVal, index, arr) {
+      if (udVal.search(",") > -1) {
+        udVal = udVal.replace(" ,", ",").replace(", ", ",");
+        udVal = udVal.split(",").sort();
+        try {
+          stdValue = stdValue.replace(" ,", ",").replace(", ", ",");
+          stdValue = stdValue.split(",").sort();
+        } catch (e) {
+          var stdValue = [];
+        }
+      }
+      if (arrEquals(udVal, stdValue) && index === 0) {
+          hasAllValues = true;
+      } else if (udVal === stdValue && index === 0) {
+          hasAllValues = true;
+      } else if (arrEquals(udVal, stdValue) && index > 0) {
+          hasAllValues = hasAllValues && true;
+      } else if (udVal === stdValue && index > 0) {
+          hasAllValues = hasAllValues && true;
+      } 
+    })
+    return hasAllValues;
+  }
+
+  function singleUdValue(udVal, stdVal) {
+    var hasRightValue = false;
+    if (udVal === stdVal) hasRightValue = true;
+    return hasRightValue;
+  }
+
+  function noUdValue(stdVal) {
+    var hasSomeValue = false;
+    if (stdVal.length > 0) hasSomeValue = true;
+    return hasSomeValue;
+  }
+
+  elems.forEach(function(elem, index, arr) {
+    var stdValue = elem.getAttribute(attr) || "";
+    switch (udValues.length) {
+      case 0:
+        if (index === 0) {
+          isCorrect = noUdValue(stdValue);
+        } else {
+          isCorrect = noUdValue(stdValue) && isCorrect;
+        }
+        break;
+      case 1:
+        if (index === 0) {
+          isCorrect = singleUdValue(udValues[0], stdValue);
+        } else {
+          isCorrect = noUdValue(stdValue) && isCorrect;
+        }
+        break;
+      default:
+        if (index === 0) {
+          isCorrect = multiUdValue(udValues, stdValue);
+        } else {
+          isCorrect = noUdValue(stdValue) && isCorrect;
+        }
     }
   })
 
-  return hasCorrectAttr;
+  return isCorrect;
 }
 UdaciTests.prototype.testDOMelemAttrApproxContent = function(udArr) {
   // for elems that may or may not exist
   // TODO: too much looping, try using more ||
   var hasCorrectAttr = false;
   var elems = document.querySelectorAll(udArr[0].selector);
+  var attrs = udArr[0].attrs;
+  var values = udArr[0].values;
+
   elems = Array.prototype.slice.apply(elems);
 
   elems.forEach(function(elem) {
-    udArr[0].attrs.forEach(function(attr, index) {
+    attrs.forEach(function(attr, index) {
       var theirAttrValue = elem.getAttribute(attr);
-      udArr[0].values.forEach(function(udValue, jindex) {
+      values.forEach(function(udValue, jindex) {
         if (udValue.search(",") > -1) {
           var us = value.replace(" ,", ",").replace(", ", ",");
           us = us.split(",").sort();
@@ -598,7 +755,11 @@ UdaciTests.prototype.testPageSizeHosted = function(udArr) {
 UdaciTests.prototype.testPageSizeLocal = function(udArr) {
   //TODO
 }
-UdaciTests.prototype.testFindStringInHTML = function(udArr) {
+UdaciTests.prototype.testFindStringInDocument = function(udArr) {
+  /*
+  Expects an array of strings and passes if one of them is somewhere in the HTML
+  */
+
   var isCorrect = false;
   var stringOpts = udArr[0].stringOpts;
   var docString = document.documentElement.innerHTML;

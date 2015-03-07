@@ -27,6 +27,7 @@ when all suites pass.
       right: 0px;
       top: 0px;
       padding: 0.5em;
+      text-align: left;
     }
 
     .test-widget-display:hover {
@@ -78,7 +79,6 @@ when all suites pass.
         if (eventCollector.indexOf(e.detail) === -1) {
           eventCollector.push(e.detail);
           if (eventCollector.length === graderSuites.length) {
-            console.log(eventCollector.length, graderSuites.length);
             var passEvent = new CustomEvent('grader-passed', {'detail': 'TBD'});
             twd.dispatchEvent(passEvent);
           }

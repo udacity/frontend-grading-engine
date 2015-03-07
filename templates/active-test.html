@@ -66,6 +66,12 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
       var gradeRunner = setInterval(function() {
         // testCorrect = executeFunctionByName(testFunc, grader, testParams);
         testCorrect = grader[testFunc](testParams);
+        // try {
+        //   testCorrect = grader[testFunc](testParams);
+        // } catch (e) {
+        //   console.log("Test: " + testFunc + " failed to execute with args:");
+        //   console.log(testParams)
+        // }
         if (testCorrect) {
           td.classList.toggle('incorrect');
           td.classList.toggle('correct');
