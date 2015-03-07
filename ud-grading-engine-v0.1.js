@@ -12,6 +12,10 @@ http://www.html5rocks.com/en/tutorials/webcomponents/customelements/
 Cameron Pittman 2015
 */
 
+/*
+Starting off with some helper functions...
+*/
+
 // Thanks StackOverflow!
 // http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
 function arrEquals(array1, array2) {
@@ -41,6 +45,26 @@ function arrEquals(array1, array2) {
 function nodeListToArray(nL) {
   return Array.prototype.slice.apply(nL);
 }
+
+/*
+https://developer.mozilla.org/en-US/docs/Web/API/HTMLScriptElement
+*/
+var importScript = (function (oHead) {
+
+  function loadError (oError) {
+    throw new URIError("The script " + oError.target.src + " is not accessible.");
+  }
+
+  return function (sSrc, fOnload) {
+    var oScript = document.createElement("script");
+    oScript.type = "text\/javascript";
+    oScript.onerror = loadError;
+    if (fOnload) { oScript.onload = fOnload; }
+    oHead.appendChild(oScript);
+    oScript.src = sSrc;
+  }
+
+})(document.head || document.getElementsByTagName("head")[0]);
 
 /*
 Class describes an instance of the Udacity test engine.
@@ -752,8 +776,55 @@ UdaciTests.prototype.testPageSizeHosted = function(udArr) {
   // setTimeout(runPagespeed, 0);
   return runPagespeed();
 };
-UdaciTests.prototype.testPageSizeLocal = function(udArr) {
-  //TODO
+UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
+  var inSizeRange = false;
+  var max = udArr[0].maxSize || -1;
+  var min = udArr[0].minSize || 0;
+
+  // sum up anything with a src
+  var totalBytes = 0;
+  var elemsWithSrc = document.querySelectorAll('[src]');
+  elemsWithSrc = nodeListToArray(elemsWithSrc);
+
+  /*
+  http://stackoverflow.com/questions/76976/how-to-get-progress-from-xmlhttprequest
+  */
+  function updateProgress(evt) {
+    if (evt.lengthComputable) {  //evt.loaded the bytes browser receive
+      //evt.total the total bytes seted by the header
+      totalBytes = totalBytes + evt.total;
+      // console.log(totalBytes / 1000000);
+      // console.log(done);
+      var loadEvent = new CustomEvent('src-loaded', {'detail': totalBytes});
+      document.querySelector('test-widget').dispatchEvent(loadEvent)
+    } 
+  }   
+  function sendreq(url, evt) {  
+    var req = new XMLHttpRequest();     
+    req.open('GET', url, true);
+    req.onload = updateProgress;
+    req.send();
+  }
+
+  elemsWithSrc.forEach(function(val, index, arr) {
+    sendreq(val.src);
+  })
+
+  var requests = 0;
+  document.querySelector('test-widget').addEventListener('src-loaded', function (e) {
+    requests = requests + 1;
+    if (requests === elemsWithSrc.length) {
+      console.log(min, max, totalBytes);
+      if (max > -1 && max > totalBytes && min < totalBytes) {
+        inSizeRange = true;
+      } else if (max === -1 && min < totalBytes) {
+        inSizeRange = true;
+      }
+      console.log(inSizeRange);
+      return inSizeRange;
+    }
+  })
+  console.log(inSizeRange);
 }
 UdaciTests.prototype.testFindStringInDocument = function(udArr) {
   /*
