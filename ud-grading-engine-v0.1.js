@@ -863,6 +863,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
       document.querySelector('test-widget').dispatchEvent(pageBytesCollectionComplete);
     }
   })
+  console.log(requests);
 }
 UdaciTests.prototype.testFindStringInDocument = function(udArr) {
   /*
