@@ -53,7 +53,7 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
       var td = this.shadowRoot.querySelector('.test-desc');
       td.innerHTML = testDesc;
 
-      if (showCurrent) td.insertAdjacentHTML('beforeend', '<br>&nbsp;&nbsp;&nbsp;&nbsp;Currently: ');
+      if (showCurrent) td.insertAdjacentHTML('beforeend', '<br>&nbsp;&nbsp;&nbsp;&nbsp;Currently: pending');
       
       /*
       Thanks StackOverflow!
@@ -78,22 +78,39 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
       }
       
       function renderCurrentValue(val) {
+        // drops the pending placeholder from Currently: pending
+        td.innerHTML = td.innerHTML.slice(0, td.innerHTML.length - 7);
+        // adds the new value
         td.insertAdjacentHTML('beforeend', val);
       };
       
       function runAsyncTest(cb, params) {
+        var responseDetails = {};
+        var callback = {
+          success: function(detail) {
+            testHasPassed();
+          },
+          error: function(detail) {
+            // nothing for now
+          },
+          update: function(detail) {
+            // TODO: expand this logic to show other pieces of data.
+            if (showCurrent && responseDetails['bytes']) renderCurrentValue((responseDetails['bytes'] / 1000000).toString().slice(0,4) + "MB");
+          }
+        };
+
         var promise = new Promise(
             function(resolve, reject) {
               cb(params);
               document.querySelector('test-widget').addEventListener('page-bytes', function(e) {
-                if (e.detail['passed']) resolve(e.detail);
+                responseDetails = e.detail;
+                if (responseDetails['passed']) {
+                  resolve(responseDetails);
+                } else if (!responseDetails['passed']) {
+                  reject(e.detail);
+                }
               })
-            })
-        promise.then(function(detail) {
-          testHasPassed();
-          // TODO: expand this logic to show other pieces of data.
-          if (showCurrent && detail['bytes']) renderCurrentValue(detail['bytes'] / 1000000 + "MB");
-        })
+            }).then(callback.success, callback.error).then(callback.update);
       }
 
 

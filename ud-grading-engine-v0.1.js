@@ -41,9 +41,13 @@ function arrEquals(array1, array2) {
   return true;
 }
 
-// TODO: replace all the complicated Array prototype calls to this function
 function nodeListToArray(nL) {
   return Array.prototype.slice.apply(nL);
+}
+
+// TODO: replace all the complicated doc.querySelectorAll then Array prototype calls to this function
+function getArrayOfNodes(selector) {
+  return nodeListToArray(document.querySelectorAll(selector))
 }
 
 /*
@@ -96,6 +100,7 @@ var UdaciTests = function(props) {
   };
   document.head.appendChild(link);
 }
+
 
 UdaciTests.prototype.testMediaQueries = function(udArr) {
     /*
@@ -781,41 +786,74 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   var max = udArr[0].maxSize || -1;
   var min = udArr[0].minSize || 0;
 
-  // TODO: request document size, anything with href
+
+  var totalBytes = 0;
+  
+  var elemsWithBytes = [];  
 
   // sum up anything with a src
-  var totalBytes = 0;
-  var elemsWithSrc = document.querySelectorAll('[src]');
-  elemsWithSrc = nodeListToArray(elemsWithSrc);
+  // avoiding links to prevent CORS issues...
+  // TODO: set up JSONP requests
+  var selectors = [
+    ':not(picture) > [src]',
+    '[href]:not(a):not(link)'
+  ]
 
-  /*
-  http://stackoverflow.com/questions/76976/how-to-get-progress-from-xmlhttprequest
-  */
+  selectors.forEach(function(val, index, arr) {
+    var elems = document.querySelectorAll(val);
+    elems = nodeListToArray(elems);
+    elemsWithBytes = elemsWithBytes.concat(elems);
+  })
+
+
+  // get picture elems srcs too img.currentSrc
+  var pictures = getArrayOfNodes('picture > img');
+  pictures.forEach(function(val, index, arr) {
+    elemsWithBytes = elemsWithBytes.concat(val);
+  })
+
+  // get page root
+  var page = {};
+  page.src = location.href;
+  elemsWithBytes = elemsWithBytes.concat(page);
+
+  console.log(elemsWithBytes);
+
   function updateProgress(evt) {
-    if (evt.lengthComputable) {  //evt.loaded the bytes browser receive
-      //evt.total the total bytes seted by the header
+    if (evt.lengthComputable) {
+      // evt.total the total bytes seted by the header
       totalBytes = totalBytes + evt.total;
-      // console.log(totalBytes / 1000000);
-      // console.log(done);
       var loadEvent = new CustomEvent('src-loaded', {'detail': totalBytes});
       document.querySelector('test-widget').dispatchEvent(loadEvent)
     } 
   }   
   function sendreq(url, evt) {  
-    var req = new XMLHttpRequest();     
-    req.open('GET', url, true);
-    req.onload = updateProgress;
-    req.send();
+    // TODO: better error handling?
+    try {
+      var req = new XMLHttpRequest();     
+      req.open('GET', url, true);
+      req.onload = updateProgress;
+      req.send();
+    } catch (e) {
+      // doesn't work?
+      console.log(e);
+      console.log("Failed to download " + url + ". Moving on.");
+    }
   }
 
-  elemsWithSrc.forEach(function(val, index, arr) {
-    sendreq(val.src);
+  elemsWithBytes.forEach(function(val, index, arr) {
+    try {
+      sendreq(val.currentSrc || val.src || val.href);
+    } catch (e) {
+      // doesn't work?
+      throw new Error("Download failed" + val);
+    }
   })
 
   var requests = 0;
   document.querySelector('test-widget').addEventListener('src-loaded', function (e) {
     requests = ++requests;
-    if (requests === elemsWithSrc.length) {
+    if (requests === elemsWithBytes.length) {
       if (max > -1 && max > totalBytes && min < totalBytes) {
         inSizeRange = true;
       } else if (max === -1 && min < totalBytes) {
