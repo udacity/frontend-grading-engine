@@ -817,7 +817,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   page.src = location.href;
   elemsWithBytes = elemsWithBytes.concat([page]);
 
-  function updateProgress(evt) {
+  function fireLoadEvent(evt) {
     if (evt.lengthComputable) {
       console.log(evt.currentTarget.responseURL);
       // evt.total the total bytes seted by the header
@@ -826,13 +826,20 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
       document.querySelector('test-widget').dispatchEvent(loadEvent)
     } 
   }   
+
+  function fireFailEvent(evt) {
+    requests = requests + 1;
+    console.log(evt);
+  }
+
   function sendreq(url, evt) {  
     // TODO: better error handling?
     console.log(url);
     try {
       var req = new XMLHttpRequest();     
       req.open('GET', url, true);
-      req.onload = updateProgress;
+      req.onload = fireLoadEvent;
+      req.onerror = fireFailEvent;
       req.send();
     } catch (e) {
       // doesn't work?
