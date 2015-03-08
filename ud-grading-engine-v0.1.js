@@ -858,6 +858,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   })
 
   var requests = 0;
+  console.log(elemsWithBytes);
   document.querySelector('test-widget').addEventListener('src-loaded', function (e) {
     requests = requests + 1;
     console.log(requests, elemsWithBytes.length);
