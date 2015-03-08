@@ -795,7 +795,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   // avoiding links to prevent CORS issues...
   // TODO: set up JSONP requests
   var selectors = [
-    ':not(picture) > [src]',
+    ':not(picture) > [src]:not(script)',
     '[href]:not(a):not(link)'
   ]
 
