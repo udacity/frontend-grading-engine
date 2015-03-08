@@ -819,7 +819,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
 
   function fireLoadEvent(evt) {
     if (evt.lengthComputable) {
-      console.log(evt.currentTarget.responseURL);
+      console.log("loaded " + evt.currentTarget.responseURL);
       // evt.total the total bytes seted by the header
       totalBytes = totalBytes + evt.total;
       var loadEvent = new CustomEvent('src-loaded', {'detail': totalBytes});
@@ -859,7 +859,6 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
 
   var requests = 0;
   document.querySelector('test-widget').addEventListener('src-loaded', function (e) {
-    // console.log(requests, elemsWithBytes.length, totalBytes);
     requests = requests + 1;
     if (requests === elemsWithBytes.length) {
       if (max > -1 && max > totalBytes && min < totalBytes) {
@@ -867,7 +866,6 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
       } else if (max === -1 && min < totalBytes) {
         inSizeRange = true;
       }
-      console.log(inSizeRange);
       var pageBytesCollectionComplete = new CustomEvent('page-bytes', {'detail': {'passed': inSizeRange, 'bytes': totalBytes}})
       document.querySelector('test-widget').dispatchEvent(pageBytesCollectionComplete);
     }
