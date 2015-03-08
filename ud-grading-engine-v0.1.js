@@ -859,6 +859,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
       } else if (max === -1 && min < totalBytes) {
         inSizeRange = true;
       }
+      console.log(inSizeRange);
       var pageBytesCollectionComplete = new CustomEvent('page-bytes', {'detail': {'passed': inSizeRange, 'bytes': totalBytes}})
       document.querySelector('test-widget').dispatchEvent(pageBytesCollectionComplete);
     }
