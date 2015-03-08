@@ -791,9 +791,8 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   
   var elemsWithBytes = [];  
 
-  // sum up anything with a src
-  // avoiding links to prevent CORS issues...
-  // TODO: set up JSONP requests
+  // Only summing up images!
+  // TODO: get scripts and document without CORS issues
   var selectors = [
     ':not(picture) > [src]:not(script)',
     '[href]:not(a):not(link)'
@@ -822,15 +821,10 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
     if (evt.lengthComputable) {
       // evt.total the total bytes seted by the header
       totalBytes = totalBytes + evt.total;
-      var loadEvent = new CustomEvent('src-loaded', {'detail': {'bytes': totalBytes, 'url': evt.currentTarget.responseURL}});
+      var loadEvent = new CustomEvent('src-loaded', {'detail': {'bytes': evt.total || 0, 'url': evt.currentTarget.responseURL}});
       document.querySelector('test-widget').dispatchEvent(loadEvent)
     } 
   }   
-
-  function fireFailEvent(evt) {
-    var loadEvent = new CustomEvent('src-loaded', {'detail': {'bytes': 0, 'url': evt.currentTarget.responseURL}});
-    document.querySelector('test-widget').dispatchEvent(loadEvent);
-  }
 
   function sendreq(url, evt) {  
     // TODO: better error handling?
@@ -838,7 +832,6 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
       var req = new XMLHttpRequest();     
       req.open('GET', url, true);
       req.onloadend = fireLoadEvent;
-      // req.onerror = fireFailEvent;
       req.send();
     } catch (e) {
       // doesn't work?
@@ -849,20 +842,18 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   elemsWithBytes.forEach(function(val, index, arr) {
     try {
       var url = val.currentSrc || val.src || val.href;
-      // to avoid CORS issues
       // TODO: smarter way of handling CORS
       if (url.search(location.host) > -1) sendreq(url);
     } catch (e) {
-      // doesn't work?
-      throw new Error("Download failed" + val);
+      throw new Error("Download failed: " + url);
     }
   })
 
   var requests = 0;
   console.log(elemsWithBytes);
   document.querySelector('test-widget').addEventListener('src-loaded', function (e) {
+    // e.url and e.url are available too
     requests = requests + 1;
-    console.log(requests, elemsWithBytes.length, e['detail']['url']);
     if (requests === elemsWithBytes.length) {
       if (max > -1 && max > totalBytes && min < totalBytes) {
         inSizeRange = true;

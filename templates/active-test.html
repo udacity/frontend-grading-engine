@@ -91,12 +91,10 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
             testHasPassed();
           },
           error: function(detail) {
-            console.log("test failed");
             // nothing for now
           },
           update: function(detail) {
             // TODO: expand this logic to show other pieces of data.
-            console.log("test update");
             if (showCurrent && responseDetails['bytes']) renderCurrentValue((responseDetails['bytes'] / 1000000).toString().slice(0,4) + "MB");
           }
         };
