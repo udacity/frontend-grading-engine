@@ -821,7 +821,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
     if (evt.lengthComputable) {
       // evt.total the total bytes seted by the header
       totalBytes = totalBytes + evt.total;
-      var loadEvent = new CustomEvent('src-loaded', {'detail': totalBytes});
+      var loadEvent = new CustomEvent('src-loaded', {'detail': {'bytes': totalBytes, 'url': evt.currentTarget.responseURL}});
       document.querySelector('test-widget').dispatchEvent(loadEvent)
     } 
   }   
@@ -861,7 +861,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   console.log(elemsWithBytes);
   document.querySelector('test-widget').addEventListener('src-loaded', function (e) {
     requests = requests + 1;
-    console.log(requests, elemsWithBytes.length);
+    console.log(requests, elemsWithBytes.length, e['detail']['url']);
     if (requests === elemsWithBytes.length) {
       if (max > -1 && max > totalBytes && min < totalBytes) {
         inSizeRange = true;
