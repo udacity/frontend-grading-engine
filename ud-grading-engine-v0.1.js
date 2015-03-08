@@ -819,7 +819,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
 
   function updateProgress(evt) {
     if (evt.lengthComputable) {
-      console.log(evt);
+      console.log(evt.currentTarget.responseURL);
       // evt.total the total bytes seted by the header
       totalBytes = totalBytes + evt.total;
       var loadEvent = new CustomEvent('src-loaded', {'detail': totalBytes});
@@ -853,7 +853,6 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   var requests = 0;
   document.querySelector('test-widget').addEventListener('src-loaded', function (e) {
     // console.log(requests, elemsWithBytes.length, totalBytes);
-    console.log(elemsWithBytes);
     requests = requests + 1;
     if (requests === elemsWithBytes.length) {
       if (max > -1 && max > totalBytes && min < totalBytes) {
