@@ -828,8 +828,8 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   }   
 
   function fireFailEvent(evt) {
-    requests = requests + 1;
-    console.log(evt);
+    var loadEvent = new CustomEvent('src-loaded', {'detail': 0});
+    document.querySelector('test-widget').dispatchEvent(loadEvent);
   }
 
   function sendreq(url, evt) {  
