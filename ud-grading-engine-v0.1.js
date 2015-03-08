@@ -850,7 +850,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
 
   var requests = 0;
   document.querySelector('test-widget').addEventListener('src-loaded', function (e) {
-    console.log(totalBytes);
+    console.log(requests, totalBytes);
     requests = requests + 1;
     if (requests === elemsWithBytes.length) {
       if (max > -1 && max > totalBytes && min < totalBytes) {
@@ -863,7 +863,6 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
       document.querySelector('test-widget').dispatchEvent(pageBytesCollectionComplete);
     }
   })
-  console.log(requests);
 }
 UdaciTests.prototype.testFindStringInDocument = function(udArr) {
   /*
