@@ -827,7 +827,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   }   
 
   function fireFailEvent(evt) {
-    var loadEvent = new CustomEvent('src-loaded', {'detail': 0});
+    var loadEvent = new CustomEvent('src-loaded', {'detail': {'bytes': 0, 'url': evt.currentTarget.responseURL}});
     document.querySelector('test-widget').dispatchEvent(loadEvent);
   }
 
@@ -836,8 +836,8 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
     try {
       var req = new XMLHttpRequest();     
       req.open('GET', url, true);
-      req.onload = fireLoadEvent;
-      req.onerror = fireFailEvent;
+      req.onloadend = fireLoadEvent;
+      // req.onerror = fireFailEvent;
       req.send();
     } catch (e) {
       // doesn't work?
