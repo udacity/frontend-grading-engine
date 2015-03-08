@@ -823,7 +823,6 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
       totalBytes = totalBytes + evt.total;
       var loadEvent = new CustomEvent('src-loaded', {'detail': totalBytes});
       document.querySelector('test-widget').dispatchEvent(loadEvent)
-      console.log("loaded src");
     } 
   }   
   function sendreq(url, evt) {  
@@ -851,6 +850,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
 
   var requests = 0;
   document.querySelector('test-widget').addEventListener('src-loaded', function (e) {
+    console.log(totalBytes);
     requests = ++requests;
     if (requests === elemsWithBytes.length) {
       if (max > -1 && max > totalBytes && min < totalBytes) {
