@@ -851,7 +851,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   var requests = 0;
   document.querySelector('test-widget').addEventListener('src-loaded', function (e) {
     console.log(totalBytes);
-    requests = ++requests;
+    requests = requests + 1;
     if (requests === elemsWithBytes.length) {
       if (max > -1 && max > totalBytes && min < totalBytes) {
         inSizeRange = true;
