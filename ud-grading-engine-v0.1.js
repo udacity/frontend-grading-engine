@@ -819,6 +819,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
 
   function updateProgress(evt) {
     if (evt.lengthComputable) {
+      console.log(evt);
       // evt.total the total bytes seted by the header
       totalBytes = totalBytes + evt.total;
       var loadEvent = new CustomEvent('src-loaded', {'detail': totalBytes});
@@ -827,6 +828,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   }   
   function sendreq(url, evt) {  
     // TODO: better error handling?
+    console.log(url);
     try {
       var req = new XMLHttpRequest();     
       req.open('GET', url, true);
