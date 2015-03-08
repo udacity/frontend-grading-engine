@@ -813,9 +813,10 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   })
 
   // get page root
-  var page = {};
-  page.src = location.href;
-  elemsWithBytes = elemsWithBytes.concat([page]);
+  // fails?
+  // var page = {};
+  // page.src = location.href;
+  // elemsWithBytes = elemsWithBytes.concat([page]);
 
   function fireLoadEvent(evt) {
     if (evt.lengthComputable) {
