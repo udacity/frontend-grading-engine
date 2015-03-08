@@ -817,14 +817,13 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   page.src = location.href;
   elemsWithBytes = elemsWithBytes.concat(page);
 
-  console.log(elemsWithBytes);
-
   function updateProgress(evt) {
     if (evt.lengthComputable) {
       // evt.total the total bytes seted by the header
       totalBytes = totalBytes + evt.total;
       var loadEvent = new CustomEvent('src-loaded', {'detail': totalBytes});
       document.querySelector('test-widget').dispatchEvent(loadEvent)
+      console.log("loaded src");
     } 
   }   
   function sendreq(url, evt) {  
