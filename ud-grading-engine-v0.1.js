@@ -815,7 +815,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   // get page root
   var page = {};
   page.src = location.href;
-  elemsWithBytes = elemsWithBytes.concat(page);
+  elemsWithBytes = elemsWithBytes.concat([page]);
 
   function updateProgress(evt) {
     if (evt.lengthComputable) {
