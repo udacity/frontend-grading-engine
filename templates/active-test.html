@@ -1,5 +1,6 @@
 <!--
-This component describes a single test.
+This component describes a single test. Each test is 'active' because it
+governs itself.
 
 It creates a setInterval to run the test function as defined in the
 grader.js file.
@@ -33,7 +34,6 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
     var proto = Object.create(HTMLElement.prototype);
 
     proto.createdCallback = function() {
-      // I call them 'active-tests' because they run themselves
       var template = importDoc.querySelector('#active-test');
       var clone = document.importNode(template.content, true);
       var root = this.createShadowRoot();
@@ -54,20 +54,6 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
       td.innerHTML = testDesc;
 
       if (showCurrent) td.insertAdjacentHTML('beforeend', '<br>&nbsp;&nbsp;&nbsp;&nbsp;Currently: pending');
-      
-      /*
-      Thanks StackOverflow!
-      http://stackoverflow.com/questions/359788/how-to-execute-a-javascript-function-when-i-have-its-name-as-a-string
-      */
-      function executeFunctionByName(functionName, context) {
-        var args = [].slice.call(arguments).splice(2);
-        var namespaces = functionName.split(".");
-        var func = namespaces.pop();
-        for(var i = 0; i < namespaces.length; i++) {
-          context = context[namespaces[i]];
-        }
-        return context[func].apply(this, args);
-      }
 
       function testHasPassed() {
         td.classList.toggle('incorrect');
@@ -94,7 +80,7 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
             // nothing for now
           },
           update: function(detail) {
-            // TODO: expand this logic to show other pieces of data.
+            // TODO (as needed): expand this logic to show other pieces of data.
             if (showCurrent && responseDetails['bytes']) renderCurrentValue((responseDetails['bytes'] / 1000000).toString().slice(0,4) + "MB");
           }
         };
@@ -113,13 +99,8 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
             }).then(callback.success, callback.error).then(callback.update);
       }
 
-
-
       var testCorrect = false;
-      var gradeRunner = setInterval(function() {
-        // testCorrect = executeFunctionByName(testFunc, grader, testParams);
-        // testCorrect = grader[testFunc](testParams);
-        
+      var gradeRunner = setInterval(function() {        
         if (async) {
           runAsyncTest(grader[testFunc], testParams);
         } else if (!async) {

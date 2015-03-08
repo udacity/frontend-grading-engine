@@ -1,9 +1,9 @@
 /*
 Udacity's (growing) library for immediate front-end feedback.
 
-Version 0.10
+Version 0.11
 
-Built with Web Components
+Built with Web Components (HTML Imports and Custom Elements)
 
 Resources:
 http://www.html5rocks.com/en/tutorials/webcomponents/imports/
@@ -67,8 +67,9 @@ var importScript = (function (oHead) {
     oHead.appendChild(oScript);
     oScript.src = sSrc;
   }
-
 })(document.head || document.getElementsByTagName("head")[0]);
+
+
 
 /*
 Class describes an instance of the Udacity test engine.
@@ -85,7 +86,7 @@ var UdaciTests = function(props) {
     // Cool!
   } else {
     // Use other libraries/require systems to load files.
-    alert("You must use Google Chrome to complete this quiz. Sorry!");
+    alert("You must use Google Chrome to get feedback and a code for this quiz. Sorry!");
   }
 
   // import templates
@@ -782,40 +783,29 @@ UdaciTests.prototype.testPageSizeHosted = function(udArr) {
   return runPagespeed();
 };
 UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
+  // Only summing up images!
+  // TODO: get scripts and document without CORS issues
   var inSizeRange = false;
   var max = udArr[0].maxSize || -1;
   var min = udArr[0].minSize || 0;
-
-
   var totalBytes = 0;
-  
   var elemsWithBytes = [];  
-
-  // Only summing up images!
-  // TODO: get scripts and document without CORS issues
-  var selectors = [
+  var imgSelectors = [
     ':not(picture) > [src]:not(script)',
     '[href]:not(a):not(link)'
   ]
 
-  selectors.forEach(function(val, index, arr) {
+  imgSelectors.forEach(function(val, index, arr) {
     var elems = document.querySelectorAll(val);
     elems = nodeListToArray(elems);
     elemsWithBytes = elemsWithBytes.concat(elems);
   })
-
-
-  // get picture elems srcs too img.currentSrc
+  
+  // get picture elems current srcs too
   var pictures = getArrayOfNodes('picture > img');
   pictures.forEach(function(val, index, arr) {
     elemsWithBytes = elemsWithBytes.concat(val);
   })
-
-  // get page root
-  // fails?
-  // var page = {};
-  // page.src = location.href;
-  // elemsWithBytes = elemsWithBytes.concat([page]);
 
   function fireLoadEvent(evt) {
     if (evt.lengthComputable) {
@@ -827,14 +817,13 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   }   
 
   function sendreq(url, evt) {  
-    // TODO: better error handling?
+    // TODO: better error handling
     try {
       var req = new XMLHttpRequest();     
       req.open('GET', url, true);
       req.onloadend = fireLoadEvent;
       req.send();
     } catch (e) {
-      // doesn't work?
       console.log(e);
     }
   }
@@ -843,6 +832,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
     try {
       var url = val.currentSrc || val.src || val.href;
       // TODO: smarter way of handling CORS
+      // this just checks the host
       if (url.search(location.host) > -1) sendreq(url);
     } catch (e) {
       throw new Error("Download failed: " + url);
@@ -850,7 +840,6 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   })
 
   var requests = 0;
-  console.log(elemsWithBytes);
   document.querySelector('test-widget').addEventListener('src-loaded', function (e) {
     // e.url and e.url are available too
     requests = requests + 1;
