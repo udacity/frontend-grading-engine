@@ -44,11 +44,16 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
       var testFunc = this.test.func;
       var testParams = this.test.params;
       var testDesc = this.test.desc;
+
+      // Optional flags defined below!
       var noRepeat = this.test.noRepeat || false;
       var async = this.test.async || false;
+      var showCurrent = this.test.showCurrent || false;
 
       var td = this.shadowRoot.querySelector('.test-desc');
       td.innerHTML = testDesc;
+
+      if (showCurrent) td.insertAdjacentHTML('beforeend', '<br>&nbsp;&nbsp;&nbsp;&nbsp;Currently: ');
       
       /*
       Thanks StackOverflow!
@@ -64,6 +69,35 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
         return context[func].apply(this, args);
       }
 
+      function testHasPassed() {
+        td.classList.toggle('incorrect');
+        td.classList.toggle('correct');
+        var passEvent = new CustomEvent('test-passed', {'detail': testDesc});
+        td.dispatchEvent(passEvent);
+        clearInterval(gradeRunner);
+      }
+      
+      function renderCurrentValue(val) {
+        td.insertAdjacentHTML('beforeend', val);
+      };
+      
+      function runAsyncTest(cb, params) {
+        var promise = new Promise(
+            function(resolve, reject) {
+              cb(params);
+              document.querySelector('test-widget').addEventListener('page-bytes', function(e) {
+                if (e.detail['passed']) resolve(e.detail);
+              })
+            })
+        promise.then(function(detail) {
+          testHasPassed();
+          // TODO: expand this logic to show other pieces of data.
+          if (showCurrent && detail['bytes']) renderCurrentValue(detail['bytes'] / 1000000 + "MB");
+        })
+      }
+
+
+
       var testCorrect = false;
       var gradeRunner = setInterval(function() {
         // testCorrect = executeFunctionByName(testFunc, grader, testParams);
@@ -71,20 +105,25 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
         
         // TODO: if async flag is on, then use a promise to check the test when it resolves?
 
-        try {
-          testCorrect = grader[testFunc](testParams);
-        } catch (e) {
-          // TODO: make this more useful
-          throw new Error("Test: " + testFunc + " failed to execute with args:" + testParams[0]);
+        if (async) {
+          runAsyncTest(grader[testFunc], testParams);
+        } else if (!async) {
+          try {
+            testCorrect = grader[testFunc](testParams);
+          } catch (e) {
+            // TODO: make this more useful
+            throw new Error("Test: " + testFunc + " failed to execute with args:" + testParams[0]);
+          }
+          if (testCorrect) {
+            // td.classList.toggle('incorrect');
+            // td.classList.toggle('correct');
+            // var passEvent = new CustomEvent('test-passed', {'detail': testDesc});
+            // td.dispatchEvent(passEvent);
+            // clearInterval(gradeRunner);
+            testHasPassed();
+          }
         }
-        if (noRepeat) clearInterval(gradeRunner);
-        if (testCorrect) {
-          td.classList.toggle('incorrect');
-          td.classList.toggle('correct');
-          var passEvent = new CustomEvent('test-passed', {'detail': testDesc});
-          td.dispatchEvent(passEvent);
-          clearInterval(gradeRunner);
-        }
+        if (noRepeat || async) clearInterval(gradeRunner);
       }, 1000)
 
     };

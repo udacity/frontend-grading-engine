@@ -781,6 +781,8 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   var max = udArr[0].maxSize || -1;
   var min = udArr[0].minSize || 0;
 
+  // TODO: request document size, anything with href
+
   // sum up anything with a src
   var totalBytes = 0;
   var elemsWithSrc = document.querySelectorAll('[src]');
@@ -812,19 +814,17 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
 
   var requests = 0;
   document.querySelector('test-widget').addEventListener('src-loaded', function (e) {
-    requests = requests + 1;
+    requests = ++requests;
     if (requests === elemsWithSrc.length) {
-      console.log(min, max, totalBytes);
       if (max > -1 && max > totalBytes && min < totalBytes) {
         inSizeRange = true;
       } else if (max === -1 && min < totalBytes) {
         inSizeRange = true;
       }
-      console.log(inSizeRange);
-      return inSizeRange;
+      var pageBytesCollectionComplete = new CustomEvent('page-bytes', {'detail': {'passed': inSizeRange, 'bytes': totalBytes}})
+      document.querySelector('test-widget').dispatchEvent(pageBytesCollectionComplete);
     }
   })
-  console.log(inSizeRange);
 }
 UdaciTests.prototype.testFindStringInDocument = function(udArr) {
   /*
