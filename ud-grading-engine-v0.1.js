@@ -833,7 +833,6 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
 
   function sendreq(url, evt) {  
     // TODO: better error handling?
-    console.log(url);
     try {
       var req = new XMLHttpRequest();     
       req.open('GET', url, true);
@@ -861,6 +860,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   var requests = 0;
   document.querySelector('test-widget').addEventListener('src-loaded', function (e) {
     requests = requests + 1;
+    console.log(requests, elemsWithBytes.length);
     if (requests === elemsWithBytes.length) {
       if (max > -1 && max > totalBytes && min < totalBytes) {
         inSizeRange = true;
