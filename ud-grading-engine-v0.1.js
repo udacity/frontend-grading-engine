@@ -819,7 +819,6 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
 
   function fireLoadEvent(evt) {
     if (evt.lengthComputable) {
-      console.log("loaded " + evt.currentTarget.responseURL);
       // evt.total the total bytes seted by the header
       totalBytes = totalBytes + evt.total;
       var loadEvent = new CustomEvent('src-loaded', {'detail': totalBytes});
@@ -828,7 +827,6 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
   }   
 
   function fireFailEvent(evt) {
-    console.log("failed " + evt.currentTarget.responseURL);
     var loadEvent = new CustomEvent('src-loaded', {'detail': 0});
     document.querySelector('test-widget').dispatchEvent(loadEvent);
   }
@@ -845,13 +843,15 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
     } catch (e) {
       // doesn't work?
       console.log(e);
-      console.log("Failed to download " + url + ". Moving on.");
     }
   }
 
   elemsWithBytes.forEach(function(val, index, arr) {
     try {
-      sendreq(val.currentSrc || val.src || val.href);
+      var url = val.currentSrc || val.src || val.href;
+      // to avoid CORS issues
+      // TODO: smarter way of handling CORS
+      if (url.search(location.host) > -1) sendreq(url);
     } catch (e) {
       // doesn't work?
       throw new Error("Download failed" + val);
