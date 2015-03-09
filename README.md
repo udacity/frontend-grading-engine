@@ -131,3 +131,29 @@ Inside your tests.js file (or whatever you want to call it, the name doesn't mat
 ####
 
 Current tests:
+
+All tests are defined on `UdaciTests.prototype` and begin with `test`.
+
+* `testMediaQueries`
+* `testPictureMediaQueries`
+* `testViewportWidth`
+* `testViewportHeight`
+* `testUA`
+* `testDPR`
+* `testViewportMetaTagContent`
+* `testMetaTagContent`
+* `testDOMelemCount`
+* `testDOMelemsCounts`
+* `testDOMelemExists`
+* `testDOMelemsChildPosition`
+* `testDOMelemDoesntExist`
+* `testDOMelemsHorizontalSeparation`
+* `testDOMelemAbsolutePosition`
+* `testDOMelemAttrExists`
+* `testDOMelemAttrContent`
+* `testDOMelemsAttrContent`
+* `testDOMelemAttrApproxContent`
+* `testDOMelemCSS`
+* `testPageSizeHosted`
+* `testPageSizeMinimumLocal`
+* `testFindStringInDocument``
