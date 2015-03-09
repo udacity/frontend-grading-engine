@@ -100,7 +100,7 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
       }
 
       var testCorrect = false;
-      var gradeRunner = setInterval(function() {        
+      var gradeRunner = setInterval(function() {
         if (async) {
           runAsyncTest(grader[testFunc], testParams);
         } else if (!async) {

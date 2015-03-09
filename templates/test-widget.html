@@ -17,10 +17,6 @@ when all suites pass.
       font-family: 'Source Sans Pro', sans-serif;
     }
 
-    /*
-    something about less than 800px;
-    */
-
     .test-widget-display {
       position: absolute;
       min-width: 200px;
@@ -32,11 +28,14 @@ when all suites pass.
       top: 0px;
       padding: 0.5em;
       text-align: left;
+      max-height: 100%;
+      transition: max-height 0.3s;
+      overflow-y: auto;
     }
 
     @media screen and (max-width: 800px) {
       .test-widget-display {
-        max-width: 200px;
+        max-width: 300px;
         max-height: 100vh;
         overflow-y: scroll;
       }
@@ -49,9 +48,27 @@ when all suites pass.
     .udacity-header {
       font-size: 2em;
     }
+
+    .toggle_display {
+      display: inline;
+      height: 2em;
+    }
+
+    button.shown::before {
+      content: "Hide";
+    }
+
+    button.hidden::before {
+      content: "Show";
+    }
+
+    .small-display {
+      max-height: 60px;
+      overflow-y: hidden;
+    }
   </style>
   <div class="test-widget-display">
-    <div class="udacity-header">Udacity Feedback</div>
+    <div class="udacity-header">Udacity Feedback</div><button class="toggle_display shown"> Test Results</button>
   </div>
 </template>
 
@@ -86,6 +103,13 @@ when all suites pass.
         twd.style.top = window.scrollY + "px";
       };
 
+      console.log(twd);
+      twd.querySelector('.toggle_display').onclick = function() {
+        twd.classList.toggle('small-display');
+        twd.querySelector('.toggle_display').classList.toggle('hidden');
+        twd.querySelector('.toggle_display').classList.toggle('shown');
+      }
+
       var eventCollector = [];
       this.addEventListener('suite-passed', function (e) {
         if (eventCollector.indexOf(e.detail) === -1) {
@@ -100,7 +124,8 @@ when all suites pass.
       graderSuites.forEach(function(val, index, arr) {
         var ts = document.createElement('test-suite');
         ts.suite = val;
-        twd.appendChild(ts)
+        twd.appendChild(ts);
+        // twd.insertBefore(ts, );
       })
     };
 
