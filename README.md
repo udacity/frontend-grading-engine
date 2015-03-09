@@ -27,4 +27,82 @@ Each test refreshes once a second. While the test is pending completion, it will
 
 ## Writing Tests... aka The API ##
 
-TBC
+<pre><script async type='text/javascript' src='udacity.github.io/frontend-grading-engine/ud-grading-engine-v0.1.js'></script></pre>
+
+
+    var suites = [
+      {
+        name: "Project Part 1",
+        code: "notarealcode",
+        tests: [
+          {
+            func: "testDOMelemCSS",
+            params: [
+              {
+                selector: "article img",
+                property: "max-width",
+                value: "100%"
+              }
+            ],
+            desc: "&lt;img&gt;s have max-widths of 100%"
+          },
+          {
+            func: "testDOMelemCSS",
+            params: [
+              {
+                selector: "article",
+                property: "width",
+                value: "600-1200px"
+              }
+            ],
+            desc: "&lt;articles&gt; are reasonably wide (600-1200px)" // descriptions must be unique
+          }
+        ]
+      },
+      {
+        name: "Project Part 2",
+        code: "notarealcode",
+        tests: [
+          {
+            func: "testDOMelemDoesntExist",
+            params: [
+              {
+                selector: "img[src='images/smiley_face.png']"
+              }
+            ],
+            desc: "smiley_face.png is gone"
+          },
+          {
+            func: "testFindStringInDocument",
+            params: [
+              {
+                stringOpts: ["☺", "&#9786;"] // looking for one of these
+              }
+            ],
+            desc: "Smiley face is unicode"
+          }
+        ]
+      },
+      {
+        name: "Project Part 3",
+        code: "notarealcode",
+        tests: [
+          {
+            func: "testDOMelemCount",
+            params: [
+              {
+                selector: "picture",
+                count: 8
+              }
+            ],
+            desc: "There are 8 &lt;picture&gt;s on the page"
+          }
+        ]
+      }
+    ]
+
+    var graderProperties = {
+      suites: suites
+    }
+
+
