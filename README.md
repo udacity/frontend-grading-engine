@@ -27,7 +27,7 @@ Each test refreshes once a second. While the test is pending completion, it will
 
 ## Writing Tests... aka The API ##
 
-<pre><script async type='text/javascript' src='udacity.github.io/frontend-grading-engine/ud-grading-engine-v0.1.js'></script></pre>
+`<script async type='text/javascript' src='udacity.github.io/frontend-grading-engine/ud-grading-engine-v0.1.js'></script>`
 
 
     var suites = [
