@@ -1,6 +1,6 @@
 # Udacity Font-End Grading Engine
-- v0.11
-- 
+ - v0.11
+
 Providing immediate feedback for front-end code
 
 ![Screenshot of Grading Engine](images/overview.png)
