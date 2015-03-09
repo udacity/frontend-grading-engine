@@ -27,8 +27,16 @@ Each test refreshes once a second. While the test is pending completion, it will
 
 ## Writing Tests... aka The API ##
 
+To get started, add the following script to the very end of the body.
+
     <script async type='text/javascript' src='udacity.github.io/frontend-grading-engine/ud-grading-engine-v0.1.js'></script>`
 
+You'll also need to define the tests. The tests need to be defined *before* the script above is loaded. e.g.
+
+    <script type='text/javascript' src='/path/to/some/tests.js'></script>`
+    <script async type='text/javascript' src='udacity.github.io/frontend-grading-engine/ud-grading-engine-v0.1.js'></script>`
+
+Inside your tests.js file (or whatever you want to call it, the name doesn't matter), define a `suites` array. See below for an example.
 
     var suites = [
       {
@@ -105,4 +113,21 @@ Each test refreshes once a second. While the test is pending completion, it will
       suites: suites
     }
 
+###
 
+`suites` (array): array of `suite` objects.
+`suite` (object): consisting of:
+* `suite.name` (string): This will be displayed.
+* `suite.code` (string): Displayed when all tests pass.
+* `suite.tests` (array): array of `test` objects
+`suite.test` (object): consisting of:
+* `test.func` (string): The name of the function defined in ud-grading-engine-vX.X.js that returns either `true` or `false`. NOTE: it must be a string!
+* `test.params` (array): An array of `parameter` objects to be passed to the function defined as `func`. Generally consists of a single `parameter` object. Each test takes different parameters.
+* `test.desc` (string): The displayed explanation of the test. NOTE: each test MUST have a unique name!
+* `test.async` (boolean): If `true`, the test is run once asynchronously.
+* `test.noRepeat` (boolean): If `true`, the test is only run once.
+* `test.showCurrent` (boolean): If `true`, the test will resolve a value to the widget. NOTE: not supported by any test functions except `testPageSizeMinimumLocal`.
+
+####
+
+Current tests:
