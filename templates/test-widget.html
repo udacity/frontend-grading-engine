@@ -17,6 +17,10 @@ when all suites pass.
       font-family: 'Source Sans Pro', sans-serif;
     }
 
+    /*
+    something about less than 800px;
+    */
+
     .test-widget-display {
       position: absolute;
       min-width: 200px;
@@ -28,6 +32,14 @@ when all suites pass.
       top: 0px;
       padding: 0.5em;
       text-align: left;
+    }
+
+    @media screen and (max-width: 800px) {
+      .test-widget-display {
+        max-width: 200px;
+        max-height: 100vh;
+        overflow-y: scroll;
+      }
     }
 
     .test-widget-display:hover {
