@@ -825,6 +825,7 @@ UdaciTests.prototype.testPageSizeMinimumLocal = function(udArr) {
       req.send();
     } catch (e) {
       console.log(e);
+      throw new Error("If you're seeing this error, you might need to serve the site through localhost.")
     }
   }
 
