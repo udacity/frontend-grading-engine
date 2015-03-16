@@ -336,6 +336,14 @@ UdaciTests.prototype.testDOMelemCount = function(udArr) {
   if ((elems.length) === udArr[0].count) rightCount = true;
   return rightCount;
 }
+
+/*
+Find the number of parent child pairs on document.
+
+@param: (css selector string) childSelector
+@param: (css selector string) parentSelector
+@param: (integer) count
+*/
 UdaciTests.prototype.testDOMelemsCounts = function(udArr) {
   // for multiple sets of the same parent > child counts
   // run tests like: make sure all pictures have two sources
@@ -459,12 +467,20 @@ UdaciTests.prototype.testDOMelemAttrExists = function(udArr) {
   if (theirAttr || theirAttr === "") hasAttr = true;
   return hasAttr;
 }
+
+/*
+If one value in the values array matches the value of the attribute of the selected element in the document, test will pass.
+
+@param: (css selector string) selector - selector for single element
+@param: (string) attr - attribute you want to compare
+@param: (array of strings) values - an array of values, where the test will pass if one matches.
+*/
 UdaciTests.prototype.testDOMelemAttrContent = function(udArr) {
   // for elems that must exist
   var isCorrect = false;
   var elem = document.querySelector(udArr[0].selector);
-  var theirAttrValue = elem.getAttribute(udArr[0].attr);
-  var values = udArr[0].values || [];
+  var attr = udArr[0].attr;
+  var udValues = udArr[0].values || [];
 
   function multiUdValues(udVals, stdVal) {
     var hasAllValues = false;
@@ -473,19 +489,19 @@ UdaciTests.prototype.testDOMelemAttrContent = function(udArr) {
         udVal = udVal.replace(" ,", ",").replace(", ", ",");
         udVal = udVal.split(",").sort();
         try {
-          stdValue = stdValue.replace(" ,", ",").replace(", ", ",");
-          stdValue = stdValue.split(",").sort();
+          stdVal = stdVal.replace(" ,", ",").replace(", ", ",");
+          stdVal = stdVal.split(",").sort();
         } catch (e) {
-          var stdValue = [];
+          // do nothing
         }
       }
-      if (arrEquals(udVal, stdValue) && index === 0) {
+      if (arrEquals(udVal, stdVal) && index === 0) {
           hasAllValues = true;
-      } else if (udVal === stdValue && index === 0) {
+      } else if (udVal === stdVal && index === 0) {
           hasAllValues = true;
-      } else if (arrEquals(udVal, stdValue) && index > 0) {
+      } else if (arrEquals(udVal, stdVal) && index > 0) {
           hasAllValues = hasAllValues && true;
-      } else if (udVal === stdValue && index > 0) {
+      } else if (udVal === stdVal && index > 0) {
           hasAllValues = hasAllValues && true;
       } 
     })
@@ -513,7 +529,7 @@ UdaciTests.prototype.testDOMelemAttrContent = function(udArr) {
       isCorrect = singleUdValue(udValues[0], stdValue);
       break;
     default:
-      isCorrect = multiUdValue(udValues, stdValue);
+      isCorrect = multiUdValues(udValues, stdValue);
   }
 
   return isCorrect;
