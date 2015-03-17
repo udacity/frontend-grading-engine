@@ -55,7 +55,7 @@ When all tests pass, it emits a 'suite-passed' event to the
     proto.attachedCallback = function() {
       var suiteTests = this.suite.tests;
       var suiteName = this.suite.name;
-      var suiteCode = this.suite.code;
+      var suiteCode = this.suite.code || false;
 
       var suite = this.shadowRoot.querySelector('.suite');
       var sc = this.shadowRoot.querySelector('.suite-code');
@@ -73,7 +73,7 @@ When all tests pass, it emits a 'suite-passed' event to the
           if (eventCollector.length === suiteTests.length) {
             var passEvent = new CustomEvent('suite-passed', {'detail': suiteName});
             suite.dispatchEvent(passEvent);
-            displayCode();
+            if (suiteCode) displayCode();
           }
         }
       });
