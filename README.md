@@ -34,7 +34,7 @@ To get started, add the following script to the very end of the body.
 You'll also need to define the tests. The tests need to be defined *before* the script above is loaded. e.g.
 
     <script type='text/javascript' src='/path/to/some/tests.js'></script>`
-    <script async type='text/javascript' src='udacity.github.io/frontend-grading-engine/ud-grading-engine-v0.1.js'></script>`
+    <script async type='text/javascript' src='https://udacity.github.io/frontend-grading-engine/ud-grading-engine-v0.1.js'></script>`
 
 Inside your tests.js file (or whatever you want to call it, the name doesn't matter), define a `suites` array. See below for an example.
 
