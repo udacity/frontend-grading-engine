@@ -1,7 +1,7 @@
 /*
 Udacity's (growing) library for immediate front-end feedback.
 
-Version 0.11
+Version 0.12
 
 Built with Web Components (HTML Imports and Custom Elements)
 
@@ -92,7 +92,8 @@ var UdaciTests = function(props) {
   // import templates
   var link = document.createElement('link');
   link.rel = 'import';
-  link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
+  // link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
+  link.href = '/frontend-grading-engine/templates/test-widget.html'
   link.onload = function(e) {
     console.log('Loaded Udacity Grading Engine');
   };
@@ -292,6 +293,7 @@ UdaciTests.prototype.testViewportMetaTagContent = function(expected) {
   var hasRightMeta = false;
   var correctViewportContent = 'width=device-width,initial-scale=1.0';
   var metas = document.querySelectorAll('meta');
+  if (!metas) return false;
   metas = Array.prototype.slice.apply(metas);
   metas.forEach(function(val) {
     var content, name;
@@ -315,6 +317,7 @@ UdaciTests.prototype.testMetaTagContent = function(udArr) {
   var attr = udArr[0].attr;
   var udValue = udArr[0].value;
   var metas = document.querySelectorAll('meta');
+  if (!metas) return false;
   metas = Array.prototype.slice.apply(metas);
   metas.forEach(function(val) {
     var content, name;
@@ -333,6 +336,7 @@ UdaciTests.prototype.testMetaTagContent = function(udArr) {
 UdaciTests.prototype.testDOMelemCount = function(udArr) {
   var rightCount = false;
   var elems = document.querySelectorAll(udArr[0].selector);
+  if (!elems) return false;
   if ((elems.length) === udArr[0].count) rightCount = true;
   return rightCount;
 }
@@ -349,6 +353,7 @@ UdaciTests.prototype.testDOMelemsCounts = function(udArr) {
   // run tests like: make sure all pictures have two sources
   var rightCounts = false;
   var parentElems = document.querySelectorAll(udArr[0].parentSelector);
+  if (!parentElems) return false;
   parentElems = Array.prototype.slice.apply(parentElems);
 
   parentElems.forEach(function(val, index) {
@@ -365,6 +370,7 @@ UdaciTests.prototype.testDOMelemsCounts = function(udArr) {
 UdaciTests.prototype.testDOMelemExists = function(udArr) {
   var exists = false;
   var elems = document.querySelectorAll(udArr[0].selector);
+  if (!elems) return false;
   if ((elems.length) > 0) exists = true;
   return exists;
 }
@@ -373,12 +379,14 @@ UdaciTests.prototype.testDOMelemsChildPosition = function(udArr) {
   var isCorrect = false;
 
   var parents = document.querySelectorAll(udArr[0].parentSelector);
+  if (!parents) return false;
   parents = nodeListToArray(parents);
   var childSelector = udArr[0].childSelector;
   var loc = udArr[0].location;
 
   parents.forEach(function(val, index, arr) {
     var child = val.querySelectorAll(childSelector)[0];
+    if (!child) return false;
     var position = udArr[0].position;
 
     if (position < 0) position = nodeListToArray(val).length + position;
@@ -389,6 +397,7 @@ UdaciTests.prototype.testDOMelemsChildPosition = function(udArr) {
 UdaciTests.prototype.testDOMelemDoesntExist = function(udArr) {
   var doesntExist = false;
   var elems = document.querySelectorAll(udArr[0].selector);
+  if (!elems) return false;
   if ((elems.length) === 0) doesntExist = true;
   return doesntExist;
 }
@@ -403,6 +412,7 @@ UdaciTests.prototype.testDOMelemsHorizontalSeparation = function(udArr) {
   var separatedCorrectly = false;
   var left = document.querySelector(udArr[0].leftElemSelector);
   var right = document.querySelector(udArr[0].rightElemSelector);
+  if (!left || !right) return false;
   var separation = right.offsetLeft - (left.offsetLeft + left.offsetWidth);
   if (separation === udArr[0].distance) separatedCorrectly = true;
   return separatedCorrectly;
@@ -410,6 +420,7 @@ UdaciTests.prototype.testDOMelemsHorizontalSeparation = function(udArr) {
 UdaciTests.prototype.testDOMelemAbsolutePosition = function(udArr) {
   var correctSpot = false;
   var elem = document.querySelector(udArr[0].selector);
+  if (!elem) return false;
 
   var udTop,udBottom,udLeft,udRight;
   udTop = null || udArr[0].top;
@@ -461,6 +472,7 @@ UdaciTests.prototype.testDOMelemAbsolutePosition = function(udArr) {
 UdaciTests.prototype.testDOMelemAttrExists = function(udArr) {
   var hasAttr = false;
   var elem = document.querySelector(udArr[0].selector);
+  if (!elem) return false;
   var attr = udArr[0].attr;
   var theirAttr = elem.getAttribute(attr);
 
@@ -479,6 +491,7 @@ UdaciTests.prototype.testDOMelemAttrContent = function(udArr) {
   // for elems that must exist
   var isCorrect = false;
   var elem = document.querySelector(udArr[0].selector);
+  if (!elem) return false;
   var attr = udArr[0].attr;
   var udValues = udArr[0].values || [];
 
@@ -540,6 +553,7 @@ UdaciTests.prototype.testDOMelemsAttrContent = function(udArr) {
   var isCorrect = false;
   var selector = udArr[0].selector;
   var elems = document.querySelectorAll(selector);
+  if (!elems) return false;
   elems = nodeListToArray(elems);
   var attr = udArr[0].attr;
   var udValues = udArr[0].values || [];
@@ -615,6 +629,7 @@ UdaciTests.prototype.testDOMelemAttrApproxContent = function(udArr) {
   // TODO: too much looping, try using more ||
   var hasCorrectAttr = false;
   var elems = document.querySelectorAll(udArr[0].selector);
+  if (!elems) return false;
   var attrs = udArr[0].attrs;
   var values = udArr[0].values;
 
@@ -652,6 +667,7 @@ UdaciTests.prototype.testDOMelemCSS = function(udArr) {
   // TODO: make this applicable to more than px and %
   var isCorrect = false;
   var elem = document.querySelector(udArr[0].selector);
+  if (!elem) return false;
   var prop = udArr[0].property;
   var udValue = udArr[0].value;
   var stdValue = getComputedStyle(elem).getPropertyValue(prop);

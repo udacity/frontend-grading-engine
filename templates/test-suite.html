@@ -63,14 +63,18 @@ When all tests pass, it emits a 'suite-passed' event to the
     
       function displayCode() {
         sc.innerHTML = "<div>" + suiteName + " Code: " + suiteCode + "</div>";
-        console.log(suiteName + " Code: " + suiteCode);
       };
 
+      var numberOfMandatoryTests = 0;
       var eventCollector = [];
-      this.addEventListener('test-passed', function (e) {
-        if (eventCollector.indexOf(e.detail) === -1) {
-          eventCollector.push(e.detail);
-          if (eventCollector.length === suiteTests.length) {
+      this.addEventListener('test-status', function (e) {
+        // e.detail includes index, testCorrect, testDesc
+        eventCollector[e.detail.index] = e.detail;
+        if (eventCollector.length === numberOfMandatoryTests) {
+          var allTestsPassed = eventCollector.every(function(val, index, arr) {
+            return val.testCorrect;
+          })
+          if (allTestsPassed) {
             var passEvent = new CustomEvent('suite-passed', {'detail': suiteName});
             suite.dispatchEvent(passEvent);
             if (suiteCode) displayCode();
@@ -81,6 +85,8 @@ When all tests pass, it emits a 'suite-passed' event to the
       suiteTests.forEach(function(val, index, arr) {
         var at = document.createElement('active-test');
         at.test = val;
+        at.index = index;
+        if (!at.test.optional) numberOfMandatoryTests +=1;
         suite.insertBefore(at, sc);
       })
 
