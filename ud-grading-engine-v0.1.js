@@ -12,11 +12,11 @@ http://www.html5rocks.com/en/tutorials/webcomponents/customelements/
 Cameron Pittman 2015
 */
 
+
 /*
-Starting off with some helper functions...
+Starting off with some helper functions
 */
 
-// Thanks StackOverflow!
 // http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
 function arrEquals(array1, array2) {
   // if the other array is a falsy value, return
@@ -47,7 +47,7 @@ function nodeListToArray(nL) {
 
 // TODO: replace all the complicated doc.querySelectorAll then Array prototype calls to this function
 function getArrayOfNodes(selector) {
-  return nodeListToArray(document.querySelectorAll(selector))
+  return Array.prototype.slice.apply(document.querySelectorAll(selector))
 }
 
 /*
@@ -92,16 +92,26 @@ var UdaciTests = function(props) {
   // import templates
   var link = document.createElement('link');
   link.rel = 'import';
+
   // Prod
-  link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
+  // link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
   // Dev
   // link.href = '/frontend-grading-engine/templates/test-widget.html'
+
+  // TODO: check this
+  // Live? Use github. Local? Use localhost.
+  if (location.host.search('localhost') > -1) {
+    link.href = '/frontend-grading-engine/templates/test-widget.html';
+  } else {
+    link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html';
+  }
+
   link.onload = function(e) {
     console.log('Loaded Udacity Grading Engine');
-  };
+  }
   link.onerror = function(e) {
     console.log('Error loading import: ' + e.target.href);
-  };
+  }
   document.head.appendChild(link);
 }
 
@@ -295,8 +305,9 @@ UdaciTests.prototype.testViewportMetaTagContent = function(expected) {
   var hasRightMeta = false;
   var correctViewportContent = 'width=device-width,initial-scale=1.0';
   var metas = document.querySelectorAll('meta');
+  // TODO: more elegant way to handle failed queries
   if (!metas) return false;
-  metas = Array.prototype.slice.apply(metas);
+  metas = nodeListToArray(metas);
   metas.forEach(function(val) {
     var content, name;
     // TODO: compactify logic
@@ -320,7 +331,7 @@ UdaciTests.prototype.testMetaTagContent = function(udArr) {
   var udValue = udArr[0].value;
   var metas = document.querySelectorAll('meta');
   if (!metas) return false;
-  metas = Array.prototype.slice.apply(metas);
+  metas = nodeListToArray(metas);
   metas.forEach(function(val) {
     var content, name;
     // TODO: compactify logic
@@ -356,7 +367,7 @@ UdaciTests.prototype.testDOMelemsCounts = function(udArr) {
   var rightCounts = false;
   var parentElems = document.querySelectorAll(udArr[0].parentSelector);
   if (!parentElems) return false;
-  parentElems = Array.prototype.slice.apply(parentElems);
+  parentElems = nodeListToArray(parentElems);
 
   parentElems.forEach(function(val, index) {
     var childElems = val.querySelectorAll(udArr[0].childSelector);
@@ -635,7 +646,7 @@ UdaciTests.prototype.testDOMelemAttrApproxContent = function(udArr) {
   var attrs = udArr[0].attrs;
   var values = udArr[0].values;
 
-  elems = Array.prototype.slice.apply(elems);
+  elems = nodeListToArray(elems);
 
   elems.forEach(function(elem) {
     attrs.forEach(function(attr, index) {

@@ -89,6 +89,7 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
         var callback = {
           success: function(detail) {
             testHasPassed();
+            fireTestStatusEvent({'index': index, 'testCorrect': true, 'desc': testDesc});
           },
           error: function(detail) {
             // nothing for now
