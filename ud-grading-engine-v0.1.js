@@ -92,20 +92,7 @@ var UdaciTests = function(props) {
   // import templates
   var link = document.createElement('link');
   link.rel = 'import';
-
-  // Prod
-  // link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
-  // Dev
-  // link.href = '/frontend-grading-engine/templates/test-widget.html'
-
-  // TODO: check this
-  // Live? Use github. Local? Use localhost.
-  if (location.host.search('localhost') > -1) {
-    link.href = '/frontend-grading-engine/templates/test-widget.html';
-  } else {
-    link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html';
-  }
-
+  link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
   link.onload = function(e) {
     console.log('Loaded Udacity Grading Engine');
   }
