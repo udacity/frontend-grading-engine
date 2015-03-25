@@ -1,7 +1,7 @@
 /*
 Udacity's (growing) library for immediate front-end feedback.
 
-Version 0.12
+Version 0.13
 
 Built with Web Components (HTML Imports and Custom Elements)
 
@@ -92,7 +92,12 @@ var UdaciTests = function(props) {
   // import templates
   var link = document.createElement('link');
   link.rel = 'import';
-  link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
+  try {
+    link.href = '/frontend-grading-engine/templates/test-widget.html'
+    console.log("Running local grading script");
+  } catch (e) {
+    link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
+  }
   link.onload = function(e) {
     console.log('Loaded Udacity Grading Engine');
   }
@@ -105,7 +110,7 @@ var UdaciTests = function(props) {
 
 UdaciTests.prototype.testMediaQueries = function(udArr) {
     /*
-    This is an insane piece of code that's not fully functional.
+    This is an insane piece of code that's not quite fully functional.
 
     To test whether or not breakpoints are set correctly,
     we create an iframe off the viewport containing the current page.
@@ -182,9 +187,6 @@ UdaciTests.prototype.testMediaQueries = function(udArr) {
     return hasCorrectStyles;
 }
 UdaciTests.prototype.testPictureMediaQueries = function(udArr) {
-
-  // div[data="foo"] 
-
   /*
   This is an insane piece of code that's not fully functional.
 
@@ -900,7 +902,15 @@ UdaciTests.prototype.testFindStringInDocument = function(udArr) {
   })
   return isCorrect;
 }
+UdaciTests.prototype.testCompareFunctionRunTimes = function(udArr) {
+  var initRun = udArr[0].initRun;
+  var timeFactorDiff = udArr[0].timeFactorDiff;
+  // TODO: handle params???
+  var func = udArr[0].func;
 
+  // first things first, get some test data.
+
+}
 
 
 var grader = new UdaciTests(graderProperties);
