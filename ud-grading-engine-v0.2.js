@@ -1,7 +1,7 @@
 /*
 Udacity's (growing) library for immediate front-end feedback.
 
-Version 0.13
+Version 0.2
 
 Built with Web Components (HTML Imports and Custom Elements)
 
