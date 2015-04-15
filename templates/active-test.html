@@ -104,7 +104,7 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
         var promise = new Promise(
             function(resolve, reject) {
               cb(params);
-              document.querySelector('test-widget').addEventListener('page-bytes', function(e) {
+              document.querySelector('test-widget').addEventListener('async-end', function(e) {
                 responseDetails = e.detail;
                 if (responseDetails['passed']) {
                   resolve(responseDetails);

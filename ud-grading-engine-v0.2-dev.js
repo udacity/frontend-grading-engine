@@ -666,7 +666,6 @@ UdaciTests.prototype.testDOMelemAttrApproxContent = function(udArr) {
   return hasCorrectAttr;
 }
 UdaciTests.prototype.testDOMelemCSS = function(udArr) {
-  // TODO: make this applicable to more than px and %
   var isCorrect = false;
   var elem = document.querySelector(udArr[0].selector);
   if (!elem) return false;
@@ -726,8 +725,9 @@ UdaciTests.prototype.testDOMelemCSS = function(udArr) {
     isCorrect = inPixelRange(udValue, stdValue);
   } else if (udValue.indexOf("%") !== -1) {
     isCorrect = inPercentageRange(udValue, stdValue);
+  } else {
+    udValue === stdValue ? isCorrect = true : isCorrect = false;
   }
-
   return isCorrect;
 }
 UdaciTests.prototype.testPageSizeHosted = function(udArr) {
