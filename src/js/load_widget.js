@@ -1,21 +1,18 @@
-  // https://developer.mozilla.org/en-US/docs/Web/API/HTMLScriptElement
-  var importScript = (function (oHead) {
+/***
+ *     _                     _   _    _ _     _            _   
+ *    | |                   | | | |  | (_)   | |          | |  
+ *    | |     ___   __ _  __| | | |  | |_  __| | __ _  ___| |_ 
+ *    | |    / _ \ / _` |/ _` | | |/\| | |/ _` |/ _` |/ _ \ __|
+ *    | |___| (_) | (_| | (_| | \  /\  / | (_| | (_| |  __/ |_ 
+ *    \_____/\___/ \__,_|\__,_|  \/  \/|_|\__,_|\__, |\___|\__|
+ *                                               __/ |         
+ *                                              |___/          
+ */
+ /*
+    Some text explaining what this does.
+ */
 
-    function loadError (oError) {
-      throw new URIError("The script " + oError.target.src + " is not accessible.");
-    }
-
-    return function (sSrc, fOnload) {
-      var oScript = document.createElement("script");
-      oScript.type = "text\/javascript";
-      oScript.onerror = loadError;
-      if (fOnload) { oScript.onload = fOnload; }
-      oHead.appendChild(oScript);
-      oScript.src = sSrc;
-    }
-  })(document.head || document.getElementsByTagName("head")[0]);
-
-  var Widget = function() {    
+  (function() {    
     document.body.addEventListener('grader-passed', function (e) {console.log("All tests passed!")}, false)
     
     function supportsImports() {
@@ -45,4 +42,6 @@
       console.log('Error loading import: ' + e.target.href);
     }
     document.head.appendChild(link);
-  }
+  })()
+    
+

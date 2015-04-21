@@ -1,5 +1,15 @@
-udElem.prototype.hasCSSProperty = function(){};
+/***
+ *    ______            _ _     _                 _      _   _               _ 
+ *    |  _  \          ( ) |   | |               | |    | | | |             | |
+ *    | | | |___  _ __ |/| |_  | |     ___   ___ | | __ | |_| | ___ _ __ ___| |
+ *    | | | / _ \| '_ \  | __| | |    / _ \ / _ \| |/ / |  _  |/ _ \ '__/ _ \ |
+ *    | |/ / (_) | | | | | |_  | |___| (_) | (_) |   <  | | | |  __/ | |  __/_|
+ *    |___/ \___/|_| |_|  \__| \_____/\___/ \___/|_|\_\ \_| |_/\___|_|  \___(_)
+ *                                                                             
+ *                                                                             
+ */
 
+udElem.prototype.hasCSSProperty = function(){};
 
   UdaciTests.prototype.testMediaQueries = function(udArr) {
       /*

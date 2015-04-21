@@ -1,3 +1,17 @@
+/***
+ *     _   _      _                     
+ *    | | | |    | |                    
+ *    | |_| | ___| |_ __   ___ _ __ ___ 
+ *    |  _  |/ _ \ | '_ \ / _ \ '__/ __|
+ *    | | | |  __/ | |_) |  __/ |  \__ \
+ *    \_| |_/\___|_| .__/ \___|_|  |___/
+ *                 | |                  
+ *                 |_|                  
+ */
+ /*
+    Wonderful functions to make life easier.
+ */
+
   // http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
   function arrEquals(array1, array2) {
     // if the other array is a falsy value, return
@@ -24,4 +38,13 @@
 
   function getDomNodeArray(selector) {
     return Array.prototype.slice.apply(document.querySelectorAll(selector))
+  }
+
+  function ArrayWatcher(array, callback) {
+    // notion of what's in the array
+    // notion of what just happened
+    // notion of a callback
+    // TODO: refactor arrEquals with this too.
+
+    return this
   }

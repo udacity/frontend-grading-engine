@@ -1,37 +1,68 @@
-
-  function getDomNodeArray(selector) {
-    return Array.prototype.slice.apply(document.querySelectorAll(selector))
-  }
+/***
+ *     _____ _            _____            _            
+ *    |_   _| |          |  ___|          (_)           
+ *      | | | |__   ___  | |__ _ __   __ _ _ _ __   ___ 
+ *      | | | '_ \ / _ \ |  __| '_ \ / _` | | '_ \ / _ \
+ *      | | | | | |  __/ | |__| | | | (_| | | | | |  __/
+ *      \_/ |_| |_|\___| \____/_| |_|\__, |_|_| |_|\___|
+ *                                    __/ |             
+ *                                   |___/              
+ */
+ /*
+    Returns the Test object.
+ */
 
 
 
   /*
-  currElems[]
-  valueSpecified*
-
+  @param: obj* (nothing yet)
+  returns:
+    currElems[] (array of DOM nodes)
+    newElems[[]] (array of DOM node arrays)
+    valueSpecified* (whatever property is being tested)
+    or/ (default: false)
   */
-
-  var uda = function(selector) {
-    this.currElems = getDomNodeArray(selector);
-    console.log("i want");
+  var Test = function(obj) {
+    // do prelim work
+    this.currElems = undefined;
+    this.newElems = [];
     return this;
   }
 
-  uda.prototype.count = function() {
-    console.log("count");
-    console.log();
+  Test.prototype.theseNodes = function(selector) {
+    if (this.currElems !== undefined) {
+      this.newElems.push(getDomNodeArray(selector))
+    } else {
+      this.currElems = getDomNodeArray(selector);
+    }
+    return this;
+  };
+
+  Test.prototype.count = function() {
     this.valueSpecified = this.currElems.length;
     return this;
   }
-  uda.prototype.toStrictEqual = function(x) {
-    // TODO: check if extra arguments. If so, make this an `or` test for all args
+  /*
+    @param: x* (any value)
+    @param: noStrict/ (default: false)
+  */
+  Test.prototype.toEqual = function(x, noStrict) {
+    if (!noStrict) noStrict = false;
 
-    var isStrictEqual = false;
-    console.log("toStrictEqual");
-    if (this.valueSpecified === x) {isStrictEqual = true}
-    return isStrictEqual;
+    var isEqual = false;
+
+    switch (noStrict) {
+      case true:
+        if (this.valueSpecified == x) {isEqual = true}
+        break;
+      case false:
+        if (this.valueSpecified === x) {isEqual = true}
+        break;
+      default:
+        if (this.valueSpecified === x) {isEqual = true}
+        break;
+    }
+    return isEqual;
   }
 
-  var iwant = new uda('div')
-
-  console.log(iwant.count().toStrictEqual(75));
+  exports.Test = Test;

@@ -126,19 +126,18 @@ when all suites pass.
         twd.appendChild(ts);
       }
 
-      suites.forEach(function(val, index, arr) {
+      console.log(GE.suites)
+
+      GE.suites.forEach(function(val, index, arr) {
+        console.log('adding suite')
         createSuite(val);
       })
 
-      Array.observe(suites, function(e) {
+      Array.observe(GE.suites, function(e) {
         console.log("observed a change in suites! This means that this script is running before registerSuites() action happens.");
         console.log(e);
+        createSuite(e);
       })
-
-      twd.addEventListener('new-suite', function(e) {
-        createSuite({'name': e.details.name, 'code': e.details.code});
-      })
-
     };
 
     document.registerElement('test-widget', {prototype: proto});

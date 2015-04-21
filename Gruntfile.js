@@ -15,7 +15,7 @@ module.exports = function(grunt) {
         src: [
           'src/js/intro.js',
           'src/js/helpers.js',
-          'src/js/load_engine.js',
+          'src/js/load_widget.js',
           'src/js/engine.js',
           'src/js/registrar.js',
           'src/js/outro.js'
