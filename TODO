@@ -1,0 +1,39 @@
+DOM Nodes:
+* collect lots
+* collect one
+
+Selection Logic:
+* all are (none are)
+* some are
+* one is
+
+Properties:
+* CSS property has value
+* CSS property exists
+* CSS hypothetical
+* Attribute has value
+* Attribute exists
+* Exists (doesn't exist)
+* Geometry / Position
+* Length
+
+Misc:
+* Page size
+* UA
+* Viewport
+
+
+Notions:
+- grab an element or collection of elements
+- decide whether all, some or none need to meet values
+- pull and return values
+
+  - each element grabbed should have some prototypical functions that will pull data from them
+
+
+
+widget is in charge of checking suites to make sure it is displaying all of them - suites could report out?
+
+each suite is in charge of checking all the tests attached to it
+
+- make suites report when something changes

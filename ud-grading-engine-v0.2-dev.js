@@ -1,9 +1,14 @@
 /*
-Udacity's (growing) library for immediate front-end feedback.
+http://github.com/udacity/frontend-grading-engine
+
+Udacity's library for immediate front-end feedback.
 
 Version 0.2
 
 Built with Web Components (HTML Imports and Custom Elements)
+
+New for version 0.2!
+  * Encapsulation
 
 Resources:
 http://www.html5rocks.com/en/tutorials/webcomponents/imports/
@@ -12,100 +17,35 @@ http://www.html5rocks.com/en/tutorials/webcomponents/customelements/
 Cameron Pittman 2015
 */
 
-
-/*
-Starting off with some helper functions
-*/
-
 // http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
-function arrEquals(array1, array2) {
-  // if the other array is a falsy value, return
-  if (!array1 || !array2)
-    return false;
-
-  // compare lengths - can save a lot of time 
-  if (array1.length != array2.length)
-    return false;
-
-  for (var i = 0, l=array1.length; i < l; i++) {
-    // Check if we have nested arrays
-    if (array1[i] instanceof Array && array2[i] instanceof Array) {
-      // recurse into the nested arrays
-      if (!array1[i].equals(array2[i]))
-        return false;       
-    } else if (array1[i] != array2[i]) { 
-      // Warning - two different object instances will never be equal: {x:20} != {x:20}
-      return false;   
-    }           
-  }       
-  return true;
+var suites = [];
+function registerSuite(name) {
+  suites.push({
+    name: name
+  })
+  function registerTest(description, test, suite) {
+    var hit = false;
+    suites.forEach(function(val, index, arr) {
+      if (val.name === suite) {
+        hit = true;
+        val.desc = description;
+        val.test = test;
+      }
+    })
+  }
+  return {
+    registerTest: registerTest
+  }    
 }
 
-function nodeListToArray(nL) {
-  return Array.prototype.slice.apply(nL);
+
+var udElem = function(DOMelement) {
+  return DOMelement;
 }
-
-// TODO: replace all the complicated doc.querySelectorAll then Array prototype calls to this function
-function getArrayOfNodes(selector) {
-  return Array.prototype.slice.apply(document.querySelectorAll(selector))
-}
-
-/*
-https://developer.mozilla.org/en-US/docs/Web/API/HTMLScriptElement
-*/
-var importScript = (function (oHead) {
-
-  function loadError (oError) {
-    throw new URIError("The script " + oError.target.src + " is not accessible.");
-  }
-
-  return function (sSrc, fOnload) {
-    var oScript = document.createElement("script");
-    oScript.type = "text\/javascript";
-    oScript.onerror = loadError;
-    if (fOnload) { oScript.onload = fOnload; }
-    oHead.appendChild(oScript);
-    oScript.src = sSrc;
-  }
-})(document.head || document.getElementsByTagName("head")[0]);
-
-
-
-/*
-Class describes an instance of the Udacity test engine.
-*/
-var UdaciTests = function(props) {
-  this.suites = props.suites;
-  
-  document.body.addEventListener('grader-passed', function (e) {console.log("All tests passed!")}, false)
-  
-  function supportsImports() {
-    return 'import' in document.createElement('link');
-  }
-  if (supportsImports()) {
-    // Cool!
-  } else {
-    // Use other libraries/require systems to load files.
-    alert("You must use Google Chrome to get feedback and a code for this quiz. Sorry!");
-  }
-
-  // import templates
-  var link = document.createElement('link');
-  link.rel = 'import';
-  try {
-    link.href = '/frontend-grading-engine/templates/test-widget.html'
-    console.log("Running local grading script");
-  } catch (e) {
-    link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
-  }
-  link.onload = function(e) {
-    console.log('Loaded Udacity Grading Engine');
-  }
-  link.onerror = function(e) {
-    console.log('Error loading import: ' + e.target.href);
-  }
-  document.head.appendChild(link);
-}
+udElem.prototype.add = function(a,b){return a+b}
+// start attaching things that udElems can do here
+// best way to create a new element with a DOM node and some additional functions?
+udElem.prototype.hasCSSProperty = function(){};
 
 
 UdaciTests.prototype.testMediaQueries = function(udArr) {
@@ -903,5 +843,6 @@ UdaciTests.prototype.testFindStringInDocument = function(udArr) {
   return isCorrect;
 }
 
-
-var grader = new UdaciTests(graderProperties);
+return {
+  udGrader: udGrader
+}

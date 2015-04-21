@@ -91,7 +91,7 @@ when all suites pass.
     };
 
     proto.attachedCallback = function() {
-      var graderSuites = grader.suites;
+      // var graderSuites = suites;
       var twd = this.shadowRoot.querySelector('.test-widget-display');
 
       window.onscroll = function() {
@@ -109,7 +109,7 @@ when all suites pass.
       }
 
       var eventCollector = [];
-      this.addEventListener('suite-passed', function (e) {
+      this.addEventListener('suite-passed', function(e) {
         if (eventCollector.indexOf(e.detail) === -1) {
           eventCollector.push(e.detail);
           if (eventCollector.length === graderSuites.length) {
@@ -119,11 +119,26 @@ when all suites pass.
         }
       });
 
-      graderSuites.forEach(function(val, index, arr) {
+      // refactor so that when suites changes, then it creates the new child
+      function createSuite(newSuite) {
         var ts = document.createElement('test-suite');
-        ts.suite = val;
+        ts.suite = newSuite
         twd.appendChild(ts);
+      }
+
+      suites.forEach(function(val, index, arr) {
+        createSuite(val);
       })
+
+      Array.observe(suites, function(e) {
+        console.log("observed a change in suites! This means that this script is running before registerSuites() action happens.");
+        console.log(e);
+      })
+
+      twd.addEventListener('new-suite', function(e) {
+        createSuite({'name': e.details.name, 'code': e.details.code});
+      })
+
     };
 
     document.registerElement('test-widget', {prototype: proto});
