@@ -23,10 +23,18 @@ module.exports = function(grunt) {
         dest: 'dist/udgrader-003.js'
       }
     }
+    // watch: {
+    //   concat: {
+    //     files: 'src/js/*.js',
+    //     tasks: 'concat'
+    //   }
+    // }
   });
 
   // grunt.loadNpmTasks("grunt-remove-logging");
   // grunt.registerTask('default', ['grunt-remove-logging']);
   grunt.loadNpmTasks('grunt-contrib-concat');
+  // grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.registerTask('default', ['concat']);
+  // grunt.registerTask('watch', ['watch']);
 };

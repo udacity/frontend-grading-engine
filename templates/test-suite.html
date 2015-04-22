@@ -53,7 +53,7 @@ When all tests pass, it emits a 'suite-passed' event to the
     };
 
     proto.attachedCallback = function() {
-      var suiteTests = this.suite.tests;
+      // var suiteTests = this.suite.tests;
       var suiteName = this.suite.name;
       var suiteCode = this.suite.code || false;
 
@@ -82,14 +82,32 @@ When all tests pass, it emits a 'suite-passed' event to the
         }
       });
 
-      suiteTests.forEach(function(val, index, arr) {
+      function createTest(newTest, index) {
         var at = document.createElement('active-test');
-        at.test = val;
+        at.testDefinition = newTest;
         at.index = index;
-        if (!at.test.optional) numberOfMandatoryTests +=1;
+        if (!newTest.flags.optional) numberOfMandatoryTests +=1;
         suite.insertBefore(at, sc);
+      }
+
+      // console.log(this.suite.tests[0].active_test());
+
+      this.suite.tests.forEach(function(val, index, arr) {
+        // var at = document.createElement('active-test');
+        // at.test = val;
+        // at.index = index;
+        // if (!at.test.optional) numberOfMandatoryTests +=1;
+        // suite.insertBefore(at, sc);
+        createTest(val, index);
       })
 
+      Array.observe(this.suite.tests, function(change) {
+        console.log("observed a change in suiteTests! This means that this script is running before registerSuites() action happens.");
+        console.log(change);
+        // if (change[0].type === 'splice') {
+        //   createTest(change[0].object[0]);
+        // }
+      })
     };
 
     document.registerElement('test-suite', {prototype: proto});

@@ -43,5 +43,3 @@
     }
     document.head.appendChild(link);
   })()
-    
-

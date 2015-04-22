@@ -112,31 +112,30 @@ when all suites pass.
       this.addEventListener('suite-passed', function(e) {
         if (eventCollector.indexOf(e.detail) === -1) {
           eventCollector.push(e.detail);
-          if (eventCollector.length === graderSuites.length) {
+          if (eventCollector.length === GE.suites.length) {
             var passEvent = new CustomEvent('grader-passed', {'detail': 'TBD'});
             twd.dispatchEvent(passEvent);
           }
         }
       });
 
-      // refactor so that when suites changes, then it creates the new child
       function createSuite(newSuite) {
         var ts = document.createElement('test-suite');
-        ts.suite = newSuite
+        ts.suite = newSuite;
         twd.appendChild(ts);
       }
 
-      console.log(GE.suites)
-
+      // just in case GE.suites are already there
       GE.suites.forEach(function(val, index, arr) {
-        console.log('adding suite')
+        console.log('adding previously defined suite')
         createSuite(val);
       })
 
-      Array.observe(GE.suites, function(e) {
-        console.log("observed a change in suites! This means that this script is running before registerSuites() action happens.");
-        console.log(e);
-        createSuite(e);
+      Array.observe(GE.suites, function(change) {
+        // console.log("observed a change in suites! This means that this script is running before registerSuites() action happens.");
+        if (change[0].type === 'splice') {
+          createSuite(change[0].object[0]);
+        }
       })
     };
 

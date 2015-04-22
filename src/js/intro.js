@@ -58,6 +58,8 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 /*
+    Exposes GE (Grading Engine) interface
+    
     returns: exports
 */
 ;var GE = (function( window, undefined ){

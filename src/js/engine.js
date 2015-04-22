@@ -1,3 +1,4 @@
+
 /***
  *     _____ _            _____            _            
  *    |_   _| |          |  ___|          (_)           
@@ -25,16 +26,12 @@
   var Test = function(obj) {
     // do prelim work
     this.currElems = undefined;
-    this.newElems = [];
+    // this.newElems = [];
     return this;
   }
 
   Test.prototype.theseNodes = function(selector) {
-    if (this.currElems !== undefined) {
-      this.newElems.push(getDomNodeArray(selector))
-    } else {
-      this.currElems = getDomNodeArray(selector);
-    }
+    this.currElems = getDomNodeArray(selector);
     return this;
   };
 
@@ -64,5 +61,4 @@
     }
     return isEqual;
   }
-
   exports.Test = Test;

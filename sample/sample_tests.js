@@ -1,28 +1,25 @@
-var testSuites = [
-  {
-    name: "div checker",
-    code: "You found all the divs!"
-  }
-]
+var iwant = new GE.Test();
 
-var s = GE.registerSuites(testSuites);
+var suite1 = GE.registerSuite({
+  name: "div checker",
+  code: "Who's awesome? You're awesome :)"
+});
 
-var test = {
-
-  description: "find all the divs on the page",
+suite1.registerTest({
+  description: "There are 9 divs on the page",
   active_test: function() {
-    var iwant = new Test();
-    var foo = iwant.count().toStrictEqual(1);
-    console.log(foo)
-    console.log('hi')
-    return iwant.count().toStrictEqual(1);
+    return iwant.theseNodes('div').count().toEqual(9);
   },
   flags: [
     {
-      async: true
+      async: false
     }
   ]
-  
-}
+})
 
-s.registerTest('div checker', test)
+suite1.registerTest({
+  description: "There is 1 h1 on the page",
+  active_test: function() {
+    return iwant.theseNodes('h1').count().toEqual(1);
+  }
+})

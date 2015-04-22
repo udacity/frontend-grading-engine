@@ -41,22 +41,23 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
     };
 
     proto.attachedCallback = function() {
-      var testFunc = this.test.func;
-      var testParams = this.test.params;
-      var testDesc = this.test.desc;
+      var testDefinition = this.testDefinition;
+      var grader = testDefinition.active_test;
+      // var testParams = testDefinition.params;
+      var testDescription = testDefinition.description;
       var index = this.index; // index of test in the suites JSON
 
 
       // Optional flags defined below!
-      var noRepeat = this.test.noRepeat || false; // run only once on load
-      var repeat = this.test.repeat || false; // keep running even if test passes
-      var async = this.test.async || false;
-      var showCurrent = this.test.showCurrent || false;
-      var optional = this.test.optional || false; // test does not affect code display
+      var noRepeat = testDefinition.flags.noRepeat || false; // run only once on load
+      var repeat = testDefinition.flags.repeat || false; // keep running even if test passes
+      var async = testDefinition.flags.async || false;  // async
+      var showCurrent = testDefinition.flags.showCurrent || false;  // TODO: show currently resolved value
+      var optional = testDefinition.flags.optional || false; // test does not affect code display
 
 
       var td = this.shadowRoot.querySelector('.test-desc');
-      td.innerHTML = testDesc;
+      td.innerHTML = testDescription;
 
       if (showCurrent) td.insertAdjacentHTML('beforeend', '<br>&nbsp;&nbsp;&nbsp;&nbsp;Currently: pending');
 
@@ -72,7 +73,7 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
       };
 
       function fireTestStatusEvent(info) {
-        // info includes index, testCorrect, testDesc
+        // info includes index, testCorrect, testDescription
         var testStatusEvent = new CustomEvent('test-status', {'detail': info});
         td.dispatchEvent(testStatusEvent);
       };
@@ -89,7 +90,7 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
         var callback = {
           success: function(detail) {
             testHasPassed();
-            fireTestStatusEvent({'index': index, 'testCorrect': true, 'desc': testDesc});
+            fireTestStatusEvent({'index': index, 'testCorrect': true, 'desc': testDescription});
           },
           error: function(detail) {
             // nothing for now
@@ -126,21 +127,21 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
       // TODO: clean up this logic
       // TODO: move repeat logic in here
       var testCorrect = false;
-      if (!optional) fireTestStatusEvent({'index': index, 'testCorrect': testCorrect, 'desc': testDesc});
+      if (!optional) fireTestStatusEvent({'index': index, 'testCorrect': testCorrect, 'desc': testDescription});
       var gradeRunner = setInterval(function() {
         if (async) {
-          runAsyncTest(grader[testFunc], testParams);
+          runAsyncTest(grader[grader], testParams);
         } else if (!async) {
           try {
-            testCorrect = grader[testFunc](testParams);
+            testCorrect = grader();
           } catch (e) {
             // TODO: make this more useful
-            throw new Error("Test: " + testFunc + " failed to execute with args:" + testParams[0]);
+            throw new Error("Test: " + grader + " failed to execute.");
           }
           if (testCorrect) testHasPassed();
           if (repeat && !testCorrect) testHasFailed();
         }
-        if (!optional) fireTestStatusEvent({'index': index, 'testCorrect': testCorrect, 'desc': testDesc});
+        if (!optional) fireTestStatusEvent({'index': index, 'testCorrect': testCorrect, 'desc': testDescription});
         if (noRepeat || async) clearInterval(gradeRunner);
       }, 1000)
 

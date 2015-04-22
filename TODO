@@ -33,7 +33,8 @@ Notions:
 
   - each element grabbed should have some prototypical functions that will pull data from them
 
-
+Questions:
+- how much error handling should be happening explicitly?
 
 widget is in charge of checking suites to make sure it is displaying all of them - suites could report out?
 
