@@ -19,33 +19,81 @@
   @param: obj* (nothing yet)
   returns:
     currElems[] (array of DOM nodes)
-    newElems[[]] (array of DOM node arrays)
-    valueSpecified* (whatever property is being tested)
+    valueSpecified[*] (whatever property is being tested)
+    someOf/ (default: false. If true, then at least one node needs to match the criteria for the test to pass)
+    oneOf/ (default: false. If true, then just one node needs to match the criteria for the test to pass)
     or/ (default: false)
   */
+
+  // TODO: can I hide private functions in here?
   var Test = function(obj) {
     // do prelim work
-    this.currElems = undefined;
-    // this.newElems = [];
+    this.valueSpecified = [];
+    // function log(argument) {
+    //   console.log(argument)
+    // }
     return this;
+  }
+
+  Test.prototype.record = function(val) {
+    this.valueSpecified.push(val);
+    // this.log('hi')
+  }
+
+  Test.prototype.someOf = function() {
+    this.someOf = true;
+  }
+
+  Test.prototype.oneOf = function() {
+    this.oneOf = true;
   }
 
   Test.prototype.theseNodes = function(selector) {
     this.currElems = getDomNodeArray(selector);
     return this;
-  };
+  }
 
-  Test.prototype.count = function() {
-    this.valueSpecified = this.currElems.length;
+  Test.prototype.iterate = function(callback) {
+    this.currElems.forEach(function(val, index, arr) {
+      callback(val, index, arr);
+    })
     return this;
   }
+
+  /*
+    @param: none
+    returns: true if the value specified exists
+  */
+  Test.prototype.toExist = function() {
+    var doesExist = false;
+
+    if (this.valueSpecified.length > 0) {
+      doesExist = true;
+    }
+    return doesExist;
+  }
+
+  Test.prototype.count = function() {
+    this.record(this.currElems.length);
+    return this;
+  }
+
+  Test.prototype.cssProperty = function(property) {
+    this.iterate(function(val, index, arr) {
+      var styles = getComputedStyle(val);
+      this.record(styles[property]);
+    })
+  }
+
   /*
     @param: x* (any value)
     @param: noStrict/ (default: false)
+
+    // TODO: refactor for arrays
   */
   Test.prototype.toEqual = function(x, noStrict) {
-    if (!noStrict) noStrict = false;
-
+    noStrict = noStrict || false;
+    
     var isEqual = false;
 
     switch (noStrict) {
