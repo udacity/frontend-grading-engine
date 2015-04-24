@@ -95,12 +95,13 @@ var UdaciTests = function(props) {
 
   function loadLocalWidget() {
     link.href = '/frontend-grading-engine/templates/test-widget.html';
-    console.log(document.head.appendChild(link));
+    document.head.appendChild(link);
   }
 
   function loadRemoteWidget() {
+    document.head.removeChild(link);
     link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html';
-    console.log(document.head.appendChild(link));
+    document.head.appendChild(link);
   }
 
   loadLocalWidget();
