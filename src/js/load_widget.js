@@ -22,24 +22,20 @@
       // Cool!
     } else {
       // Use other libraries/require systems to load files.
-      alert("You must use Google Chrome to get feedback and a code for this quiz. Sorry!");
+      alert("You must use the latest version of Google Chrome to get feedback and a code for this quiz. Sorry!");
     }
 
     // import templates
     var link = document.createElement('link');
     link.rel = 'import';
+    link.href = '/frontend-grading-engine/templates/test-widget.html';
+    document.head.appendChild(link);
     
-    // using try-catch to load from localhost if possible, fallback to github.io
-    try {
-      link.href = '/frontend-grading-engine/templates/test-widget.html'
-    } catch (e) {
-      link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
-    }
     link.onload = function(e) {
       console.log('Loaded Udacity Grading Engine');
     }
     link.onerror = function(e) {
-      console.log('Error loading import: ' + e.target.href);
+      link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html';
+      document.head.appendChild(link);
     }
-    document.head.appendChild(link);
   })()

@@ -37,7 +37,6 @@
 
   Test.prototype.record = function(val) {
     this.valueSpecified.push(val);
-    // this.log('hi')
   }
 
   Test.prototype.someOf = function() {
@@ -46,6 +45,16 @@
 
   Test.prototype.oneOf = function() {
     this.oneOf = true;
+  }
+
+  Test.prototype.genIsCorrect = function(currCorrect, index, callback) {
+    var isCorrect = false;
+    if (index === 0) {
+      isCorrect = callback();
+    } else {
+      isCorrect = currCorrect && callback();
+    }
+    return isCorrect;
   }
 
   Test.prototype.theseNodes = function(selector) {
@@ -95,18 +104,21 @@
     noStrict = noStrict || false;
     
     var isEqual = false;
-
-    switch (noStrict) {
-      case true:
-        if (this.valueSpecified == x) {isEqual = true}
-        break;
-      case false:
-        if (this.valueSpecified === x) {isEqual = true}
-        break;
-      default:
-        if (this.valueSpecified === x) {isEqual = true}
-        break;
-    }
+    this.iterate(function(val, index, arr) {
+      switch (noStrict) {
+        case true:
+          this.genIsCorrect(function() {
+            return val == x;
+          })
+          break;
+        case false:
+          if (val === x) {isEqual = true}
+          break;
+        default:
+          if (val === x) {isEqual = true}
+          break;
+      }
+    })
     return isEqual;
   }
   exports.Test = Test;
