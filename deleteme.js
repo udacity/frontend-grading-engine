@@ -99,7 +99,7 @@ var UdaciTests = function(props) {
   }
 
   function loadRemoteWidget() {
-    this.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html';
+    link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html';
     console.log(document.head.appendChild(link));
   }
 
