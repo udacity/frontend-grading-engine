@@ -97,8 +97,8 @@ var UdaciTests = function(props) {
     console.log('Loaded Udacity Grading Engine');
   }
   link.onerror = function(e) {
-    link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
-    document.head.appendChild(link);
+    this.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
+    document.head.appendChild(this);
   }
   document.head.appendChild(link);
 }
@@ -108,7 +108,7 @@ UdaciTests.prototype.testMediaQueries = function(udArr) {
     /*
     This is an insane piece of code that's not quite fully functional.
 
-    To test whether or not breakpoints are set correctly,
+    To test whether or not breakpoints are set correctly, 
     we create an iframe off the viewport containing the current page.
     Then, we resize the iframe's width and query it for styles.
 

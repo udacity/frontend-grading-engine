@@ -92,17 +92,13 @@ var UdaciTests = function(props) {
   // import templates
   var link = document.createElement('link');
   link.rel = 'import';
-  try {
-    link.href = '/frontend-grading-engine/templates/test-widget.html'
-    console.log("Running local grading script");
-  } catch (e) {
-    link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
-  }
+  link.href = '/frontend-grading-engine/templates/test-widget.html'
   link.onload = function(e) {
     console.log('Loaded Udacity Grading Engine');
   }
   link.onerror = function(e) {
-    console.log('Error loading import: ' + e.target.href);
+    link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
+    document.head.appendChild(link);
   }
   document.head.appendChild(link);
 }
