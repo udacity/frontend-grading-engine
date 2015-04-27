@@ -92,12 +92,7 @@ var UdaciTests = function(props) {
   // import templates
   var link = document.createElement('link');
   link.rel = 'import';
-  try {
-    link.href = '/frontend-grading-engine/templates/test-widget.html'
-    console.log("Running local grading script");
-  } catch (e) {
-    link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
-  }
+  link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
   link.onload = function(e) {
     console.log('Loaded Udacity Grading Engine');
   }
@@ -666,6 +661,7 @@ UdaciTests.prototype.testDOMelemAttrApproxContent = function(udArr) {
   return hasCorrectAttr;
 }
 UdaciTests.prototype.testDOMelemCSS = function(udArr) {
+  // TODO: make this applicable to more than px and %
   var isCorrect = false;
   var elem = document.querySelector(udArr[0].selector);
   if (!elem) return false;
@@ -725,9 +721,8 @@ UdaciTests.prototype.testDOMelemCSS = function(udArr) {
     isCorrect = inPixelRange(udValue, stdValue);
   } else if (udValue.indexOf("%") !== -1) {
     isCorrect = inPercentageRange(udValue, stdValue);
-  } else {
-    udValue === stdValue ? isCorrect = true : isCorrect = false;
   }
+
   return isCorrect;
 }
 UdaciTests.prototype.testPageSizeHosted = function(udArr) {
