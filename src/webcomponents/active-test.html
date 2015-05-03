@@ -51,6 +51,7 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
       var testDefinition = this.testDefinition;
       var grader = testDefinition.active_test;
       var testDescription = testDefinition.description;
+      var iwant = testDefinition.iwant;
       var index = this.index; // index of test in its suite array
 
 
@@ -118,10 +119,11 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
         var gradeRunner = setInterval(function() {
           // run the test
           try {
-            testCorrect = grader();
+            var testResult = grader(iwant);
+            var testValue = testResult.valuesSpecified;
+            testCorrect = testResult.isCorrect;
           } catch (e) {
-            throw new Error("Test: " + grader + " failed to execute because:");
-            console.log(e);
+            throw new Error("Test: " + grader + " failed to execute because: " + e);
           }
           // update the widget
           if (testCorrect) {
@@ -163,7 +165,7 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
           }
         };
         var promise = new Promise(function(resolve, reject) {
-          grader();
+          grader(iwant);
           document.querySelector('test-widget').addEventListener('async-end', function(e) {
             responseDetails = e.detail;
             if (responseDetails['passed']) {

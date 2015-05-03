@@ -32,17 +32,21 @@
       suites.forEach(function(val, index, arr) {
         if (val.name === thisSuite) {
           hit = true;
-          if (!_test.flags) _test.flags = {};
+          if (!_test.flags) {
+            _test.flags = {};
+          }
           val.tests.push({
             description: _test.description,
             active_test: _test.active_test,
-            flags: _test.flags
+            flags: _test.flags,
+            iwant: new Test()
           })
         }
       })
       if (!hit) {
         console.log("Suite " + suiteName + " was not registered. Could not add tests.");
       }
+      _test.iwant = new Test();
     }
     return {
       registerTest: registerTest

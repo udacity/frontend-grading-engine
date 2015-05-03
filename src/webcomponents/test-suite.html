@@ -9,7 +9,7 @@ When all tests pass, it emits a 'suite-passed' event to the
 <test-widget>.
 -->
 
-<link rel="import" href="/frontend-grading-engine/templates/active-test.html">
+<link rel="import" href="/frontend-grading-engine/src/webcomponents/active-test.html">
 
 <template id="test-suite">
   <style scoped>
@@ -90,23 +90,15 @@ When all tests pass, it emits a 'suite-passed' event to the
         suite.insertBefore(at, sc);
       }
 
-      // console.log(this.suite.tests[0].active_test());
-
       this.suite.tests.forEach(function(val, index, arr) {
-        // var at = document.createElement('active-test');
-        // at.test = val;
-        // at.index = index;
-        // if (!at.test.optional) numberOfMandatoryTests +=1;
-        // suite.insertBefore(at, sc);
         createTest(val, index);
       })
 
       Array.observe(this.suite.tests, function(change) {
         console.log("observed a change in suiteTests! This means that this script is running before registerSuites() action happens.");
-        console.log(change);
-        // if (change[0].type === 'splice') {
-        //   createTest(change[0].object[0]);
-        // }
+        if (change[0].type === 'splice') {
+          createTest(change[0].object[0]);
+        }
       })
     };
 

@@ -18,26 +18,16 @@ Properties:
 * Length
 
 Compare network response:
-
+* bytes by file
+* bytes by filetype
+* time
 
 Misc:
 * Page size
 * UA
 * Viewport
 
-
-Notions:
-- grab an element or collection of elements
-- decide whether all, some or none need to meet values
-- pull and return values
-
-  - each element grabbed should have some prototypical functions that will pull data from them
-
-Questions:
-- how much error handling should be happening explicitly?
-
-widget is in charge of checking suites to make sure it is displaying all of them - suites could report out?
-
-each suite is in charge of checking all the tests attached to it
-
-- make suites report when something changes
+grunt / gulp:
+* dev with lots of logging
+* remove logs for prod (but still publish dev on gh-pages)
+* regex switch localhost for github.io for script injection in load_engine
