@@ -36,30 +36,53 @@ suite1.registerTest({
   }
 })
 
-
-
-function m() {};
-m.baz = "bazzzz"
-m.func = function(thing) {
-  if (this.baz === "bazzzz") {
-    console.log("it's old " + thing)
-  } else if (this.baz === "changed") {
-    console.log("it's new " + thing)
-  }
-}
-
-m.log = function(msg) {
-  console.log(msg);
-};
-
-Object.defineProperties(m, {
-  bar: {
-    get: function() {
-      this.baz = "changed";
-      this.log('worked!');
-      return this;
-    }
+suite1.registerTest({
+  description: "box 5 has a test attribute",
+  active_test: function(iwant) {
+    return iwant.theseNodes('.box5').attribute('test').toExist;
   }
 })
 
-var n = Object.create(m);
+suite1.registerTest({
+  description: "box 5 test attribute == 'hi'",
+  active_test: function(iwant) {
+    return iwant.theseNodes('.box5').attribute('test').toEqual('hi');
+  }
+})
+
+suite1.registerTest({
+  description: "all boxes have test attribute",
+  active_test: function(iwant) {
+    return iwant.theseNodes('.box').attribute('test').toExist;
+  }
+})
+
+
+/*
+just goofing around with objects
+*/
+// function m() {};
+// m.baz = "bazzzz"
+// m.func = function(thing) {
+//   if (this.baz === "bazzzz") {
+//     console.log("it's old " + thing)
+//   } else if (this.baz === "changed") {
+//     console.log("it's new " + thing)
+//   }
+// }
+
+// m.log = function(msg) {
+//   console.log(msg);
+// };
+
+// Object.defineProperties(m, {
+//   bar: {
+//     get: function() {
+//       this.baz = "changed";
+//       this.log('worked!');
+//       return this;
+//     }
+//   }
+// })
+
+// var n = Object.create(m);

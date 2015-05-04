@@ -38,3 +38,19 @@
   function getDomNodeArray(selector) {
     return Array.prototype.slice.apply(document.querySelectorAll(selector));
   }
+
+  // modified from http://stackoverflow.com/questions/7960335/javascript-is-given-function-empty
+  Function.prototype.getBody = function() {
+    // Get content between first { and last }
+    var m = this.toString().match(/\{([\s\S]*)\}/m)[1];
+    // strip whitespace http://stackoverflow.com/questions/14540094/javascript-regular-expression-for-removing-all-spaces-except-for-what-between-do
+    m = m.replace(/([^"]+)|("[^"]+")/g, function($0, $1, $2) {
+      if ($1) {
+          return $1.replace(/\s/g, '');
+      } else {
+          return $2; 
+      } 
+    });
+    // Strip comments
+    return m.replace(/^\s*\/\/.*$/mg,'');
+  };

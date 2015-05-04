@@ -11,28 +11,15 @@
  */
  /*
     Returns the Tester object.
-
-    Instances of the test object are kept between runs! You need to clear out all the data at the start of each run.
  */
 
-
-
-  /*
-  @param: obj* (nothing yet)
-  returns:
-    currElems[] (array of DOM nodes)
-    valueSpecified[*] (whatever property is being tested)
-    someOf/ (default: false. If true, then at least one node needs to match the criteria for the test to pass)
-    oneOf/ (default: false. If true, then just one node needs to match the criteria for the test to pass)
-    or/ (default: false)
-  */
-
+  // technically a helper function, but it's only used here
   function genIsCorrect(currCorrect, config) {
     var callback = config.callback,
         index = config.index,
-        expectedVal = config.expectedVal,
-        elem = config.elem,
-        currVal = elem.valueSpecified;
+        expectedVal = config.expectedVal || false,
+        elem = config.elem || false,
+        currVal = elem.valueSpecified || config.currVal || false;
 
     var isCorrect = false;
     if (index === 0) {
@@ -50,6 +37,7 @@
   Tester.documentValueSpecified = undefined;
   Tester.targeted = [];
   Tester.needToIterate = false;
+  Tester.lastOperation = undefined;
 
   Tester.wrapUpAndReturn = function (passed) {
     // last work to be done before returning result
@@ -75,7 +63,7 @@
           elem: elem
         })
       })
-    } else {
+    } else if (!this.needToIterate) {
       isCorrect = callback();
     }
     return isCorrect;
@@ -90,16 +78,68 @@
     },
     toExist: {
       get: function() {
-        var count = this.targeted.length;
+        var lastOperation = this.lastOperation || [];
         var doesExist = false;
         var doesExistFunc = function () {
           var doesExist = false;
-          if (count > 0) {
-            doesExist = true;
+
+          // typeof null === "object", for some insane reason. This is to correct for it.
+          if (lastOperation === null) {
+            lastOperation = false;
           }
+          var typeOfOperation = typeof lastOperation;
+          if (typeOfOperation === "object" && lastOperation instanceof Array) {
+            typeOfOperation = "array";
+          }
+
+          switch (typeOfOperation) {
+            case "number":
+              if (lastOperation > 0) {
+                doesExist = true;
+              };
+              break;
+            case "string":
+              if (lastOperation.length > 0) {
+                doesExist = true;
+              };
+              break;
+            case "array":
+              var doesExistFunc = function (x) {
+                if (x) {
+                  return true;
+                } else {
+                  return false;
+                }
+              }
+              lastOperation.forEach(function(val, index, arr) {
+                doesExist = genIsCorrect(doesExist, {
+                  callback: doesExistFunc,
+                  index: index,
+                  currVal: val
+                });
+              });
+              break;
+            case "object":
+              if (Object.keys(lastOperation).length > 0) {
+                doesExist = true;
+              };
+              break;
+            case "function":
+              if (lastOperation.getBody().length > 0) {
+                doesExist = true;
+              };
+              break;
+            default:
+              // good for booleans or undefined
+              if (lastOperation) {
+                doesExist = true;
+              };
+              break;
+          }
+
           return doesExist;
         }
-        doesExist = this.grade(doesExistFunc)
+        doesExist = this.grade(doesExistFunc);
         return this.wrapUpAndReturn(doesExist);
       }
     }
@@ -115,19 +155,40 @@
     this.completedTests = [];
     this.targeted = [];
     this.documentValueSpecified = undefined;
+    this.lastOperation = [];
+
     getDomNodeArray(selector).forEach(function(elem, index, arr) {
       self.targeted.push({
         elem: elem
       })
     })
+    this.lastOperation = this.targeted;
     return this;
   }
 
   Tester.cssProperty = function(property) {
+    var self = this;
     this.needToIterate = true;
+    this.lastOperation = [];
     this.targeted.forEach(function(targetObj, index, arr) {
       var styles = getComputedStyle(targetObj.elem);
       targetObj.valueSpecified = styles[property];
+      self.lastOperation.push(targetObj.valueSpecified);
+    })
+    return this;
+  }
+
+  Tester.attribute = function(attr) {
+    var self = this;
+    this.needToIterate = true;
+    this.lastOperation = [];
+    this.targeted.forEach(function(targetObj, index, arr) {
+      var attrValue = targetObj.elem.getAttribute(attr);
+      if (attrValue === "") {
+        attrValue = true;
+      }
+      targetObj.valueSpecified = attrValue;
+      self.lastOperation.push(targetObj.valueSpecified);
     })
     return this;
   }
@@ -140,7 +201,6 @@
     noStrict = noStrict || false;
     
     var isEqual = false;
-
     // TODO: needs to be more general
     var equalityFunc = function() {};
     switch (noStrict) {
