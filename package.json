@@ -8,7 +8,9 @@
   },
   "devDependencies": {
     "grunt-contrib-concat": "^0.5.1",
-    "grunt-contrib-watch": "^0.6.1"
+    "grunt-contrib-watch": "^0.6.1",
+    "gulp-debug": "^2.0.1",
+    "gulp-install": "^0.4.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

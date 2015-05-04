@@ -39,14 +39,14 @@
             description: _test.description,
             active_test: _test.active_test,
             flags: _test.flags,
-            iwant: new Test()
+            iwant: Object.create(Tester)
           })
         }
       })
       if (!hit) {
         console.log("Suite " + suiteName + " was not registered. Could not add tests.");
       }
-      _test.iwant = new Test();
+      _test.iwant = Object.create(Tester);
     }
     return {
       registerTest: registerTest

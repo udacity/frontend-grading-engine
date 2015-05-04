@@ -4,9 +4,9 @@ var suite1 = GE.registerSuite({
 });
 
 suite1.registerTest({
-  description: "There are 9 divs on the page",
+  description: "There are less than 10 divs on the page",
   active_test: function(iwant) {
-    return iwant.theseNodes('div').length().toBeGreaterThan(9);
+    return iwant.theseNodes('div').count.toBeLessThan(10);
   },
   flags: [
     {
@@ -16,9 +16,9 @@ suite1.registerTest({
 })
 
 suite1.registerTest({
-  description: "There is 1 h1 on the page",
+  description: "There are less than 1 h1s on the page",
   active_test: function(iwant) {
-    return iwant.theseNodes('h1').length().toBeLessThan(2);
+    return iwant.theseNodes('h1').count.toBeLessThan(1);
   }
 })
 
@@ -28,6 +28,14 @@ suite1.registerTest({
     return iwant.theseNodes('div').cssProperty('backgroundColor').toEqual('rgb(255, 204, 204)');
   }
 })
+
+suite1.registerTest({
+  description: "There's a p tag",
+  active_test: function(iwant) {
+    return iwant.theseNodes('p').toExist;
+  }
+})
+
 
 
 function m() {};
@@ -40,10 +48,15 @@ m.func = function(thing) {
   }
 }
 
+m.log = function(msg) {
+  console.log(msg);
+};
+
 Object.defineProperties(m, {
   bar: {
     get: function() {
-      this.baz = "changed"
+      this.baz = "changed";
+      this.log('worked!');
       return this;
     }
   }
