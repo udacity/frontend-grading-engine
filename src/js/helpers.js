@@ -32,8 +32,8 @@
   }
 
   /*
-      @param: selector'' (a CSS selector)
-      returns: [] of DOM nodes
+    @param: selector'' (a CSS selector)
+    returns: [] of DOM nodes
   */
   function getDomNodeArray(selector) {
     return Array.prototype.slice.apply(document.querySelectorAll(selector));

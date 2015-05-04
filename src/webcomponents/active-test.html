@@ -120,7 +120,7 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
           // run the test
           try {
             var testResult = grader(iwant);
-            var testValue = testResult.valuesSpecified;
+            var testValue = testResult.actuals;
             testCorrect = testResult.isCorrect;
           } catch (e) {
             throw new Error("Test: " + grader + " failed to execute because: " + e);

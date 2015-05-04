@@ -38,6 +38,8 @@
   Tester.targeted = [];
   Tester.needToIterate = false;
   Tester.lastOperation = undefined;
+  Tester.gradeOpposite = false;
+  Tester.testingExistence = false;
 
   Tester.wrapUpAndReturn = function (passed) {
     // last work to be done before returning result
@@ -46,15 +48,34 @@
 
     return {
       isCorrect: passed,
-      valuesSpecified: this.valuesSpecified  // probably
+      actuals: this.lastOperation  // probably should force this to be an array
     }
   }
 
   Tester.grade = function(callback, expectedVal) {
+    var self = this;
     var isCorrect = false;
+
+    // to adjust for not
+    callback = (function(self, callback) {
+      var cbFunc = function() {};
+      if (self.gradeOpposite) {
+        cbFunc = function(x,y) {
+          var result = callback(x,y);
+          return !result;
+        }
+      } else {
+        cbFunc = function(x,y) {
+          var result = callback(x,y);
+          return result;
+        }
+      }
+      return cbFunc;
+    })(self, callback);
+
     if (this.documentValueSpecified !== undefined) {
       isCorrect = callback(this.documentValueSpecified, expectedVal);
-    } else if (this.needToIterate) {
+    } else if (this.needToIterate && !this.testingExistence) {
       this.targeted.forEach(function(elem, index, arr) {
         isCorrect = genIsCorrect(isCorrect, {
           callback: callback,
@@ -63,7 +84,15 @@
           elem: elem
         })
       })
-    } else if (!this.needToIterate) {
+    } else if (this.testingExistence) {
+      this.lastOperation.forEach(function(val, index, arr) {
+        isCorrect = genIsCorrect(isCorrect, {
+          callback: callback,
+          index: index,
+          currVal: val
+        })
+      })
+    } else {
       isCorrect = callback();
     }
     return isCorrect;
@@ -78,69 +107,89 @@
     },
     toExist: {
       get: function() {
+        this.testingExistence = true;
         var lastOperation = this.lastOperation || [];
+        
         var doesExist = false;
-        var doesExistFunc = function () {
-          var doesExist = false;
-
-          // typeof null === "object", for some insane reason. This is to correct for it.
-          if (lastOperation === null) {
-            lastOperation = false;
-          }
-          var typeOfOperation = typeof lastOperation;
-          if (typeOfOperation === "object" && lastOperation instanceof Array) {
-            typeOfOperation = "array";
-          }
-
-          switch (typeOfOperation) {
-            case "number":
-              if (lastOperation > 0) {
-                doesExist = true;
-              };
-              break;
-            case "string":
-              if (lastOperation.length > 0) {
-                doesExist = true;
-              };
-              break;
-            case "array":
-              var doesExistFunc = function (x) {
-                if (x) {
-                  return true;
-                } else {
-                  return false;
-                }
-              }
-              lastOperation.forEach(function(val, index, arr) {
-                doesExist = genIsCorrect(doesExist, {
-                  callback: doesExistFunc,
-                  index: index,
-                  currVal: val
-                });
-              });
-              break;
-            case "object":
-              if (Object.keys(lastOperation).length > 0) {
-                doesExist = true;
-              };
-              break;
-            case "function":
-              if (lastOperation.getBody().length > 0) {
-                doesExist = true;
-              };
-              break;
-            default:
-              // good for booleans or undefined
-              if (lastOperation) {
-                doesExist = true;
-              };
-              break;
-          }
-
-          return doesExist;
+        
+        // typeof null === "object", for some insane reason. This is to correct for it.
+        if (lastOperation === null) {
+          lastOperation = false;
         }
+        var typeOfOperation = typeof lastOperation;
+        if (typeOfOperation === "object" && lastOperation instanceof Array) {
+          typeOfOperation = "array";
+        }
+
+        if (typeOfOperation !== "array") {
+          this.lastOperation = [lastOperation]
+        }
+
+        var doesExistFunc = function () {};
+        
+        var subDoesExist = false;
+
+        switch (typeOfOperation) {
+          case "number":
+            doesExistFunc = function (x) {
+              var subDoesExist = false;
+              if (x > 0) {
+                subDoesExist = true;
+              }
+            }
+            break;
+          case "string":
+            doesExistFunc = function (x) {
+              var subDoesExist = false;
+              if (x.length > 0) {
+                subDoesExist = true;
+              }
+            }
+            break;
+          case "array":
+            doesExistFunc = function (x) {
+              if (x) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+            break;
+          case "object":
+            doesExistFunc = function (x) {
+              var subDoesExist = false;
+              if (Object.keys(x).length > 0) {
+                subDoesExist = true;
+              }
+            }
+            break;
+          case "function":
+            doesExistFunc = function (x) {
+              var subDoesExist = false;
+              if (x.getBody().length > 0) {
+                subDoesExist = true;
+              }
+            }
+            break;
+          default:
+            // good for booleans or undefined
+            doesExistFunc = function (x) {
+              var subDoesExist = false;            
+              if (x) {
+                subDoesExist = true;
+              }
+            }
+            break;
+        }
+
         doesExist = this.grade(doesExistFunc);
         return this.wrapUpAndReturn(doesExist);
+      }
+    },
+    not: {
+      get: function () {
+        this.gradeOpposite = true;
+        return this;
       }
     }
   })
@@ -226,7 +275,7 @@
   }
 
   Tester.toBeGreaterThan = function(y, orEqualTo) {
-    orEqualTo = orEqualTo || false; // strict equality
+    orEqualTo = orEqualTo || false;
     var isGreaterThan = false;
 
     var greaterThanFunc = function() {};
@@ -262,7 +311,7 @@
   }
 
   Tester.toBeLessThan = function(y, orEqualTo) {
-    orEqualTo = orEqualTo || false; // strict equality
+    orEqualTo = orEqualTo || false;
     var isLessThan = false;
 
     var lessThanFunc = function() {};

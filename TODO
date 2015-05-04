@@ -1,21 +1,21 @@
 DOM Nodes:
-* collect lots
-* collect one
+* collect lots - done
+* collect one - done
 
 Selection Logic:
-* all are (none are)
+* all are - done
 * some are
-* one is
+* not - need a wrapper for callbacks? change callbacks prototype?
 
 Properties:
-* CSS property has value
-* CSS property exists
+* CSS property has value - done
+* CSS property exists - done
 * CSS hypothetical
-* Attribute has value
-* Attribute exists
-* Exists (doesn't exist)
+* Attribute has value - done
+* Attribute exists - done
+* Exists (doesn't exist) - done
 * Geometry / Position
-* Length
+* Length - done
 
 Compare network response:
 * bytes by file

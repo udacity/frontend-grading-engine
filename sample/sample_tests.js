@@ -3,38 +3,38 @@ var suite1 = GE.registerSuite({
   code: "I'm a cool code!"
 });
 
-suite1.registerTest({
-  description: "There are less than 10 divs on the page",
-  active_test: function(iwant) {
-    return iwant.theseNodes('div').count.toBeLessThan(10);
-  },
-  flags: [
-    {
-      async: false
-    }
-  ]
-})
+// suite1.registerTest({
+//   description: "There are less than 10 divs on the page",
+//   active_test: function(iwant) {
+//     return iwant.theseNodes('div').count.toBeLessThan(10);
+//   },
+//   flags: [
+//     {
+//       async: false
+//     }
+//   ]
+// })
 
-suite1.registerTest({
-  description: "There are less than 1 h1s on the page",
-  active_test: function(iwant) {
-    return iwant.theseNodes('h1').count.toBeLessThan(1);
-  }
-})
+// suite1.registerTest({
+//   description: "There are less than 1 h1s on the page",
+//   active_test: function(iwant) {
+//     return iwant.theseNodes('h1').count.toBeLessThan(1);
+//   }
+// })
 
-suite1.registerTest({
-  description: "Each div is pink",
-  active_test: function(iwant) {
-    return iwant.theseNodes('div').cssProperty('backgroundColor').toEqual('rgb(255, 204, 204)');
-  }
-})
+// suite1.registerTest({
+//   description: "Each div is pink",
+//   active_test: function(iwant) {
+//     return iwant.theseNodes('div').cssProperty('backgroundColor').toEqual('rgb(255, 204, 204)');
+//   }
+// })
 
-suite1.registerTest({
-  description: "There's a p tag",
-  active_test: function(iwant) {
-    return iwant.theseNodes('p').toExist;
-  }
-})
+// suite1.registerTest({
+//   description: "There's a p tag",
+//   active_test: function(iwant) {
+//     return iwant.theseNodes('p').toExist;
+//   }
+// })
 
 suite1.registerTest({
   description: "box 5 has a test attribute",
@@ -43,12 +43,12 @@ suite1.registerTest({
   }
 })
 
-suite1.registerTest({
-  description: "box 5 test attribute == 'hi'",
-  active_test: function(iwant) {
-    return iwant.theseNodes('.box5').attribute('test').toEqual('hi');
-  }
-})
+// suite1.registerTest({
+//   description: "box 5 test attribute == 'hi'",
+//   active_test: function(iwant) {
+//     return iwant.theseNodes('.box5').attribute('test').toEqual('hi');
+//   }
+// })
 
 suite1.registerTest({
   description: "all boxes have test attribute",
@@ -57,6 +57,12 @@ suite1.registerTest({
   }
 })
 
+suite1.registerTest({
+  description: "no boxes have test attribute",
+  active_test: function(iwant) {
+    return iwant.theseNodes('.box').attribute('test').not.toExist;
+  }
+})
 
 /*
 just goofing around with objects
