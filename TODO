@@ -5,7 +5,7 @@ DOM Nodes:
 Selection Logic:
 * all are - done
 * some are
-* not - need a wrapper for callbacks? change callbacks prototype?
+* not - done (I'm pretty sure)
 
 Properties:
 * CSS property has value - done
@@ -13,8 +13,14 @@ Properties:
 * CSS hypothetical
 * Attribute has value - done
 * Attribute exists - done
-* Exists (doesn't exist) - done
+* Exists - done
 * Geometry / Position
+  * top
+  * left
+  * bottom
+  * right
+* Position relative to:
+  document, viewport, other elements
 * Length - done
 
 Compare network response:
@@ -24,8 +30,8 @@ Compare network response:
 
 Misc:
 * Page size
-* UA
-* Viewport
+* UA - done
+* Viewport - done
 
 grunt / gulp:
 * dev with lots of logging

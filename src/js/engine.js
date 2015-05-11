@@ -13,23 +13,6 @@
     Returns the Tester object.
  */
 
-  // technically a helper function, but it's only used here
-  function genIsCorrect(currCorrect, config) {
-    var callback = config.callback,
-        index = config.index,
-        expectedVal = config.expectedVal || false,
-        elem = config.elem || false,
-        currVal = elem.valueSpecified || config.currVal || false;
-
-    var isCorrect = false;
-    if (index === 0) {
-      isCorrect = callback(currVal, expectedVal);
-    } else {
-      isCorrect = currCorrect && callback(currVal, expectedVal);
-    }
-    return isCorrect;
-  };
-
   // TODO: before and after
   function Tester() {
     // do prelim work?
@@ -55,6 +38,23 @@
   Tester.grade = function(callback, expectedVal) {
     var self = this;
     var isCorrect = false;
+
+    // technically a helper function, but it's only used here
+    function genIsCorrect(currCorrect, config) {
+      var callback = config.callback,
+          index = config.index,
+          expectedVal = config.expectedVal || false,
+          elem = config.elem || false,
+          currVal = elem.valueSpecified || config.currVal || false;
+
+      var isCorrect = false;
+      if (index === 0) {
+        isCorrect = callback(currVal, expectedVal);
+      } else {
+        isCorrect = currCorrect && callback(currVal, expectedVal);
+      }
+      return isCorrect;
+    };
 
     // to adjust for not
     callback = (function(self, callback) {
@@ -126,7 +126,6 @@
         }
 
         var doesExistFunc = function () {};
-        
         var subDoesExist = false;
 
         switch (typeOfOperation) {
@@ -191,6 +190,13 @@
         this.gradeOpposite = true;
         return this;
       }
+    },
+    UAString: {
+      get: function () {
+        this.lastOperation = navigator.userAgent;
+        this.documentValueSpecified = navigator.userAgent;
+        return this;
+      }
     }
   })
 
@@ -201,7 +207,6 @@
 
   Tester.theseNodes = function(selector) {
     var self = this;
-    this.completedTests = [];
     this.targeted = [];
     this.documentValueSpecified = undefined;
     this.lastOperation = [];
@@ -306,7 +311,7 @@
         }
     }
 
-    isGreaterThan = this.grade(greaterThanFunc, y)
+    isGreaterThan = this.grade(greaterThanFunc, y);
     return this.wrapUpAndReturn(isGreaterThan);
   }
 
@@ -342,6 +347,6 @@
         }
     }
 
-    isLessThan = this.grade(lessThanFunc, y)
+    isLessThan = this.grade(lessThanFunc, y);
     return this.wrapUpAndReturn(isLessThan);
   }
