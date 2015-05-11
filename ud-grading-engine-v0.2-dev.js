@@ -38,15 +38,36 @@ function registerSuite(name) {
   }    
 }
 
+/*
+Class describes an instance of the Udacity test engine.
+*/
+var UdaciTests = function(props) {
+  this.suites = props.suites;
+  
+  document.body.addEventListener('grader-passed', function (e) {console.log("All tests passed!")}, false)
+  
+  function supportsImports() {
+    return 'import' in document.createElement('link');
+  }
+  if (supportsImports()) {
+    // Cool!
+  } else {
+    // Use other libraries/require systems to load files.
+    alert("You must use Google Chrome to get feedback and a code for this quiz. Sorry!");
+  }
 
-var udElem = function(DOMelement) {
-  return DOMelement;
+  // import templates
+  var link = document.createElement('link');
+  link.rel = 'import';
+  link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
+  link.onload = function(e) {
+    console.log('Loaded Udacity Grading Engine');
+  }
+  link.onerror = function(e) {
+    console.log('Error loading import: ' + e.target.href);
+  }
+  document.head.appendChild(link);
 }
-udElem.prototype.add = function(a,b){return a+b}
-// start attaching things that udElems can do here
-// best way to create a new element with a DOM node and some additional functions?
-udElem.prototype.hasCSSProperty = function(){};
-
 
 UdaciTests.prototype.testMediaQueries = function(udArr) {
     /*
@@ -606,6 +627,7 @@ UdaciTests.prototype.testDOMelemAttrApproxContent = function(udArr) {
   return hasCorrectAttr;
 }
 UdaciTests.prototype.testDOMelemCSS = function(udArr) {
+  // TODO: make this applicable to more than px and %
   var isCorrect = false;
   var elem = document.querySelector(udArr[0].selector);
   if (!elem) return false;
@@ -665,9 +687,8 @@ UdaciTests.prototype.testDOMelemCSS = function(udArr) {
     isCorrect = inPixelRange(udValue, stdValue);
   } else if (udValue.indexOf("%") !== -1) {
     isCorrect = inPercentageRange(udValue, stdValue);
-  } else {
-    udValue === stdValue ? isCorrect = true : isCorrect = false;
   }
+
   return isCorrect;
 }
 UdaciTests.prototype.testPageSizeHosted = function(udArr) {
@@ -843,6 +864,4 @@ UdaciTests.prototype.testFindStringInDocument = function(udArr) {
   return isCorrect;
 }
 
-return {
-  udGrader: udGrader
-}
+var grader = new UdaciTests(graderProperties);
