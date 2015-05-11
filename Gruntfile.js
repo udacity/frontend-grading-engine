@@ -1,17 +1,35 @@
+/* not in use! */
+
 module.exports = function(grunt) {
 
   grunt.initConfig({
-    removelogging: {
+    concat: {
       dist: {
-        src: "ud-grading-engine-v0.1-dev.js",
-        dest: "ud-grading-engine-v0.1.js",
-        options: {
-          
-        }
+        src: [
+          'src/js/intro.js',
+          'src/js/helpers.js',
+          'src/js/load_widget.js',
+          'src/js/engine.js',
+          'src/js/registrar.js',
+          'src/js/outro.js'
+        ],
+        dest: 'dist/udgrader-003.js'
+      }
+    },
+    watch: {
+      scripts: {
+        files: ['**/*.js'],
+        tasks: ['default']
       }
     }
   });
+  // grunt.event.on('watch', function(action, filepath, target) {
+  //   grunt.log.writeln(target + ': ' + filepath + ' has ' + action);
+  // });
 
-  grunt.loadNpmTasks("grunt-remove-logging");
-  grunt.registerTask('default', ['grunt-remove-logging']);
+  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-watch');
+
+  grunt.registerTask('default', ['concat']);
+  grunt.registerTask('watch', ['watch']);
 };

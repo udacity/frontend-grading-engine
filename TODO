@@ -1,0 +1,39 @@
+DOM Nodes:
+* collect lots - done
+* collect one - done
+
+Selection Logic:
+* all are - done
+* some are
+* not - done (I'm pretty sure)
+
+Properties:
+* CSS property has value - done
+* CSS property exists - done
+* CSS hypothetical
+* Attribute has value - done
+* Attribute exists - done
+* Exists - done
+* Geometry / Position
+  * top
+  * left
+  * bottom
+  * right
+* Position relative to:
+  document, viewport, other elements
+* Length - done
+
+Compare network response:
+* bytes by file
+* bytes by filetype
+* time
+
+Misc:
+* Page size
+* UA - done
+* Viewport - done
+
+grunt / gulp:
+* dev with lots of logging
+* remove logs for prod (but still publish dev on gh-pages)
+* regex switch localhost for github.io for script injection in load_engine

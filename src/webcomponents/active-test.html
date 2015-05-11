@@ -1,0 +1,208 @@
+<!--
+This component describes a single test. Each test is 'active' because it governs itself. It runs the active_test function registered to a test.
+
+The test bubbles an 'test-passed' event to the <test-suite> when it passes.
+-->
+
+<template id="active-test">
+  <style scoped>
+    .correct {
+      color: #060;
+    }
+    .correct::before {
+      content: "✓ ";
+    }
+    .incorrect {
+      color: #900;
+    }
+    .incorrect::before {
+      content: "✗ ";
+    }
+    .test-desc {
+      width: 100%;
+    }
+  </style>
+  <div class="test-desc incorrect"></div>
+</template>
+<script>
+  (function() {
+    var importDoc = document.currentScript.ownerDocument;
+    var proto = Object.create(HTMLElement.prototype);
+
+    /*
+    Called to create the element
+    */
+    proto.createdCallback = function() {
+      var template = importDoc.querySelector('#active-test');
+      var clone = document.importNode(template.content, true);
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+    };
+
+    /*
+    This massive function is called when an instance of the element is attached to the page. All of the active_test logic is contained within.
+    @param: none
+    returns: none
+    */
+    proto.attachedCallback = function() {
+      /*
+      Grab this test's properties that were handed down by the test suite
+      */
+      var testDefinition = this.testDefinition;
+      var grader = testDefinition.active_test;
+      var testDescription = testDefinition.description;
+      var iwant = testDefinition.iwant;
+      var index = this.index; // index of test in its suite array
+
+
+      /*
+      Optional flags specific to the test
+      */
+      var noRepeat = testDefinition.flags.noRepeat || false; // run only once on load
+      var repeat = testDefinition.flags.repeat || false; // keep running even if test passes
+      var async = testDefinition.flags.async || false;  // async
+      var showCurrent = testDefinition.flags.showCurrent || false;  // TODO: show currently resolved value
+      var optional = testDefinition.flags.optional || false; // test does not affect code display
+
+      /*
+      Display the test description
+      */
+      var td = this.shadowRoot.querySelector('.test-desc');
+      td.innerHTML = testDescription;
+
+      // Ewww
+      // TODO: make this nicer?
+      if (showCurrent) {
+        td.insertAdjacentHTML('beforeend', '<br>&nbsp;&nbsp;&nbsp;&nbsp;Currently: pending');
+      }
+
+      /*
+      Just swap the classes
+      */
+      function testHasPassed() {
+        td.classList.remove('incorrect');
+        td.classList.add('correct');
+      };
+
+      /*
+      Just swap the classes
+      */
+      function testHasFailed() {
+        td.classList.add('incorrect');
+        td.classList.remove('correct');
+      };
+
+      /*
+      @param: info{} (info has keys: index0, testCorrect/, desc'')
+      */
+      function fireTestStatusEvent(info) {
+        // info includes index, testCorrect, testDescription
+        var testStatusEvent = new CustomEvent('test-status', {'detail': info});
+        td.dispatchEvent(testStatusEvent);
+      };
+      
+      /*
+      @param: val'' (the current value)
+      */
+      function renderCurrentValue(val) {
+        // drops the pending placeholder from Currently: pending
+        td.innerHTML = td.innerHTML.slice(0, td.innerHTML.length - 7);
+        // adds the new value
+        td.insertAdjacentHTML('beforeend', val);
+      };
+
+      /*
+      Calls grader(), which was originally registered as active_test()
+      @param: none
+      */
+      function runSyncTest() {
+        var gradeRunner = setInterval(function() {
+          // run the test
+          try {
+            var testResult = grader(iwant);
+            var testValue = testResult.actuals;
+            testCorrect = testResult.isCorrect;
+          } catch (e) {
+            throw new Error("Test: " + grader + " failed to execute because: " + e);
+          }
+          // update the widget
+          if (testCorrect) {
+            testHasPassed();
+          } else if (repeat && !testCorrect) {
+            testHasFailed();
+          }
+          // let the test suite know what's going on
+          if (!optional) {
+            fireTestStatusEvent({'index': index, 'testCorrect': testCorrect, 'desc': testDescription});
+          }
+          // clear the interval (if applicable)
+          if (testCorrect || noRepeat) {
+            clearInterval(gradeRunner);
+          }
+        }, 1000)
+      }
+      
+      // TODO: check that this still works
+      // TODO: use the RI blog to test
+      /*
+      Need to wait on the network? That's why runAsyncTest exists. Uses the Promise interface.
+      Calls grader(), which was originally registered as active_test()
+      @param: none
+      */
+      function runAsyncTest() {
+        var responseDetails = {};
+        var callback = {
+          success: function(detail) {
+            testHasPassed();
+            fireTestStatusEvent({'index': index, 'testCorrect': true, 'desc': testDescription});
+          },
+          error: function(detail) {
+            // nothing for now
+          },
+          update: function(detail) {
+            // TODO (as needed): expand this logic to show other pieces of data.
+            if (showCurrent && responseDetails['bytes']) renderCurrentValue((responseDetails['bytes'] / 1000000).toString().slice(0,4) + "MB");
+          }
+        };
+        var promise = new Promise(function(resolve, reject) {
+          grader(iwant);
+          document.querySelector('test-widget').addEventListener('async-end', function(e) {
+            responseDetails = e.detail;
+            if (responseDetails['passed']) {
+              resolve(responseDetails);
+            } else if (!responseDetails['passed']) {
+              reject(e.detail);
+            }
+          })
+        }).then(callback.success, callback.error).then(callback.update);
+      }
+
+      /*
+      Now we're down to the actual testing logic. Init testCorrect to start so that it has to be proven true.
+      */
+      var testCorrect = false;
+
+      /*
+      If tests are not optional, they report their status after every run to the test suite. This first event ensures that every test reports in before being run.
+      */
+      if (!optional) {
+        fireTestStatusEvent({'index': index, 'testCorrect': testCorrect, 'desc': testDescription});
+      }
+      
+      if (async) {
+        runAsyncTest();
+      } else {
+        runSyncTest();
+      }
+
+      // TODO: not working?
+      if (repeat) {
+        td.addEventListener('suite-passed', function(e) {
+          clearInterval(gradeRunner);
+        })
+      }
+    };
+
+    document.registerElement('active-test', {prototype: proto});
+  })();
+</script>
