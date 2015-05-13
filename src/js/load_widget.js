@@ -29,7 +29,7 @@
     // import templates
     var link = document.createElement('link');
     link.rel = 'import';
-    link.href = 'http://udacity.github.io/frontend-grading-engine/src/webcomponents/test-widget.html';
+    link.href = '/frontend-grading-engine/src/webcomponents/test-widget.html';
     document.head.appendChild(link);
     
     link.onload = function(e) {

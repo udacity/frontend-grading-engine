@@ -96,7 +96,7 @@ var UdaciTests = function(props) {
     link.href = '/frontend-grading-engine/templates/test-widget.html'
     console.log("Running local grading script");
   } catch (e) {
-    link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
+    link.href = 'http://udacity.github.io/frontend-grading-engine/src/webcomponents/test-widget.html'
   }
   link.onload = function(e) {
     console.log('Loaded Udacity Grading Engine');
