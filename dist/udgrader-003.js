@@ -159,7 +159,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       console.log('Loaded Udacity Grading Engine');
     }
     link.onerror = function(e) {
-      link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html';
+      link.href = 'http://udacity.github.io/frontend-grading-engine/src/webcomponents/test-widget.html';
       document.head.appendChild(link);
     }
   })()
@@ -362,6 +362,11 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         this.documentValueSpecified = navigator.userAgent;
         return this;
       }
+    },
+    value: {
+      get: function () {
+        return this.documentValueSpecified;
+      }
     }
   })
 
@@ -411,6 +416,90 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     })
     return this;
   }
+
+  Tester.absolutePosition = function(side) {
+    var self = this;
+    this.needToIterate = true;
+    this.lastOperation = [];
+
+    // http://stackoverflow.com/questions/2880957/detect-inline-block-type-of-a-dom-element
+    function getDisplayType (element) {
+      var cStyle = element.currentStyle || window.getComputedStyle(element, ""); 
+      return cStyle.display;
+    };
+
+    var selectorFunc = function () {};
+    switch (side) {
+      case 'top':
+        var selectorFunc = function (elem) {
+          var displayType = getDisplayType(elem);
+          var value = NaN;
+          if (displayType === 'block') {
+            value = elem.offsetTop;
+          } else if (displayType === 'inline') {
+            value = elem.getBoundingClientRect()[side];
+          };
+          return value;
+        };
+        break;
+      case 'left':
+        var selectorFunc = function (elem) {
+          var displayType = getDisplayType(elem);
+          var value = NaN;
+          if (displayType === 'block') {
+            value = elem.offsetLeft;
+          } else if (displayType === 'inline') {
+            value = elem.getBoundingClientRect()[side];
+          };
+          return value;
+        };
+        break;
+      case 'bottom':
+        var selectorFunc = function (elem) {
+          var displayType = getDisplayType(elem);
+          var value = NaN;
+          if (displayType === 'block') {
+            value = elem.offsetTop + elem.offsetHeight;
+          } else if (displayType === 'inline') {
+            value = elem.getBoundingClientRect()[side];
+          };
+          if (value === Math.max(document.documentElement.clientHeight, window.innerHeight || 0)) {
+            value = 'max';
+          };
+          return value;
+        };
+        break;
+      case 'right':
+        var selectorFunc = function (elem) {
+          var displayType = getDisplayType(elem);
+          var value = NaN;
+          if (displayType === 'block') {
+            value = elem.offsetLeft + elem.offsetWidth;
+          } else if (displayType === 'inline') {
+            value = elem.getBoundingClientRect()[side];
+          };
+          if (value === Math.max(document.documentElement.clientWidth, window.innerWidth || 0)) {
+            value = 'max';
+          };
+          return value;
+        };
+        break;
+      default:
+        selectorFunc = function () {
+          console.log("You didn't pick a side for absolutePosition! Options are 'top', 'left', 'bottom' and 'right'.");
+        };
+        break;
+    }
+
+    this.targeted.forEach(function(targetObj, index, arr) {
+      targetObj.valueSpecified = selectorFunc(targetObj.elem);
+      self.lastOperation.push(targetObj.valueSpecified);
+      if (index === 0) {
+        self.documentValueSpecified = targetObj.valueSpecified;
+      }
+    })
+    return this;
+  };
 
   /*
     @param: y* (any value)

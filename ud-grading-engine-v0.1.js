@@ -92,7 +92,7 @@ var UdaciTests = function(props) {
   // import templates
   var link = document.createElement('link');
   link.rel = 'import';
-  link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html'
+  link.href = 'http://udacity.github.io/frontend-grading-engine/src/webcomponents/test-widget.html'
   link.onload = function(e) {
     console.log('Loaded Udacity Grading Engine');
   }

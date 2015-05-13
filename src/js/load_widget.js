@@ -36,7 +36,7 @@
       console.log('Loaded Udacity Grading Engine');
     }
     link.onerror = function(e) {
-      link.href = 'http://udacity.github.io/frontend-grading-engine/templates/test-widget.html';
+      link.href = 'http://udacity.github.io/frontend-grading-engine/src/webcomponents/test-widget.html';
       document.head.appendChild(link);
     }
   })()
