@@ -1,0 +1,157 @@
+<!--
+This component describes a single test. Each test is 'active' because it
+governs itself.
+
+It creates a setInterval to run the test function as defined in the
+grader.js file.
+
+The test bubbles an 'test-passed' event to the <test-suite> when it passes.
+-->
+
+<template id="active-test">
+  <style scoped>
+    .correct {
+      color: #060;
+    }
+    .correct::before {
+      content: "✓ ";
+    }
+    .incorrect {
+      color: #900;
+    }
+    .incorrect::before {
+      content: "✗ ";
+    }
+    .test-desc {
+      width: 100%;
+    }
+  </style>
+  <div class="test-desc incorrect"></div>
+</template>
+<script>
+  (function() {
+    var importDoc = document.currentScript.ownerDocument;
+    var proto = Object.create(HTMLElement.prototype);
+
+    proto.createdCallback = function() {
+      var template = importDoc.querySelector('#active-test');
+      var clone = document.importNode(template.content, true);
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+    };
+
+    proto.attachedCallback = function() {
+      var testFunc = this.test.func;
+      var testParams = this.test.params;
+      var testDesc = this.test.desc;
+      var index = this.index; // index of test in the suites JSON
+
+
+      // Optional flags defined below!
+      var noRepeat = this.test.noRepeat || false; // run only once on load
+      var repeat = this.test.repeat || false; // keep running even if test passes
+      var async = this.test.async || false;
+      var showCurrent = this.test.showCurrent || false;
+      var optional = this.test.optional || false; // test does not affect code display
+
+
+      var td = this.shadowRoot.querySelector('.test-desc');
+      td.innerHTML = testDesc;
+
+      if (showCurrent) td.insertAdjacentHTML('beforeend', '<br>&nbsp;&nbsp;&nbsp;&nbsp;Currently: pending');
+
+      function testHasPassed() {
+        td.classList.remove('incorrect');
+        td.classList.add('correct');
+        if (!repeat) clearInterval(gradeRunner);
+      };
+
+      function testHasFailed() {
+        td.classList.add('incorrect');
+        td.classList.remove('correct');
+      };
+
+      function fireTestStatusEvent(info) {
+        // info includes index, testCorrect, testDesc
+        var testStatusEvent = new CustomEvent('test-status', {'detail': info});
+        td.dispatchEvent(testStatusEvent);
+      };
+      
+      function renderCurrentValue(val) {
+        // drops the pending placeholder from Currently: pending
+        td.innerHTML = td.innerHTML.slice(0, td.innerHTML.length - 7);
+        // adds the new value
+        td.insertAdjacentHTML('beforeend', val);
+      };
+      
+      function runAsyncTest(cb, params) {
+        var responseDetails = {};
+        var callback = {
+          success: function(detail) {
+            testHasPassed();
+            fireTestStatusEvent({'index': index, 'testCorrect': true, 'desc': testDesc});
+          },
+          error: function(detail) {
+            // nothing for now
+          },
+          update: function(detail) {
+            // TODO (as needed): expand this logic to show other pieces of data.
+            if (showCurrent && responseDetails['bytes']) renderCurrentValue((responseDetails['bytes'] / 1000000).toString().slice(0,4) + "MB");
+          }
+        };
+
+        // TODO: refactor this so it's not just page-bytes
+        var promise = new Promise(
+            function(resolve, reject) {
+              cb(params);
+              document.querySelector('test-widget').addEventListener('async-end', function(e) {
+                responseDetails = e.detail;
+                if (responseDetails['passed']) {
+                  resolve(responseDetails);
+                } else if (!responseDetails['passed']) {
+                  reject(e.detail);
+                }
+              })
+            }).then(callback.success, callback.error).then(callback.update);
+      }
+
+      /*
+      Logic in play here:
+        * optional tests don't fire status events.
+        * repeat tests stop when the suite passes.
+        * noRepeat tests only fire once as soon as the test loads.
+        * async tests resolve through promises.
+      */
+
+      // TODO: clean up this logic
+      // TODO: move repeat logic in here
+      var testCorrect = false;
+      if (!optional) fireTestStatusEvent({'index': index, 'testCorrect': testCorrect, 'desc': testDesc});
+      var gradeRunner = setInterval(function() {
+        if (async) {
+          runAsyncTest(grader[testFunc], testParams);
+        } else if (!async) {
+          try {
+            testCorrect = grader[testFunc](testParams);
+          } catch (e) {
+            // TODO: make this more useful
+            throw new Error("Test: " + testFunc + " failed to execute with args:" + testParams[0]);
+          }
+          if (testCorrect) testHasPassed();
+          if (repeat && !testCorrect) testHasFailed();
+        }
+        if (!optional) fireTestStatusEvent({'index': index, 'testCorrect': testCorrect, 'desc': testDesc});
+        if (noRepeat || async) clearInterval(gradeRunner);
+      }, 1000)
+
+      // TODO: not working?
+      if (repeat) {
+        td.addEventListener('suite-passed', function(e) {
+          clearInterval(gradeRunner);
+        })
+      }
+    };
+
+    document.registerElement('active-test', {prototype: proto});
+  })();
+</script>

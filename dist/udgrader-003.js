@@ -122,6 +122,15 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     return m.replace(/^\s*\/\/.*$/mg,'');
   };
 
+  // https://medium.com/@kbrainwave/currying-in-javascript-ce6da2d324fe
+  function curry2 (fn) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return function () {
+      return fn.apply(this, args.concat(
+        Array.prototype.slice.call(arguments, 0)));
+    };
+  };
+
 /***
  *     _                     _   _    _ _     _            _   
  *    | |                   | | | |  | (_)   | |          | |  
@@ -152,14 +161,15 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     // import templates
     var link = document.createElement('link');
     link.rel = 'import';
-    link.href = 'http://udacity.github.io/frontend-grading-engine/src/webcomponents/test-widget.html';
+    link.href = '/frontend-grading-engine/src/webcomponents/test-widget.html';
     document.head.appendChild(link);
     
     link.onload = function(e) {
       console.log('Loaded Udacity Grading Engine');
     }
     link.onerror = function(e) {
-      link.href = 'http://udacity.github.io/frontend-grading-engine/src/webcomponents/test-widget.html';
+      // TODO: pretty sure this never gets called
+      link.href = '/frontend-grading-engine/src/webcomponents/test-widget.html';
       document.head.appendChild(link);
     }
   })()
@@ -350,10 +360,21 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         return this.wrapUpAndReturn(doesExist);
       }
     },
+    oneOf: {
+      get: function () {
+        this.oneOf = true;
+        return this;
+      }
+    },
     not: {
       get: function () {
         this.gradeOpposite = true;
         return this;
+      }
+    },
+    pageImageBytes: {
+      get: function () {
+
       }
     },
     UAString: {
@@ -367,13 +388,13 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       get: function () {
         return this.documentValueSpecified;
       }
+    },
+    values: {
+      get: function () {
+        // TODO
+      }
     }
   })
-
-  Tester.someOf = function(x) {
-    x = x || 1;
-    this.someOf = x;
-  }
 
   Tester.theseNodes = function(selector) {
     var self = this;
@@ -388,6 +409,10 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     })
     this.lastOperation = this.targeted;
     return this;
+  }
+
+  Tester.children = function(selector) {
+    // TODO
   }
 
   Tester.cssProperty = function(property) {
@@ -571,7 +596,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
   Tester.toBeLessThan = function(y, orEqualTo) {
     orEqualTo = orEqualTo || false;
-    var isLessThan = false;
+    var isLessThan = false; // TODO: delete?
 
     var lessThanFunc = function() {};
     switch (orEqualTo) {
@@ -603,7 +628,89 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
     isLessThan = this.grade(lessThanFunc, y);
     return this.wrapUpAndReturn(isLessThan);
+  };
+  
+  Tester.toBeInRange = function(lower, upper, lowerInclusive, upperInclusive) {
+    lowerInclusive = lowerInclusive || true;
+    upperInclusive = upperInclusive || true;
+    var isInRange = false;
+
+    var xIsLessThan = function () {};
+    switch (lowerInclusive) {
+      case true:
+        xIsLessThan = function (x, y) {
+          var isInRange = false;
+          if (x <= y) {
+            isInRange = true;
+          }
+          return isInRange;
+        }
+      case false:
+        xIsLessThan = function (x, y) {
+          var isInRange = false;
+          if (x < y) {
+            isInRange = true;
+          }
+          return isInRange;
+        }
+      default:
+        xIsLessThan = function (x, y) {
+          var isInRange = false;
+          if (x < y) {
+            isInRange = true;
+          }
+          return isInRange;
+        }
+    }
+
+    var xIsGreaterThan = function () {};
+    switch (upperInclusive) {
+      case true:
+       xIsGreaterThan = function (x, y) {
+          var isInRange = false;
+          if (x >= y) {
+            isInRange = true;
+          }
+          return isInRange;
+        }
+      case false:
+       xIsGreaterThan = function (x, y) {
+          var isInRange = false;
+          if (x > y) {
+            isInRange = true;
+          }
+          return isInRange;
+        }
+      default:
+       xIsGreaterThan = function (x, y) {
+          var isInRange = false;
+          if (x > y) {
+            isInRange = true;
+          }
+          return isInRange;
+        }
+    }
+
+    var inRangeFunc = function (x, y) {
+      var isInRange = false;
+      x = x.replace('px', '');
+      x = x.replace('%', '');
+      if (xIsLessThan(x, range.upper) && xIsGreaterThan(x, range.lower)) {
+        isInRange = true;
+      }
+      return isInRange;
+    }
+
+    var range = {upper: upper, lower: lower};
+    isInRange = this.grade(inRangeFunc, range);
+    return this.wrapUpAndReturn(isInRange);
+  };
+
+  Tester.toInclude = function (x, ofEach) {
+    // TODO: works against everything...
+
   }
+
 
 /***
  *    ______           _     _                  
@@ -626,6 +733,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   */
   var suites = [];
   function registerSuite(_suite) {
+    var self = this;
     var thisSuite = _suite.name;
     suites.push({
       name: _suite.name,
@@ -653,6 +761,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         console.log("Suite " + suiteName + " was not registered. Could not add tests.");
       }
       _test.iwant = Object.create(Tester);
+      return self;
     }
     return {
       registerTest: registerTest

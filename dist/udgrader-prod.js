@@ -1,3 +1,178 @@
+/***
+ *    ______ _____   _____               _ _               _____            _            
+ *    |  ___|  ___| |  __ \             | (_)             |  ___|          (_)           
+ *    | |_  | |__   | |  \/_ __ __ _  __| |_ _ __   __ _  | |__ _ __   __ _ _ _ __   ___ 
+ *    |  _| |  __|  | | __| '__/ _` |/ _` | | '_ \ / _` | |  __| '_ \ / _` | | '_ \ / _ \
+ *    | |   | |___  | |_\ \ | | (_| | (_| | | | | | (_| | | |__| | | | (_| | | | | |  __/
+ *    \_|   \____/   \____/_|  \__,_|\__,_|_|_| |_|\__, | \____/_| |_|\__, |_|_| |_|\___|
+ *                                                  __/ |              __/ |             
+ *                                                 |___/              |___/              
+ */
+/*                    Udacity's library for immediate front-end feedback.
+
+                  Version:      0.3
+                  Tech:         HTML Imports,
+                                Custom Elements,
+                                grunt
+                  url:          http://github.com/udacity/frontend-grading-engine
+                  author:       Cameron Pittman
+
+    Usage:
+      // TODO
+
+
+    New for version 0.3!
+      * Better security!
+      * Better encapsulation!
+      * Chaining test methods
+
+Lexicon:
+  * Active Test:    A test running against the page. Some logic returns true/false.
+                    There are many different kind of active tests.
+                    
+  * Test Suite:     A collection of active tests that displays a code when appropriate.
+
+  * Widget:         A collection of Test Suites.
+                    Lives as a shadow DOM that exists as a child on the body.
+
+  * Engine:         The logic used to compare some active tests with the document.
+
+
+
+Copyright (c) 2015 Cameron Pittman
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. I
+NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHEHERIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+*/
+
+/*
+    Exposes GE (Grading Engine) interface
+    
+    returns: exports
+*/
+;var GE = (function( window, undefined ){
+  'use strict';
+  var exports = {};
+
+/***
+ *     _   _      _                     
+ *    | | | |    | |                    
+ *    | |_| | ___| |_ __   ___ _ __ ___ 
+ *    |  _  |/ _ \ | '_ \ / _ \ '__/ __|
+ *    | | | |  __/ | |_) |  __/ |  \__ \
+ *    \_| |_/\___|_| .__/ \___|_|  |___/
+ *                 | |                  
+ *                 |_|                  
+ */
+ /*
+    Wonderful functions to make life easier.
+ */
+
+  // http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
+  function arrEquals(array1, array2) {
+    if (!array1 || !array2)
+      return false;
+    if (array1.length != array2.length)
+      return false;
+    for (var i = 0, l=array1.length; i < l; i++) {
+      if (array1[i] instanceof Array && array2[i] instanceof Array) {
+        if (!array1[i].equals(array2[i]))
+          return false;       
+      } else if (array1[i] != array2[i]) { 
+        // Warning - two different object instances will never be equal: {x:20} != {x:20}
+        return false;   
+      }           
+    }       
+    return true;
+  }
+
+  /*
+    @param: selector'' (a CSS selector)
+    returns: [] of DOM nodes
+  */
+  function getDomNodeArray(selector) {
+    return Array.prototype.slice.apply(document.querySelectorAll(selector));
+  }
+
+  // modified from http://stackoverflow.com/questions/7960335/javascript-is-given-function-empty
+  Function.prototype.getBody = function() {
+    // Get content between first { and last }
+    var m = this.toString().match(/\{([\s\S]*)\}/m)[1];
+    // strip whitespace http://stackoverflow.com/questions/14540094/javascript-regular-expression-for-removing-all-spaces-except-for-what-between-do
+    m = m.replace(/([^"]+)|("[^"]+")/g, function($0, $1, $2) {
+      if ($1) {
+          return $1.replace(/\s/g, '');
+      } else {
+          return $2; 
+      } 
+    });
+    // Strip comments
+    return m.replace(/^\s*\/\/.*$/mg,'');
+  };
+
+  // https://medium.com/@kbrainwave/currying-in-javascript-ce6da2d324fe
+  function curry2 (fn) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return function () {
+      return fn.apply(this, args.concat(
+        Array.prototype.slice.call(arguments, 0)));
+    };
+  };
+
+/***
+ *     _                     _   _    _ _     _            _   
+ *    | |                   | | | |  | (_)   | |          | |  
+ *    | |     ___   __ _  __| | | |  | |_  __| | __ _  ___| |_ 
+ *    | |    / _ \ / _` |/ _` | | |/\| | |/ _` |/ _` |/ _ \ __|
+ *    | |___| (_) | (_| | (_| | \  /\  / | (_| | (_| |  __/ |_ 
+ *    \_____/\___/ \__,_|\__,_|  \/  \/|_|\__,_|\__, |\___|\__|
+ *                                               __/ |         
+ *                                              |___/          
+ */
+ /*
+    Some text explaining what this does.
+ */
+
+  (function() {    
+    document.body.addEventListener('grader-passed', function (e) {console.log("All tests passed!")}, false)
+    
+    function supportsImports() {
+      return 'import' in document.createElement('link');
+    }
+    if (supportsImports()) {
+      // Cool!
+    } else {
+      // Use other libraries/require systems to load files.
+      alert("You must use the latest version of Google Chrome to get feedback and a code for this quiz. Sorry!");
+    }
+
+    // import templates
+    var link = document.createElement('link');
+    link.rel = 'import';
+    link.href = 'http://udacity.github.io/frontend-grading-engine/src/webcomponents/test-widget.html';
+    document.head.appendChild(link);
+    
+    link.onload = function(e) {
+      console.log('Loaded Udacity Grading Engine');
+    }
+    link.onerror = function(e) {
+      // TODO: pretty sure this never gets called
+      link.href = 'http://udacity.github.io/frontend-grading-engine/src/webcomponents/test-widget.html';
+      document.head.appendChild(link);
+    }
+  })()
 
 /***
  *     _____ _            _____            _            
@@ -535,3 +710,78 @@
     // TODO: works against everything...
 
   }
+
+
+/***
+ *    ______           _     _                  
+ *    | ___ \         (_)   | |                 
+ *    | |_/ /___  __ _ _ ___| |_ _ __ __ _ _ __ 
+ *    |    // _ \/ _` | / __| __| '__/ _` | '__|
+ *    | |\ \  __/ (_| | \__ \ |_| | | (_| | |   
+ *    \_| \_\___|\__, |_|___/\__|_|  \__,_|_|   
+ *                __/ |                         
+ *               |___/                          
+ */
+/*
+    Expose functions that create and monitor tests.
+*/
+  
+  /*
+    TODO:
+        Refactor so that only registerSuite is exposed?
+        Improve id with a random number first
+  */
+  var suites = [];
+  function registerSuite(_suite) {
+    var self = this;
+    var thisSuite = _suite.name;
+    suites.push({
+      name: _suite.name,
+      code: _suite.code,
+      tests: [],
+      id: Date.now()
+    })
+    function registerTest(_test) {
+      var hit = false;
+      suites.forEach(function(val, index, arr) {
+        if (val.name === thisSuite) {
+          hit = true;
+          if (!_test.flags) {
+            _test.flags = {};
+          }
+          val.tests.push({
+            description: _test.description,
+            active_test: _test.active_test,
+            flags: _test.flags,
+            iwant: Object.create(Tester)
+          })
+        }
+      })
+      if (!hit) {
+        console.log("Suite " + suiteName + " was not registered. Could not add tests.");
+      }
+      _test.iwant = Object.create(Tester);
+      return self;
+    }
+    return {
+      registerTest: registerTest
+    }
+  }
+  exports.registerSuite = registerSuite;
+  exports.suites = suites;
+
+/***
+ *     _____ _            _____          _   
+ *    |_   _| |          |  ___|        | |  
+ *      | | | |__   ___  | |__ _ __   __| |  
+ *      | | | '_ \ / _ \ |  __| '_ \ / _` |  
+ *      | | | | | |  __/ | |__| | | | (_| |_ 
+ *      \_/ |_| |_|\___| \____/_| |_|\__,_(_)
+ *                                           
+ *                                           
+ */
+ /*
+    Why an IIFE?
+ */
+  return exports;
+}( window ));

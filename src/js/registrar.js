@@ -20,6 +20,7 @@
   */
   var suites = [];
   function registerSuite(_suite) {
+    var self = this;
     var thisSuite = _suite.name;
     suites.push({
       name: _suite.name,
@@ -47,6 +48,7 @@
         console.log("Suite " + suiteName + " was not registered. Could not add tests.");
       }
       _test.iwant = Object.create(Tester);
+      return self;
     }
     return {
       registerTest: registerTest

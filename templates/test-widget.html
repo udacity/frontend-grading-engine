@@ -8,7 +8,7 @@ Listens for 'suite-passed' events. Emits a 'grader-passed' event
 when all suites pass.
 -->
 
-<link rel="import" href="/frontend-grading-engine/src/webcomponents/test-suite.html">
+<link rel="import" href="/frontend-grading-engine/templates/test-suite.html">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro">
 
 <template id="test-widget">
@@ -91,7 +91,7 @@ when all suites pass.
     };
 
     proto.attachedCallback = function() {
-      // var graderSuites = suites;
+      var graderSuites = grader.suites;
       var twd = this.shadowRoot.querySelector('.test-widget-display');
 
       window.onscroll = function() {
@@ -109,34 +109,20 @@ when all suites pass.
       }
 
       var eventCollector = [];
-      this.addEventListener('suite-passed', function(e) {
+      this.addEventListener('suite-passed', function (e) {
         if (eventCollector.indexOf(e.detail) === -1) {
           eventCollector.push(e.detail);
-          if (eventCollector.length === GE.suites.length) {
+          if (eventCollector.length === graderSuites.length) {
             var passEvent = new CustomEvent('grader-passed', {'detail': 'TBD'});
             twd.dispatchEvent(passEvent);
           }
         }
       });
 
-      function createSuite(newSuite) {
+      graderSuites.forEach(function(val, index, arr) {
         var ts = document.createElement('test-suite');
-        ts.suite = newSuite;
+        ts.suite = val;
         twd.appendChild(ts);
-      }
-
-      // just in case suites in GE.suites are already there
-      GE.suites.forEach(function(val, index, arr) {
-        console.log('adding previously defined suite')
-        createSuite(val);
-      })
-
-      Array.observe(GE.suites, function(change) {
-        if (change[0].type === 'splice') {
-          change.forEach(function(val, index, arr) {
-            createSuite(val.object[index]);
-          })
-        }
       })
     };
 

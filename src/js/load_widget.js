@@ -29,14 +29,15 @@
     // import templates
     var link = document.createElement('link');
     link.rel = 'import';
-    link.href = 'http://udacity.github.io/frontend-grading-engine/src/webcomponents/test-widget.html';
+    link.href = '/frontend-grading-engine/src/webcomponents/test-widget.html';
     document.head.appendChild(link);
     
     link.onload = function(e) {
       console.log('Loaded Udacity Grading Engine');
     }
     link.onerror = function(e) {
-      link.href = 'http://udacity.github.io/frontend-grading-engine/src/webcomponents/test-widget.html';
+      // TODO: pretty sure this never gets called
+      link.href = '/frontend-grading-engine/src/webcomponents/test-widget.html';
       document.head.appendChild(link);
     }
   })()
