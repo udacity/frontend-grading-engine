@@ -123,6 +123,9 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
             var testValue = testResult.actuals;
             testCorrect = testResult.isCorrect;
           } catch (e) {
+            if (e instanceof TypeError) {
+              throw new Error("Test: " + grader + " failed to execute. Does your active_test return an object with isCorrect and actuals properties?");
+            }
             throw new Error("Test: " + grader + " failed to execute because: " + e);
           }
           // update the widget

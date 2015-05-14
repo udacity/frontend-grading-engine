@@ -10,19 +10,19 @@
  *                                   |___/              
  */
  /*
-    Returns the Tester object.
+    Returns the Tester object, which is responsible for querying the DOM and performing tests.
+
+    Each active_test creates its own instance of Tester, referenced as `iwant`.
  */
 
-  // TODO: before and after
-  function Tester() {
-    // do prelim work?
-  };
+  function Tester() {};
   Tester.documentValueSpecified = undefined;
   Tester.targeted = [];
   Tester.needToIterate = false;
   Tester.lastOperation = undefined;
   Tester.gradeOpposite = false;
   Tester.testingExistence = false;
+  Tester.picky = false;
 
   Tester.wrapUpAndReturn = function (passed) {
     // last work to be done before returning result
@@ -32,7 +32,7 @@
     return {
       isCorrect: passed,
       actuals: this.lastOperation  // probably should force this to be an array
-    }
+    };
   }
 
   Tester.grade = function(callback, expectedVal) {
@@ -40,23 +40,45 @@
     var isCorrect = false;
 
     // technically a helper function, but it's only used here
+    var permanentlyWrong = false;
     function genIsCorrect(currCorrect, config) {
-      var callback = config.callback,
-          index = config.index,
-          expectedVal = config.expectedVal || false,
-          elem = config.elem || false,
-          currVal = elem.valueSpecified || config.currVal || false;
+      var callback      = config.callback,
+          index         = config.index,
+          expectedVal   = config.expectedVal || false,
+          elem          = config.elem || false,
+          currVal       = elem.valueSpecified || config.currVal || config.elem || false;
 
-      var isCorrect = false;
-      if (index === 0) {
-        isCorrect = callback(currVal, expectedVal);
-      } else {
-        isCorrect = currCorrect && callback(currVal, expectedVal);
+      var thisIterationIsCorrect = false;
+
+      switch (self.picky) {
+        case 'onlyOneOf':
+          thisIterationIsCorrect = callback(currVal, expectedVal);
+          if (thisIterationIsCorrect && currCorrect) {
+            permanentlyWrong = true;
+          } else {
+            thisIterationIsCorrect = currCorrect || thisIterationIsCorrect;
+          }
+          break;
+        case 'someOf':
+          if (index === 0) {
+            thisIterationIsCorrect = callback(currVal, expectedVal);
+          } else {
+            thisIterationIsCorrect = currCorrect || callback(currVal, expectedVal);
+          };
+          break;
+        default:
+          if (index === 0) {
+            thisIterationIsCorrect = callback(currVal, expectedVal);
+          } else {
+            thisIterationIsCorrect = currCorrect && callback(currVal, expectedVal);
+          };
+          break;
       }
-      return isCorrect;
+
+      return thisIterationIsCorrect;
     };
 
-    // to adjust for not
+    // to adjust for 'not'
     callback = (function(self, callback) {
       var cbFunc = function() {};
       if (self.gradeOpposite) {
@@ -95,7 +117,7 @@
     } else {
       isCorrect = callback();
     }
-    return isCorrect;
+    return isCorrect && !permanentlyWrong;
   };
 
   Object.defineProperties(Tester, {
@@ -185,9 +207,9 @@
         return this.wrapUpAndReturn(doesExist);
       }
     },
-    oneOf: {
+    onlyOneOf: {
       get: function () {
-        this.oneOf = true;
+        this.picky = 'onlyOneOf';
         return this;
       }
     },
@@ -199,7 +221,13 @@
     },
     pageImageBytes: {
       get: function () {
-
+        // TODO
+      }
+    },
+    someOf: {
+      get: function () {
+        this.picky = 'someOf';
+        return this;
       }
     },
     UAString: {
@@ -359,7 +387,6 @@
     noStrict = noStrict || false;
     
     var isEqual = false;
-    // TODO: needs to be more general
     var equalityFunc = function() {};
     switch (noStrict) {
       case true:
@@ -491,7 +518,7 @@
     var xIsGreaterThan = function () {};
     switch (upperInclusive) {
       case true:
-       xIsGreaterThan = function (x, y) {
+        xIsGreaterThan = function (x, y) {
           var isInRange = false;
           if (x >= y) {
             isInRange = true;
@@ -499,7 +526,7 @@
           return isInRange;
         }
       case false:
-       xIsGreaterThan = function (x, y) {
+        xIsGreaterThan = function (x, y) {
           var isInRange = false;
           if (x > y) {
             isInRange = true;
@@ -507,7 +534,7 @@
           return isInRange;
         }
       default:
-       xIsGreaterThan = function (x, y) {
+        xIsGreaterThan = function (x, y) {
           var isInRange = false;
           if (x > y) {
             isInRange = true;
@@ -526,12 +553,72 @@
       return isInRange;
     }
 
-    var range = {upper: upper, lower: lower};
+    var range = {upper: upper, lower: lower}; // this is a hack because genIsCorrect expects only one comparison value
     isInRange = this.grade(inRangeFunc, range);
     return this.wrapUpAndReturn(isInRange);
   };
 
-  Tester.toInclude = function (x, ofEach) {
-    // TODO: works against everything...
+  Tester.toHaveSubstring = function (values, config) {
+    var self = this;
+    config = config || {};
+    this.needToIterate = true;
+    // make sure values are an array
+    if (!(values instanceof Array)) {
+      values = [values];
+    };
+    var hasRightNumberOfSubstrings = false;
 
+    var nInstances            = config.nInstances || false,   // TODO: not being used (Is there a good use case?)
+        minInstances          = config.minInstances || 1,     // TODO: not being used
+        maxInstances          = config.maxInstances || false, // TODO: not being used
+        nValues               = config.nValues || false,
+        minValues             = config.minValues || 1,
+        maxValues             = config.maxValues || 'all';
+
+    if (maxValues === 'all') {
+      maxValues = values.length;
+    };
+
+    // TODO: refactor functionally?
+    var substringFunc = function () {};
+    if (nValues) {
+      substringFunc = function (targetedObj, values) {
+        var string = targetedObj.elem.innerHTML;
+        var hasNumberOfValsExpected = false;
+        var hits = 0;
+        values.forEach(function(val, index, arr) {
+          if (string.search(val) > -1) {
+            hits+=1;
+          };
+        });
+        if (hits === nValues) {
+          hasNumberOfValsExpected = true;
+        };
+        self.lastOperation = [hasNumberOfValsExpected];
+        return hasNumberOfValsExpected;
+      };
+    } else {
+      substringFunc = function (targetedObj, values) {
+        var string = targetedObj.elem.innerHTML;
+        var hasNumberOfValsExpected = false;
+        var hits = 0;
+        values.forEach(function(val, index, arr) {
+          if (string.search(val) > -1) {
+            hits+=1;
+          };
+        });
+        if (hits >= minValues && hits <= maxValues) {
+          hasNumberOfValsExpected = true;
+        };
+        self.lastOperation = [hasNumberOfValsExpected];
+        return hasNumberOfValsExpected;
+      };
+    };
+    hasRightNumberOfSubstrings = this.grade(substringFunc, values);
+    return this.wrapUpAndReturn(hasRightNumberOfSubstrings);
   }
+
+
+
+
+

@@ -10,7 +10,7 @@
  *                                           
  */
  /*
-    Why an IIFE?
+    Why an IIFE? All the encapsulated goodness.
  */
   return exports;
 }( window ));

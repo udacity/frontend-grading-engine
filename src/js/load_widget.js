@@ -10,7 +10,7 @@
  *                                              |___/          
  */
  /*
-    Some text explaining what this does.
+    Load the HTML template describing the widget.
  */
 
   (function() {    

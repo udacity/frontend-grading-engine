@@ -12,12 +12,7 @@
 /*
     Expose functions that create and monitor tests.
 */
-  
-  /*
-    TODO:
-        Refactor so that only registerSuite is exposed?
-        Improve id with a random number first
-  */
+
   var suites = [];
   function registerSuite(_suite) {
     var self = this;
