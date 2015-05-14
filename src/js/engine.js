@@ -12,7 +12,7 @@
  /*
     Returns the Tester object, which is responsible for querying the DOM and performing tests.
 
-    Each active_test creates its own instance of Tester, referenced as `iwant`.
+    Each active_test creates its own instance of Tester, referenced in active_test as `iwant`.
  */
 
   function Tester() {};
@@ -29,9 +29,12 @@
     var singleVal = this.documentValueSpecified;
     var multiVal = this.targeted; // probably just want their values, not the nodes
 
+    if (!(this.lastOperation instanceof Array)) {
+      this.lastOperation = [this.lastOperation];
+    }
     return {
       isCorrect: passed,
-      actuals: this.lastOperation  // probably should force this to be an array
+      actuals: this.lastOperation
     };
   }
 
@@ -580,39 +583,30 @@
     };
 
     // TODO: refactor functionally?
-    var substringFunc = function () {};
-    if (nValues) {
-      substringFunc = function (targetedObj, values) {
-        var string = targetedObj.elem.innerHTML;
-        var hasNumberOfValsExpected = false;
-        var hits = 0;
-        values.forEach(function(val, index, arr) {
-          if (string.search(val) > -1) {
-            hits+=1;
-          };
-        });
-        if (hits === nValues) {
-          hasNumberOfValsExpected = true;
-        };
-        self.lastOperation = [hasNumberOfValsExpected];
-        return hasNumberOfValsExpected;
+    var substringFunc = function (targetedObj, values) {
+      var string = '';
+      if (targetedObj instanceof Node) {
+        string = targetedObj.innerHTML;
+      } else if (targetedObj.elem) {
+        string = targetedObj.elem.innerHTML;
+      } else {
+        string = targetedObj;
       };
-    } else {
-      substringFunc = function (targetedObj, values) {
-        var string = targetedObj.elem.innerHTML;
-        var hasNumberOfValsExpected = false;
-        var hits = 0;
-        values.forEach(function(val, index, arr) {
-          if (string.search(val) > -1) {
-            hits+=1;
-          };
-        });
-        if (hits >= minValues && hits <= maxValues) {
-          hasNumberOfValsExpected = true;
+      var hasNumberOfValsExpected = false;
+      var hits = 0;
+      values.forEach(function(val, index, arr) {
+        if (string.search(val) > -1) {
+          hits+=1;
         };
-        self.lastOperation = [hasNumberOfValsExpected];
-        return hasNumberOfValsExpected;
+      });
+
+      if (nValues) {
+        (hits === nValues) ? hasNumberOfValsExpected = true : hasNumberOfValsExpected = false;
+      } else if (hits >= minValues && hits <= maxValues) {
+        hasNumberOfValsExpected = true;
       };
+      self.lastOperation = [hasNumberOfValsExpected];
+      return hasNumberOfValsExpected;
     };
     hasRightNumberOfSubstrings = this.grade(substringFunc, values);
     return this.wrapUpAndReturn(hasRightNumberOfSubstrings);
