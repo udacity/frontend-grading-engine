@@ -35,8 +35,9 @@
     @param: selector'' (a CSS selector)
     returns: [] of DOM nodes
   */
-  function getDomNodeArray(selector) {
-    return Array.prototype.slice.apply(document.querySelectorAll(selector));
+  function getDomNodeArray(selector, parent) {
+    parent = parent || document;
+    return Array.prototype.slice.apply(parent.querySelectorAll(selector));
   }
 
   // modified from http://stackoverflow.com/questions/7960335/javascript-is-given-function-empty

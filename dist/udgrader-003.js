@@ -79,8 +79,9 @@ Lexicon:
     @param: selector'' (a CSS selector)
     returns: [] of DOM nodes
   */
-  function getDomNodeArray(selector) {
-    return Array.prototype.slice.apply(document.querySelectorAll(selector));
+  function getDomNodeArray(selector, parent) {
+    parent = parent || document;
+    return Array.prototype.slice.apply(parent.querySelectorAll(selector));
   }
 
   // modified from http://stackoverflow.com/questions/7960335/javascript-is-given-function-empty
@@ -175,6 +176,11 @@ Lexicon:
   Tester.gradeOpposite = false;
   Tester.testingExistence = false;
   Tester.picky = false;
+  Tester.gotKids = false;
+
+  function Target() {};
+  Target.valueSpecified = null;
+  Target.childElements = null;
 
   Tester.wrapUpAndReturn = function (passed) {
     // last work to be done before returning result
@@ -278,7 +284,14 @@ Lexicon:
   Object.defineProperties(Tester, {
     count: {
       get: function() {
-        this.documentValueSpecified = this.targeted.length;
+        if (this.targeted[0].valueSpecified instanceof Array) {
+          this.targeted.forEach(function(targetedObj, index, arr) {
+            var tl = targetedObj.valueSpecified.length || -1;
+            targetedObj.valueSpecified = tl; // TODO: this seems problematic
+          });
+        } else {
+          this.documentValueSpecified = this.targeted.length;
+        }
         return this;
       }
     },
@@ -420,7 +433,15 @@ Lexicon:
   }
 
   Tester.children = function(selector) {
-    // TODO
+    // TOOD: single and multilevel children
+    var self = this;
+    this.gotKids = true;
+    this.lastOperation = [];
+    this.targeted.forEach(function(targetObj, index, arr) {
+      targetObj.valueSpecified = getDomNodeArray(selector, targetObj.elem);
+      self.lastOperation.push(targetObj.valueSpecified);
+    });
+    return this;
   }
 
   Tester.cssProperty = function(property) {
@@ -431,7 +452,7 @@ Lexicon:
       var styles = getComputedStyle(targetObj.elem);
       targetObj.valueSpecified = styles[property];
       self.lastOperation.push(targetObj.valueSpecified);
-    })
+    });
     return this;
   }
 
@@ -446,7 +467,7 @@ Lexicon:
       }
       targetObj.valueSpecified = attrValue;
       self.lastOperation.push(targetObj.valueSpecified);
-    })
+    });
     return this;
   }
 
