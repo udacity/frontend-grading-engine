@@ -3,7 +3,8 @@ var gulp = require('gulp'),
     concat = require('gulp-continuous-concat'),
     // singleConcat = require('gulp-concat'),
     debug = require('gulp-debug'),
-    replace = require('gulp-replace');
+    replace = require('gulp-replace'),
+    babel = require('gulp-babel');
 
 var jsFiles = [
   'src/js/intro.js',

@@ -15,19 +15,115 @@
     Each active_test creates its own instance of Tester, referenced in active_test as `iwant`.
  */
 
+
+  /*
+  TODO:
+  Breadth traversal spawns depth traversal
+
+  Traveral operations carry function to evaluate.
+
+  Report back to some kind of state manager object that records which tests were run and the results.
+
+  When all tests have reported back, the manager object outputs state of the test as a whole.
+  */
+
+  /*
+  TODO: error message all over this bitch
+  */
+
+
+  function Target() {
+    // TODO: keep innerHTML too? each target should have one.
+    this.elements = [];
+    this.value = null;
+    this.operation = null;
+    this.children = [];
+    this.parent = null;
+  };
+
+  Target.forElements = function (callback) {
+    var self = this;
+    this.elements.forEach(function (node, index, arr) {
+      callback(node, self, index, arr);
+    });
+  };
+
+  Object.defineProperties(Target, {
+    hasChildren: {
+      get: function() {
+        var hasKids = false;
+        if (this.children && this.children.length > 0) {
+          hasKids = true;
+        };
+        return hasKids;
+      }
+    },
+    hasValue: {
+      get: function() {
+        var somethingThere = false;
+        if (this.value !== null && this.value !== undefined) {
+          somethingThere = true;
+        };
+        return somethingThere;
+      }
+    }
+  });
+
   function Tester() {};
-  Tester.documentValueSpecified = undefined;
-  Tester.targeted = [];
+  Tester.documentValueSpecified = null;
+  Tester.target = null;
   Tester.needToIterate = false;
-  Tester.lastOperation = undefined;
+  Tester.lastOperation = null;
   Tester.gradeOpposite = false;
   Tester.testingExistence = false;
   Tester.picky = false;
-  Tester.gotKids = false;
 
-  function Target() {};
-  Target.valueSpecified = null;
-  Target.childElements = null;
+  Tester.traverseTargets = function (callback, config) {
+    // traverse through the entire Target tree
+    // use config to determine if all targets should be traversed or if it, for instance, breaks after the first value gets hit.
+
+    // http://www.timlabonne.com/2013/07/tree-traversals-with-javascript/
+    function visitDfs (node, func) {
+      if (func) {
+        func(node);
+      }
+   
+      node.children.forEach(function (child, index, arr) {
+        visitDfs(child, func);
+      });
+    };
+    function visitBfs (node, func) {
+      var q = [node];
+      while (q.length > 0) {
+        node = q.shift();
+        if (func) {
+          func(node);
+        }
+ 
+        node.children.forEach(function (child, index, arr) {
+          q.push(child);
+        });
+      }
+    };
+
+    visitDfs(this.target, callback)
+
+    // function depthAndBreadth (ext) {
+    //   target = target || this;
+    //   target.breadthTraverse(function (kid, self, index, arr) {
+    //     callback(kid, self, index, arr);  // maybe?
+    //     this.depthTraverse(function () {
+    //       callback();
+    //       this.depthAndBreadth();
+    //     })
+    //   });
+    // }
+
+  };
+
+  // Tester.expandTree = function (selector, parent) {
+  //   // go to bottom level Targets and create new children
+  // };
 
   Tester.wrapUpAndReturn = function (passed) {
     // last work to be done before returning result
@@ -131,14 +227,21 @@
   Object.defineProperties(Tester, {
     count: {
       get: function() {
-        if (this.targeted[0].valueSpecified instanceof Array) {
-          this.targeted.forEach(function(targetedObj, index, arr) {
-            var tl = targetedObj.valueSpecified.length || -1;
-            targetedObj.valueSpecified = tl; // TODO: this seems problematic
-          });
-        } else {
-          this.documentValueSpecified = this.targeted.length;
-        }
+        // if (this.targeted[0].valueSpecified instanceof Array) {
+        //   this.targeted.forEach(function(targetedObj, index, arr) {
+        //     var tl = targetedObj.valueSpecified.length || -1;
+        //     targetedObj.valueSpecified = tl; // TODO: this seems problematic
+        //   });
+        // } else {
+        //   this.documentValueSpecified = this.targeted.length;
+        // }
+        var self = this;
+
+        this.traverseTargets(function (node) {
+          if (node.children.length === 0) {
+            node.value = node.elements.length;
+          }
+        })
         return this;
       }
     },
@@ -254,48 +357,91 @@
     },
     value: {
       get: function () {
-        return this.documentValueSpecified;
+        // TODO: Tester returns a single value from the first Target hit with a value. Used to create vars in active_tests.
+        // return this.documentValueSpecified;
+        // var self = this;
+        // return self.visitDfs(function() {
+        //   console.log(this.value);
+        // });
+        var value = null;
+        this.traverseTargets(function (node) {
+          if (node.value) {
+            value = node.value
+          };
+        });
+        return value;
       }
     },
     values: {
       get: function () {
-        // TODO
+        // TODO: Tester returns a <no>flat array of Targets </no>with non-null values. Used to create vars in active_tests.
+        var values = [];
+        this.traverseTargets(function (node) {
+          if (node.hasValue) {
+            values.push(node.value);
+          };
+        });
+        return values;
       }
     }
   })
 
-  Tester.theseNodes = function(selector) {
-    var self = this;
-    this.targeted = [];
-    this.documentValueSpecified = undefined;
-    this.lastOperation = [];
+  Tester.theseNodes = function (selector) {
+    var operation = 'gatherElements';
+    this.lastOperation = operation;
 
-    getDomNodeArray(selector).forEach(function(elem, index, arr) {
-      self.targeted.push({
-        elem: elem
-      })
-    })
-    this.lastOperation = this.targeted;
+    this.nodes = this.nodes || [];
+
+    this.target = new Target();
+    this.target.operation = operation;
+
+    var self = this;
+    getDomNodeArray(selector).forEach(function (elem, index, arr) {
+      self.target.elements.push(elem);
+    });
+    
     return this;
   }
+  Tester.theseElements = Tester.theseNodes;
 
-  Tester.children = function(selector) {
-    // TOOD: single and multilevel children
+  Tester.deepChildren = function (selector) {
+    var operation = 'gatherDeepChildElements';
+    this.lastOperation = operation;
+
     var self = this;
-    this.gotKids = true;
-    this.lastOperation = [];
-    this.targeted.forEach(function(targetObj, index, arr) {
-      targetObj.valueSpecified = getDomNodeArray(selector, targetObj.elem);
-      self.lastOperation.push(targetObj.valueSpecified);
+
+    this.traverseTargets(function (node) {
+      if (!node.hasChildren) {
+        node.elements.forEach(function (elem) {
+          var target = new Target();
+          target.operation = operation;
+          getDomNodeArray(selector, elem).forEach(function (newElem) {
+            target.elements.push(newElem);
+          });
+          node.children.push(target);
+        });
+      };
     });
     return this;
-  }
+  };
+  Tester.children = Tester.deepChildren;
 
-  Tester.cssProperty = function(property) {
+  Tester.shallowChildren = function (selector) {
+    var operation = 'gatherChildElements';
+    this.lastOperation = operation;
+
+    var self = this;
+    getDomNodeArray(selector, parent).forEach(function (elem, index, arr) {
+      self.target.elements.push(elem);
+    });
+    return this;
+  };
+
+  Tester.cssProperty = function (property) {
     var self = this;
     this.needToIterate = true;
     this.lastOperation = [];
-    this.targeted.forEach(function(targetObj, index, arr) {
+    this.targeted.forEach(function (targetObj, index, arr) {
       var styles = getComputedStyle(targetObj.elem);
       targetObj.valueSpecified = styles[property];
       self.lastOperation.push(targetObj.valueSpecified);
@@ -303,11 +449,11 @@
     return this;
   }
 
-  Tester.attribute = function(attr) {
+  Tester.attribute = function (attr) {
     var self = this;
     this.needToIterate = true;
     this.lastOperation = [];
-    this.targeted.forEach(function(targetObj, index, arr) {
+    this.targeted.forEach(function (targetObj, index, arr) {
       var attrValue = targetObj.elem.getAttribute(attr);
       if (attrValue === "") {
         attrValue = true;
@@ -318,7 +464,7 @@
     return this;
   }
 
-  Tester.absolutePosition = function(side) {
+  Tester.absolutePosition = function (side) {
     var self = this;
     this.needToIterate = true;
     this.lastOperation = [];
