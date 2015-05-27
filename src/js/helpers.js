@@ -31,13 +31,21 @@
     return true;
   }
 
-  /*
-    @param: selector'' (a CSS selector)
-    returns: [] of DOM nodes
-  */
+  /**
+   * Creates an Array of DOM nodes that match the selector
+   * @param  {string} CSS selector - selector to match against
+   * @param  {DOM node} parent - parent for starting point
+   * @return {array} Array of DOM nodes
+   */
   function getDomNodeArray(selector, parent) {
     parent = parent || document;
-    return Array.prototype.slice.apply(parent.querySelectorAll(selector));
+    var nodes = Array.prototype.slice.apply(parent.querySelectorAll(selector));
+    if (debugMode) {
+      nodes.forEach(function (elem) {
+        elem.classList.add('GE-test');
+      });
+    }
+    return nodes;
   }
 
   // modified from http://stackoverflow.com/questions/7960335/javascript-is-given-function-empty
@@ -54,13 +62,4 @@
     });
     // Strip comments
     return m.replace(/^\s*\/\/.*$/mg,'');
-  };
-
-  // https://medium.com/@kbrainwave/currying-in-javascript-ce6da2d324fe
-  function curry2 (fn) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    return function () {
-      return fn.apply(this, args.concat(
-        Array.prototype.slice.call(arguments, 0)));
-    };
   };

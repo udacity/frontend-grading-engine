@@ -13,6 +13,8 @@
     Returns the Tester object, which is responsible for querying the DOM and performing tests.
 
     Each active_test creates its own instance of Tester, referenced in active_test as `iwant`.
+
+    Bullseye: Target tree
  */
 
 
@@ -25,34 +27,34 @@
   Report back to some kind of state manager object that records which tests were run and the results.
 
   When all tests have reported back, the manager object outputs state of the test as a whole.
+
+  if debug mode, attach a unique class to each element as it gets targeted
+
   */
 
   /*
-  TODO: error message all over this bitch
+  TODO:
+  error messages all over this bitch
+  documentation
   */
 
 
-  function Target() {
+  function Target(topLevel) {
     // TODO: keep innerHTML too? each target should have one.
-    this.elements = [];
+    // this.elements = [];
+    this.id = parseInt(Math.random() * 1000000);
+    this.thisElement = null;
     this.value = null;
     this.operation = null;
     this.children = [];
     this.parent = null;
   };
 
-  Target.forElements = function (callback) {
-    var self = this;
-    this.elements.forEach(function (node, index, arr) {
-      callback(node, self, index, arr);
-    });
-  };
-
   Object.defineProperties(Target, {
     hasChildren: {
       get: function() {
         var hasKids = false;
-        if (this.children && this.children.length > 0) {
+        if (this.children.length > 0) {
           hasKids = true;
         };
         return hasKids;
@@ -66,17 +68,27 @@
         };
         return somethingThere;
       }
+    },
+    isGrandparent: {
+      get: function() {
+        var gotGrandKids = false;
+        gotGrandKids = this.children.some(function (kid) {
+          return kid.hasChildren;
+        });
+        return gotGrandKids;
+      }
     }
   });
 
-  function Tester() {};
-  Tester.documentValueSpecified = null;
-  Tester.target = null;
-  Tester.needToIterate = false;
-  Tester.lastOperation = null;
-  Tester.gradeOpposite = false;
-  Tester.testingExistence = false;
-  Tester.picky = false;
+  function Tester() {
+    this.target = null;
+    this.needToIterate = false;
+    this.lastOperation = null;
+    this.gradeOpposite = false;
+    this.testingExistence = false;
+    this.picky = false;
+    this.activeTargets = null;   // a reference to the last target(s) created
+  };
 
   Tester.traverseTargets = function (callback, config) {
     // traverse through the entire Target tree
@@ -92,6 +104,7 @@
         visitDfs(child, func);
       });
     };
+    // don't really need this
     function visitBfs (node, func) {
       var q = [node];
       while (q.length > 0) {
@@ -105,20 +118,7 @@
         });
       }
     };
-
-    visitDfs(this.target, callback)
-
-    // function depthAndBreadth (ext) {
-    //   target = target || this;
-    //   target.breadthTraverse(function (kid, self, index, arr) {
-    //     callback(kid, self, index, arr);  // maybe?
-    //     this.depthTraverse(function () {
-    //       callback();
-    //       this.depthAndBreadth();
-    //     })
-    //   });
-    // }
-
+    visitDfs(this.target, callback);
   };
 
   // Tester.expandTree = function (selector, parent) {
@@ -137,14 +137,37 @@
       isCorrect: passed,
       actuals: this.lastOperation
     };
-  }
+  };
 
-  Tester.grade = function(callback, expectedVal) {
+  Tester.generateValues = function (callback, expectedVal) {
+    // to adjust for 'not'
     var self = this;
+    callback = (function(self, callback) {
+      var cbFunc = function() {};
+      if (self.gradeOpposite) {
+        cbFunc = function(x,y) {
+          var result = callback(x,y);
+          return !result;
+        }
+      } else {
+        cbFunc = function(x,y) {
+          var result = callback(x,y);
+          return result;
+        }
+      }
+      return cbFunc;
+    })(self, callback);
+
+    this.traverseTargets(function (target) {
+      callback(target.value, expectedVal);
+    });
+  };
+
+  Tester.gradeResults = function () {
     var isCorrect = false;
+    var permanentlyWrong = false;
 
     // technically a helper function, but it's only used here
-    var permanentlyWrong = false;
     function genIsCorrect(currCorrect, config) {
       var callback      = config.callback,
           index         = config.index,
@@ -181,47 +204,97 @@
 
       return thisIterationIsCorrect;
     };
+  };
 
-    // to adjust for 'not'
-    callback = (function(self, callback) {
-      var cbFunc = function() {};
-      if (self.gradeOpposite) {
-        cbFunc = function(x,y) {
-          var result = callback(x,y);
-          return !result;
-        }
-      } else {
-        cbFunc = function(x,y) {
-          var result = callback(x,y);
-          return result;
-        }
-      }
-      return cbFunc;
-    })(self, callback);
+  Tester.runAgainstTopTargetOnly = function (callback) {};
+  Tester.runAgainstBottomTargets = function (callback) {};
+  Tester.runAgainstNextToBottomTargets = function (callback) {};
 
-    if (this.documentValueSpecified !== undefined) {
-      isCorrect = callback(this.documentValueSpecified, expectedVal);
-    } else if (this.needToIterate && !this.testingExistence) {
-      this.targeted.forEach(function(elem, index, arr) {
-        isCorrect = genIsCorrect(isCorrect, {
-          callback: callback,
-          index: index,
-          expectedVal: expectedVal,
-          elem: elem
-        })
-      })
-    } else if (this.testingExistence) {
-      this.lastOperation.forEach(function(val, index, arr) {
-        isCorrect = genIsCorrect(isCorrect, {
-          callback: callback,
-          index: index,
-          currVal: val
-        })
-      })
-    } else {
-      isCorrect = callback();
-    }
-    return isCorrect && !permanentlyWrong;
+  Tester.grade = function(callback, expectedVal) {
+    // var self = this;
+    // var isCorrect = false;
+    // var permanentlyWrong = false;
+
+    // // technically a helper function, but it's only used here
+    // function genIsCorrect(currCorrect, config) {
+    //   var callback      = config.callback,
+    //       index         = config.index,
+    //       expectedVal   = config.expectedVal || false,
+    //       elem          = config.elem || false,
+    //       currVal       = elem.valueSpecified || config.currVal || config.elem || false;
+
+    //   var thisIterationIsCorrect = false;
+
+    //   switch (self.picky) {
+    //     case 'onlyOneOf':
+    //       thisIterationIsCorrect = callback(currVal, expectedVal);
+    //       if (thisIterationIsCorrect && currCorrect) {
+    //         permanentlyWrong = true;
+    //       } else {
+    //         thisIterationIsCorrect = currCorrect || thisIterationIsCorrect;
+    //       }
+    //       break;
+    //     case 'someOf':
+    //       if (index === 0) {
+    //         thisIterationIsCorrect = callback(currVal, expectedVal);
+    //       } else {
+    //         thisIterationIsCorrect = currCorrect || callback(currVal, expectedVal);
+    //       };
+    //       break;
+    //     default:
+    //       if (index === 0) {
+    //         thisIterationIsCorrect = callback(currVal, expectedVal);
+    //       } else {
+    //         thisIterationIsCorrect = currCorrect && callback(currVal, expectedVal);
+    //       };
+    //       break;
+    //   }
+
+    //   return thisIterationIsCorrect;
+    // };
+
+    // // to adjust for 'not'
+    // callback = (function(self, callback) {
+    //   var cbFunc = function() {};
+    //   if (self.gradeOpposite) {
+    //     cbFunc = function(x,y) {
+    //       var result = callback(x,y);
+    //       return !result;
+    //     }
+    //   } else {
+    //     cbFunc = function(x,y) {
+    //       var result = callback(x,y);
+    //       return result;
+    //     }
+    //   }
+    //   return cbFunc;
+    // })(self, callback);
+
+
+
+    // if (this.documentValueSpecified !== undefined) {
+    //   isCorrect = callback(this.documentValueSpecified, expectedVal);
+    // } else if (this.needToIterate && !this.testingExistence) {
+    //   this.targeted.forEach(function(elem, index, arr) {
+    //     isCorrect = genIsCorrect(isCorrect, {
+    //       callback: callback,
+    //       index: index,
+    //       expectedVal: expectedVal,
+    //       elem: elem
+    //     })
+    //   })
+    // } else if (this.testingExistence) {
+    //   this.lastOperation.forEach(function(val, index, arr) {
+    //     isCorrect = genIsCorrect(isCorrect, {
+    //       callback: callback,
+    //       index: index,
+    //       currVal: val
+    //     })
+    //   })
+    // } else {
+    //   isCorrect = callback();
+    // }
+    // return isCorrect && !permanentlyWrong;
   };
 
   Object.defineProperties(Tester, {
@@ -235,14 +308,16 @@
         // } else {
         //   this.documentValueSpecified = this.targeted.length;
         // }
-        var self = this;
+        
+        // var self = this;
 
-        this.traverseTargets(function (node) {
-          if (node.children.length === 0) {
-            node.value = node.elements.length;
-          }
-        })
-        return this;
+        // this.traverseTargets(function (node) {
+        //   if (node.children.length === 0) {
+        //     node.value = node.elements.length;
+        //   }
+        // })
+        // return this;
+        return 1;
       }
     },
     toExist: {
@@ -386,40 +461,60 @@
     }
   })
 
+  /**
+   * Generates the top-level target. Matched elements end up as children targets. It will not have a thisElement.
+   * @param  {string} CSS selector - the selector of the elements you want to query
+   * @return {object} this - the Tester object
+   */
   Tester.theseNodes = function (selector) {
     var operation = 'gatherElements';
     this.lastOperation = operation;
-
-    this.nodes = this.nodes || [];
 
     this.target = new Target();
     this.target.operation = operation;
 
     var self = this;
+
     getDomNodeArray(selector).forEach(function (elem, index, arr) {
-      self.target.elements.push(elem);
+      var target = new Target();
+      target.thisElement = elem;
+      self.target.children.push(target);
     });
-    
+
+    this.activeTargets = [this.target];
+
     return this;
   }
   Tester.theseElements = Tester.theseNodes;
 
+  /**
+   * Will run a query against the lowest level targets in the Target tree
+   * @param  {string} CSS selector - the selector of the children you want to query
+   * @return {object} this - the Tester object
+   */
   Tester.deepChildren = function (selector) {
     var operation = 'gatherDeepChildElements';
     this.lastOperation = operation;
+    this.activeTargets = [];
 
     var self = this;
 
+    // to keep track of children that were just created and don't need to be traversed
+    var newChildrenIds = [];
+
     this.traverseTargets(function (node) {
-      if (!node.hasChildren) {
-        node.elements.forEach(function (elem) {
-          var target = new Target();
-          target.operation = operation;
-          getDomNodeArray(selector, elem).forEach(function (newElem) {
-            target.elements.push(newElem);
-          });
-          node.children.push(target);
-        });
+      if (!node.hasChildren && newChildrenIds.indexOf(node.id) === -1) {      
+        getDomNodeArray(selector, node.thisElement).forEach(function (newElem) {
+
+          var childTarget = new Target();
+          childTarget.operation = operation;
+          childTarget.thisElement = newElem;
+          node.children.push(childTarget);
+
+          // to register that this child was just created and doesn't need to be traversed
+          newChildrenIds.push(childTarget.id);
+          self.activeTargets.push(childTarget);
+        })
       };
     });
     return this;

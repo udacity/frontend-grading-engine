@@ -1,5 +1,23 @@
-Weirdness:
-* can I get rid of needToIterate?
+Collect nodes
+
+v
+
+generate values from nodes
+  - let functions decide whether they want to generate a value
+    - include some helper functions to help
+  - attach an array on target
+  - generate an array of values on Tester for easy testing?
+
+v
+
+grade the values
+  - traverse the bullseye
+    - check for values
+      - run grading callback against values
+        - callback reports to a gradebook object!
+          - targets run against, values, expected, passed
+
+
 
 Properties:
 * CSS hypothetical

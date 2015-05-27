@@ -42,3 +42,4 @@ Lexicon:
 ;var GE = (function( window, undefined ){
   'use strict';
   var exports = {};
+  var debugMode = false;
