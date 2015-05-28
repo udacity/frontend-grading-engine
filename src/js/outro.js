@@ -16,6 +16,11 @@
     debugMode = !debugMode;
   };
   exports.debugMode = debugMode;
-  
+
+  function pause() {
+    
+  };
+  exports.pause = pause;
+
   return exports;
 }( window ));

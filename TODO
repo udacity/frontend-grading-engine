@@ -3,9 +3,9 @@ Collect nodes
 v
 
 generate values from nodes
-  - let functions decide whether they want to generate a value
-    - include some helper functions to help
-  - attach an array on target
+  - let functions decide whether they want to generate a value based on node passed to it
+    - include some helper functions to help run against specific kinds of nodes
+  - attach a value to target
   - generate an array of values on Tester for easy testing?
 
 v
@@ -16,8 +16,7 @@ grade the values
       - run grading callback against values
         - callback reports to a gradebook object!
           - targets run against, values, expected, passed
-
-
+  - gradebook checks results of callbacks and returns final result
 
 Properties:
 * CSS hypothetical
@@ -31,7 +30,3 @@ Compare network response:
 
 Misc:
 * Page size
-
-grunt / gulp:
-* dev with lots of logging
-* remove logs for prod (but still publish dev on gh-pages)
