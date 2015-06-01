@@ -93,12 +93,12 @@ GradeBook.prototype.grade = function (config) {
   });
 
   switch (strictness) {
-    case 'some':
+    case 'someOf':
       if (this.numberCorrectQuestions < this.numberOfQuestions && this.numberCorrectQuestions > 0) {
         this.passed = true;
       };
       break;
-    case 'onlyOne':
+    case 'onlyOneOf':
       if (this.numberCorrectQuestions === 1) {
         this.passed = true;
       };

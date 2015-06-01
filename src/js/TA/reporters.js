@@ -10,19 +10,6 @@ Object.defineProperties(TA.prototype, {
   },
   toExist: {
     get: function() {
-      // typeof null === "object", for some insane reason. This is to correct for it.
-      // if (operations === null) {
-      //   operations = false;
-      // }
-      // var typeOfOperation = typeof operations;
-      // if (typeOfOperation === "object" && operations instanceof Array) {
-      //   typeOfOperation = "array";
-      // }
-
-      // if (typeOfOperation !== "array") {
-      //   this.operations = [operations]
-      // }
-
       var typeOfOperation = this.operations[this.operations.length - 1];
 
       var self = this;
@@ -64,10 +51,11 @@ Object.defineProperties(TA.prototype, {
     get: function () {
       // TA returns a single value from the first Target hit with a value. Used to create vars in active_tests.
       var value = null;
-      this.traverseTargets(function (target) {
+      this.runAgainstBottomTargets(function (target) {
         if (target.value) {
           value = target.value
         };
+        return target.value;
       });
       return value;
     }
@@ -76,10 +64,11 @@ Object.defineProperties(TA.prototype, {
     get: function () {
       // TA returns a flat array of values. Used to create vars in active_tests.
       var values = [];
-      this.traverseTargets(function (target) {
+      this.runAgainstBottomTargets(function (target) {
         if (target.value) {
           values.push(target.value);
         };
+        return target.value;
       });
       return values;
     }
@@ -93,7 +82,6 @@ Object.defineProperties(TA.prototype, {
 TA.prototype.toEqual = function (expected, noStrict) {
   noStrict = noStrict || false;
   
-  var isEqual = false;
   var equalityFunc = function() {};
   switch (noStrict) {
     case true:
@@ -122,7 +110,6 @@ TA.prototype.toEqual = function (expected, noStrict) {
 
 TA.prototype.toBeGreaterThan = function (expected, orEqualTo) {
   orEqualTo = orEqualTo || false;
-  var isGreaterThan = false;
 
   var greaterThanFunc = function() {};
   switch (orEqualTo) {
@@ -152,73 +139,84 @@ TA.prototype.toBeGreaterThan = function (expected, orEqualTo) {
       }
   }
 
-  isGreaterThan = this.grade(greaterThanFunc, y);
-  return this.wrapUpAndReturn(isGreaterThan);
+  return this.gradebook.grade({
+    callback: greaterThanFunc,
+    not: this.gradeOpposite,
+    strictness: this.picky
+  })
 }
 
-TA.prototype.toBeLessThan = function(y, orEqualTo) {
+TA.prototype.toBeLessThan = function(expected, orEqualTo) {
   orEqualTo = orEqualTo || false;
-  var isLessThan = false; // TODO: delete?
 
   var lessThanFunc = function() {};
   switch (orEqualTo) {
     case true:
-      lessThanFunc = function (x, y) {
+      lessThanFunc = function (target) {
         var isLessThan = false;
-        if (x <= y) {
+        if (target.value <= expected) {
           isLessThan = true;
         }
         return isLessThan;
       }
     case false:
-      lessThanFunc = function (x, y) {
+      lessThanFunc = function (target) {
         var isLessThan = false;
-        if (x < y) {
+        if (target.value < expected) {
           isLessThan = true;
         }
         return isLessThan;
       }
     default:
-      lessThanFunc = function (x, y) {
+      lessThanFunc = function (target) {
         var isLessThan = false;
-        if (x < y) {
+        if (target.value < expected) {
           isLessThan = true;
         }
         return isLessThan;
       }
   }
 
-  isLessThan = this.grade(lessThanFunc, y);
-  return this.wrapUpAndReturn(isLessThan);
+  return this.gradebook.grade({
+    callback: lessThanFunc,
+    not: this.gradeOpposite,
+    strictness: this.picky
+  })
 };
 
 TA.prototype.toBeInRange = function(lower, upper, lowerInclusive, upperInclusive) {
   lowerInclusive = lowerInclusive || true;
   upperInclusive = upperInclusive || true;
-  var isInRange = false;
+
+  // just in case someone screws up the order
+  if (lower > upper) {
+    var temp = lower;
+    lower = upper;
+    upper = temp;
+  };
 
   var xIsLessThan = function () {};
-  switch (lowerInclusive) {
+  switch (upperInclusive) {
     case true:
-      xIsLessThan = function (x, y) {
+      xIsLessThan = function (target) {
         var isInRange = false;
-        if (x <= y) {
+        if (target.value <= upper) {
           isInRange = true;
         }
         return isInRange;
       }
     case false:
-      xIsLessThan = function (x, y) {
+      xIsLessThan = function (target) {
         var isInRange = false;
-        if (x < y) {
+        if (target.value < upper) {
           isInRange = true;
         }
         return isInRange;
       }
     default:
-      xIsLessThan = function (x, y) {
+      xIsLessThan = function (target) {
         var isInRange = false;
-        if (x < y) {
+        if (target.value < upper) {
           isInRange = true;
         }
         return isInRange;
@@ -226,61 +224,60 @@ TA.prototype.toBeInRange = function(lower, upper, lowerInclusive, upperInclusive
   }
 
   var xIsGreaterThan = function () {};
-  switch (upperInclusive) {
+  switch (lowerInclusive) {
     case true:
-      xIsGreaterThan = function (x, y) {
+      xIsGreaterThan = function (target) {
         var isInRange = false;
-        if (x >= y) {
+        if (target.value >= lower) {
           isInRange = true;
         }
         return isInRange;
       }
     case false:
-      xIsGreaterThan = function (x, y) {
+      xIsGreaterThan = function (target) {
         var isInRange = false;
-        if (x > y) {
+        if (target.value > lower) {
           isInRange = true;
         }
         return isInRange;
       }
     default:
-      xIsGreaterThan = function (x, y) {
+      xIsGreaterThan = function (target) {
         var isInRange = false;
-        if (x > y) {
+        if (target.value > lower) {
           isInRange = true;
         }
         return isInRange;
       }
   }
 
-  var inRangeFunc = function (x, y) {
+  var inRangeFunc = function (target) {
     var isInRange = false;
-    x = x.replace('px', '');
-    x = x.replace('%', '');
-    if (xIsLessThan(x, range.upper) && xIsGreaterThan(x, range.lower)) {
+    target.value = target.value.replace('px', '');
+    target.value = target.value.replace('%', '');
+    if (xIsLessThan(target) && xIsGreaterThan(target)) {
       isInRange = true;
     }
     return isInRange;
   }
 
-  var range = {upper: upper, lower: lower}; // this is a hack because genIsCorrect expects only one comparison value
-  isInRange = this.grade(inRangeFunc, range);
-  return this.wrapUpAndReturn(isInRange);
+  return this.gradebook.grade({
+    callback: inRangeFunc,
+    not: this.gradeOpposite,
+    strictness: this.picky
+  })
 };
 
-TA.prototype.toHaveSubstring = function (values, config) {
-  // works on value if it's already there, otherwise it acts on innerHTML
+TA.prototype.toHaveSubstring = function (expectedValues, config) {
+  config = config || {};
 
   var self = this;
-  config = config || {};
-  this.needToIterate = true;
-  // make sure values are an array
-  if (!(values instanceof Array)) {
-    values = [values];
+  // make sure expectedValues are an array
+  if (!(expectedValues instanceof Array)) {
+    expectedValues = [expectedValues];
   };
-  var hasRightNumberOfSubstrings = false;
 
-  var nInstances            = config.nInstances || false,   // TODO: not being used (Is there a good use case?)
+  var nInstances            = config.nInstances || false,   // TODO: not being used (is there a good use case?)
       minInstances          = config.minInstances || 1,     // TODO: not being used
       maxInstances          = config.maxInstances || false, // TODO: not being used
       nValues               = config.nValues || false,
@@ -288,23 +285,19 @@ TA.prototype.toHaveSubstring = function (values, config) {
       maxValues             = config.maxValues || 'all';
 
   if (maxValues === 'all') {
-    maxValues = values.length;
+    maxValues = expectedValues.length;
   };
 
-  // TODO: refactor functionally?
-  var substringFunc = function (targetedObj, values) {
-    var string = '';
-    if (targetedObj instanceof Node) {
-      string = targetedObj.innerHTML;
-    } else if (targetedObj.elem) {
-      string = targetedObj.elem.innerHTML;
-    } else {
-      string = targetedObj;
-    };
+  /**
+   * Is there a substring in a string? This will answer that question.
+   * @param  {object} target - the Target in question
+   * @return {boolean} - whether or not expected substring is in target.value
+   */
+  var substringFunc = function (target) {
     var hasNumberOfValsExpected = false;
     var hits = 0;
-    values.forEach(function(val, index, arr) {
-      if (string.search(val) > -1) {
+    expectedValues.forEach(function(val, index, arr) {
+      if (target.value.search(val) > -1) {
         hits+=1;
       };
     });
@@ -314,9 +307,12 @@ TA.prototype.toHaveSubstring = function (values, config) {
     } else if (hits >= minValues && hits <= maxValues) {
       hasNumberOfValsExpected = true;
     };
-    self.operations = [hasNumberOfValsExpected];
     return hasNumberOfValsExpected;
   };
-  hasRightNumberOfSubstrings = this.grade(substringFunc, values);
-  return this.wrapUpAndReturn(hasRightNumberOfSubstrings);
+
+  return this.gradebook.grade({
+    callback: substringFunc,
+    not: this.gradeOpposite,
+    strictness: this.picky
+  })
 }

@@ -24,7 +24,7 @@ function Target() {
   this.value = null;
   this.operation = null;
   this.children = [];
-  this.parent = null;
+  this.index = null;
 };
 
 Object.defineProperties(Target.prototype, {

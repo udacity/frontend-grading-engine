@@ -23,6 +23,38 @@ function TA() {
 };
 
 Object.defineProperties(TA.prototype, {
+  childPosition: {
+    get: function () {
+      this.runAgainstBottomTargets(function (target) {
+        var elem = target.element;
+        var position = null;
+        Array.prototype.slice.apply(target.element.parentNode.childNodes).forEach(function(val, index, arr) {
+          if (val === elem) {
+            position = index;
+          }
+        })
+        return position;
+      })
+
+      return this;
+    }
+  },
+  index: {
+    get: function () {
+      this.runAgainstBottomTargets(function (target) {
+        return target.index;
+      })
+      return this;
+    }
+  },
+  innerHTML: {
+    get: function () {
+      this.runAgainstBottomTargetElements(function (element) {
+        return element.innerHTML;
+      })
+      return this;
+    }
+  },
   not: {
     get: function () {
       this.gradeOpposite = true;
@@ -109,7 +141,14 @@ TA.prototype.traverseTargets = function (callback, lastNodeCallback, config) {
 TA.prototype.runAgainstTopTargetOnly = function (callback) {
   var self = this;
   this.target.value = callback(this.target);
-  self.gradebook.recordQuestion(this.target);
+
+  if (this.target.value) {
+    self.gradebook.recordQuestion(this.target);
+  } else {
+    this.target.children.forEach(function (kid) {
+      self.gradebook.recordQuestion(kid);
+    })
+  }
 };
 
 TA.prototype.runAgainstBottomTargets = function (callback) {
@@ -140,7 +179,14 @@ TA.prototype.runAgainstBottomTargetElements = function (callback) {
   this.traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target.element);
-      self.gradebook.recordQuestion(target);
+      
+      if (target.value) {
+        self.gradebook.recordQuestion(target);
+      } else {
+        target.children.forEach(function (kid) {
+          self.gradebook.recordQuestion(kid);
+        })
+      }
     };
   })
 };
@@ -179,6 +225,7 @@ TA.prototype.theseNodes = function (selector) {
     getDomNodeArray(selector).forEach(function (elem, index, arr) {
       var target = new Target();
       target.element = elem;
+      target.index = index;
       topTarget.children.push(target);
     });
   })
@@ -196,9 +243,10 @@ TA.prototype.deepChildren = function (selector) {
   this.registerOperation('gatherDeepChildElements');
 
   this.runAgainstBottomTargets(function (target) {
-    getDomNodeArray(selector, target.element).forEach(function (newElem) {
+    getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
       var childTarget = new Target();
       childTarget.element = newElem;
+      childTarget.index = index;
       target.children.push(childTarget);
     });
   });
@@ -209,12 +257,15 @@ TA.prototype.children = TA.prototype.deepChildren;
 
 // TODO: broken
 TA.prototype.shallowChildren = function (selector) {
-  var operation = 'gatherChildElements';
-  this.operations = operation;
+  this.registerOperation('gatherShallowChildElements');
 
-  var self = this;
-  getDomNodeArray(selector, parent).forEach(function (elem, index, arr) {
-    self.target.elements.push(elem);
+  this.runAgainstBottomTargets(function (target) {
+    getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
+      var childTarget = new Target();
+      childTarget.element = newElem;
+      childTarget.index = index;
+      target.children.push(childTarget);
+    });
   });
   return this;
 };

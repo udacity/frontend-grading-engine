@@ -21,8 +21,42 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
     .test-desc {
       width: 100%;
     }
+
+    /* http://www.menucool.com/tooltip/css-tooltip */
+    .test-desc {outline:none;}
+    .test-desc strong {line-height:30px;}
+    .test-desc:hover {text-decoration:none;} 
+    .test-desc span.test-result {
+      z-index: 10;
+      display: none;
+      padding: 14px 20px;
+      margin-top: -30px;
+      margin-left: 28px;
+      max-width: 400px;
+      line-height: 16px;
+    }
+    .test-desc:hover span.test-result {
+      display: inline;
+      position: absolute;
+      color: #111;
+      border: 1px solid #DCA;
+      background: #fffAF0;
+    }
+
+    .test-result {
+      z-index: 20;
+      position: absolute;
+      top: 30px;
+      border: 0;
+      left: -12px;
+    }
+    .test-desc span.test-result {
+      border-radius:4px;
+      box-shadow: 5px 5px 8px #CCC;
+    }
+
   </style>
-  <div class="test-desc incorrect"></div>
+  <div class="test-desc incorrect"><span class="test-result"></span></div>
 </template>
 <script>
   (function() {
@@ -68,7 +102,9 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
       Display the test description
       */
       var td = this.shadowRoot.querySelector('.test-desc');
-      td.innerHTML = testDescription;
+      var tr = this.shadowRoot.querySelector('.test-desc > span');
+      td.insertAdjacentHTML('afterbegin', '<span>' + testDescription + '</span>');
+      // td.innerHTML = testDescription;
 
       // Ewww
       // TODO: make this nicer?
@@ -121,8 +157,13 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
           // run the test
           try {
             var testResult = grader(iwant);
-            var testValue = testResult.actuals;
             testCorrect = testResult.isCorrect;
+            
+            var testValues = '';
+            testResult.questions.forEach(function(val, index, arr) {
+              testValues = testValues + ' ' + val.value;
+            })
+            tr.innerHTML = testValues;
           } catch (e) {
             // if (e instanceof TypeError) {
             //   throw new Error("Test: " + grader + " failed to execute. Does your active_test return an object with isCorrect and actuals properties?");
