@@ -1,193 +1,24 @@
 
 /***
-*     _____ _            _____            _            
-*    |_   _| |          |  ___|          (_)           
-*      | | | |__   ___  | |__ _ __   __ _ _ _ __   ___ 
-*      | | | '_ \ / _ \ |  __| '_ \ / _` | | '_ \ / _ \
-*      | | | | | |  __/ | |__| | | | (_| | | | | |  __/
-*      \_/ |_| |_|\___| \____/_| |_|\__, |_|_| |_|\___|
-*                                    __/ |             
-*                                   |___/              
+ *      _______       
+ *     |__   __|/\    
+ *        | |  /  \   
+ *        | | / /\ \  
+ *        | |/ ____ \ 
+ *        |_/_/    \_\
+ *                    
+ *                    
+
+The Teaching Assistant (TA) is responsible for:
+  * collecting data from the page and creating a tree of Targets (called a bullseye) representing the information
+  * traverseing the bullseye and entering relevant data from Targets into a GradeBook.
 */
-/*
-  Returns the TA object, which is responsible for querying the DOM and performing tests.
-
-  Each active_test creates its own instance of TA, referenced in active_test as `iwant`.
-
-  Bullseye: Target tree
-*/
-
-
-/*
-TODO:
-
-if debug mode, attach a unique class to each element as it gets targeted
-
-*/
-
-/*
-TODO:
-error messages all over this code
-documentation
-*/
-
-
-function Target() {
-  this.id = parseInt(Math.random() * 1000000);
-  this.element = null;
-  this.value = null;
-  this.operation = null;
-  this.children = [];
-  this.parent = null;
-};
-
-Object.defineProperties(Target.prototype, {
-  hasChildren: {
-    get: function() {
-      var hasKids = false;
-      if (this.children.length > 0) {
-        hasKids = true;
-      };
-      return hasKids;
-    }
-  },
-  hasValue: {
-    get: function() {
-      var somethingThere = false;
-      if (this.value !== null && this.value !== undefined) {
-        somethingThere = true;
-      };
-      return somethingThere;
-    }
-  },
-  // TODO: this might not be working?
-  hasGrandkids: {
-    get: function() {
-      var gotGrandKids = false;
-      gotGrandKids = this.children.some(function (kid) {
-        return kid.hasChildren;
-      });
-      return gotGrandKids;
-    }
-  }
-});
-
-
-/*
-TODO:
-
-Move all grading methods to GradeBook. TA methods call GradeBook methods
- */
-
-/**
- * Maintains and reports on the state of a set of questions. Each question consists of a student value and our expected value.
- */
-function GradeBook() {
-  this.questions = [];
-  this.passed = false;
-};
-
-Object.defineProperties(GradeBook.prototype, {
-  numberOfQuestions: {
-    get: function () {
-      return this.questions.length;
-    }
-  },
-  numberCorrectQuestions: {
-    get: function () {
-      var numberCorrect = 0;
-      this.questions.forEach(function (question) {
-        if (question.correct) {
-          numberCorrect +=1;
-        }
-      })
-      return numberCorrect;
-    }
-  },
-  allCorrect: {
-    get: function () {
-      var isAllGood = false;
-      if (this.numberOfQuestions === this.numberCorrectQuestions) {
-        isAllGood = true;
-      }
-      return isAllGood;
-    }
-  },
-  numberWrongQuestions: {
-    get: function () {
-      var numberWrong = 0;
-      numberWrong = numberOfQuestions - numberCorrectQuestions;
-      return numberWrong;
-    }
-  },
-  report: {
-    get: function () {
-      return {
-        passed: this.passed,
-        questions: this.questions
-      };
-    }
-  }
-});
-
-/**
- * Takes in a set of values from the target. Adds to gradebook.
- * @param {object} targetFragment - only what the GradeBook needs to know about the Target
- */
-GradeBook.prototype.recordQuestion = function (targetFragment) {
-  this.questions.push({
-    id: targetFragment.id,
-    value: targetFragment.value
-  });
-};
-
-/**
- * Will iterate through all the questions and return if they meet grade criteria
- * @param  {object} config - {string} config.strictness, {boolean} config.not, {function} config.callback
- * @return {boolean} passed - Are enough questions correct to pass the active_test?
- */
-GradeBook.prototype.grade = function (config) {
-  var strictness, not, callback;
-  strictness = config.strictness;
-  not = config.not;
-  callback = config.callback; // expect that the callback encapsulates any comparison values from us
-
-  this.questions.forEach(function (question) {
-    question.correct = callback(question.value);
-    if (not) {
-      question.correct = !question.correct;
-    }
-  });
-
-  var passed = false;
-  switch (strictness) {
-    case 'some':
-      if (this.numberCorrectQuestions < this.numberOfQuestions && this.numberCorrectQuestions > 0) {
-        passed = true;
-      };
-      break;
-    case 'onlyOne':
-      if (this.numberCorrectQuestions === 1) {
-        passed = true;
-      };
-      break;
-    default:
-      passed = this.allCorrect;
-      break;
-  };
-
-  this.passed = passed;
-  return passed;
-};
-
 
 function TA() {
   this.target = null;
   this.gradebook = new GradeBook();
   this.operations = [];
-  this.needToIterate = false;
   this.gradeOpposite = false;
-  this.testingExistence = false;
   this.picky = false;
 };
 
@@ -196,7 +27,7 @@ Object.defineProperties(TA.prototype, {
     get: function() {
       this.runAgainstNextToBottomTargets(function (target) {
         return target.children.length;
-      })
+      }, true);
       return this;
     }
   },
@@ -326,12 +157,7 @@ Object.defineProperties(TA.prototype, {
   },
   value: {
     get: function () {
-      // TODO: TA returns a single value from the first Target hit with a value. Used to create vars in active_tests.
-      // return this.documentValueSpecified;
-      // var self = this;
-      // return self.visitDfs(function() {
-      //   console.log(this.value);
-      // });
+      // TA returns a single value from the first Target hit with a value. Used to create vars in active_tests.
       var value = null;
       this.traverseTargets(function (target) {
         if (target.value) {
@@ -343,8 +169,7 @@ Object.defineProperties(TA.prototype, {
   },
   values: {
     get: function () {
-      // BROKEN
-      // TODO: TA returns a <no>flat array of Targets </no>with non-null values. Used to create vars in active_tests.
+      // TA returns a flat array of values. Used to create vars in active_tests.
       var values = [];
       this.traverseTargets(function (target) {
         if (target.value) {
@@ -357,24 +182,24 @@ Object.defineProperties(TA.prototype, {
 })
 
 /**
- * Let the tester know this just happened
+ * Let the TA know this just happened
  * @param  {string} operation - the thing that just happened
  */
 TA.prototype.registerOperation = function (operation) {
   this.operations.push(operation);
+  switch (operation) {
+    case 'gatherElements':
+      this.gradebook.reset();
+  }
 };
-
 
 // TODO: use config to determine if all targets should be traversed or if it, for instance, breaks after the first value gets hit?
 TA.prototype.traverseTargets = function (callback, lastNodeCallback, config) {
   // http://www.timlabonne.com/2013/07/tree-traversals-with-javascript/
-  // var totalNumberOfTargets, numberOfTargets;
-  // totalNumberOfTargets = this.numberOfTargets;
-  // numberOfTargets = 0;
 
   /**
    * Recursively dive into a tree structure from the top. Used on the Target structure here.
-   * @param  {object} node - node of tree in question. Start with the top.
+   * @param  {object} node - a target of bullseye. Start with the top.
    * @param  {function} func - function to run against each node
    * @param  {function} lastNodeCallback - will be called after the last function has run against the last node. Does not take a parameter! Should be bullseye independent.
    */
@@ -386,46 +211,27 @@ TA.prototype.traverseTargets = function (callback, lastNodeCallback, config) {
     node.children.forEach(function (child, index, arr) {
       visitDfs(child, func);
     });
-
-    // // TODO: check that this actually works
-    // numberOfTargets +=1;
-    // if (numberOfTargets === totalNumberOfTargets) {
-    //   lastNodeCallback();
-    // };
-  };
-  // don't really need this
-  function visitBfs (node, func) {
-    var q = [node];
-    while (q.length > 0) {
-      node = q.shift();
-      if (func) {
-        func(node);
-      }
-
-      node.children.forEach(function (child, index, arr) {
-        q.push(child);
-      });
-    }
   };
   visitDfs(this.target, callback, lastNodeCallback);
 };
 
-TA.prototype.wrapUpAndReturn = function (passed) {
-  // last work to be done before returning result
-  var singleVal = this.documentValueSpecified;
-  var multiVal = this.targeted; // probably just want their values, not the nodes
-
-  if (!(this.operations instanceof Array)) {
-    this.operations = [this.operations];
-  }
-  return {
-    isCorrect: passed,
-    actuals: this.operations
+/**
+ * Run a function against the top-level Target in the bullseye
+ * @param  {function} callback - the function to run against the top-level target
+ * @param  {boolean} record - whether or not to record the target in the gradebook
+ * @return {[type]}
+ */
+TA.prototype.runAgainstTopTargetOnly = function (callback, record) {
+  var self = this;
+  this.target.value = callback(this.target);
+  if (record) {
+    self.gradebook.recordQuestion({
+      id: self.target.id,
+      value: self.target.value
+    });
   };
 };
-
-TA.prototype.runAgainstTopTargetOnly = function (callback) {};
-TA.prototype.runAgainstBottomTargets = function (callback) {
+TA.prototype.runAgainstBottomTargets = function (callback, record) {
   var self = this;
 
   var allTargets = this.targetIds;
@@ -433,16 +239,17 @@ TA.prototype.runAgainstBottomTargets = function (callback) {
   this.traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target);
-      self.gradebook.recordQuestion({
-        id: target.id,
-        value: target.value
-      });
-    }
-  })  
+      if (record) {
+        self.gradebook.recordQuestion({
+          id: target.id,
+          value: target.value
+        });
+      };
+    };
+  });
 };
 
-// should only be used to direct TA to bullseye location to collect values
-TA.prototype.runAgainstBottomTargetElements = function (callback) {
+TA.prototype.runAgainstBottomTargetElements = function (callback, record) {
   var self = this;
 
   var allTargets = this.targetIds;
@@ -450,30 +257,32 @@ TA.prototype.runAgainstBottomTargetElements = function (callback) {
   this.traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target.element);
-      self.gradebook.recordQuestion({
-        id: target.id,
-        value: target.value
-      });
-    }
+      if (record) {
+        self.gradebook.recordQuestion({
+          id: target.id,
+          value: target.value
+        });
+      };
+    };
   })
 };
 
-// should only be used to direct TA to bullseye location to collect values
-TA.prototype.runAgainstNextToBottomTargets = function (callback) {
+TA.prototype.runAgainstNextToBottomTargets = function (callback, record) {
   var self = this;
 
   this.traverseTargets(function (target) {
     // TODO: YEP! Definitely broken
-    if (target.hasChildren && !target.hasGrandkids) { // TODO: test that hasGrandkids works
+    if (target.hasChildren && !target.hasGrandkids) {
       target.value = callback(target);
-      self.gradebook.recordQuestion({
-        id: target.id,
-        value: target.value
-      });
-    }
-  })
+      if (record) {
+        self.gradebook.recordQuestion({
+          id: target.id,
+          value: target.value
+        })
+      };
+    };
+  });
 };
-
 
 /**
  * Generates the top-level target. Matched elements end up as children targets. It will not have a element.
@@ -513,25 +322,11 @@ TA.prototype.deepChildren = function (selector) {
     });
   });
 
-
-  // this.traverseTargets(function (node) {
-  //   if (!node.hasChildren && newChildrenIds.indexOf(node.id) === -1) {      
-  //     getDomNodeArray(selector, node.element).forEach(function (newElem) {
-
-  //       var childTarget = new Target();
-  //       childTarget.operation = operation;
-  //       childTarget.element = newElem;
-  //       node.children.push(childTarget);
-
-  //       // to register that this child was just created and doesn't need to be traversed
-  //       newChildrenIds.push(childTarget.id);
-  //     })
-  //   };
-  // });
   return this;
 };
 TA.prototype.children = TA.prototype.deepChildren;
 
+// TODO: broken
 TA.prototype.shallowChildren = function (selector) {
   var operation = 'gatherChildElements';
   this.operations = operation;
@@ -549,7 +344,7 @@ TA.prototype.cssProperty = function (property) {
   this.runAgainstBottomTargetElements(function (elem) {
     var styles = getComputedStyle(elem);
     return styles[property];
-  });
+  }, true);
   return this;
 }
 
@@ -562,7 +357,7 @@ TA.prototype.attribute = function (attr) {
       attrValue = true;
     }
     return attrValue;
-  });
+  }, true);
   return this;
 }
 
@@ -639,40 +434,47 @@ TA.prototype.absolutePosition = function (side) {
 
   this.runAgainstBottomTargetElements(function (elem) {
     return selectorFunc(elem);
-  });
+  }, true);
   return this;
 };
 
 
+
 /*
-  @param: y* (any value)
+  @param: expected* (any value)
   @param: noStrict/ (default: false)
 */
-TA.prototype.toEqual = function(y, noStrict) {
+TA.prototype.toEqual = function(expected, noStrict) {
   noStrict = noStrict || false;
   
   var isEqual = false;
   var equalityFunc = function() {};
   switch (noStrict) {
     case true:
-      equalityFunc = function(x, y) {
-        return x == y;
+      equalityFunc = function(x) {
+        return x == expected;
       };
       break;
     case false:
-      equalityFunc = function(x, y) {
-        return x === y;
+      equalityFunc = function(x) {
+        return x === expected;
       };
       break;
     default:
-      equalityFunc = function(x, y) {
-        return x === y;
+      equalityFunc = function(x) {
+        return x === expected;
       };
       break;
   }
 
-  isEqual = this.grade(equalityFunc, y);
-  return this.wrapUpAndReturn(isEqual);
+  return this.gradebook.grade({
+    callback: equalityFunc,
+    not: this.gradeOpposite,
+    strictness: this.picky
+  })
+
+  // isEqual = this.grade(equalityFunc, y);
+  // return this.wrapUpAndReturn(isEqual);
 }
 
 TA.prototype.toBeGreaterThan = function(y, orEqualTo) {
@@ -875,8 +677,3 @@ TA.prototype.toHaveSubstring = function (values, config) {
   hasRightNumberOfSubstrings = this.grade(substringFunc, values);
   return this.wrapUpAndReturn(hasRightNumberOfSubstrings);
 }
-
-
-
-
-

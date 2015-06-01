@@ -35,7 +35,7 @@ function registerSuite(_suite) {
           description: _test.description,
           active_test: _test.active_test,
           flags: _test.flags,
-          iwant: Object.create(TA)
+          iwant: new TA()
         })
       }
     })

@@ -153,40 +153,26 @@ Lexicon:
   })()
 
 /***
-*     _____ _            _____            _            
-*    |_   _| |          |  ___|          (_)           
-*      | | | |__   ___  | |__ _ __   __ _ _ _ __   ___ 
-*      | | | '_ \ / _ \ |  __| '_ \ / _` | | '_ \ / _ \
-*      | | | | | |  __/ | |__| | | | (_| | | | | |  __/
-*      \_/ |_| |_|\___| \____/_| |_|\__, |_|_| |_|\___|
-*                                    __/ |             
-*                                   |___/              
+ *      _______                   _   
+ *     |__   __|                 | |  
+ *        | | __ _ _ __ __ _  ___| |_ 
+ *        | |/ _` | '__/ _` |/ _ \ __|
+ *        | | (_| | | | (_| |  __/ |_ 
+ *        |_|\__,_|_|  \__, |\___|\__|
+ *                      __/ |         
+ *                     |___/          
+ 
+An instance of a Target represents a piece of information about the page.
+
+Targets are:
+  * nested into a tree-like structure called a bullseye
+  * usually mapped 1:1 with DOM elements
+
+The top-level target living directly on the TA will not map to any element. But it contains children which do map 1:1 with elements.
 */
-/*
-  Returns the TA object, which is responsible for querying the DOM and performing tests.
-
-  Each active_test creates its own instance of TA, referenced in active_test as `iwant`.
-
-  Bullseye: Target tree
-*/
-
-
-/*
-TODO:
-
-if debug mode, attach a unique class to each element as it gets targeted
-
-*/
-
-/*
-TODO:
-error messages all over this code
-documentation
-*/
-
 
 function Target() {
-  this.id = parseInt(Math.random() * 1000000);
+  this.id = parseInt(Math.random() * 1000000);  // a unique number used only for internal tracking purposes
   this.element = null;
   this.value = null;
   this.operation = null;
@@ -194,7 +180,7 @@ function Target() {
   this.parent = null;
 };
 
-Object.defineProperties(Target, {
+Object.defineProperties(Target.prototype, {
   hasChildren: {
     get: function() {
       var hasKids = false;
@@ -213,7 +199,6 @@ Object.defineProperties(Target, {
       return somethingThere;
     }
   },
-  // TODO: this might not be working?
   hasGrandkids: {
     get: function() {
       var gotGrandKids = false;
@@ -225,22 +210,25 @@ Object.defineProperties(Target, {
   }
 });
 
+/***
+ *       _____               _      ____              _    
+ *      / ____|             | |    |  _ \            | |   
+ *     | |  __ _ __ __ _  __| | ___| |_) | ___   ___ | | __
+ *     | | |_ | '__/ _` |/ _` |/ _ \  _ < / _ \ / _ \| |/ /
+ *     | |__| | | | (_| | (_| |  __/ |_) | (_) | (_) |   < 
+ *      \_____|_|  \__,_|\__,_|\___|____/ \___/ \___/|_|\_\
+ *                                                         
+ *                                                         
 
-/*
-TODO:
+The GradeBook maintains and reports on the state of a set of questions registered by the TA. The GradeBook reports out on the final state of each active_test.
+*/
 
-Move all grading methods to GradeBook. TA methods call GradeBook methods
- */
-
-/**
- * Maintains and reports on the state of a set of questions. Each question consists of a student value and our expected value.
- */
 function GradeBook() {
+  this.questions = [];
+  this.passed = false;
 };
-GradeBook.questions = [];
-GradeBook.passed = false;
 
-Object.defineProperties(GradeBook, {
+Object.defineProperties(GradeBook.prototype, {
   numberOfQuestions: {
     get: function () {
       return this.questions.length;
@@ -260,7 +248,7 @@ Object.defineProperties(GradeBook, {
   allCorrect: {
     get: function () {
       var isAllGood = false;
-      if (this.numberOfQuestions === this.numberCorrectQuestions) {
+      if (this.numberOfQuestions === this.numberCorrectQuestions && this.numberOfQuestions > 0) {
         isAllGood = true;
       }
       return isAllGood;
@@ -276,7 +264,7 @@ Object.defineProperties(GradeBook, {
   report: {
     get: function () {
       return {
-        passed: this.passed,
+        isCorrect: this.passed,
         questions: this.questions
       };
     }
@@ -285,13 +273,16 @@ Object.defineProperties(GradeBook, {
 
 /**
  * Takes in a set of values from the target. Adds to gradebook.
- * @param {any} them - some value pulled from a target
+ * @param {object} target - only what the GradeBook needs to know about the Target
  */
-GradeBook.recordQuestion = function (them) {
-  var grade = {
-    them: them
-  };
-  this.questions.push(grade);
+GradeBook.prototype.recordQuestion = function (target) {
+  target.correct = false;
+  this.questions.push(target);
+};
+
+GradeBook.prototype.reset = function () {
+  this.questions = [];
+  this.passed = false;
 };
 
 /**
@@ -299,71 +290,61 @@ GradeBook.recordQuestion = function (them) {
  * @param  {object} config - {string} config.strictness, {boolean} config.not, {function} config.callback
  * @return {boolean} passed - Are enough questions correct to pass the active_test?
  */
-GradeBook.grade = function (config) {
+GradeBook.prototype.grade = function (config) {
   var strictness, not, callback;
   strictness = config.strictness;
   not = config.not;
   callback = config.callback; // expect that the callback encapsulates any comparison values from us
 
   this.questions.forEach(function (question) {
-    question.correct = callback(question.them);
+    question.correct = callback(question);
     if (not) {
       question.correct = !question.correct;
     }
   });
 
-  var passed = false;
   switch (strictness) {
     case 'some':
       if (this.numberCorrectQuestions < this.numberOfQuestions && this.numberCorrectQuestions > 0) {
-        passed = true;
+        this.passed = true;
       };
       break;
     case 'onlyOne':
       if (this.numberCorrectQuestions === 1) {
-        passed = true;
+        this.passed = true;
       };
       break;
     default:
-      passed = this.allCorrect;
+      this.passed = this.allCorrect;
       break;
   };
-
-  this.passed = passed;
-  return passed;
+  return this.report;
 };
 
-// TODO: test!!!
-// trying to create a global reference to TA's scope
-function TA() {};
-TA.target = null;
-TA.gradebook = Object.create(GradeBook);
-TA.operations = [];
-TA.needToIterate = false;
-TA.gradeOpposite = false;
-TA.testingExistence = false;
-TA.picky = false;
+/***
+ *      _______       
+ *     |__   __|/\    
+ *        | |  /  \   
+ *        | | / /\ \  
+ *        | |/ ____ \ 
+ *        |_/_/    \_\
+ *                    
+ *                    
 
-Object.defineProperties(TA, {
-  count: {
-    get: function() {
-      // if (this.targeted[0].valueSpecified instanceof Array) {
-      //   this.targeted.forEach(function(targetedObj, index, arr) {
-      //     var tl = targetedObj.valueSpecified.length || -1;
-      //     targetedObj.valueSpecified = tl; // TODO: this seems problematic
-      //   });
-      // } else {
-      //   this.documentValueSpecified = this.targeted.length;
-      // }
-      
-      // var self = this;
+The Teaching Assistant (TA) is responsible for:
+  * collecting data from the page and creating a tree of Targets (called a bullseye) representing the information
+  * traverseing the bullseye and reporting relevant data from Targets and grading instructions into a GradeBook.
+*/
 
-      this.runAgainstNextToBottomTargets(function (target) {
-        return target.elements.length;
-      })
-      return this;
-    }
-  },
+function TA() {
+  this.target = null;
+  this.gradebook = new GradeBook();
+  this.operations = [];
+  this.gradeOpposite = false;
+  this.picky = false;
+};
+
+Object.defineProperties(TA.prototype, {
   not: {
     get: function () {
       this.gradeOpposite = true;
@@ -401,144 +382,31 @@ Object.defineProperties(TA, {
       return ids;
     }
   },
-  toExist: {
-    get: function() {
-      this.testingExistence = true;
-      var operations = this.operations || [];
-      
-      var doesExist = false;
-      
-      // typeof null === "object", for some insane reason. This is to correct for it.
-      if (operations === null) {
-        operations = false;
-      }
-      var typeOfOperation = typeof operations;
-      if (typeOfOperation === "object" && operations instanceof Array) {
-        typeOfOperation = "array";
-      }
-
-      if (typeOfOperation !== "array") {
-        this.operations = [operations]
-      }
-
-      var doesExistFunc = function () {};
-      var subDoesExist = false;
-
-      switch (typeOfOperation) {
-        case "number":
-          doesExistFunc = function (x) {
-            var subDoesExist = false;
-            if (x > 0) {
-              subDoesExist = true;
-            }
-          }
-          break;
-        case "string":
-          doesExistFunc = function (x) {
-            var subDoesExist = false;
-            if (x.length > 0) {
-              subDoesExist = true;
-            }
-          }
-          break;
-        case "array":
-          doesExistFunc = function (x) {
-            if (x) {
-              return true;
-            } else {
-              return false;
-            }
-          }
-          break;
-        case "object":
-          doesExistFunc = function (x) {
-            var subDoesExist = false;
-            if (Object.keys(x).length > 0) {
-              subDoesExist = true;
-            }
-          }
-          break;
-        case "function":
-          doesExistFunc = function (x) {
-            var subDoesExist = false;
-            if (x.getBody().length > 0) {
-              subDoesExist = true;
-            }
-          }
-          break;
-        default:
-          // good for booleans or undefined
-          doesExistFunc = function (x) {
-            var subDoesExist = false;            
-            if (x) {
-              subDoesExist = true;
-            }
-          }
-          break;
-      }
-
-      doesExist = this.grade(doesExistFunc);
-      return this.wrapUpAndReturn(doesExist);
-    }
-  },
   UAString: {
     get: function () {
       this.operations = navigator.userAgent;
       this.documentValueSpecified = navigator.userAgent;
       return this;
     }
-  },
-  value: {
-    get: function () {
-      // TODO: TA returns a single value from the first Target hit with a value. Used to create vars in active_tests.
-      // return this.documentValueSpecified;
-      // var self = this;
-      // return self.visitDfs(function() {
-      //   console.log(this.value);
-      // });
-      var value = null;
-      this.traverseTargets(function (node) {
-        if (node.value) {
-          value = node.value
-        };
-      });
-      return value;
-    }
-  },
-  values: {
-    get: function () {
-      // BROKEN
-      // TODO: TA returns a <no>flat array of Targets </no>with non-null values. Used to create vars in active_tests.
-      var values = [];
-      this.traverseTargets(function (node) {
-        if (node.hasValue) {
-          values.push(node.value);
-        };
-      });
-      return values;
-    }
   }
 })
 
 /**
- * Let the tester know this just happened
+ * Let the TA know this just happened
  * @param  {string} operation - the thing that just happened
  */
-TA.registerOperation = function (operation) {
+TA.prototype.registerOperation = function (operation) {
   this.operations.push(operation);
+  this.gradebook.reset();
 };
 
-
 // TODO: use config to determine if all targets should be traversed or if it, for instance, breaks after the first value gets hit?
-TA.traverseTargets = function (callback, lastNodeCallback, config) {
+TA.prototype.traverseTargets = function (callback, lastNodeCallback, config) {
   // http://www.timlabonne.com/2013/07/tree-traversals-with-javascript/
-  // var totalNumberOfTargets, numberOfTargets;
-  // totalNumberOfTargets = this.numberOfTargets;
-  // numberOfTargets = 0;
 
   /**
    * Recursively dive into a tree structure from the top. Used on the Target structure here.
-   * @param  {object} node - node of tree in question. Start with the top.
+   * @param  {object} node - a target of bullseye. Start with the top.
    * @param  {function} func - function to run against each node
    * @param  {function} lastNodeCallback - will be called after the last function has run against the last node. Does not take a parameter! Should be bullseye independent.
    */
@@ -550,70 +418,23 @@ TA.traverseTargets = function (callback, lastNodeCallback, config) {
     node.children.forEach(function (child, index, arr) {
       visitDfs(child, func);
     });
-
-    // // TODO: check that this actually works
-    // numberOfTargets +=1;
-    // if (numberOfTargets === totalNumberOfTargets) {
-    //   lastNodeCallback();
-    // };
-  };
-  // don't really need this
-  function visitBfs (node, func) {
-    var q = [node];
-    while (q.length > 0) {
-      node = q.shift();
-      if (func) {
-        func(node);
-      }
-
-      node.children.forEach(function (child, index, arr) {
-        q.push(child);
-      });
-    }
   };
   visitDfs(this.target, callback, lastNodeCallback);
 };
 
-TA.wrapUpAndReturn = function (passed) {
-  // last work to be done before returning result
-  var singleVal = this.documentValueSpecified;
-  var multiVal = this.targeted; // probably just want their values, not the nodes
-
-  if (!(this.operations instanceof Array)) {
-    this.operations = [this.operations];
-  }
-  return {
-    isCorrect: passed,
-    actuals: this.operations
-  };
+/**
+ * Run a function against the top-level Target in the bullseye
+ * @param  {function} callback - the function to run against the top-level target
+ * @param  {boolean} record - whether or not to record the target in the gradebook
+ * @return {[type]}
+ */
+TA.prototype.runAgainstTopTargetOnly = function (callback) {
+  var self = this;
+  this.target.value = callback(this.target);
+  self.gradebook.recordQuestion(this.target);
 };
 
-// TA.generateValues = function (callback, expectedVal) {
-//   // to adjust for 'not'
-//   var self = this;
-//   // callback = (function(self, callback) {
-//   //   var cbFunc = function() {};
-//   //   if (self.gradeOpposite) {
-//   //     cbFunc = function(x,y) {
-//   //       var result = callback(x,y);
-//   //       return !result;
-//   //     }
-//   //   } else {
-//   //     cbFunc = function(x,y) {
-//   //       var result = callback(x,y);
-//   //       return result;
-//   //     }
-//   //   }
-//   //   return cbFunc;
-//   // })(self, callback);
-
-//   this.traverseTargets(function (target) {
-//     callback(target.value, expectedVal);
-//   });
-// };
-
-TA.runAgainstTopTargetOnly = function (callback) {};
-TA.runAgainstBottomTargets = function (callback) {
+TA.prototype.runAgainstBottomTargets = function (callback) {
   var self = this;
 
   var allTargets = this.targetIds;
@@ -621,13 +442,19 @@ TA.runAgainstBottomTargets = function (callback) {
   this.traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target);
-      self.gradebook.recordQuestion(target.value);
-    }
-  })  
+      
+      if (target.value) {
+        self.gradebook.recordQuestion(target);
+      } else {
+        target.children.forEach(function (kid) {
+          self.gradebook.recordQuestion(kid);
+        })
+      }
+    };
+  });
 };
 
-// should only be used to direct TA to bullseye location to collect values
-TA.runAgainstBottomTargetElements = function (callback) {
+TA.prototype.runAgainstBottomTargetElements = function (callback) {
   var self = this;
 
   var allTargets = this.targetIds;
@@ -635,80 +462,75 @@ TA.runAgainstBottomTargetElements = function (callback) {
   this.traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target.element);
-      self.gradebook.recordQuestion(target.value);
-    }
+      self.gradebook.recordQuestion(target);
+    };
   })
 };
 
-TA.runAgainstNextToBottomTargets = function (callback) {
+TA.prototype.runAgainstNextToBottomTargets = function (callback) {
+  var self = this;
+
   this.traverseTargets(function (target) {
     if (target.hasChildren && !target.hasGrandkids) {
-      target.value = callback(target.element);
-      self.gradebook.recordQuestion(target.value);
-    }
-  })
+      target.value = callback(target);
+      
+      if (target.value) {
+        self.gradebook.recordQuestion(target);
+      } else {
+        target.children.forEach(function (kid) {
+          self.gradebook.recordQuestion(kid);
+        })
+      }
+    };
+  });
 };
-
-
 
 /**
  * Generates the top-level target. Matched elements end up as children targets. It will not have a element.
  * @param  {string} CSS selector - the selector of the elements you want to query
  * @return {object} this - the TA object
  */
-TA.theseNodes = function (selector) {
+TA.prototype.theseNodes = function (selector) {
   this.registerOperation('gatherElements');
 
   this.target = new Target();
 
   var self = this;
 
-  getDomNodeArray(selector).forEach(function (elem, index, arr) {
-    var target = new Target();
-    target.element = elem;
-    self.target.children.push(target);
-  });
+  this.runAgainstTopTargetOnly(function (topTarget) {
+    getDomNodeArray(selector).forEach(function (elem, index, arr) {
+      var target = new Target();
+      target.element = elem;
+      topTarget.children.push(target);
+    });
+  })
 
   return this;
 }
-TA.theseElements = TA.theseNodes;
+TA.prototype.theseElements = TA.prototype.theseNodes;
 
 /**
  * Will run a query against the lowest level targets in the Target tree
  * @param  {string} CSS selector - the selector of the children you want to query
  * @return {object} this - the TA object
  */
-TA.deepChildren = function (selector) {
+TA.prototype.deepChildren = function (selector) {
   this.registerOperation('gatherDeepChildElements');
 
-  this.runAgainstBottomTargets(function (node) {
-    getDomNodeArray(selector, node.element).forEach(function (newElem) {
+  this.runAgainstBottomTargets(function (target) {
+    getDomNodeArray(selector, target.element).forEach(function (newElem) {
       var childTarget = new Target();
       childTarget.element = newElem;
-      node.children.push(childTarget);
+      target.children.push(childTarget);
     });
   });
 
-
-  // this.traverseTargets(function (node) {
-  //   if (!node.hasChildren && newChildrenIds.indexOf(node.id) === -1) {      
-  //     getDomNodeArray(selector, node.element).forEach(function (newElem) {
-
-  //       var childTarget = new Target();
-  //       childTarget.operation = operation;
-  //       childTarget.element = newElem;
-  //       node.children.push(childTarget);
-
-  //       // to register that this child was just created and doesn't need to be traversed
-  //       newChildrenIds.push(childTarget.id);
-  //     })
-  //   };
-  // });
   return this;
 };
-TA.children = TA.deepChildren;
+TA.prototype.children = TA.prototype.deepChildren;
 
-TA.shallowChildren = function (selector) {
+// TODO: broken
+TA.prototype.shallowChildren = function (selector) {
   var operation = 'gatherChildElements';
   this.operations = operation;
 
@@ -719,7 +541,7 @@ TA.shallowChildren = function (selector) {
   return this;
 };
 
-TA.cssProperty = function (property) {
+TA.prototype.cssProperty = function (property) {
   this.registerOperation('cssProperty');
 
   this.runAgainstBottomTargetElements(function (elem) {
@@ -729,7 +551,7 @@ TA.cssProperty = function (property) {
   return this;
 }
 
-TA.attribute = function (attr) {
+TA.prototype.attribute = function (attr) {
   this.registerOperation('attr')
 
   this.runAgainstBottomTargetElements(function (elem) {
@@ -742,7 +564,7 @@ TA.attribute = function (attr) {
   return this;
 }
 
-TA.absolutePosition = function (side) {
+TA.prototype.absolutePosition = function (side) {
   this.registerOperation('absolutePosition');
   // http://stackoverflow.com/questions/2880957/detect-inline-block-type-of-a-dom-element
   function getDisplayType (element) {
@@ -819,64 +641,153 @@ TA.absolutePosition = function (side) {
   return this;
 };
 
+Object.defineProperties(TA.prototype, {
+  count: {
+    get: function() {
+      this.runAgainstNextToBottomTargets(function (target) {
+        return target.children.length;
+      }, true);
+      return this;
+    }
+  },
+  toExist: {
+    get: function() {
+      // typeof null === "object", for some insane reason. This is to correct for it.
+      // if (operations === null) {
+      //   operations = false;
+      // }
+      // var typeOfOperation = typeof operations;
+      // if (typeOfOperation === "object" && operations instanceof Array) {
+      //   typeOfOperation = "array";
+      // }
+
+      // if (typeOfOperation !== "array") {
+      //   this.operations = [operations]
+      // }
+
+      var typeOfOperation = this.operations[this.operations.length - 1];
+
+      var self = this;
+      var doesExistFunc = function () {};
+      switch (typeOfOperation) {
+        case 'gatherElements':
+          doesExistFunc = function (topTarget) {
+            return topTarget.children.length > 0;
+          };
+          break;
+        case 'gatherDeepChildElements':
+          doesExistFunc = function (target) {
+            var hasElement = false;
+            if (target.element) {
+              hasElement = true;
+            }
+            return hasElement;
+          };
+          break;
+        default:
+          doesExistFunc = function (target) {
+            var doesExist = false;
+            if (target.value) {
+              doesExist = true;
+            }
+            return doesExist
+          }
+          break;
+      }
+
+      return this.gradebook.grade({
+        callback: doesExistFunc,
+        not: this.gradeOpposite,
+        strictness: this.picky
+      })
+    }
+  },
+  value: {
+    get: function () {
+      // TA returns a single value from the first Target hit with a value. Used to create vars in active_tests.
+      var value = null;
+      this.traverseTargets(function (target) {
+        if (target.value) {
+          value = target.value
+        };
+      });
+      return value;
+    }
+  },
+  values: {
+    get: function () {
+      // TA returns a flat array of values. Used to create vars in active_tests.
+      var values = [];
+      this.traverseTargets(function (target) {
+        if (target.value) {
+          values.push(target.value);
+        };
+      });
+      return values;
+    }
+  }
+})
 
 /*
-  @param: y* (any value)
+  @param: expected* (any value)
   @param: noStrict/ (default: false)
 */
-TA.toEqual = function(y, noStrict) {
+TA.prototype.toEqual = function (expected, noStrict) {
   noStrict = noStrict || false;
   
   var isEqual = false;
   var equalityFunc = function() {};
   switch (noStrict) {
     case true:
-      equalityFunc = function(x, y) {
-        return x == y;
+      equalityFunc = function (target) {
+        return target.value == expected;
       };
       break;
     case false:
-      equalityFunc = function(x, y) {
-        return x === y;
+      equalityFunc = function (target) {
+        return target.value === expected;
       };
       break;
     default:
-      equalityFunc = function(x, y) {
-        return x === y;
+      equalityFunc = function (target) {
+        return target.value === expected;
       };
       break;
   }
 
-  isEqual = this.grade(equalityFunc, y);
-  return this.wrapUpAndReturn(isEqual);
+  return this.gradebook.grade({
+    callback: equalityFunc,
+    not: this.gradeOpposite,
+    strictness: this.picky
+  })
 }
 
-TA.toBeGreaterThan = function(y, orEqualTo) {
+TA.prototype.toBeGreaterThan = function (expected, orEqualTo) {
   orEqualTo = orEqualTo || false;
   var isGreaterThan = false;
 
   var greaterThanFunc = function() {};
   switch (orEqualTo) {
     case true:
-      greaterThanFunc = function (x, y) {
+      greaterThanFunc = function (target) {
         var isGreaterThan = false;
-        if (x >= y) {
+        if (target.value >= expected) {
           isGreaterThan = true;
         }
         return isGreaterThan;
       }
     case false:
-      greaterThanFunc = function (x, y) {
+      greaterThanFunc = function (target) {
         var isGreaterThan = false;
-        if (x > y) {
+        if (target.value > expected) {
           isGreaterThan = true;
         }
         return isGreaterThan;
       }
     default:
-      greaterThanFunc = function (x, y) {
+      greaterThanFunc = function (target) {
         var isGreaterThan = false;
-        if (x > y) {
+        if (target.value > expected) {
           isGreaterThan = true;
         }
         return isGreaterThan;
@@ -887,7 +798,7 @@ TA.toBeGreaterThan = function(y, orEqualTo) {
   return this.wrapUpAndReturn(isGreaterThan);
 }
 
-TA.toBeLessThan = function(y, orEqualTo) {
+TA.prototype.toBeLessThan = function(y, orEqualTo) {
   orEqualTo = orEqualTo || false;
   var isLessThan = false; // TODO: delete?
 
@@ -923,7 +834,7 @@ TA.toBeLessThan = function(y, orEqualTo) {
   return this.wrapUpAndReturn(isLessThan);
 };
 
-TA.toBeInRange = function(lower, upper, lowerInclusive, upperInclusive) {
+TA.prototype.toBeInRange = function(lower, upper, lowerInclusive, upperInclusive) {
   lowerInclusive = lowerInclusive || true;
   upperInclusive = upperInclusive || true;
   var isInRange = false;
@@ -999,7 +910,7 @@ TA.toBeInRange = function(lower, upper, lowerInclusive, upperInclusive) {
   return this.wrapUpAndReturn(isInRange);
 };
 
-TA.toHaveSubstring = function (values, config) {
+TA.prototype.toHaveSubstring = function (values, config) {
   // works on value if it's already there, otherwise it acts on innerHTML
 
   var self = this;
@@ -1052,12 +963,6 @@ TA.toHaveSubstring = function (values, config) {
   return this.wrapUpAndReturn(hasRightNumberOfSubstrings);
 }
 
-
-
-
-
-
-
 /***
 *    ______           _     _                  
 *    | ___ \         (_)   | |                 
@@ -1094,7 +999,7 @@ function registerSuite(_suite) {
           description: _test.description,
           active_test: _test.active_test,
           flags: _test.flags,
-          iwant: Object.create(TA)
+          iwant: new TA()
         })
       }
     })

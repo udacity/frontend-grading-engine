@@ -10,7 +10,10 @@ var jsFiles = [
   'src/js/intro.js',
   'src/js/helpers.js',
   'src/js/load_widget.js',
-  'src/js/engine.js',
+  'src/js/Target.js',
+  'src/js/GradeBook.js',
+  'src/js/TA/collectors.js',
+  'src/js/TA/reporters.js',
   'src/js/registrar.js',
   'src/js/outro.js'
 ];
