@@ -153,7 +153,7 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
       */
       function runSyncTest() {
 
-        var TA = function () {
+        var activeTest = function () {
           // run the test
           try {
             var testResult = grader(iwant);
@@ -186,50 +186,16 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
           }
         };
 
-        var gradeRunner = setInterval(TA, 1000);
+        var gradeRunner = setInterval(activeTest, 1000);
 
         td.addEventListener('test-pause', function (e) {
           clearInterval(gradeRunner);
         });
         td.addEventListener('test-start', function (e) {
-          gradeRunner = setInterval(TA, 1000);
+          gradeRunner = setInterval(activeTest, 1000);
         });
       }
       
-      // TODO: check that this still works
-      // TODO: use the RI blog to test
-      /*
-      Need to wait on the network? That's why runAsyncTest exists. Uses the Promise interface.
-      Calls grader(), which was originally registered as active_test()
-      @param: none
-      */
-      function runAsyncTest() {
-        var responseDetails = {};
-        var callback = {
-          success: function(detail) {
-            testHasPassed();
-            fireTestStatusEvent({'index': index, 'testCorrect': true, 'desc': testDescription});
-          },
-          error: function(detail) {
-            // nothing for now
-          },
-          update: function(detail) {
-            // TODO (as needed): expand this logic to show other pieces of data.
-            if (showCurrent && responseDetails['bytes']) renderCurrentValue((responseDetails['bytes'] / 1000000).toString().slice(0,4) + "MB");
-          }
-        };
-        var promise = new Promise(function(resolve, reject) {
-          grader(iwant);
-          document.querySelector('test-widget').addEventListener('async-end', function(e) {
-            responseDetails = e.detail;
-            if (responseDetails['passed']) {
-              resolve(responseDetails);
-            } else if (!responseDetails['passed']) {
-              reject(e.detail);
-            }
-          })
-        }).then(callback.success, callback.error).then(callback.update);
-      }
 
       /*
       Now we're down to the actual testing logic. Init testCorrect to start so that it has to be proven true.
@@ -243,11 +209,7 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
         fireTestStatusEvent({'index': index, 'testCorrect': testCorrect, 'desc': testDescription});
       }
       
-      if (async) {
-        runAsyncTest();
-      } else {
-        runSyncTest();
-      }
+      runSyncTest();
 
       // TODO: not working?
       if (repeat) {

@@ -34,11 +34,10 @@ Lexicon:
   * Engine:         The logic used to compare some active tests with the document.
 */
 
-/*
-    Exposes GE (Grading Engine) interface
-    
-    returns: exports
-*/
+/**
+ * Exposes GE (Grading Engine) interface
+ * @return {Object} exports - the functions on the exports object
+ */
 ;var GE = (function( window, undefined ){
   'use strict';
   var exports = {};

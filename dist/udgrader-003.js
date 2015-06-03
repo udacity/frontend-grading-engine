@@ -172,7 +172,7 @@ The top-level target living directly on the TA will not map to any element. But 
 */
 
 function Target() {
-  this.id = parseInt(Math.random() * 1000000);  // a unique number used only for internal tracking purposes
+  this.id = parseInt(Math.random() * 1000000); // a unique number used only for internal tracking purposes
   this.element = null;
   this.value = null;
   this.operation = null;
@@ -223,7 +223,7 @@ Object.defineProperties(Target.prototype, {
 The GradeBook maintains and reports on the state of a set of questions registered by the TA. The GradeBook reports out on the final state of each active_test.
 */
 
-function GradeBook() {
+function GradeBook () {
   this.questions = [];
   this.passed = false;
 };
@@ -318,6 +318,11 @@ GradeBook.prototype.grade = function (config) {
       this.passed = this.allCorrect;
       break;
   };
+
+  // one last check to make sure there actually were questions
+  if (this.numberOfQuestions === 0 && not) {
+    this.passed = !this.passed;
+  };
   return this.report;
 };
 
@@ -334,8 +339,13 @@ GradeBook.prototype.grade = function (config) {
 The Teaching Assistant (TA) is responsible for:
   * collecting data from the page and creating a tree of Targets (called a bullseye) representing the information
   * traverseing the bullseye and reporting relevant data from Targets and grading instructions into a GradeBook.
+  * All collectors return the instance of the TA object for chaining.
+  * Collectors register their operations with the GradeBook, which actually checks the results of the tests.
 */
 
+/**
+ * The TA constructor sets default values and instantiates a GradeBook.
+ */
 function TA() {
   this.target = null;
   this.gradebook = new GradeBook();
@@ -346,13 +356,22 @@ function TA() {
 
 Object.defineProperties(TA.prototype, {
   childPosition: {
+    /**
+     * To find a child node's index in relation to its immediate siblings
+     * @return {object} TA - the TA instance for chaining
+     */
     get: function () {
       this.runAgainstBottomTargets(function (target) {
         var elem = target.element;
         var position = null;
-        Array.prototype.slice.apply(target.element.parentNode.childNodes).forEach(function(val, index, arr) {
+        // TODO: correct for other non-normal DOM elems?
+        var ignoreTheseNodes = 0;
+        Array.prototype.slice.apply(target.element.parentNode.children).forEach(function(val, index, arr) {
+          if (val.nodeName === '#text') {
+            ignoreTheseNodes += 1;
+          }
           if (val === elem) {
-            position = index;
+            position = index - ignoreTheseNodes;
           }
         })
         return position;
@@ -361,8 +380,27 @@ Object.defineProperties(TA.prototype, {
       return this;
     }
   },
+  count: {
+    /**
+     * To count the number of children at the bottom level of the bullseye
+     * @return {object} TA - the TA instance for chaining
+     */
+    get: function() {
+      // doing more than accessing a property on existing target because counting can move up the bullseye to past Targets. Need to reset operations
+      this.registerOperation('count');
+      this.runAgainstNextToBottomTargets(function (target) {
+        return target.children.length;
+      });
+      return this;
+    }
+  },
   index: {
+    /**
+     * To find the index of a target from when it was created.
+     * @return {object} TA - the TA instance for chaining
+     */
     get: function () {
+      this.registerOperation('index');
       this.runAgainstBottomTargets(function (target) {
         return target.index;
       })
@@ -370,7 +408,12 @@ Object.defineProperties(TA.prototype, {
     }
   },
   innerHTML: {
+    /**
+     * To pull the innerHTML of a DOM node.
+     * @return {object} TA - the TA instance for chaining
+     */
     get: function () {
+      this.registerOperation('innerHTML');
       this.runAgainstBottomTargetElements(function (element) {
         return element.innerHTML;
       })
@@ -378,34 +421,49 @@ Object.defineProperties(TA.prototype, {
     }
   },
   not: {
+    /**
+     * Not a collector! Used by the GradeBook to negate the correctness of a test.
+     * @return {object} TA - the TA instance for chaining
+     */
     get: function () {
       this.gradeOpposite = true;
       return this;
     }
   },
   numberOfTargets: {
+    /**
+     * Not a collector! Private use only. Find the total number of targets in the bullseye.
+     * @return {integer} - the number of targets
+     */
     get: function () {
       return this.targetIds.length;
     }
   },
   onlyOneOf: {
+    /**
+     * Not a collector! Used by the GradeBook to set a threshold for number of questions to pass in order to count the whole test as correct.
+     * @return {object} TA - the TA instance for chaining
+     */
     get: function () {
       this.picky = 'onlyOneOf';
       return this;
     }
   },
-  pageImageBytes: {
-    get: function () {
-      // TODO
-    }
-  },
   someOf: {
+    /**
+     * Not a collector! Used by the GradeBook to set a threshold for number of questions to pass in order to count the whole test as correct.
+     * @return {object} TA - the TA instance for chaining
+     */
     get: function () {
       this.picky = 'someOf';
       return this;
     }
   },
   targetIds: {
+    /**
+     * [get description]
+     * @return {[type]}
+     */
     get: function () {
       var ids = [];
       this.traverseTargets(function (target) {
@@ -415,6 +473,10 @@ Object.defineProperties(TA.prototype, {
     }
   },
   UAString: {
+    /**
+     * [get description]
+     * @return {object} TA - the TA instance for chaining
+     */
     get: function () {
       this.operations = navigator.userAgent;
       this.documentValueSpecified = navigator.userAgent;
@@ -425,7 +487,7 @@ Object.defineProperties(TA.prototype, {
 
 /**
  * Let the TA know this just happened
- * @param  {string} operation - the thing that just happened
+ * @param {string} operation - the thing that just happened
  */
 TA.prototype.registerOperation = function (operation) {
   this.operations.push(operation);
@@ -460,6 +522,8 @@ TA.prototype.traverseTargets = function (callback, lastNodeCallback, config) {
  * @param  {boolean} record - whether or not to record the target in the gradebook
  * @return {[type]}
  */
+
+// TODO: refactor different versions of this - one for setting, the other for collecting
 TA.prototype.runAgainstTopTargetOnly = function (callback) {
   var self = this;
   this.target.value = callback(this.target);
@@ -529,6 +593,39 @@ TA.prototype.runAgainstNextToBottomTargets = function (callback) {
       }
     };
   });
+};
+
+// TA.prototype.runAsyncAgainstPage = function (callback) {
+//   var self = this;
+
+//   var whenFinished = {
+//     success: function (data) {
+//       console.log("Async test succeeded");
+//       var pageBytesCollectionComplete = new CustomEvent('async-end', {'detail': {'data': data}})
+//       document.querySelector('test-widget').dispatchEvent(pageBytesCollectionComplete);
+//     },
+//     error: function () {
+//       console.log("Something went wrong with the async test");
+//     },
+//     update: function () {
+//       return self;
+//     }
+//   };
+
+//   var asyncTest = new Promise(function(resolve, reject) {
+//     this.target.value = callback();
+//     if (this.target.value) {
+//       resolve(this.target.value);
+//     } else {
+//       reject();
+//     };
+//   }).then(whenFinished.success, whenFinished.error).then(whenFinished.update);
+//   return asyncTest;
+// };
+
+TA.prototype.reportAsyncResults = function (callback) {
+  this.target.value = callback();
+  this.gradebook.recordQuestion(this.target.value);
 };
 
 /**
@@ -682,6 +779,7 @@ TA.prototype.absolutePosition = function (side) {
     default:
       selectorFunc = function () {
         console.log("You didn't pick a side for absolutePosition! Options are 'top', 'left', 'bottom' and 'right'.");
+        return NaN;
       };
       break;
   };
@@ -693,14 +791,6 @@ TA.prototype.absolutePosition = function (side) {
 };
 
 Object.defineProperties(TA.prototype, {
-  count: {
-    get: function() {
-      this.runAgainstNextToBottomTargets(function (target) {
-        return target.children.length;
-      }, true);
-      return this;
-    }
-  },
   toExist: {
     get: function() {
       var typeOfOperation = this.operations[this.operations.length - 1];
@@ -710,6 +800,7 @@ Object.defineProperties(TA.prototype, {
       switch (typeOfOperation) {
         case 'gatherElements':
           doesExistFunc = function (topTarget) {
+            console.log('hi')
             return topTarget.children.length > 0;
           };
           break;
@@ -725,7 +816,7 @@ Object.defineProperties(TA.prototype, {
         default:
           doesExistFunc = function (target) {
             var doesExist = false;
-            if (target.value) {
+            if (target.value || target.element) {
               doesExist = true;
             }
             return doesExist
@@ -1076,15 +1167,15 @@ exports.suites = suites;
  /*
     Why an IIFE? All the encapsulated goodness.
  */
-  function debugMode() {
-    debugMode = !debugMode;
-  };
-  exports.debugMode = debugMode;
+function debugMode() {
+  debugMode = !debugMode;
+};
+exports.debugMode = debugMode;
 
-  function pause() {
-    
-  };
-  exports.pause = pause;
+function pause() {
+  // TODO
+};
+exports.pause = pause;
 
-  return exports;
+return exports;
 }( window ));

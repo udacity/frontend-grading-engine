@@ -18,8 +18,11 @@ Targets are:
 The top-level target living directly on the TA will not map to any element. But it contains children which do map 1:1 with elements.
 */
 
+/**
+ * Target constructor sets the target defaults. It includes a unique id number for private tracking.
+ */
 function Target() {
-  this.id = parseInt(Math.random() * 1000000);  // a unique number used only for internal tracking purposes
+  this.id = parseInt(Math.random() * 1000000);
   this.element = null;
   this.value = null;
   this.operation = null;
@@ -29,6 +32,10 @@ function Target() {
 
 Object.defineProperties(Target.prototype, {
   hasChildren: {
+    /**
+     * Public method for determining if a Target has child Targets.
+     * @return {Boolean} hasKids - true if there are chldren, false otherwise.
+     */
     get: function() {
       var hasKids = false;
       if (this.children.length > 0) {
@@ -38,6 +45,10 @@ Object.defineProperties(Target.prototype, {
     }
   },
   hasValue: {
+    /**
+     * Public method for determining if a value exists on a Target.
+     * @return {Boolean} somethingThere - true if a value exists, false otherwise.
+     */
     get: function() {
       var somethingThere = false;
       if (this.value !== null && this.value !== undefined) {
@@ -47,6 +58,10 @@ Object.defineProperties(Target.prototype, {
     }
   },
   hasGrandkids: {
+    /**
+     * Public method for determining if a Target's children have children.
+     * @return {Boolean} hasGrandKids - true if there are grandchildren, false otherwise.
+     */
     get: function() {
       var gotGrandKids = false;
       gotGrandKids = this.children.some(function (kid) {

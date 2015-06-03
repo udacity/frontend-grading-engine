@@ -36,8 +36,6 @@
       console.log('Loaded Udacity Grading Engine');
     }
     link.onerror = function(e) {
-      // TODO: pretty sure this never gets called
-      link.href = '/frontend-grading-engine/src/webcomponents/test-widget.html';
-      document.head.appendChild(link);
+      throw new Error('Failed to load the Udacity Grading Engine');
     }
   })()

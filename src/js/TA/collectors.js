@@ -1,19 +1,24 @@
 
 /***
- *      _______       
- *     |__   __|/\    
- *        | |  /  \   
- *        | | / /\ \  
- *        | |/ ____ \ 
- *        |_/_/    \_\
- *                    
- *                    
+ *      _______                   _____      _ _           _                 
+ *     |__   __|/\               / ____|    | | |         | |                
+ *        | |  /  \     ______  | |     ___ | | | ___  ___| |_ ___  _ __ ___ 
+ *        | | / /\ \   |______| | |    / _ \| | |/ _ \/ __| __/ _ \| '__/ __|
+ *        | |/ ____ \           | |___| (_) | | |  __/ (__| || (_) | |  \__ \
+ *        |_/_/    \_\           \_____\___/|_|_|\___|\___|\__\___/|_|  |___/
+ *                                                                           
+ *                                                                                   
 
 The Teaching Assistant (TA) is responsible for:
   * collecting data from the page and creating a tree of Targets (called a bullseye) representing the information
   * traverseing the bullseye and reporting relevant data from Targets and grading instructions into a GradeBook.
+  * All collectors return the instance of the TA object for chaining.
+  * Collectors register their operations with the GradeBook, which actually checks the results of the tests.
 */
 
+/**
+ * The TA constructor sets default values and instantiates a GradeBook.
+ */
 function TA() {
   this.target = null;
   this.gradebook = new GradeBook();
@@ -24,13 +29,22 @@ function TA() {
 
 Object.defineProperties(TA.prototype, {
   childPosition: {
+    /**
+     * To find a child node's index in relation to its immediate siblings
+     * @return {object} TA - the TA instance for chaining.
+     */
     get: function () {
       this.runAgainstBottomTargets(function (target) {
         var elem = target.element;
         var position = null;
-        Array.prototype.slice.apply(target.element.parentNode.childNodes).forEach(function(val, index, arr) {
+        // TODO: correct for other non-normal DOM elems?
+        var ignoreTheseNodes = 0;
+        Array.prototype.slice.apply(target.element.parentNode.children).forEach(function(val, index, arr) {
+          if (val.nodeName === '#text') {
+            ignoreTheseNodes += 1;
+          }
           if (val === elem) {
-            position = index;
+            position = index - ignoreTheseNodes;
           }
         })
         return position;
@@ -39,8 +53,27 @@ Object.defineProperties(TA.prototype, {
       return this;
     }
   },
+  count: {
+    /**
+     * To count the number of children at the bottom level of the bullseye
+     * @return {object} TA - the TA instance for chaining.
+     */
+    get: function() {
+      // doing more than accessing a property on existing target because counting can move up the bullseye to past Targets. Need to reset operations
+      this.registerOperation('count');
+      this.runAgainstNextToBottomTargets(function (target) {
+        return target.children.length;
+      });
+      return this;
+    }
+  },
   index: {
+    /**
+     * To find the index of a target from when it was created.
+     * @return {object} TA - the TA instance for chaining.
+     */
     get: function () {
+      this.registerOperation('index');
       this.runAgainstBottomTargets(function (target) {
         return target.index;
       })
@@ -48,7 +81,12 @@ Object.defineProperties(TA.prototype, {
     }
   },
   innerHTML: {
+    /**
+     * To pull the innerHTML of a DOM node.
+     * @return {object} TA - the TA instance for chaining.
+     */
     get: function () {
+      this.registerOperation('innerHTML');
       this.runAgainstBottomTargetElements(function (element) {
         return element.innerHTML;
       })
@@ -56,34 +94,49 @@ Object.defineProperties(TA.prototype, {
     }
   },
   not: {
+    /**
+     * Not a collector! Used by the GradeBook to negate the correctness of a test.
+     * @return {object} TA - the TA instance for chaining.
+     */
     get: function () {
       this.gradeOpposite = true;
       return this;
     }
   },
   numberOfTargets: {
+    /**
+     * Not a collector! Private use only. Find the total number of targets in the bullseye.
+     * @return {integer} - the number of targets
+     */
     get: function () {
       return this.targetIds.length;
     }
   },
   onlyOneOf: {
+    /**
+     * Not a collector! Used by the GradeBook to set a threshold for number of questions to pass in order to count the whole test as correct.
+     * @return {object} TA - the TA instance for chaining.
+     */
     get: function () {
       this.picky = 'onlyOneOf';
       return this;
     }
   },
-  pageImageBytes: {
-    get: function () {
-      // TODO
-    }
-  },
   someOf: {
+    /**
+     * Not a collector! Used by the GradeBook to set a threshold for number of questions to pass in order to count the whole test as correct.
+     * @return {object} TA - the TA instance for chaining.
+     */
     get: function () {
       this.picky = 'someOf';
       return this;
     }
   },
   targetIds: {
+    /**
+     * Not a collector! Private use only. Get an array of all target ids.
+     * @return {array} ids of all targets in the bullseye.
+     */
     get: function () {
       var ids = [];
       this.traverseTargets(function (target) {
@@ -93,6 +146,10 @@ Object.defineProperties(TA.prototype, {
     }
   },
   UAString: {
+    /**
+     * [get description]
+     * @return {object} TA - the TA instance for chaining.
+     */
     get: function () {
       this.operations = navigator.userAgent;
       this.documentValueSpecified = navigator.userAgent;
@@ -102,25 +159,27 @@ Object.defineProperties(TA.prototype, {
 })
 
 /**
- * Let the TA know this just happened
- * @param  {string} operation - the thing that just happened
+ * Let the TA know this just happened and refresh the questions in the GradeBook.
+ * @param {string} operation - the thing that just happened
  */
 TA.prototype.registerOperation = function (operation) {
   this.operations.push(operation);
   this.gradebook.reset();
 };
 
-// TODO: use config to determine if all targets should be traversed or if it, for instance, breaks after the first value gets hit?
-TA.prototype.traverseTargets = function (callback, lastNodeCallback, config) {
+/**
+ * Private method to traverse all targets in the bullseye.
+ * @param  {Function} callback - method to call against each target
+ */
+TA.prototype.traverseTargets = function (callback) {
   // http://www.timlabonne.com/2013/07/tree-traversals-with-javascript/
 
   /**
    * Recursively dive into a tree structure from the top. Used on the Target structure here.
    * @param  {object} node - a target of bullseye. Start with the top.
    * @param  {function} func - function to run against each node
-   * @param  {function} lastNodeCallback - will be called after the last function has run against the last node. Does not take a parameter! Should be bullseye independent.
    */
-  function visitDfs (node, func, lastNodeCallback) {
+  function visitDfs (node, func) {
     if (func) {
       func(node);
     }
@@ -133,10 +192,8 @@ TA.prototype.traverseTargets = function (callback, lastNodeCallback, config) {
 };
 
 /**
- * Run a function against the top-level Target in the bullseye
- * @param  {function} callback - the function to run against the top-level target
- * @param  {boolean} record - whether or not to record the target in the gradebook
- * @return {[type]}
+ * Private use only! Run a function against the top-level Target in the bullseye
+ * @param  {function} callback - the function to run against specified Targets
  */
 TA.prototype.runAgainstTopTargetOnly = function (callback) {
   var self = this;
@@ -151,6 +208,10 @@ TA.prototype.runAgainstTopTargetOnly = function (callback) {
   }
 };
 
+/**
+ * Private use only! Run a function against bottom targets in the bullseye
+ * @param  {function} callback - the function to run against specified Targets
+ */
 TA.prototype.runAgainstBottomTargets = function (callback) {
   var self = this;
 
@@ -171,6 +232,10 @@ TA.prototype.runAgainstBottomTargets = function (callback) {
   });
 };
 
+/**
+ * Private use only! Run a function against the elements of the bottom targets in the bullseye
+ * @param  {function} callback - the function to run against specified elements
+ */
 TA.prototype.runAgainstBottomTargetElements = function (callback) {
   var self = this;
 
@@ -191,6 +256,10 @@ TA.prototype.runAgainstBottomTargetElements = function (callback) {
   })
 };
 
+/**
+ * Private use only! Run a function against the next to bottom targets in the bullseye
+ * @param  {function} callback - the function to run against specified elements
+ */
 TA.prototype.runAgainstNextToBottomTargets = function (callback) {
   var self = this;
 
@@ -212,9 +281,9 @@ TA.prototype.runAgainstNextToBottomTargets = function (callback) {
 /**
  * Generates the top-level target. Matched elements end up as children targets. It will not have a element.
  * @param  {string} CSS selector - the selector of the elements you want to query
- * @return {object} this - the TA object
+ * @return {object} TA - the TA instance for chaining.
  */
-TA.prototype.theseNodes = function (selector) {
+TA.prototype.theseElements = function (selector) {
   this.registerOperation('gatherElements');
 
   this.target = new Target();
@@ -232,12 +301,13 @@ TA.prototype.theseNodes = function (selector) {
 
   return this;
 }
-TA.prototype.theseElements = TA.prototype.theseNodes;
+// for legacy quizzes
+TA.prototype.theseNodes = TA.prototype.theseElements;
 
 /**
- * Will run a query against the lowest level targets in the Target tree
+ * Will run a query against the lowest level targets in the Target tree. Note it will traverse all the way down the DOM.
  * @param  {string} CSS selector - the selector of the children you want to query
- * @return {object} this - the TA object
+ * @return {object} TA - the TA instance for chaining.
  */
 TA.prototype.deepChildren = function (selector) {
   this.registerOperation('gatherDeepChildElements');
@@ -253,9 +323,10 @@ TA.prototype.deepChildren = function (selector) {
 
   return this;
 };
+// for alternate syntax options
 TA.prototype.children = TA.prototype.deepChildren;
 
-// TODO: broken
+// TODO: broken :(
 TA.prototype.shallowChildren = function (selector) {
   this.registerOperation('gatherShallowChildElements');
 
@@ -270,6 +341,11 @@ TA.prototype.shallowChildren = function (selector) {
   return this;
 };
 
+/**
+ * Get any CSS style of any element.
+ * @param  {string} property - the CSS property to examine. Should be camelCased.
+ * @return {object} TA - the TA instance for chaining.
+ */
 TA.prototype.cssProperty = function (property) {
   this.registerOperation('cssProperty');
 
@@ -280,11 +356,16 @@ TA.prototype.cssProperty = function (property) {
   return this;
 }
 
-TA.prototype.attribute = function (attr) {
-  this.registerOperation('attr')
+/**
+ * Get any attribute of any element.
+ * @param  {string} attribute - the attribute under examination.
+ * @return {object} TA - the TA instance for chaining.
+ */
+TA.prototype.attribute = function (attribute) {
+  this.registerOperation('attribute')
 
   this.runAgainstBottomTargetElements(function (elem) {
-    var attrValue = elem.getAttribute(attr);
+    var attrValue = elem.getAttribute(attribute);
     if (attrValue === '') {
       attrValue = true;
     }
@@ -293,6 +374,11 @@ TA.prototype.attribute = function (attr) {
   return this;
 }
 
+/**
+ * Get the position of one side of an element relative to the viewport
+ * @param  {string} side - the side of the element in question
+ * @return {object} TA - the TA instance for chaining.
+ */
 TA.prototype.absolutePosition = function (side) {
   this.registerOperation('absolutePosition');
   // http://stackoverflow.com/questions/2880957/detect-inline-block-type-of-a-dom-element
@@ -360,6 +446,7 @@ TA.prototype.absolutePosition = function (side) {
     default:
       selectorFunc = function () {
         console.log("You didn't pick a side for absolutePosition! Options are 'top', 'left', 'bottom' and 'right'.");
+        return NaN;
       };
       break;
   };

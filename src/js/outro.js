@@ -12,15 +12,15 @@
  /*
     Why an IIFE? All the encapsulated goodness.
  */
-  function debugMode() {
-    debugMode = !debugMode;
-  };
-  exports.debugMode = debugMode;
+function debugMode() {
+  debugMode = !debugMode;
+};
+exports.debugMode = debugMode;
 
-  function pause() {
-    
-  };
-  exports.pause = pause;
+// TODO
+function pause() {
+};
+// exports.pause = pause;
 
-  return exports;
+return exports;
 }( window ));

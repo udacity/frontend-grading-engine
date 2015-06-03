@@ -1,14 +1,26 @@
 
+/***
+ *      _______                  _____                       _                
+ *     |__   __|/\              |  __ \                     | |               
+ *        | |  /  \     ______  | |__) |___ _ __   ___  _ __| |_ ___ _ __ ___ 
+ *        | | / /\ \   |______| |  _  // _ \ '_ \ / _ \| '__| __/ _ \ '__/ __|
+ *        | |/ ____ \           | | \ \  __/ |_) | (_) | |  | ||  __/ |  \__ \
+ *        |_/_/    \_\          |_|  \_\___| .__/ \___/|_|   \__\___|_|  |___/
+ *                                         | |                                
+ *                                         |_|                                
+ 
+Reporters live on the TA and are responsible for:
+  * giving the GradeBook instructions for evaluating the questions it has collected.
+  * instantiating the grading process by calling gradebook.grade()
+
+ */
+
 Object.defineProperties(TA.prototype, {
-  count: {
-    get: function() {
-      this.runAgainstNextToBottomTargets(function (target) {
-        return target.children.length;
-      }, true);
-      return this;
-    }
-  },
   toExist: {
+    /**
+     * Checks that either values or elements exist on questions in GradeBook.
+     * @return {object} result - the GradeBook's list of questions and overall correctness.
+     */
     get: function() {
       var typeOfOperation = this.operations[this.operations.length - 1];
 
@@ -17,6 +29,7 @@ Object.defineProperties(TA.prototype, {
       switch (typeOfOperation) {
         case 'gatherElements':
           doesExistFunc = function (topTarget) {
+            console.log('hi')
             return topTarget.children.length > 0;
           };
           break;
@@ -32,7 +45,7 @@ Object.defineProperties(TA.prototype, {
         default:
           doesExistFunc = function (target) {
             var doesExist = false;
-            if (target.value) {
+            if (target.value || target.element) {
               doesExist = true;
             }
             return doesExist
@@ -48,6 +61,10 @@ Object.defineProperties(TA.prototype, {
     }
   },
   value: {
+    /**
+     * Use for debug purposes only. Returns the first value found on the bullseye.
+     * @return {*} value - the value retrieved.
+     */
     get: function () {
       // TA returns a single value from the first Target hit with a value. Used to create vars in active_tests.
       var value = null;
@@ -61,6 +78,10 @@ Object.defineProperties(TA.prototype, {
     }
   },
   values: {
+    /**
+     * Use for debug purposes only. Returns all values found on the bullseye.
+     * @return {[]} values - all the values retrieved.
+     */
     get: function () {
       // TA returns a flat array of values. Used to create vars in active_tests.
       var values = [];
@@ -75,10 +96,12 @@ Object.defineProperties(TA.prototype, {
   }
 })
 
-/*
-  @param: expected* (any value)
-  @param: noStrict/ (default: false)
-*/
+/**
+ * Check that question values match an expected value.
+ * @param  {*} expected - any value to match against, but typically a string or int.
+ * @param  {boolean} noStrict - check will run as === unless noStrict is true.
+ * @return {object} result - the GradeBook's list of questions and overall correctness.
+ */
 TA.prototype.toEqual = function (expected, noStrict) {
   noStrict = noStrict || false;
   
@@ -108,6 +131,12 @@ TA.prototype.toEqual = function (expected, noStrict) {
   })
 }
 
+/**
+ * Check that the target value is greater than the given value.
+ * @param  {Number} expected - the number for comparison
+ * @param  {boolean} orEqualTo - if true, run as >= instead of >
+ * @return {object} result - the GradeBook's list of questions and overall correctness.
+ */
 TA.prototype.toBeGreaterThan = function (expected, orEqualTo) {
   orEqualTo = orEqualTo || false;
 
@@ -146,6 +175,12 @@ TA.prototype.toBeGreaterThan = function (expected, orEqualTo) {
   })
 }
 
+/**
+ * Check that the target value is less than the given value.
+ * @param  {Number} expected - the number for comparison
+ * @param  {boolean} orEqualTo - if true, run as <= instead of <
+ * @return {object} result - the GradeBook's list of questions and overall correctness.
+ */
 TA.prototype.toBeLessThan = function(expected, orEqualTo) {
   orEqualTo = orEqualTo || false;
 
@@ -184,6 +219,14 @@ TA.prototype.toBeLessThan = function(expected, orEqualTo) {
   })
 };
 
+/**
+ * Check that the target value is between upper and lower.
+ * @param  {Number} lower - the lower bounds of the comparison
+ * @param  {Number} upper - the upper bounds of the comparison
+ * @param  {Boolean} lowerInclusive - if true, run lower check as >= instead of >
+ * @param  {Boolean} upperInclusive - if true, run upper check as <= instead of <
+ * @return {object} result - the GradeBook's list of questions and overall correctness.
+ */
 TA.prototype.toBeInRange = function(lower, upper, lowerInclusive, upperInclusive) {
   lowerInclusive = lowerInclusive || true;
   upperInclusive = upperInclusive || true;
@@ -268,6 +311,12 @@ TA.prototype.toBeInRange = function(lower, upper, lowerInclusive, upperInclusive
   })
 };
 
+/**
+ * Check that the value includes at least one of the given expected values.
+ * @param  {Array} expectedValues - search for one of the values in the array
+ * @param  {Object} config - includes: nValues, minValues, maxValues. Designate the number of values in expectedValues expected to be found in the target value. Defaults to at least one value needs to be found.
+ * @return {object} result - the GradeBook's list of questions and overall correctness.
+ */
 TA.prototype.toHaveSubstring = function (expectedValues, config) {
   config = config || {};
 

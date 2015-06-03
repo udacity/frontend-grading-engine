@@ -14,6 +14,11 @@
 */
 
 var suites = [];
+/**
+ * Register a suite of tests with the grading engine.
+ * @param  {Object} _suite - contains a test's name and code to display upon completion.
+ * @return {Function} registerTest - a method to register a single test with the grading engine.
+ */
 function registerSuite(_suite) {
   var self = this;
   var thisSuite = _suite.name;
@@ -23,6 +28,12 @@ function registerSuite(_suite) {
     tests: [],
     id: Date.now()
   })
+
+  /**
+   * Register a new test on a specific suite. The test will contain an active_test. Each active test much return a boolean called isCorrect and an array of the targets in question.
+   * @param  {Object} _test - contains a description, active_test and flags.
+   * @return {Object} self - for chaining tests registrations together (if you're into that sort of syntax.)
+   */
   function registerTest(_test) {
     var hit = false;
     suites.forEach(function(val, index, arr) {
@@ -42,7 +53,6 @@ function registerSuite(_suite) {
     if (!hit) {
       console.log("Suite " + suiteName + " was not registered. Could not add tests.");
     }
-    // _test.iwant = Object.create(TA);
     return self;
   }
   return {
