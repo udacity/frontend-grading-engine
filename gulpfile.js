@@ -35,7 +35,6 @@ gulp.task('watch-prod', function() {
     .pipe(debug({title: 'rebuild for prod:'}))
 });
 
-// not working?
 gulp.task('prod', function() {
   return gulp.src(jsFiles)
     .pipe(singleConcat('udgrader-prod.js'))
