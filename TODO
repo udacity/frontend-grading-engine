@@ -11,6 +11,17 @@ Compare network response:
 Misc:
 * Page size
 
+New:
+* click and draggable widget window
+* pinnable widget window
+* write tests
+* on hover, edit, remove
+* save tests to firebase
+* browser action
+  * toggle button to show/hide feedback within browser action
+  * turn on / turn off
+  * always run on a page
+
 Documenting:
 * new README
 
