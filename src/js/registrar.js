@@ -13,7 +13,7 @@
   Expose functions that create and monitor tests.
 */
 
-var suites = [];
+// var suites = [];
 /**
  * Register a suite of tests with the grading engine.
  * @param  {Object} _suite - contains a test's name and code to display upon completion.
@@ -22,11 +22,12 @@ var suites = [];
 function registerSuite(_suite) {
   var self = this;
   var thisSuite = _suite.name;
-  suites.push({
+  // suites.push({
+  activeTestObserver.registerSuite({
     name: _suite.name,
     code: _suite.code,
     tests: [],
-    id: Date.now()
+    id: parseInt(Math.random() * 1000000)
   })
 
   /**
@@ -36,13 +37,13 @@ function registerSuite(_suite) {
    */
   function registerTest(_test) {
     var hit = false;
-    suites.forEach(function(val, index, arr) {
-      if (val.name === thisSuite) {
+    activeTestObserver.suites.forEach(function (suite) {
+      if (suite.name === thisSuite) {
         hit = true;
         if (!_test.flags) {
           _test.flags = {};
         }
-        val.tests.push({
+        suite.tests.push({
           description: _test.description,
           active_test: _test.active_test,
           flags: _test.flags,

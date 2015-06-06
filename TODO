@@ -15,12 +15,14 @@ New:
 * click and draggable widget window
 * pinnable widget window
 * write tests
-* on hover, edit, remove
+  * delete new tests
+* edit new tests
 * save tests to firebase
 * browser action
   * toggle button to show/hide feedback within browser action
   * turn on / turn off
   * always run on a page
+* better UI
 
 Documenting:
 * new README
@@ -32,7 +34,10 @@ Debugging:
 Code cleanliness:
 * make private TA methods actually private
 * merge TA.value and TA.values by querying the GradeBook for values instead
+* Target.value setter calls gradebook.registerQuestion() instead?
+* separate collectors and reporters into separate objects within the TA?
 
 Fixes:
 * absolute position gives position relative to viewport. is that desired behavior?
 * expand toEqual to match arrays and objects as well
+* less janky way of hide/expand test results

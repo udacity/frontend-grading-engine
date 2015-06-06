@@ -35,12 +35,16 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
       max-width: 400px;
       line-height: 16px;
     }
-    .test-desc:hover span.test-result {
+/*    .test-desc:hover span.test-result {
       display: inline;
       position: absolute;
       color: #111;
       border: 1px solid #DCA;
       background: #fffAF0;
+    }
+*/
+    .active-test:hover .edit {
+      display: inline;
     }
 
     .test-result {
@@ -55,11 +59,27 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
       box-shadow: 5px 5px 8px #CCC;
     }
 
+    .flex-container {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .edit {
+      transform: scale(-1, 1);
+      cursor: pointer;
+      display: none;
+    }
+
   </style>
-  <div class="test-desc incorrect"><span class="test-result"></span></div>
+  <div class="active-test">
+    <div class="flex-container">
+      <div class="test-desc incorrect"><span class="test-result"></span></div><a class="edit" onclick="console.log('editing!')">✎</a>
+    </div>
+  </div>
 </template>
 <script>
   (function() {
+    'use strict';
     var importDoc = document.currentScript.ownerDocument;
     var proto = Object.create(HTMLElement.prototype);
 

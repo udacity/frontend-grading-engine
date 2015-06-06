@@ -36,12 +36,15 @@ When all tests pass, it emits a 'suite-passed' event to the
   </style>
   <div class="suite">
     <div class="suite-title"></div>
+    <div class="active-tests"></div>
+    <button class="add-test" onclick="createTest();">+</button>
     <div class="suite-code"></div>
   </div>
 </template>
 
 <script>
   (function() {
+    'use strict';
     var importDoc = document.currentScript.ownerDocument;
     var proto = Object.create(HTMLElement.prototype);
 
@@ -53,7 +56,6 @@ When all tests pass, it emits a 'suite-passed' event to the
     };
 
     proto.attachedCallback = function() {
-      // var suiteTests = this.suite.tests;
       var suiteName = this.suite.name;
       var suiteCode = this.suite.code || false;
 
@@ -77,25 +79,44 @@ When all tests pass, it emits a 'suite-passed' event to the
           if (allTestsPassed) {
             var passEvent = new CustomEvent('suite-passed', {'detail': suiteName});
             suite.dispatchEvent(passEvent);
-            if (suiteCode) displayCode();
+            if (suiteCode) {
+              displayCode();
+            }
           }
         }
       });
 
-      function createTest(newTest, index) {
-        var at = document.createElement('active-test');
-        at.testDefinition = newTest;
-        at.index = index;
-        if (!newTest.flags.optional) numberOfMandatoryTests +=1;
-        suite.insertBefore(at, sc);
+      var testObserver = {
+        tests: [],
+        registerTest: function (test) {
+          this.tests.push(test.index);
+        },
+        hasTest: function (test) {
+          var inTests = false;
+          (this.tests.indexOf(test.index) > -1) ? inTests = true : inTests = false;
+          return inTests;
+        }
       }
 
-      this.suite.tests.forEach(function(val, index, arr) {
-        createTest(val, index);
+      function createTest(newTest) {
+        var activeTest = document.createElement('active-test');
+        var activeTests = suite.querySelector('.active-tests');
+        activeTest.testDefinition = newTest;
+        activeTest.index = newTest.index;
+        if (!newTest.flags.optional) {
+          numberOfMandatoryTests +=1;
+        }
+        activeTests.appendChild(activeTest);
+
+        testObserver.registerTest(newTest);
+      }
+
+      this.suite.tests.forEach(function(test, index, arr) {
+        test.index = index;
+        createTest(test);
       })
 
       Array.observe(this.suite.tests, function(change) {
-        console.log("observed a change in suiteTests! This means that this script is running before registerSuites() action happens.");
         if (change[0].type === 'splice') {
           createTest(change[0].object[0]);
         }
@@ -104,4 +125,7 @@ When all tests pass, it emits a 'suite-passed' event to the
 
     document.registerElement('test-suite', {prototype: proto});
   })();
+  function createTest() {
+    
+  };
 </script>
