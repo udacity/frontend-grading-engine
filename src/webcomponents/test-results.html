@@ -1,0 +1,89 @@
+<!--
+This component (<test-results>) describes the suite editor view.
+-->
+
+<template id="test-results">
+  <style scoped>
+    .toggle_display {
+      display: inline;
+      height: 2em;
+    }
+
+    .small-display {
+      max-height: 60px;
+      overflow-y: hidden;
+    }
+
+    button.shown::before {
+      content: "Hide";
+    }
+
+    button.hidden::before {
+      content: "Show";
+    }
+  </style>
+  <div class="test-results">
+    <button class="toggle_display shown"> Test Results</button>
+    <div class="test-suites"></div>
+    <button class="add-suite" onclick="testWidget.editSuite()">Add Suite</button>
+  </div>
+</template>
+
+<script>
+  var testResults = (function() {
+    'use strict';
+    var exports = {};
+    var buildSuiteElement = function() {};
+    var importDoc = document.currentScript.ownerDocument; // importee
+
+    // Define and register <test-widget>
+    // that uses Shadow DOM and a template.
+    var proto = Object.create(HTMLElement.prototype);
+
+    proto.createdCallback = function() {
+      // get template in import
+      var template = importDoc.querySelector('#test-results');
+
+      // import template into
+      var clone = document.importNode(template.content, true);
+
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+    };
+
+    proto.attachedCallback = function() {
+      var testSuites = this.shadowRoot.querySelector('.test-suites');
+
+      var buildSuiteElement = function (newSuite) {
+        var testSuite = document.createElement('test-suite');
+
+        testSuite.setAttribute('name', newSuite.name);
+        testSuite.code = newSuite.code;
+
+        testSuites.appendChild(testSuite);
+
+        return testSuite;
+      }
+
+      exports.buildSuiteElement = buildSuiteElement;
+
+      // just in case suites in GE.hotel.suites are already there
+      // GE.hotel.suites.forEach(function (suite, index) {
+      //   suite.index = index;
+      //   buildSuiteElement(suite);
+      // })
+
+      // Array.observe(GE.hotel.suites, function(change) {
+      //   if (change[0].type === 'splice') {
+      //     var suites = change[0].object;
+      //     suites.forEach(function (suite) {
+      //       buildSuiteElement(suite);
+      //     })
+      //   }
+      // })
+    };
+
+    document.registerElement('test-results', {prototype: proto});
+    return exports;
+  })();
+</script>

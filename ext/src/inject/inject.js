@@ -2,75 +2,54 @@
 start tracking suites and tests here now?
 */
 
-function injectGradingEngine() {
-  var ge = document.createElement('script');
-  ge.src = '/frontend-grading-engine/dist/udgrader-003.js';
-  document.body.appendChild(ge);
 
-  ge.onload = function (e) {
-    var definedTests = document.querySelector('meta[name="udacity-grader"]').content;
-    if (definedTests !== '') {
-      var tests = document.createElement('script');
-      tests.src = '/frontend-grading-engine/ext/tests/' + definedTests;
-      document.body.appendChild(tests);
-    }
-  };
-};
-
-function Suite(rawSuite) {
-  var name = rawSuite.name || "";
-  var code = rawSuite.code || '';
-  var tests = rawSuite.tests || [];
-  var id = parseInt(Math.random() * 1000000);
-
-  // TODO: tests to make sure everything is in the right format and exists!!!
-
-  this.name = name;
-  this.code = code;
-  this.tests = tests;
-  this.id = id;
-};
-
-Suite.prototype.registerTest = function (rawTest) {
-  var test = new Test(rawTest);
-  this.tests.push(test);
-};
-
-function Test(rawTest) {
-  var description = rawTest.description || "";
-  var active_test = rawTest.active_test || function(){};
-  var flags = rawTest.flags || [];
-  var id = parseInt(Math.random() * 1000000);
-
-  // TODO: tests to make sure everything is in the right format and exists!!!
-
-  this.description = description;
-  this.active_test = active_test;
-  this.flags = flags;
-  this.id = id;
-};
-
-var activeTestObserver = {
-  suites: [],
-  hasSuite: function (suite) {
-    // this is about to be broken
-    // var inSuites = false;
-    // (this.suites.indexOf(suite) > -1) ? inSuites = true : inSuites = false;
-    // return inSuites;
-  },
-  registerTest: function (suite, test) {
-    suite.tests.push(test);
-  },
-  registerSuite: function (suite) {
-    this.suites.push(suite);
-  }
-};
-
-chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
+chrome.runtime.sendMessage({}, function(response) {
   var readyStateCheckInterval = setInterval(function() {
     if (document.readyState === "complete") {
       clearInterval(readyStateCheckInterval);
-      injectGradingEngine();
+      
+      function injectWidgets() {
+        function supportsImports() {
+          return 'import' in document.createElement('link');
+        }
+        if (supportsImports()) {
+          // Cool!
+        } else {
+          // Use other libraries/require systems to load files.
+          alert("You must use the latest version of Google Chrome to get feedback and a code for this quiz. Sorry!");
+        }
+
+        // import templates
+        var link = document.createElement('link');
+        link.rel = 'import';
+        link.href = '/frontend-grading-engine/dist/feedback.html';
+        document.head.appendChild(link);
+        
+        link.onload = function(e) {
+          console.log('Loaded Udacity feedback widget');
+          injectGradingEngine();
+        }
+        link.onerror = function(e) {
+          throw new Error('Failed to load the Udacity Grading Engine. Please reload.');
+        }
+      };
+
+      function injectGradingEngine() {
+        var ge = document.createElement('script');
+        ge.src = '/frontend-grading-engine/dist/udgrader-004.js';
+        document.body.appendChild(ge);
+
+        ge.onload = function (e) {
+          var preDefinedTestSuites = document.querySelector('meta[name="udacity-grader"]') || false;
+          if (preDefinedTestSuites) {
+            var testSuiteDefinitions = document.createElement('script');
+            testSuiteDefinitions.src = '/frontend-grading-engine/ext/tests/' + preDefinedTestSuites.content;
+            document.body.appendChild(testSuiteDefinitions);
+          }
+        };
+      };
+
+      injectWidgets();
     }
   }, 10);
 });

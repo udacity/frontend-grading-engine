@@ -10,13 +10,17 @@
  */
 /*                    Udacity's library for immediate front-end feedback.
 
-                  Version:      0.3
+                  Version:      0.4
                   Tech:         HTML Imports,
                                 Custom Elements,
-                                grunt
+                                gulp
                   url:          http://github.com/udacity/frontend-grading-engine
                   author:       Cameron Pittman
-
+                              
+                              New for version 0.4!
+                                * Now a Chrome Extension!
+                                * Editable tests! (inluding totally rewritten view logic)
+          
                               New for version 0.3!
                                 * Better security!
                                 * Better encapsulation!

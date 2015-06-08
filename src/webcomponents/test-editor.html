@@ -1,0 +1,88 @@
+<!--
+This component (<test-editor>) describes the suite editor view.
+-->
+
+<template id="test-editor">
+  <style scoped>
+    .new::after {
+      content: " New"
+    }
+  </style>
+  <div class="test-editor">
+    <button onclick="testWidget.seeResults();">back to results</button>
+    <h4 class="suite-name"></h4>
+    <label for="active-test-description">Description</label>
+    <input id="active-test-description" type="text">
+    <label for="active-test-input">Active Test</label>
+    <input id="active-test-input" type="text">
+    <label for="flags"></label>
+    <select name="flags" type="select">
+      
+    </select>
+
+    <button id="save-test" onclick="testEditor.saveTest();">Save</button>
+  </div>
+</template>
+
+<script>
+  var testEditor = (function() {
+    'use strict';
+    var exports = {};
+    var importDoc = document.currentScript.ownerDocument; // importee
+
+    // Define and register <test-widget>
+    // that uses Shadow DOM and a template.
+    var proto = Object.create(HTMLElement.prototype);
+
+    proto.createdCallback = function() {
+      // get template in import
+      var template = importDoc.querySelector('#test-editor');
+
+      // import template into
+      var clone = document.importNode(template.content, true);
+
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+    };
+
+    proto.attachedCallback = function() {
+      // console.log(this.test)
+      // var test = this.test;
+      // exports.test = test;
+      // var suite = this.suite;
+      // exports.suite = suite;
+
+      // console.log('this should be a Test:');
+      // console.log(test);
+      // console.log('this should be a Suite:');
+      // console.log(suite);
+    };
+
+    document.registerElement('test-editor', {prototype: proto});
+    
+    function saveTest(suite) {
+      // suite.createTest({
+      //   description: exports.viewController.activeTestDescription,
+      //   active_test: exports.viewController.activeTestInput,
+      //   flags: exports.viewController.activeTestFlags
+      // });
+      test.refresh();
+    };
+    exports.saveTest = saveTest;
+
+    function setTest(test) {
+      // TODO: keep test somewhere so you can refresh it
+      console.log(test);
+      // exports.test = test;
+    }
+    exports.setTest = setTest;
+
+    function setSuite(suite) {
+      console.log(suite);
+      // exports.suite = suite;
+    }
+    exports.setSuite = setSuite;
+    return exports;
+  })();
+  
+</script>

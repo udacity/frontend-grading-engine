@@ -188,7 +188,7 @@ TA.prototype.traverseTargets = function (callback) {
       visitDfs(child, func);
     });
   };
-  visitDfs(this.target, callback, lastNodeCallback);
+  visitDfs(this.target, callback);
 };
 
 /**

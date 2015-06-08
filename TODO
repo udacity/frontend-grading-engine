@@ -11,18 +11,29 @@ Compare network response:
 Misc:
 * Page size
 
+Flags:
+* repeat test even if it passes
+
 New:
 * click and draggable widget window
 * pinnable widget window
 * write tests
   * delete new tests
 * edit new tests
-* save tests to firebase
+* edit old tests
+  - test editor gets a test from test results
+  - test editor collects new values
+  - test editor calls refresh on the test
+  - might need to call runSyncTest() again
+* save tests as JSON file
+* load tests from JSON file
 * browser action
   * toggle button to show/hide feedback within browser action
   * turn on / turn off
   * always run on a page
 * better UI
+* interactive GUI for test editor
+* use a service worker to handle loading the engine and template resources
 
 Documenting:
 * new README

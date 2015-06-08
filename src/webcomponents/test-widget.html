@@ -8,7 +8,6 @@ Listens for 'suite-passed' events. Emits a 'grader-passed' event
 when all suites pass.
 -->
 
-<link rel="import" href="/frontend-grading-engine/src/webcomponents/test-suite.html">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro">
 
 <template id="test-widget">
@@ -20,14 +19,14 @@ when all suites pass.
     .test-widget-display {
       position: absolute;
       min-width: 200px;
-      background-color: rgba(230, 230, 230, 0.8);
+      background-color: rgba(230, 230, 230, 0.9);
       opacity: 0.5;
       right: 0px;
       top: 0px;
       padding: 0.5em;
       text-align: left;
       max-height: 100%;
-      overflow-y: auto;
+      overflow-y: scroll;
       transition: opacity 0.3s, max-height 0.3s;;
     }
 
@@ -47,35 +46,26 @@ when all suites pass.
       font-size: 2em;
     }
 
-    .toggle_display {
-      display: inline;
-      height: 2em;
+    .test-editor {
+      /*padding-left: 2em;*/
     }
 
-    button.shown::before {
-      content: "Hide";
+    .test-editor, .edit-area, .new-suite-editor, .test-editor {
+      display: none;
     }
 
-    button.hidden::before {
-      content: "Show";
-    }
-
-    .small-display {
-      max-height: 60px;
-      overflow-y: hidden;
-    }
   </style>
   <div class="test-widget-display">
     <div class="udacity-header">Udacity Feedback</div>
-    <button class="toggle_display shown"> Test Results</button>
-    <div class="test-suites"></div>
-    <button class="add-suite" onclick="createSuite();">+</button>
+    <div class="view-container"></div>
   </div>
 </template>
 
 <script>
-  (function() {
+  var testWidget = (function() {
     'use strict';
+    var exports = {};
+
     var importDoc = document.currentScript.ownerDocument; // importee
 
     // Define and register <test-widget>
@@ -94,73 +84,73 @@ when all suites pass.
     };
 
     proto.attachedCallback = function() {
-      // var graderSuites = suites;
-      var twd = this.shadowRoot.querySelector('.test-widget-display');
+      var testWidgetDisplay = this.shadowRoot.querySelector('.test-widget-display');
+      var viewContainer = testWidgetDisplay.querySelector('.view-container')
 
+      // initialize the view options
+      var testResultsElem = document.createElement('test-results');
+      var suiteEditorElem = document.createElement('suite-editor');
+      var testEditorElem = document.createElement('test-editor');
+
+      viewContainer.appendChild(testResultsElem);
+      viewContainer.appendChild(suiteEditorElem);
+      viewContainer.appendChild(testEditorElem);
+
+      // TODO: so janky. do this better.
       window.onscroll = function() {
-        twd.style.top = window.scrollY + "px";
+        testWidgetDisplay.style.top = window.scrollY + "px";
       };
 
       window.onload = function() {
-        twd.style.top = window.scrollY + "px";
+        testWidgetDisplay.style.top = window.scrollY + "px";
       };
-
-      twd.querySelector('.toggle_display').onclick = function() {
-        twd.classList.toggle('small-display');
-        twd.querySelector('.toggle_display').classList.toggle('hidden');
-        twd.querySelector('.toggle_display').classList.toggle('shown');
-      }
 
       var eventCollector = [];
       this.addEventListener('suite-passed', function(e) {
         if (eventCollector.indexOf(e.detail) === -1) {
           eventCollector.push(e.detail);
-          if (eventCollector.length === GE.suites.length) {
+          if (eventCollector.length === GE.hotel.suites.length) {
             var passEvent = new CustomEvent('grader-passed', {'detail': 'TBD'});
-            twd.dispatchEvent(passEvent);
+            testWidgetDisplay.dispatchEvent(passEvent);
           }
         }
       });
 
-      // export this instead?
-      function createSuite(newSuite) {
-        var testSuite = document.createElement('test-suite');
-        var testSuites = twd.querySelector('.test-suites');
-        testSuite.suite = newSuite;
-        testSuites.appendChild(testSuite);
+      function seeResults() {
+        testResultsElem.style.display = 'block';
+        suiteEditorElem.style.display = 'none';
+        testEditorElem.style.display = 'none';
+      };
+      exports.seeResults = seeResults;
 
-        activeTestObserver.registerSuite(newSuite);
-      }
+      function editSuite (suite) {
+        testResultsElem.style.display = 'none';
+        suiteEditorElem.style.display = 'block';
+        testEditorElem.style.display = 'none';
+      };
+      exports.editSuite = editSuite;
 
-      // just in case suites in GE.suites are already there
-      GE.suites.forEach(function (suite, index, arr) {
-        suite.index = index;
-        createSuite(suite);
-      })
-
-      Array.observe(GE.suites, function(change) {
-        if (change[0].type === 'splice') {
-          var suites = change[0].object;
-          suites.forEach(function(suite, index, arr) {
-            if (!suiteObserver.hasSuite(suite)) {
-              createSuite(suite);
-            }
-          })
+      function editTest (activeTest, suite) { 
+        if (activeTest) {
+          testEditor.setTest(activeTest);
         }
-      })
+        if (suite) {
+          testEditor.setSuite(suite);
+        }
+
+        testResultsElem.style.display = 'none';
+        suiteEditorElem.style.display = 'none';
+        testEditorElem.style.display = 'block';
+      };
+      exports.editTest = editTest;
+
+      seeResults();
     };
 
     document.registerElement('test-widget', {prototype: proto});
+    return exports;
   })();
   
   var tw = document.createElement('test-widget');
   document.body.appendChild(tw);
-  function createSuite() {
-    GE.suites.push({
-      name: 'name',
-      code: 'code',
-      tests: [],
-      id: parseInt(Math.random() * 1000000)
-    })
-  };
 </script>

@@ -1,11 +1,5 @@
-<!--
-This component describes a single test. Each test is 'active' because it governs itself. It runs the active_test function registered to a test.
-
-The test bubbles an 'test-passed' event to the <test-suite> when it passes.
--->
-
-<template id="active-test">
-  <style scoped>
+<html><head><meta charset="UTF-8"><template id="active-test">
+  <style scoped="">
     .correct {
       color: #060;
     }
@@ -146,4 +140,4 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
     document.registerElement('active-test', {prototype: proto});
     return exports;
   })();
-</script>
+</script></head><body></body></html>

@@ -1,0 +1,59 @@
+<!--
+This component (<suite-editor>) describes the suite editor view.
+-->
+
+<template id="suite-editor">
+  <style scoped>
+    .new::after {
+      content: " New"
+    }
+  </style>
+  <div class="suite-editor">
+    <button onclick="testWidget.seeResults();">back to results</button>
+    <label for="name">Suite Name</label>
+    <input id="name" type="text">
+    <label for="code">Code</label>
+    <input id="code" type="text">
+
+    <button id="save-suite" onclick="suiteEditor.saveSuite();">Save</button>
+  </div>
+</template>
+
+<script>
+  var suiteEditor = (function() {
+    'use strict';
+    var exports = {};
+    var importDoc = document.currentScript.ownerDocument; // importee
+
+    // Define and register <test-widget>
+    // that uses Shadow DOM and a template.
+    var proto = Object.create(HTMLElement.prototype);
+
+    proto.createdCallback = function() {
+      // get template in import
+      var template = importDoc.querySelector('#suite-editor');
+
+      // import template into
+      var clone = document.importNode(template.content, true);
+
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+    };
+
+    var suiteEditor;
+    proto.attachedCallback = function() {
+      suiteEditor = this.shadowRoot.querySelector('.suite-editor');
+    };
+
+    document.registerElement('suite-editor', {prototype: proto});
+    function saveSuite() {
+      GE.hotel.createSuite({
+        name: suiteEditor.querySelector('#name').value,
+        code: suiteEditor.querySelector('#code').value
+      });
+    };
+    exports.saveSuite = saveSuite;
+    return exports;
+  })();
+    
+</script>

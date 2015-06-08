@@ -14,8 +14,6 @@
  */
 
   (function() {    
-    document.body.addEventListener('grader-passed', function (e) {console.log("All tests passed!")}, false)
-    
     function supportsImports() {
       return 'import' in document.createElement('link');
     }
@@ -29,13 +27,14 @@
     // import templates
     var link = document.createElement('link');
     link.rel = 'import';
-    link.href = '/frontend-grading-engine/src/webcomponents/test-widget.html';
+    link.href = '/frontend-grading-engine/dist/test-widget.html';
     document.head.appendChild(link);
     
     link.onload = function(e) {
-      console.log('Loaded Udacity Grading Engine');
+      console.log('Loaded Udacity feedback widget');
+      initRegistrar();
     }
     link.onerror = function(e) {
-      throw new Error('Failed to load the Udacity Grading Engine');
+      throw new Error('Failed to load the Udacity Grading Engine. Please reload.');
     }
   })()

@@ -13,11 +13,21 @@
 //     sendResponse({test: 'test response'});
 //   });
 
+// use GE.activeTestRegistry.someMethod to add new suites.
+// TODO: validate JSON to go into activeTestRegistry
+
+function isInCorrectFormat (JSON) {
+  // is it an array of suite objects, each containing arrays of tests, each containing active_tests and descriptions?
+}
+
+function injectSuites (suites) {
+  GE.registerSuites(suites);
+};
+
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     console.log(sender.tab ?
                 "from a content script:" + sender.tab.url :
                 "from the extension");
-    if (request.greeting == "hello")
-      sendResponse({farewell: "goodbye"});
+    sendResponse({farewell: "goodbye"});
   });
