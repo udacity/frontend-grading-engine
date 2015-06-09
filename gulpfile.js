@@ -16,34 +16,45 @@ var jsFiles = [
   'src/js/GradeBook.js',
   'src/js/TA/collectors.js',
   'src/js/TA/reporters.js',
+  'src/js/active_test.js',
+  'src/js/suite.js',
   'src/js/registrar.js',
   'src/js/outro.js'
 ];
 
 var webComponents = [
-  'src/webcomponents/feedback.html',
+  'src/webcomponents/intro.html',
   'src/webcomponents/active-test.html',
   'src/webcomponents/suite-editor.html',
   'src/webcomponents/test-editor.html',
   'src/webcomponents/test-results.html',
   'src/webcomponents/test-suite.html',
   'src/webcomponents/test-widget.html',
+  'src/webcomponents/outro.html',
 ]
  
 gulp.task('watch-vulcanize', function () {
   return gulp.src('src/webcomponents/feedback.html')
     .pipe(watch(webComponents))
     .pipe(vulcanize({
-      stripComments: true,
+      stripComments: true
     }))
     .pipe(gulp.dest('dist'))
     .pipe(debug({title: 'vulcanized: '}))
 });
 
+gulp.task('watch-components', function () {
+  return gulp.src(webComponents)
+    .pipe(watch(webComponents))
+    .pipe(concat('feedback.html'))
+    .pipe(gulp.dest('dist/'))
+    .pipe(debug({title: 'built dev feedback: '}))
+});
+
 gulp.task('vulcanize', function () {
   return gulp.src('src/webcomponents/feedback.html')
     .pipe(vulcanize({
-      stripComments: true,
+      stripComments: true
     }))
     .pipe(gulp.dest('dist'))
     .pipe(debug({title: 'vulcanized: '}))
@@ -54,7 +65,7 @@ gulp.task('watch-build-dev-engine', function() {
     .pipe(watch(jsFiles))
     .pipe(concat('udgrader-004.js'))
     .pipe(gulp.dest('dist/'))
-    .pipe(debug({title: 'rebuild for dev:'}))
+    .pipe(debug({title: 'built dev grading engine:'}))
 });
 
 gulp.task('watch-build-prod-engine', function() {
@@ -66,5 +77,6 @@ gulp.task('watch-build-prod-engine', function() {
     .pipe(debug({title: 'rebuild for prod:'}))
 });
 
-gulp.task('dev-watch', ['watch-vulcanize', 'watch-build-dev-engine']);
+// gulp.task('dev-watch', ['watch-vulcanize', 'watch-build-dev-engine']);
+gulp.task('dev-watch', ['watch-components', 'watch-build-dev-engine']);
 gulp.task('prod-watch', ['watch-vulcanize', 'watch-build-prod-engine']);

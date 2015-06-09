@@ -46,8 +46,9 @@ This component (<suite-editor>) describes the suite editor view.
     };
 
     document.registerElement('suite-editor', {prototype: proto});
+    
     function saveSuite() {
-      GE.hotel.createSuite({
+      GE.registerSuite({
         name: suiteEditor.querySelector('#name').value,
         code: suiteEditor.querySelector('#code').value
       });

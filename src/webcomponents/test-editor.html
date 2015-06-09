@@ -14,12 +14,9 @@ This component (<test-editor>) describes the suite editor view.
     <label for="active-test-description">Description</label>
     <input id="active-test-description" type="text">
     <label for="active-test-input">Active Test</label>
-    <input id="active-test-input" type="text">
-    <label for="flags"></label>
-    <select name="flags" type="select">
-      
-    </select>
-
+    <input id="active-test-input" type="text" placeholder="broken at the moment">
+    <label for="flags">Flags</label>
+    <input id="flags" type="flags" placeholder="also broken">
     <button id="save-test" onclick="testEditor.saveTest();">Save</button>
   </div>
 </template>
@@ -29,6 +26,7 @@ This component (<test-editor>) describes the suite editor view.
     'use strict';
     var exports = {};
     var importDoc = document.currentScript.ownerDocument; // importee
+    var elemItself = null;
 
     // Define and register <test-widget>
     // that uses Shadow DOM and a template.
@@ -46,6 +44,7 @@ This component (<test-editor>) describes the suite editor view.
     };
 
     proto.attachedCallback = function() {
+      elemItself = this.shadowRoot.querySelector('.test-editor');
       // console.log(this.test)
       // var test = this.test;
       // exports.test = test;
@@ -60,28 +59,27 @@ This component (<test-editor>) describes the suite editor view.
 
     document.registerElement('test-editor', {prototype: proto});
     
-    function saveTest(suite) {
-      // suite.createTest({
-      //   description: exports.viewController.activeTestDescription,
-      //   active_test: exports.viewController.activeTestInput,
-      //   flags: exports.viewController.activeTestFlags
-      // });
-      test.refresh();
+    function saveTest() {
+      console.log('saving!');
+      var assumedEditedDescription = elemItself.querySelector('#active-test-description').value;
+      // var assumedEditedTest = elemItself.querySelector('#active-test-input').value;
+      
+      elemItself.test.update({
+        description: assumedEditedDescription
+        // activeTest: assumedEditedTest
+      })
     };
     exports.saveTest = saveTest;
 
     function setTest(test) {
-      // TODO: keep test somewhere so you can refresh it
-      console.log(test);
-      // exports.test = test;
+      elemItself.test = test;
+      var descriptionView = elemItself.querySelector('#active-test-description');
+      // var activeTestView = elemItself.querySelector('#active-test-input');
+      descriptionView.value = test.description;
+      // activeTestView.value = test.activeTest;
     }
     exports.setTest = setTest;
 
-    function setSuite(suite) {
-      console.log(suite);
-      // exports.suite = suite;
-    }
-    exports.setSuite = setSuite;
     return exports;
   })();
   

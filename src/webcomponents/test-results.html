@@ -54,11 +54,13 @@ This component (<test-results>) describes the suite editor view.
     proto.attachedCallback = function() {
       var testSuites = this.shadowRoot.querySelector('.test-suites');
 
+      // TODO: would love to move this to hotel at some point
       var buildSuiteElement = function (newSuite) {
         var testSuite = document.createElement('test-suite');
 
         testSuite.setAttribute('name', newSuite.name);
-        testSuite.code = newSuite.code;
+        testSuite.setAttribute('suite-passed', false);
+        testSuite.code = newSuite.code;  // to avoid leaving the code as an easy-to-spot attribute
 
         testSuites.appendChild(testSuite);
 
@@ -66,21 +68,6 @@ This component (<test-results>) describes the suite editor view.
       }
 
       exports.buildSuiteElement = buildSuiteElement;
-
-      // just in case suites in GE.hotel.suites are already there
-      // GE.hotel.suites.forEach(function (suite, index) {
-      //   suite.index = index;
-      //   buildSuiteElement(suite);
-      // })
-
-      // Array.observe(GE.hotel.suites, function(change) {
-      //   if (change[0].type === 'splice') {
-      //     var suites = change[0].object;
-      //     suites.forEach(function (suite) {
-      //       buildSuiteElement(suite);
-      //     })
-      //   }
-      // })
     };
 
     document.registerElement('test-results', {prototype: proto});

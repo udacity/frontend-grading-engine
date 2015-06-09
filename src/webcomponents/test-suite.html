@@ -1,12 +1,5 @@
 <!--
-This component describes a suite of tests.
-
-It creates a series of tests (<active-test>) as defined in the
-grader.js file.
-
-The component listens for 'test-passed' events from its tests.
-When all tests pass, it emits a 'suite-passed' event to the 
-<test-widget>.
+This component holds a suite of tests.
 -->
 
 <template id="test-suite">
@@ -35,14 +28,15 @@ When all tests pass, it emits a 'suite-passed' event to the
   <div class="suite">
     <div class="suite-title"></div>
     <div class="active-tests"></div>
-    <button class="add-test" onclick="createTest(testSuite.suite);">Create New Test</button>
+    <button class="add-test" onclick="this.createTest();">Create New Test</button>
     <div class="suite-code"></div>
   </div>
 </template>
 
 <script>
-  var testSuite = (function() {
+  (function() {
     'use strict';
+    var self = null;
     var importDoc = document.currentScript.ownerDocument;
     var proto = Object.create(HTMLElement.prototype);
 
@@ -54,73 +48,40 @@ When all tests pass, it emits a 'suite-passed' event to the
     };
 
     proto.attachedCallback = function() {
-      // var suiteName = this.suite.name;
-      // var suiteCode = this.suite.code || false;
-      var suiteName = this.getAttribute('name');
-      var suiteCode = this.code; // TODO: might work... better than an attribute.
+      updateView();
+    };
 
-      // exports.suite = this.suite;
+    proto.attributeChangedCallback = function() {
+      self = this;
+      updateView();
+    };
 
-      var suite = this.shadowRoot.querySelector('.suite');
-      var sc = this.shadowRoot.querySelector('.suite-code');
-      this.shadowRoot.querySelector('.suite-title').innerHTML = suiteName + " Tests";
-// 
+    function updateView() {
+      var suiteName = self.getAttribute('name');
+      var suitePassed = self.getAttribute('suite-passed');
+      var suiteCode = self.code;
 
-      // move to attribute change
-      function displayCode() {
-        sc.innerHTML = "<div>" + suiteName + " Code: " + suiteCode + "</div>";
+      var suite = self.shadowRoot.querySelector('.suite');
+      var sc = self.shadowRoot.querySelector('.suite-code');
+      self.shadowRoot.querySelector('.suite-title').innerHTML = suiteName + " Tests";
+
+      function displayCode (show) {
+        if (show) {
+          sc.innerHTML = "<div>" + suiteName + " Code: " + suiteCode + "</div>";
+        } else {
+          sc.innerHTML = "";
+        }
       };
 
-      // var numberOfMandatoryTests = 0;
-      // var eventCollector = [];
-      // this.addEventListener('test-status', function (e) {
-      //   // e.detail includes index, testCorrect, testDesc
-      //   eventCollector[e.detail.index] = e.detail;
-      //   if (eventCollector.length === numberOfMandatoryTests) {
-      //     var allTestsPassed = eventCollector.every(function(val, index, arr) {
-      //       return val.testCorrect;
-      //     })
-      //     if (allTestsPassed) {
-      //       var passEvent = new CustomEvent('suite-passed', {'detail': suiteName});
-      //       suite.dispatchEvent(passEvent);
-      //       if (suiteCode) {
-      //         displayCode();
-      //       }
-      //     }
-      //   }
-      // });
-
-      // function createTestElement(newTest) {
-      //   var activeTest = document.createElement('active-test');
-      //   var activeTests = suite.querySelector('.active-tests');
-      //   // activeTest.testDefinition = newTest;
-      //   activeTest.setAttribute('description', newTest.description);
-      //   activeTest.setAttribute('testPassed', newTest.testPassed);
-
-      //   activeTests.appendChild(activeTest);
-      // }
-      // TODO: CAN I EXPORT THIS FUNCTION???????
-      // this.createTestElement = createTestElement;
-
-      // this.suite.tests.forEach(function(test, index, arr) {
-      //   test.index = index;
-      //   createTest(test);
-      // })
-
-      // Array.observe(this.suite.tests, function(change) {
-      //   if (change[0].type === 'splice') {
-      //     createTest(change[0].object[0]);
-      //   }
-      // })
-      return this;
+      if (suitePassed === 'true') {
+        displayCode(true);
+      } else {
+        displayCode(false);
+      }
     };
 
     document.registerElement('test-suite', {prototype: proto});
-    // return createTest;
   })();
   function createTest(suite) {
-    // console.log(suite);
-
-    testWidget.editTest(null, suite);
   };
 </script>

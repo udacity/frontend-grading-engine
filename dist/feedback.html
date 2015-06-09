@@ -1,7 +1,475 @@
-<html><head><meta charset="UTF-8"><link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro">
+<html><head>
+<!--
+This component holds a single test.
+-->
+
+<template id="active-test">
+  <style scoped>
+    .correct {
+      color: #060;
+    }
+    .correct::before {
+      content: "✓ ";
+    }
+    .incorrect {
+      color: #900;
+    }
+    .incorrect::before {
+      content: "✗ ";
+    }
+    .test-desc {
+      width: 100%;
+    }
+
+    /* http://www.menucool.com/tooltip/css-tooltip */
+    .test-desc {outline:none;}
+    .test-desc strong {line-height:30px;}
+    .test-desc:hover {text-decoration:none;} 
+    .test-desc span.test-result {
+      z-index: 10;
+      display: none;
+      padding: 14px 20px;
+      margin-top: -30px;
+      margin-left: 28px;
+      max-width: 400px;
+      line-height: 16px;
+    }
+/*    .test-desc:hover span.test-result {
+      display: inline;
+      position: absolute;
+      color: #111;
+      border: 1px solid #DCA;
+      background: #fffAF0;
+    }
+*/
+    .active-test:hover .edit {
+      display: inline;
+    }
+
+    .test-result {
+      z-index: 20;
+      position: absolute;
+      top: 30px;
+      border: 0;
+      left: -12px;
+    }
+    .test-desc span.test-result {
+      border-radius:4px;
+      box-shadow: 5px 5px 8px #CCC;
+    }
+
+    .flex-container {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .edit {
+      transform: scale(-1, 1);
+      cursor: pointer;
+      display: none;
+    }
+
+  </style>
+  <div class="active-test">
+    <div class="flex-container">
+      <div class="mark incorrect"><span class="test-desc"></span><span class="test-result"></span></div><a class="edit" onclick="this.edit()">✎</a>
+    </div>
+  </div>
+</template>
+<script>
+  (function() {
+    'use strict';
+    var exports = {};
+    var self = null;
+
+    var importDoc = document.currentScript.ownerDocument;
+    var proto = Object.create(HTMLElement.prototype);
+
+    /*
+    Called to create the element
+    */
+    proto.createdCallback = function() {
+      var template = importDoc.querySelector('#active-test');
+      var clone = document.importNode(template.content, true);
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+    };
+
+    /*
+    Called when the element gets attached to the document
+    */
+    proto.attachedCallback = function() {
+      self = this;
+      var editButton = this.shadowRoot.querySelector('a.edit');
+      
+      editButton.edit = this.edit;
+      updateView();
+    };
+
+    /*
+    Called when any attribute on the element changes
+    */
+    proto.attributeChangedCallback = function () {
+      self = this;
+      updateView();
+    };
+
+    function updateView() {
+      try {
+        var testDescription = self.getAttribute('description');
+        var testPassed = self.getAttribute('test-passed');        
+      } catch (e) {
+        console.log(e);
+      }
+
+      var markRightOrWrong = self.shadowRoot.querySelector('.mark');
+      var descriptionDisplay = self.shadowRoot.querySelector('.test-desc');
+      descriptionDisplay.innerHTML = testDescription;
+
+      function testHasPassed() {
+        markRightOrWrong.classList.remove('incorrect');
+        markRightOrWrong.classList.add('correct');
+      };
+
+      function testHasFailed() {
+        markRightOrWrong.classList.add('incorrect');
+        markRightOrWrong.classList.remove('correct');
+      };
+
+      if (testPassed === 'true') {
+        testHasPassed();
+      } else {
+        testHasFailed();
+      }
+    };
+
+    document.registerElement('active-test', {prototype: proto});
+    return exports;
+  })();
+</script>
+<!--
+This component (<suite-editor>) describes the suite editor view.
+-->
+
+<template id="suite-editor">
+  <style scoped>
+    .new::after {
+      content: " New"
+    }
+  </style>
+  <div class="suite-editor">
+    <button onclick="testWidget.seeResults();">back to results</button>
+    <label for="name">Suite Name</label>
+    <input id="name" type="text">
+    <label for="code">Code</label>
+    <input id="code" type="text">
+
+    <button id="save-suite" onclick="suiteEditor.saveSuite();">Save</button>
+  </div>
+</template>
+
+<script>
+  var suiteEditor = (function() {
+    'use strict';
+    var exports = {};
+    var importDoc = document.currentScript.ownerDocument; // importee
+
+    // Define and register <test-widget>
+    // that uses Shadow DOM and a template.
+    var proto = Object.create(HTMLElement.prototype);
+
+    proto.createdCallback = function() {
+      // get template in import
+      var template = importDoc.querySelector('#suite-editor');
+
+      // import template into
+      var clone = document.importNode(template.content, true);
+
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+    };
+
+    var suiteEditor;
+    proto.attachedCallback = function() {
+      suiteEditor = this.shadowRoot.querySelector('.suite-editor');
+    };
+
+    document.registerElement('suite-editor', {prototype: proto});
+    
+    function saveSuite() {
+      GE.registerSuite({
+        name: suiteEditor.querySelector('#name').value,
+        code: suiteEditor.querySelector('#code').value
+      });
+    };
+    exports.saveSuite = saveSuite;
+    return exports;
+  })();
+    
+</script>
+<!--
+This component (<test-editor>) describes the suite editor view.
+-->
+
+<template id="test-editor">
+  <style scoped>
+    .new::after {
+      content: " New"
+    }
+  </style>
+  <div class="test-editor">
+    <button onclick="testWidget.seeResults();">back to results</button>
+    <h4 class="suite-name"></h4>
+    <label for="active-test-description">Description</label>
+    <input id="active-test-description" type="text">
+    <label for="active-test-input">Active Test</label>
+    <input id="active-test-input" type="text" placeholder="broken at the moment">
+    <label for="flags">Flags</label>
+    <input id="flags" type="flags" placeholder="also broken">
+    <button id="save-test" onclick="testEditor.saveTest();">Save</button>
+  </div>
+</template>
+
+<script>
+  var testEditor = (function() {
+    'use strict';
+    var exports = {};
+    var importDoc = document.currentScript.ownerDocument; // importee
+    var elemItself = null;
+
+    // Define and register <test-widget>
+    // that uses Shadow DOM and a template.
+    var proto = Object.create(HTMLElement.prototype);
+
+    proto.createdCallback = function() {
+      // get template in import
+      var template = importDoc.querySelector('#test-editor');
+
+      // import template into
+      var clone = document.importNode(template.content, true);
+
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+    };
+
+    proto.attachedCallback = function() {
+      elemItself = this.shadowRoot.querySelector('.test-editor');
+      // console.log(this.test)
+      // var test = this.test;
+      // exports.test = test;
+      // var suite = this.suite;
+      // exports.suite = suite;
+
+      // console.log('this should be a Test:');
+      // console.log(test);
+      // console.log('this should be a Suite:');
+      // console.log(suite);
+    };
+
+    document.registerElement('test-editor', {prototype: proto});
+    
+    function saveTest() {
+      console.log('saving!');
+      var assumedEditedDescription = elemItself.querySelector('#active-test-description').value;
+      // var assumedEditedTest = elemItself.querySelector('#active-test-input').value;
+      
+      elemItself.test.update({
+        description: assumedEditedDescription
+        // activeTest: assumedEditedTest
+      })
+    };
+    exports.saveTest = saveTest;
+
+    function setTest(test) {
+      elemItself.test = test;
+      var descriptionView = elemItself.querySelector('#active-test-description');
+      // var activeTestView = elemItself.querySelector('#active-test-input');
+      descriptionView.value = test.description;
+      // activeTestView.value = test.activeTest;
+    }
+    exports.setTest = setTest;
+
+    return exports;
+  })();
+  
+</script>
+<!--
+This component (<test-results>) describes the suite editor view.
+-->
+
+<template id="test-results">
+  <style scoped>
+    .toggle_display {
+      display: inline;
+      height: 2em;
+    }
+
+    .small-display {
+      max-height: 60px;
+      overflow-y: hidden;
+    }
+
+    button.shown::before {
+      content: "Hide";
+    }
+
+    button.hidden::before {
+      content: "Show";
+    }
+  </style>
+  <div class="test-results">
+    <button class="toggle_display shown"> Test Results</button>
+    <div class="test-suites"></div>
+    <button class="add-suite" onclick="testWidget.editSuite()">Add Suite</button>
+  </div>
+</template>
+
+<script>
+  var testResults = (function() {
+    'use strict';
+    var exports = {};
+    var buildSuiteElement = function() {};
+    var importDoc = document.currentScript.ownerDocument; // importee
+
+    // Define and register <test-widget>
+    // that uses Shadow DOM and a template.
+    var proto = Object.create(HTMLElement.prototype);
+
+    proto.createdCallback = function() {
+      // get template in import
+      var template = importDoc.querySelector('#test-results');
+
+      // import template into
+      var clone = document.importNode(template.content, true);
+
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+    };
+
+    proto.attachedCallback = function() {
+      var testSuites = this.shadowRoot.querySelector('.test-suites');
+
+      // TODO: would love to move this to hotel at some point
+      var buildSuiteElement = function (newSuite) {
+        var testSuite = document.createElement('test-suite');
+
+        testSuite.setAttribute('name', newSuite.name);
+        testSuite.setAttribute('suite-passed', false);
+        testSuite.code = newSuite.code;  // to avoid leaving the code as an easy-to-spot attribute
+
+        testSuites.appendChild(testSuite);
+
+        return testSuite;
+      }
+
+      exports.buildSuiteElement = buildSuiteElement;
+    };
+
+    document.registerElement('test-results', {prototype: proto});
+    return exports;
+  })();
+</script>
+<!--
+This component holds a suite of tests.
+-->
+
+<template id="test-suite">
+  <style scoped>
+    .suite {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .suite-title {
+      font-size: 1.25em;
+    }
+    .suite-code {
+      background: rgba(0,0,0,0.6);
+      color: #EEE;
+      margin: 6px -0.5em;
+    }
+    .suite-code > div {
+      padding: 6px 0.5em;
+      text-align: center;
+    }
+    img {
+      height: 2.25em;
+      margin-bottom: -0.75em;
+    }
+  </style>
+  <div class="suite">
+    <div class="suite-title"></div>
+    <div class="active-tests"></div>
+    <button class="add-test" onclick="this.createTest();">Create New Test</button>
+    <div class="suite-code"></div>
+  </div>
+</template>
+
+<script>
+  (function() {
+    'use strict';
+    var self = null;
+    var importDoc = document.currentScript.ownerDocument;
+    var proto = Object.create(HTMLElement.prototype);
+
+    proto.createdCallback = function() {
+      var template = importDoc.querySelector('#test-suite');
+      var clone = document.importNode(template.content, true);
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+    };
+
+    proto.attachedCallback = function() {
+      updateView();
+    };
+
+    proto.attributeChangedCallback = function() {
+      self = this;
+      updateView();
+    };
+
+    function updateView() {
+      var suiteName = self.getAttribute('name');
+      var suitePassed = self.getAttribute('suite-passed');
+      var suiteCode = self.code;
+
+      var suite = self.shadowRoot.querySelector('.suite');
+      var sc = self.shadowRoot.querySelector('.suite-code');
+      self.shadowRoot.querySelector('.suite-title').innerHTML = suiteName + " Tests";
+
+      function displayCode (show) {
+        if (show) {
+          sc.innerHTML = "<div>" + suiteName + " Code: " + suiteCode + "</div>";
+        } else {
+          sc.innerHTML = "";
+        }
+      };
+
+      if (suitePassed === 'true') {
+        displayCode(true);
+      } else {
+        displayCode(false);
+      }
+    };
+
+    document.registerElement('test-suite', {prototype: proto});
+  })();
+  function createTest(suite) {
+  };
+</script>
+<!--
+This component (<test-widget>) describes the grader as a whole.
+
+It creates suites of tests (<test-suite>) as defined in the
+grader.js file.
+
+Listens for 'suite-passed' events. Emits a 'grader-passed' event
+when all suites pass.
+-->
+
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro">
 
 <template id="test-widget">
-  <style scoped="">
+  <style scoped>
     * {
       font-family: 'Source Sans Pro', sans-serif;
     }
@@ -95,38 +563,23 @@
         testWidgetDisplay.style.top = window.scrollY + "px";
       };
 
-      var eventCollector = [];
-      this.addEventListener('suite-passed', function(e) {
-        if (eventCollector.indexOf(e.detail) === -1) {
-          eventCollector.push(e.detail);
-          if (eventCollector.length === GE.hotel.suites.length) {
-            var passEvent = new CustomEvent('grader-passed', {'detail': 'TBD'});
-            testWidgetDisplay.dispatchEvent(passEvent);
-          }
-        }
-      });
-
-      function seeResults() {
+      // better organize these
+      function seeResults () {
         testResultsElem.style.display = 'block';
         suiteEditorElem.style.display = 'none';
         testEditorElem.style.display = 'none';
       };
       exports.seeResults = seeResults;
 
-      function editSuite (suite) {
+      function editSuite () {
         testResultsElem.style.display = 'none';
         suiteEditorElem.style.display = 'block';
         testEditorElem.style.display = 'none';
       };
       exports.editSuite = editSuite;
 
-      function editTest (activeTest, suite) { 
-        if (activeTest) {
-          testEditor.setTest(activeTest);
-        }
-        if (suite) {
-          testEditor.setSuite(suite);
-        }
+      function editTest (test) {
+        testEditor.setTest(test);
 
         testResultsElem.style.display = 'none';
         suiteEditorElem.style.display = 'none';
@@ -143,481 +596,5 @@
   
   var tw = document.createElement('test-widget');
   document.body.appendChild(tw);
-</script><template id="suite-editor">
-  <style scoped="">
-    .new::after {
-      content: " New"
-    }
-  </style>
-  <div class="suite-editor">
-    <button onclick="testWidget.seeResults();">back to results</button>
-    <label for="name">Suite Name</label>
-    <input id="name" type="text">
-    <label for="code">Code</label>
-    <input id="code" type="text">
-
-    <button id="save-suite" onclick="suiteEditor.saveSuite();">Save</button>
-  </div>
-</template>
-
-<script>
-  var suiteEditor = (function() {
-    'use strict';
-    var exports = {};
-    var importDoc = document.currentScript.ownerDocument; // importee
-
-    // Define and register <test-widget>
-    // that uses Shadow DOM and a template.
-    var proto = Object.create(HTMLElement.prototype);
-
-    proto.createdCallback = function() {
-      // get template in import
-      var template = importDoc.querySelector('#suite-editor');
-
-      // import template into
-      var clone = document.importNode(template.content, true);
-
-      var root = this.createShadowRoot();
-      root.appendChild(clone);
-    };
-
-    var suiteEditor;
-    proto.attachedCallback = function() {
-      suiteEditor = this.shadowRoot.querySelector('.suite-editor');
-    };
-
-    document.registerElement('suite-editor', {prototype: proto});
-    function saveSuite() {
-      GE.hotel.createSuite({
-        name: suiteEditor.querySelector('#name').value,
-        code: suiteEditor.querySelector('#code').value
-      });
-    };
-    exports.saveSuite = saveSuite;
-    return exports;
-  })();
-    
-</script><template id="test-editor">
-  <style scoped="">
-    .new::after {
-      content: " New"
-    }
-  </style>
-  <div class="test-editor">
-    <button onclick="testWidget.seeResults();">back to results</button>
-    <h4 class="suite-name"></h4>
-    <label for="active-test-description">Description</label>
-    <input id="active-test-description" type="text">
-    <label for="active-test-input">Active Test</label>
-    <input id="active-test-input" type="text">
-    <label for="flags"></label>
-    <select name="flags" type="select">
-      
-    </select>
-
-    <button id="save-test" onclick="testEditor.saveTest();">Save</button>
-  </div>
-</template>
-
-<script>
-  var testEditor = (function() {
-    'use strict';
-    var exports = {};
-    var importDoc = document.currentScript.ownerDocument; // importee
-
-    // Define and register <test-widget>
-    // that uses Shadow DOM and a template.
-    var proto = Object.create(HTMLElement.prototype);
-
-    proto.createdCallback = function() {
-      // get template in import
-      var template = importDoc.querySelector('#test-editor');
-
-      // import template into
-      var clone = document.importNode(template.content, true);
-
-      var root = this.createShadowRoot();
-      root.appendChild(clone);
-    };
-
-    proto.attachedCallback = function() {
-      // console.log(this.test)
-      // var test = this.test;
-      // exports.test = test;
-      // var suite = this.suite;
-      // exports.suite = suite;
-
-      // console.log('this should be a Test:');
-      // console.log(test);
-      // console.log('this should be a Suite:');
-      // console.log(suite);
-    };
-
-    document.registerElement('test-editor', {prototype: proto});
-    
-    function saveTest(suite) {
-      // suite.createTest({
-      //   description: exports.viewController.activeTestDescription,
-      //   active_test: exports.viewController.activeTestInput,
-      //   flags: exports.viewController.activeTestFlags
-      // });
-      test.refresh();
-    };
-    exports.saveTest = saveTest;
-
-    function setTest(test) {
-      // TODO: keep test somewhere so you can refresh it
-      console.log(test);
-      // exports.test = test;
-    }
-    exports.setTest = setTest;
-
-    function setSuite(suite) {
-      console.log(suite);
-      // exports.suite = suite;
-    }
-    exports.setSuite = setSuite;
-    return exports;
-  })();
-  
-</script><template id="test-results">
-  <style scoped="">
-    .toggle_display {
-      display: inline;
-      height: 2em;
-    }
-
-    .small-display {
-      max-height: 60px;
-      overflow-y: hidden;
-    }
-
-    button.shown::before {
-      content: "Hide";
-    }
-
-    button.hidden::before {
-      content: "Show";
-    }
-  </style>
-  <div class="test-results">
-    <button class="toggle_display shown"> Test Results</button>
-    <div class="test-suites"></div>
-    <button class="add-suite" onclick="testWidget.editSuite()">Add Suite</button>
-  </div>
-</template>
-
-<script>
-  var testResults = (function() {
-    'use strict';
-    var exports = {};
-    var buildSuiteElement = function() {};
-    var importDoc = document.currentScript.ownerDocument; // importee
-
-    // Define and register <test-widget>
-    // that uses Shadow DOM and a template.
-    var proto = Object.create(HTMLElement.prototype);
-
-    proto.createdCallback = function() {
-      // get template in import
-      var template = importDoc.querySelector('#test-results');
-
-      // import template into
-      var clone = document.importNode(template.content, true);
-
-      var root = this.createShadowRoot();
-      root.appendChild(clone);
-    };
-
-    proto.attachedCallback = function() {
-      var testSuites = this.shadowRoot.querySelector('.test-suites');
-
-      var buildSuiteElement = function (newSuite) {
-        var testSuite = document.createElement('test-suite');
-
-        testSuite.setAttribute('name', newSuite.name);
-        testSuite.code = newSuite.code;
-
-        testSuites.appendChild(testSuite);
-
-        return testSuite;
-      }
-
-      exports.buildSuiteElement = buildSuiteElement;
-
-      // just in case suites in GE.hotel.suites are already there
-      // GE.hotel.suites.forEach(function (suite, index) {
-      //   suite.index = index;
-      //   buildSuiteElement(suite);
-      // })
-
-      // Array.observe(GE.hotel.suites, function(change) {
-      //   if (change[0].type === 'splice') {
-      //     var suites = change[0].object;
-      //     suites.forEach(function (suite) {
-      //       buildSuiteElement(suite);
-      //     })
-      //   }
-      // })
-    };
-
-    document.registerElement('test-results', {prototype: proto});
-    return exports;
-  })();
-</script><template id="test-suite">
-  <style scoped="">
-    .suite {
-      width: 100%;
-      margin-bottom: 10px;
-    }
-    .suite-title {
-      font-size: 1.25em;
-    }
-    .suite-code {
-      background: rgba(0,0,0,0.6);
-      color: #EEE;
-      margin: 6px -0.5em;
-    }
-    .suite-code > div {
-      padding: 6px 0.5em;
-      text-align: center;
-    }
-    img {
-      height: 2.25em;
-      margin-bottom: -0.75em;
-    }
-  </style>
-  <div class="suite">
-    <div class="suite-title"></div>
-    <div class="active-tests"></div>
-    <button class="add-test" onclick="createTest(testSuite.suite);">Create New Test</button>
-    <div class="suite-code"></div>
-  </div>
-</template>
-
-<script>
-  var testSuite = (function() {
-    'use strict';
-    var importDoc = document.currentScript.ownerDocument;
-    var proto = Object.create(HTMLElement.prototype);
-
-    proto.createdCallback = function() {
-      var template = importDoc.querySelector('#test-suite');
-      var clone = document.importNode(template.content, true);
-      var root = this.createShadowRoot();
-      root.appendChild(clone);
-    };
-
-    proto.attachedCallback = function() {
-      // var suiteName = this.suite.name;
-      // var suiteCode = this.suite.code || false;
-      var suiteName = this.getAttribute('name');
-      var suiteCode = this.code; // TODO: might work... better than an attribute.
-
-      // exports.suite = this.suite;
-
-      var suite = this.shadowRoot.querySelector('.suite');
-      var sc = this.shadowRoot.querySelector('.suite-code');
-      this.shadowRoot.querySelector('.suite-title').innerHTML = suiteName + " Tests";
-// 
-
-      // move to attribute change
-      function displayCode() {
-        sc.innerHTML = "<div>" + suiteName + " Code: " + suiteCode + "</div>";
-      };
-
-      // var numberOfMandatoryTests = 0;
-      // var eventCollector = [];
-      // this.addEventListener('test-status', function (e) {
-      //   // e.detail includes index, testCorrect, testDesc
-      //   eventCollector[e.detail.index] = e.detail;
-      //   if (eventCollector.length === numberOfMandatoryTests) {
-      //     var allTestsPassed = eventCollector.every(function(val, index, arr) {
-      //       return val.testCorrect;
-      //     })
-      //     if (allTestsPassed) {
-      //       var passEvent = new CustomEvent('suite-passed', {'detail': suiteName});
-      //       suite.dispatchEvent(passEvent);
-      //       if (suiteCode) {
-      //         displayCode();
-      //       }
-      //     }
-      //   }
-      // });
-
-      // function createTestElement(newTest) {
-      //   var activeTest = document.createElement('active-test');
-      //   var activeTests = suite.querySelector('.active-tests');
-      //   // activeTest.testDefinition = newTest;
-      //   activeTest.setAttribute('description', newTest.description);
-      //   activeTest.setAttribute('testPassed', newTest.testPassed);
-
-      //   activeTests.appendChild(activeTest);
-      // }
-      // TODO: CAN I EXPORT THIS FUNCTION???????
-      // this.createTestElement = createTestElement;
-
-      // this.suite.tests.forEach(function(test, index, arr) {
-      //   test.index = index;
-      //   createTest(test);
-      // })
-
-      // Array.observe(this.suite.tests, function(change) {
-      //   if (change[0].type === 'splice') {
-      //     createTest(change[0].object[0]);
-      //   }
-      // })
-      return this;
-    };
-
-    document.registerElement('test-suite', {prototype: proto});
-    // return createTest;
-  })();
-  function createTest(suite) {
-    // console.log(suite);
-
-    testWidget.editTest(null, suite);
-  };
-</script><template id="active-test">
-  <style scoped="">
-    .correct {
-      color: #060;
-    }
-    .correct::before {
-      content: "✓ ";
-    }
-    .incorrect {
-      color: #900;
-    }
-    .incorrect::before {
-      content: "✗ ";
-    }
-    .test-desc {
-      width: 100%;
-    }
-
-    /* http://www.menucool.com/tooltip/css-tooltip */
-    .test-desc {outline:none;}
-    .test-desc strong {line-height:30px;}
-    .test-desc:hover {text-decoration:none;} 
-    .test-desc span.test-result {
-      z-index: 10;
-      display: none;
-      padding: 14px 20px;
-      margin-top: -30px;
-      margin-left: 28px;
-      max-width: 400px;
-      line-height: 16px;
-    }
-/*    .test-desc:hover span.test-result {
-      display: inline;
-      position: absolute;
-      color: #111;
-      border: 1px solid #DCA;
-      background: #fffAF0;
-    }
-*/
-    .active-test:hover .edit {
-      display: inline;
-    }
-
-    .test-result {
-      z-index: 20;
-      position: absolute;
-      top: 30px;
-      border: 0;
-      left: -12px;
-    }
-    .test-desc span.test-result {
-      border-radius:4px;
-      box-shadow: 5px 5px 8px #CCC;
-    }
-
-    .flex-container {
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .edit {
-      transform: scale(-1, 1);
-      cursor: pointer;
-      display: none;
-    }
-
-  </style>
-  <div class="active-test">
-    <div class="flex-container">
-      <div class="test-desc incorrect"><span class="test-result"></span></div><a class="edit" onclick="this.edit()">✎</a>
-    </div>
-  </div>
-</template>
-<script>
-  (function() {
-    'use strict';
-    var exports = {};
-
-    var importDoc = document.currentScript.ownerDocument;
-    var proto = Object.create(HTMLElement.prototype);
-
-    /*
-    Called to create the element
-    */
-    proto.createdCallback = function() {
-      var template = importDoc.querySelector('#active-test');
-      var clone = document.importNode(template.content, true);
-      var root = this.createShadowRoot();
-      root.appendChild(clone);
-    };
-
-    /*
-    This massive function is called when an instance of the element is attached to the page. All of the active_test logic is contained within.
-    @param: none
-    returns: none
-    */
-    proto.attachedCallback = function() {
-      var testDescription = this.getAttribute('description');
-      var testPassed = this.getAttribute('testPassed');
-
-      /*
-      Display the test description.
-      TODO: put this in a function
-      */
-      var td = this.shadowRoot.querySelector('.test-desc');
-      var tr = this.shadowRoot.querySelector('.test-desc > span');
-      td.insertAdjacentHTML('afterbegin', '<span>' + testDescription + '</span>');
-
-      var editButton = this.shadowRoot.querySelector('a.edit');
-      console.log(this.edit);
-      editButton.edit = this.edit;
-
-      /*
-      Just swap the classes
-      */
-      function testHasPassed() {
-        td.classList.remove('incorrect');
-        td.classList.add('correct');
-      };
-
-      /*
-      Just swap the classes
-      */
-      function testHasFailed() {
-        td.classList.add('incorrect');
-        td.classList.remove('correct');
-      };
-    };
-
-    function edit(activeTest) {
-      testWidget.editTest(activeTest.testDefinition);
-    };
-    exports.edit = edit;
-
-    function save (test) {
-      // will need to clearInterval(activeTest) and restart it.
-    };
-    exports.save = save;
-
-    document.registerElement('active-test', {prototype: proto});
-    return exports;
-  })();
-</script></head><body></body></html>
+</script>
+</head></html>

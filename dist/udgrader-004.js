@@ -1151,21 +1151,127 @@ TA.prototype.toHaveSubstring = function (expectedValues, config) {
     strictness: this.picky
   })
 }
+function ActiveTest(rawTest) {
+  var description = rawTest.description;
+  var activeTest = rawTest.activeTest;
+  var flags = rawTest.flags || {};
 
-/***
-*    ______           _     _                  
-*    | ___ \         (_)   | |                 
-*    | |_/ /___  __ _ _ ___| |_ _ __ __ _ _ __ 
-*    |    // _ \/ _` | / __| __| '__/ _` | '__|
-*    | |\ \  __/ (_| | \__ \ |_| | | (_| | |   
-*    \_| \_\___|\__, |_|___/\__|_|  \__,_|_|   
-*                __/ |                         
-*               |___/                          
-*/
-/*
-  Expose functions that create and monitor tests.
-*/
+  // TODO: validate flags
+  // this specific validation is probably less than useful...
+  if (flags.alwaysRun === undefined) {
+    flags.alwaysRun = false;
+  }
 
+  var parentSuiteName = rawTest.parentSuiteName;
+
+  var id = parseInt(Math.random() * 1000000);
+
+  // TODO: move this out of here
+  // validate the description.
+  if (typeof description !== 'string') {
+    throw new TypeError('Every suite needs a description string.');
+  }
+
+  // validate the activeTest
+  if (typeof activeTest !== 'function') {
+    throw new TypeError('Every suite needs an activeTest function.');
+  }
+
+  // validate the flags
+  if (typeof flags !== 'object') {
+    throw new TypeError('If assigned, flags must be an object.');
+  }
+
+  this.description = description;
+  this.activeTest = activeTest;
+  this.flags = flags;
+  this.id = id;
+  this.testPassed = false;
+  this.optional = flags.optional;
+
+  this.iwant = new TA();
+};
+
+/**
+ * Set off the fireworks! A test passed! Assumes you mean test passed unless didPass is false.
+ * @param  {Boolean}  didPass unless didPass === false, method assumes it to be true.
+ * @return {Boolean}         [description]
+ */
+ActiveTest.prototype.hasPassed = function (didPass) {
+  var attribute = null;
+  if (didPass === false) {
+    attribute = false;
+  } else {
+    attribute = true;
+    this.testPassed = true;
+    
+    if (!this.flags.alwaysRun || this.flags.noRepeat) {
+      this.stop();
+    };
+  }
+  this.element.setAttribute('test-passed', attribute);
+  this.suite.checkTests();
+};
+
+
+ActiveTest.prototype.runSyncTest = function () {
+  /*
+  Run a synchronous activeTest every 1000 ms
+  @param: none
+  */
+  var self = this;
+
+  /*
+  Optional flags specific to the test
+  */
+  var noRepeat = this.flags.noRepeat || false; // run only once on load
+  var alwaysRun = this.flags.alwaysRun || false; // keep running even if test passes
+  var async = this.flags.async || false;  // async
+  var showCurrent = this.flags.showCurrent || false;  // TODO: show currently resolved value
+  var optional = this.flags.optional || false; // test does not affect code display
+
+  var runTest = function () {
+    // run the test
+    var testResult = self.activeTest(self.iwant);
+    var testCorrect = testResult.isCorrect || false;
+    
+    var testValues = '';
+    testResult.questions.forEach(function (val) {
+      testValues = testValues + ' ' + val.value;
+    })
+
+    self.hasPassed(testCorrect);
+  };
+
+  clearInterval(this.gradeRunner);
+  this.gradeRunner = setInterval(runTest, 1000);
+};
+
+ActiveTest.prototype.stop = function () {
+  clearInterval(this.gradeRunner);
+};
+
+ActiveTest.prototype.update = function (config) {
+  // TODO: need to convert config.activeTest into a function
+  var description = config.description || false;
+  var activeTest = config.activeTest || false;
+  var flags = config.flags || false;
+
+  // TODO: validate these!!! move validation logic to its own method on ActiveTest?
+  // create setter for properties to check if valid???
+  if (description) {
+    this.description = description;
+    this.element.setAttribute('description', this.description);
+  };
+  if (activeTest) {
+    this.activeTest = activeTest;
+  };
+  if (flags) {
+    this.flags = flags;
+  };
+
+  this.runSyncTest();
+};
 function Suite(rawSuite) {
   var name = rawSuite.name;
   var code = rawSuite.code;
@@ -1189,6 +1295,55 @@ function Suite(rawSuite) {
   this.suitePassed = false; // put a setter on this to emit an event.
 };
 
+Object.defineProperties(Suite.prototype, {
+  numberOfTests: {
+    get: function () {
+      return this.activeTests.length || 0;      
+    }
+  },
+  numberOfCorrectTests: {
+    get: function () {
+      var numberCorrect = 0;
+      this.activeTests.forEach(function (test) {
+        if (test.testPassed) {
+          numberCorrect += 1;
+        }
+      })
+      return numberCorrect;
+    }
+  },
+  numberOfCorrectOrOptionalTests: {
+    get: function () {
+      var numberCorrectOrOptional = 0;
+      this.activeTests.forEach(function (test) {
+        if (test.optional || test.testPassed) {
+          numberCorrectOrOptional += 1;
+        }
+      })
+      return numberCorrectOrOptional;
+    }
+  },
+  numberOfOptionalTests: {
+    get: function () {
+      var numberOptional = 0;
+      this.activeTests.forEach(function (test) {
+        if (test.optional) {
+          numberOptional += 1;
+        }
+      })
+    }
+  },
+  allCorrect: {
+    get: function () {
+      var allGood = false;
+      if (this.numberOfTests - this.numberOfCorrectOrOptionalTests <= 0) {
+        allGood = true;
+      }
+      return allGood;
+    }
+  }
+})
+
 Suite.prototype.createTest = function (rawTest) {
   var test = new ActiveTest(rawTest);
   test.suite = this;
@@ -1198,10 +1353,13 @@ Suite.prototype.createTest = function (rawTest) {
     var activeTests = test.suite.element.shadowRoot.querySelector('.active-tests');
     // activeTest.testDefinition = newTest;
     activeTest.setAttribute('description', newTest.description);
-    activeTest.setAttribute('testPassed', newTest.testPassed);
+    // TODO: make attributes hyphenated!!!
+    activeTest.setAttribute('test-passed', newTest.testPassed);
+    test.element = activeTest;
     
     activeTest.edit = function () {
-      console.log('hi!')
+      // only coming in to the ActiveTest to grab a reference to the test for the tes editor
+      testWidget.editTest(test);
     };
 
     activeTests.appendChild(activeTest);
@@ -1212,109 +1370,30 @@ Suite.prototype.createTest = function (rawTest) {
     description: test.description,
     passed: test.testPassed
   });
+  test.runSyncTest();
   this.activeTests.push(test);
 };
 
-function ActiveTest(rawTest) {
-  var description = rawTest.description;
-  var activeTest = rawTest.activeTest;
-  var flags = rawTest.flags || {};
-  var parentSuiteName = rawTest.parentSuiteName;
-
-  var id = parseInt(Math.random() * 1000000);
-
-  // validate the description
-  if (typeof description !== 'string') {
-    throw new TypeError('Every suite needs a description string.');
-  }
-
-  // validate the activeTest
-  if (typeof activeTest !== 'function') {
-    throw new TypeError('Every suite needs an activeTest function.');
-  }
-
-  // validate the flags
-  if (typeof flags !== 'object') {
-    throw new TypeError('If assigned, flags must be an object.');
-  }
-
-  this.description = description;
-  this.activeTest = activeTest;
-  this.flags = flags;
-  this.id = id;
-  this.testPassed = false;  // put a setter on this to tell the suite to check if all tests passed.
-
-  this.iwant = new TA();
+Suite.prototype.checkTests = function () {
+  var passed = this.allCorrect;
+  this.suitePassed = passed;
+  this.element.suitePassed = passed;
+  this.element.setAttribute('suite-passed', passed);
 };
 
-ActiveTest.prototype.runSyncTest = function () {
-  /*
-  Run a synchronous activeTest every 1000 ms
-  @param: none
-  */
-  var gradeRunner;
-  var self = this;
-
-  /*
-  Optional flags specific to the test
-  */
-  var noRepeat = this.flags.noRepeat || false; // run only once on load
-  var repeat = this.flags.repeat || false; // keep running even if test passes
-  var async = this.flags.async || false;  // async
-  var showCurrent = this.flags.showCurrent || false;  // TODO: show currently resolved value
-  var optional = this.flags.optional || false; // test does not affect code display
-
-  var runTest = function () {
-    // run the test
-    try {
-      var testResult = this.activeTest(iwant);
-      testCorrect = testResult.isCorrect;
-      
-      var testValues = '';
-      testResult.questions.forEach(function(val, index, arr) {
-        testValues = testValues + ' ' + val.value;
-      })
-      tr.innerHTML = testValues;
-    } catch (e) {
-      // if (e instanceof TypeError) {
-      //   throw new Error("Test: " + this.activeTest + " failed to execute. Does your activeTest return an object with isCorrect and actuals properties?");
-      // }  // less than useful...
-      throw new Error("Test: " + this.activeTest + " failed to execute because: " + e);
-    }
-    // update the widget
-    if (testCorrect) {
-      self.testPassed = true;
-      console.log('test passed');
-    } else if (repeat && !testCorrect) {
-      console.log('test failed')
-    }
-
-    // clear the interval (if applicable)
-    if (testCorrect || noRepeat) {
-      clearInterval(gradeRunner);
-    }
-  };
-
-  clearInterval(gradeRunner);
-  gradeRunner = setInterval(runTest, 1000);
-};
-
-ActiveTest.prototype.update = function (config) {
-  var description = config.description || false;
-  var activeTest = config.activeTest || false;
-  var flags = config.flags || false;
-
-  if (description) {
-    this.description = description;
-  };
-  if (activeTest) {
-    this.activeTest = activeTest;
-  };
-  if (flags) {
-    this.flags = flags;
-  };
-};
-
+/***
+*    ______           _     _                  
+*    | ___ \         (_)   | |                 
+*    | |_/ /___  __ _ _ ___| |_ _ __ __ _ _ __ 
+*    |    // _ \/ _` | / __| __| '__/ _` | '__|
+*    | |\ \  __/ (_| | \__ \ |_| | | (_| | |   
+*    \_| \_\___|\__, |_|___/\__|_|  \__,_|_|   
+*                __/ |                         
+*               |___/                          
+*/
+/*
+  Expose functions that create and monitor tests.
+*/
 
 /*
 Assume that each web component has properties defined with attributes
@@ -1332,11 +1411,12 @@ var hotel = {
       code: suite.code
     });
     this.occupiedSuites.push(suite);
+    return suite;
 
     // pretty sure this is a necessary step. can't just return the same suite. want to return the suite as it is in this.occupiedSuites
-    var suiteIndex = this.occupiedSuites.length - 1;
+    // var suiteIndex = this.occupiedSuites.length - 1;
 
-    return this.occupiedSuites[suiteIndex];
+    // return this.occupiedSuites[suiteIndex  
   }
 };
 

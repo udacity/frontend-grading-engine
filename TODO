@@ -1,3 +1,14 @@
+At the moment
+-------------
+
+* create ability for an ActiveTest to edit itself, restart tests, update view
+* ActiveTest needs to update the view if its description or testPassed state change
+  - setter on testPassed to update the attribute
+
+
+Overall
+-------
+
 Properties:
 * CSS hypothetical
 * Position relative to:
@@ -19,12 +30,11 @@ New:
 * pinnable widget window
 * write tests
   * delete new tests
-* edit new tests
+* create new tests
 * edit old tests
-  - test editor gets a test from test results
-  - test editor collects new values
-  - test editor calls refresh on the test
-  - might need to call runSyncTest() again
+* create suites
+* edit suites
+  * needs a button
 * save tests as JSON file
 * load tests from JSON file
 * browser action

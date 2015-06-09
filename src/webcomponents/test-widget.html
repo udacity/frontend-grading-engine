@@ -105,38 +105,23 @@ when all suites pass.
         testWidgetDisplay.style.top = window.scrollY + "px";
       };
 
-      var eventCollector = [];
-      this.addEventListener('suite-passed', function(e) {
-        if (eventCollector.indexOf(e.detail) === -1) {
-          eventCollector.push(e.detail);
-          if (eventCollector.length === GE.hotel.suites.length) {
-            var passEvent = new CustomEvent('grader-passed', {'detail': 'TBD'});
-            testWidgetDisplay.dispatchEvent(passEvent);
-          }
-        }
-      });
-
-      function seeResults() {
+      // better organize these
+      function seeResults () {
         testResultsElem.style.display = 'block';
         suiteEditorElem.style.display = 'none';
         testEditorElem.style.display = 'none';
       };
       exports.seeResults = seeResults;
 
-      function editSuite (suite) {
+      function editSuite () {
         testResultsElem.style.display = 'none';
         suiteEditorElem.style.display = 'block';
         testEditorElem.style.display = 'none';
       };
       exports.editSuite = editSuite;
 
-      function editTest (activeTest, suite) { 
-        if (activeTest) {
-          testEditor.setTest(activeTest);
-        }
-        if (suite) {
-          testEditor.setSuite(suite);
-        }
+      function editTest (test) {
+        testEditor.setTest(test);
 
         testResultsElem.style.display = 'none';
         suiteEditorElem.style.display = 'none';

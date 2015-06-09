@@ -1,7 +1,5 @@
 <!--
-This component describes a single test. Each test is 'active' because it governs itself. It runs the active_test function registered to a test.
-
-The test bubbles an 'test-passed' event to the <test-suite> when it passes.
+This component holds a single test.
 -->
 
 <template id="active-test">
@@ -73,7 +71,7 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
   </style>
   <div class="active-test">
     <div class="flex-container">
-      <div class="test-desc incorrect"><span class="test-result"></span></div><a class="edit" onclick="this.edit()">✎</a>
+      <div class="mark incorrect"><span class="test-desc"></span><span class="test-result"></span></div><a class="edit" onclick="this.edit()">✎</a>
     </div>
   </div>
 </template>
@@ -81,6 +79,7 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
   (function() {
     'use strict';
     var exports = {};
+    var self = null;
 
     var importDoc = document.currentScript.ownerDocument;
     var proto = Object.create(HTMLElement.prototype);
@@ -96,52 +95,52 @@ The test bubbles an 'test-passed' event to the <test-suite> when it passes.
     };
 
     /*
-    This massive function is called when an instance of the element is attached to the page. All of the active_test logic is contained within.
-    @param: none
-    returns: none
+    Called when the element gets attached to the document
     */
     proto.attachedCallback = function() {
-      var testDescription = this.getAttribute('description');
-      var testPassed = this.getAttribute('testPassed');
-
-      /*
-      Display the test description.
-      TODO: put this in a function
-      */
-      var td = this.shadowRoot.querySelector('.test-desc');
-      var tr = this.shadowRoot.querySelector('.test-desc > span');
-      td.insertAdjacentHTML('afterbegin', '<span>' + testDescription + '</span>');
-
+      self = this;
       var editButton = this.shadowRoot.querySelector('a.edit');
-      console.log(this.edit);
+      
       editButton.edit = this.edit;
+      updateView();
+    };
 
-      /*
-      Just swap the classes
-      */
+    /*
+    Called when any attribute on the element changes
+    */
+    proto.attributeChangedCallback = function () {
+      self = this;
+      updateView();
+    };
+
+    function updateView() {
+      try {
+        var testDescription = self.getAttribute('description');
+        var testPassed = self.getAttribute('test-passed');        
+      } catch (e) {
+        console.log(e);
+      }
+
+      var markRightOrWrong = self.shadowRoot.querySelector('.mark');
+      var descriptionDisplay = self.shadowRoot.querySelector('.test-desc');
+      descriptionDisplay.innerHTML = testDescription;
+
       function testHasPassed() {
-        td.classList.remove('incorrect');
-        td.classList.add('correct');
+        markRightOrWrong.classList.remove('incorrect');
+        markRightOrWrong.classList.add('correct');
       };
 
-      /*
-      Just swap the classes
-      */
       function testHasFailed() {
-        td.classList.add('incorrect');
-        td.classList.remove('correct');
+        markRightOrWrong.classList.add('incorrect');
+        markRightOrWrong.classList.remove('correct');
       };
-    };
 
-    function edit(activeTest) {
-      testWidget.editTest(activeTest.testDefinition);
+      if (testPassed === 'true') {
+        testHasPassed();
+      } else {
+        testHasFailed();
+      }
     };
-    exports.edit = edit;
-
-    function save (test) {
-      // will need to clearInterval(activeTest) and restart it.
-    };
-    exports.save = save;
 
     document.registerElement('active-test', {prototype: proto});
     return exports;
