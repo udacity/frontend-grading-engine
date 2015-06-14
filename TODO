@@ -1,9 +1,7 @@
 At the moment
 -------------
 
-* create ability for an ActiveTest to edit itself, restart tests, update view
-* ActiveTest needs to update the view if its description or testPassed state change
-  - setter on testPassed to update the attribute
+
 
 
 Overall
@@ -62,3 +60,4 @@ Fixes:
 * absolute position gives position relative to viewport. is that desired behavior?
 * expand toEqual to match arrays and objects as well
 * less janky way of hide/expand test results
+* cssProperty creates a FSL

@@ -12,6 +12,18 @@
 </style>
 
 <div id="mainPopup">
-<h1>Hello extensionizr!</h1>
-<p>To shut this popup down, edit the manifest file and remove the "default popup" key. To edit it, just edit ext/browser_action/browser_action.html. The CSS is there, too.</p>
+  <h2>Udacity Feedback Settings</h2>
+  <div>
+    <label for="switch">Show feedback?</label>
+    <input id="switch" type="radio" label="yes">
+    <input id="switch" type="radio" label="no">
+  </div>
+  <div>
+    <h4>Load New Tests</h4>
+    <input id="ud-file-loader" type="file">
+  </div>
+  <div>
+    <h4>Save Current Tests</h4>
+  </div>
 </div>
+<script src="browser_action.js"></script>

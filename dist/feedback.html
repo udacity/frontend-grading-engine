@@ -254,29 +254,39 @@ This component (<test-editor>) describes the suite editor view.
 
     proto.attachedCallback = function() {
       elemItself = this.shadowRoot.querySelector('.test-editor');
-      // console.log(this.test)
-      // var test = this.test;
-      // exports.test = test;
-      // var suite = this.suite;
-      // exports.suite = suite;
-
-      // console.log('this should be a Test:');
-      // console.log(test);
-      // console.log('this should be a Suite:');
-      // console.log(suite);
     };
 
     document.registerElement('test-editor', {prototype: proto});
     
+    var currentSuite = null;
+    var currentTest = null;
+
     function saveTest() {
-      console.log('saving!');
       var assumedEditedDescription = elemItself.querySelector('#active-test-description').value;
-      // var assumedEditedTest = elemItself.querySelector('#active-test-input').value;
-      
-      elemItself.test.update({
-        description: assumedEditedDescription
-        // activeTest: assumedEditedTest
-      })
+      var assumedEditedTest = elemItself.querySelector('#active-test-input').value;
+
+      var alwaysCorrect = function () {
+        return {
+          isCorrect: true,
+          questions: []
+        }
+      }
+
+      var testInView = {
+        description: assumedEditedDescription,
+        activeTest: assumedEditedTest || alwaysCorrect
+        // flags: assumedEditedFlags
+      }
+
+      if (!elemItself.test) {
+        currentSuite.element.createTest(testInView);
+      } else {
+        elemItself.test.update(testInView);
+      }
+
+      // TODO: show a quick confirmation. wait 1 second so the test gets registered.
+
+      testWidget.seeResults();
     };
     exports.saveTest = saveTest;
 
@@ -288,6 +298,12 @@ This component (<test-editor>) describes the suite editor view.
       // activeTestView.value = test.activeTest;
     }
     exports.setTest = setTest;
+
+    function setCurrentSuite(suite) {
+      currentSuite = suite;
+      elemItself.querySelector('h4.suite-name').innerHTML = currentSuite.name;
+    }
+    exports.setCurrentSuite = setCurrentSuite;
 
     return exports;
   })();
@@ -304,9 +320,8 @@ This component (<test-results>) describes the suite editor view.
       height: 2em;
     }
 
-    .small-display {
-      max-height: 60px;
-      overflow-y: hidden;
+    .hide {
+      display: none;
     }
 
     button.shown::before {
@@ -315,6 +330,10 @@ This component (<test-results>) describes the suite editor view.
 
     button.hidden::before {
       content: "Show";
+    }
+
+    button.add-suite {
+      display: block;
     }
   </style>
   <div class="test-results">
@@ -351,18 +370,37 @@ This component (<test-results>) describes the suite editor view.
 
       // TODO: would love to move this to hotel at some point
       var buildSuiteElement = function (newSuite) {
-        var testSuite = document.createElement('test-suite');
+        var _testSuite = document.createElement('test-suite');
 
-        testSuite.setAttribute('name', newSuite.name);
-        testSuite.setAttribute('suite-passed', false);
-        testSuite.code = newSuite.code;  // to avoid leaving the code as an easy-to-spot attribute
+        _testSuite.setAttribute('name', newSuite.name);
+        _testSuite.setAttribute('suite-passed', false);
+        _testSuite.code = newSuite.code;  // to avoid leaving the code as an easy-to-spot attribute
 
-        testSuites.appendChild(testSuite);
+        _testSuite.suite = newSuite;
 
-        return testSuite;
+        _testSuite.createTest = function (_test) {
+          // TODO: actually collect this from the DOM
+          newSuite.createTest({
+            description: _test.description,
+            activeTest: _test.activeTest,
+            flags: _test.flags || []
+          })
+        }
+
+        testSuites.appendChild(_testSuite);
+
+        return _testSuite;
       }
-
       exports.buildSuiteElement = buildSuiteElement;
+
+      var testResults = this.shadowRoot.querySelector('.test-results');
+      var toggleDisplayElem = testResults.querySelector('.toggle_display');
+      
+      toggleDisplayElem.onclick = function() {
+        testResults.querySelector('.test-suites').classList.toggle('hide');
+        testResults.querySelector('.toggle_display').classList.toggle('hidden');
+        testResults.querySelector('.toggle_display').classList.toggle('shown');
+      }
     };
 
     document.registerElement('test-results', {prototype: proto});
@@ -399,7 +437,7 @@ This component holds a suite of tests.
   <div class="suite">
     <div class="suite-title"></div>
     <div class="active-tests"></div>
-    <button class="add-test" onclick="this.createTest();">Create New Test</button>
+    <button class="create-test" onclick="this.createTest();">Create New Test</button>
     <div class="suite-code"></div>
   </div>
 </template>
@@ -419,6 +457,17 @@ This component holds a suite of tests.
     };
 
     proto.attachedCallback = function() {
+      // var self = this;
+      // TODO: figure out why self seemed to be getting rewritten when new testSuites get created. Shouldn't it be scoped to this IIFE?
+
+      var suite = this.suite;
+      var createTestElem = this.shadowRoot.querySelector('button.create-test');
+      
+      createTestElem.createTest = function() {
+        testEditor.setCurrentSuite(suite);
+        testWidget.editTest();
+      };
+      
       updateView();
     };
 
@@ -438,7 +487,7 @@ This component holds a suite of tests.
 
       function displayCode (show) {
         if (show) {
-          sc.innerHTML = "<div>" + suiteName + " Code: " + suiteCode + "</div>";
+          sc.innerHTML = "<div>" + suiteName + " Code:<br>" + suiteCode + "</div>";
         } else {
           sc.innerHTML = "";
         }
@@ -475,8 +524,8 @@ when all suites pass.
     }
 
     .test-widget-display {
-      position: absolute;
-      min-width: 200px;
+      position: fixed;
+      width: 325px;
       background-color: rgba(230, 230, 230, 0.9);
       opacity: 0.5;
       right: 0px;
@@ -484,7 +533,7 @@ when all suites pass.
       padding: 0.5em;
       text-align: left;
       max-height: 100%;
-      overflow-y: scroll;
+      overflow-y: hidden;
       transition: opacity 0.3s, max-height 0.3s;;
     }
 
@@ -554,11 +603,6 @@ when all suites pass.
       viewContainer.appendChild(suiteEditorElem);
       viewContainer.appendChild(testEditorElem);
 
-      // TODO: so janky. do this better.
-      window.onscroll = function() {
-        testWidgetDisplay.style.top = window.scrollY + "px";
-      };
-
       window.onload = function() {
         testWidgetDisplay.style.top = window.scrollY + "px";
       };
@@ -578,8 +622,8 @@ when all suites pass.
       };
       exports.editSuite = editSuite;
 
-      function editTest (test) {
-        testEditor.setTest(test);
+      function editTest () {
+        // testEditor.setTest(test);
 
         testResultsElem.style.display = 'none';
         suiteEditorElem.style.display = 'none';

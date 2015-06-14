@@ -45,29 +45,39 @@ This component (<test-editor>) describes the suite editor view.
 
     proto.attachedCallback = function() {
       elemItself = this.shadowRoot.querySelector('.test-editor');
-      // console.log(this.test)
-      // var test = this.test;
-      // exports.test = test;
-      // var suite = this.suite;
-      // exports.suite = suite;
-
-      // console.log('this should be a Test:');
-      // console.log(test);
-      // console.log('this should be a Suite:');
-      // console.log(suite);
     };
 
     document.registerElement('test-editor', {prototype: proto});
     
+    var currentSuite = null;
+    var currentTest = null;
+
     function saveTest() {
-      console.log('saving!');
       var assumedEditedDescription = elemItself.querySelector('#active-test-description').value;
-      // var assumedEditedTest = elemItself.querySelector('#active-test-input').value;
-      
-      elemItself.test.update({
-        description: assumedEditedDescription
-        // activeTest: assumedEditedTest
-      })
+      var assumedEditedTest = elemItself.querySelector('#active-test-input').value;
+
+      var alwaysCorrect = function () {
+        return {
+          isCorrect: true,
+          questions: []
+        }
+      }
+
+      var testInView = {
+        description: assumedEditedDescription,
+        activeTest: assumedEditedTest || alwaysCorrect
+        // flags: assumedEditedFlags
+      }
+
+      if (!elemItself.test) {
+        currentSuite.element.createTest(testInView);
+      } else {
+        elemItself.test.update(testInView);
+      }
+
+      // TODO: show a quick confirmation. wait 1 second so the test gets registered.
+
+      testWidget.seeResults();
     };
     exports.saveTest = saveTest;
 
@@ -79,6 +89,12 @@ This component (<test-editor>) describes the suite editor view.
       // activeTestView.value = test.activeTest;
     }
     exports.setTest = setTest;
+
+    function setCurrentSuite(suite) {
+      currentSuite = suite;
+      elemItself.querySelector('h4.suite-name').innerHTML = currentSuite.name;
+    }
+    exports.setCurrentSuite = setCurrentSuite;
 
     return exports;
   })();

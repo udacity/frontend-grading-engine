@@ -28,7 +28,7 @@ This component holds a suite of tests.
   <div class="suite">
     <div class="suite-title"></div>
     <div class="active-tests"></div>
-    <button class="add-test" onclick="this.createTest();">Create New Test</button>
+    <button class="create-test" onclick="this.createTest();">Create New Test</button>
     <div class="suite-code"></div>
   </div>
 </template>
@@ -48,6 +48,17 @@ This component holds a suite of tests.
     };
 
     proto.attachedCallback = function() {
+      // var self = this;
+      // TODO: figure out why self seemed to be getting rewritten when new testSuites get created. Shouldn't it be scoped to this IIFE?
+
+      var suite = this.suite;
+      var createTestElem = this.shadowRoot.querySelector('button.create-test');
+      
+      createTestElem.createTest = function() {
+        testEditor.setCurrentSuite(suite);
+        testWidget.editTest();
+      };
+      
       updateView();
     };
 
@@ -67,7 +78,7 @@ This component holds a suite of tests.
 
       function displayCode (show) {
         if (show) {
-          sc.innerHTML = "<div>" + suiteName + " Code: " + suiteCode + "</div>";
+          sc.innerHTML = "<div>" + suiteName + " Code:<br>" + suiteCode + "</div>";
         } else {
           sc.innerHTML = "";
         }

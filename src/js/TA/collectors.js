@@ -351,6 +351,7 @@ TA.prototype.cssProperty = function (property) {
 
   this.runAgainstBottomTargetElements(function (elem) {
     var styles = getComputedStyle(elem);
+    // TODO: this is causing a FSL that could affect framerate
     return styles[property];
   });
   return this;

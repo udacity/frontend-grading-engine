@@ -25,6 +25,7 @@
   "permissions": [
     "contextMenus",
     "cookies",
+    "tabs",
     "http://udacity.github.io/*"
   ],
   "content_scripts": [

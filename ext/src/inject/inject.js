@@ -34,6 +34,7 @@ chrome.runtime.sendMessage({}, function(response) {
         }
       };
 
+      // TODO: make sure the grader isn't already on the page
       function injectGradingEngine() {
         var ge = document.createElement('script');
         ge.src = '/frontend-grading-engine/dist/udgrader-004.js';
@@ -53,3 +54,7 @@ chrome.runtime.sendMessage({}, function(response) {
     }
   }, 10);
 });
+
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  console.log(request, sender, sendResponse);
+})

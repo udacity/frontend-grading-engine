@@ -24,17 +24,11 @@ var hotel = {
   occupiedSuites: [],
   createSuite: function (rawSuite) {
     var suite = new Suite(rawSuite);
-    suite.element = testResults.buildSuiteElement({
-      name: suite.name,
-      code: suite.code
-    });
+
+    // pass the whole suite to the testResults so you can modify it there later.
+    suite.element = testResults.buildSuiteElement(suite);
     this.occupiedSuites.push(suite);
     return suite;
-
-    // pretty sure this is a necessary step. can't just return the same suite. want to return the suite as it is in this.occupiedSuites
-    // var suiteIndex = this.occupiedSuites.length - 1;
-
-    // return this.occupiedSuites[suiteIndex  
   }
 };
 
@@ -118,4 +112,3 @@ function registerSuites(suites) {
 
 exports.registerSuite = registerSuite;
 exports.registerSuites = registerSuites;
-// exports.hotel = hotel;

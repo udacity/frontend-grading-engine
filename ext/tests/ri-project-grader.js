@@ -155,7 +155,7 @@ var part3 = GE.registerSuite({
 part3.registerTest({
   description: "There are 8 &lt;picture&gt;s on the page",
   active_test: function (iWant) {
-    return iWant.theseNodes('picture').count.toEqual(8);
+    return iWant.theseNodes('picture').count.toEqual(7);
   }
 })
 
