@@ -1,6 +1,6 @@
 {
   "name": "Udacity External Grader",
-  "version": "0.0.1",
+  "version": "0.4",
   "manifest_version": 2,
   "description": "Run tests against an external page's HTML.",
   "homepage_url": "http://github.com/udacity/frontend-grading-engine",

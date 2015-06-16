@@ -51,10 +51,12 @@ chrome.runtime.sendMessage({}, function(response) {
       };
 
       injectWidgets();
+
+      chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+        // console.log(message.message);
+        newTestSuites = document.createElement('script');
+        newTestSuites.innerHTML = f;
+      })
     }
   }, 10);
 });
-
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log(request, sender, sendResponse);
-})
