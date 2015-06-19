@@ -1472,7 +1472,7 @@ function registerSuite(rawSuite) {
   function registerTest(_test) {
     newSuite.createTest({
       description: _test.description,
-      activeTest: _test.active_test,
+      activeTest: _test.active_test || _test.activeTest, // accounts for old API
       flags: _test.flags,
       iwant: new TA()
     })
@@ -1484,24 +1484,21 @@ function registerSuite(rawSuite) {
 }
 
 // basically for use only when loading a new JSON with suites
-function registerSuites(suites) {
+function registerSuites(suitesJSON) {
+  var suites = JSON.parse(suitesJSON);
   suites.forEach(function (suite, index, arr) {
     var newSuite = registerSuite({
       name: suite.name,
-      code: suite.code,
+      code: suite.code
     });
 
-    newSuite.tests.forEach(function (test) {
-      // to account for old APIs
-      var activeTestTemp = test.activeTest || test.active_test;
-
+    suite.tests.forEach(function (test) {
       newSuite.registerTest({
         description: test.description,
-        activeTest: test.activeTestTemp,
+        activeTest: new Function('return this.' + (test.activeTest || test.active_test)),
         flags: test.flags
       })
     })
-
   })
 };
 

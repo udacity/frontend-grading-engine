@@ -26,7 +26,7 @@ when all suites pass.
       padding: 0.5em;
       text-align: left;
       max-height: 100%;
-      overflow-y: hidden;
+      overflow-y: scroll;
       transition: opacity 0.3s, max-height 0.3s;;
     }
 
@@ -48,10 +48,6 @@ when all suites pass.
 
     .test-editor {
       /*padding-left: 2em;*/
-    }
-
-    .test-editor, .edit-area, .new-suite-editor, .test-editor {
-      display: none;
     }
 
   </style>
@@ -89,42 +85,8 @@ when all suites pass.
 
       // initialize the view options
       var testResultsElem = document.createElement('test-results');
-      var suiteEditorElem = document.createElement('suite-editor');
-      var testEditorElem = document.createElement('test-editor');
 
       viewContainer.appendChild(testResultsElem);
-      viewContainer.appendChild(suiteEditorElem);
-      viewContainer.appendChild(testEditorElem);
-
-      window.onload = function() {
-        testWidgetDisplay.style.top = window.scrollY + "px";
-      };
-
-      // better organize these
-      function seeResults () {
-        testResultsElem.style.display = 'block';
-        suiteEditorElem.style.display = 'none';
-        testEditorElem.style.display = 'none';
-      };
-      exports.seeResults = seeResults;
-
-      function editSuite () {
-        testResultsElem.style.display = 'none';
-        suiteEditorElem.style.display = 'block';
-        testEditorElem.style.display = 'none';
-      };
-      exports.editSuite = editSuite;
-
-      function editTest () {
-        // testEditor.setTest(test);
-
-        testResultsElem.style.display = 'none';
-        suiteEditorElem.style.display = 'none';
-        testEditorElem.style.display = 'block';
-      };
-      exports.editTest = editTest;
-
-      seeResults();
     };
 
     document.registerElement('test-widget', {prototype: proto});

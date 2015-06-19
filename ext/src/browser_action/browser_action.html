@@ -3,7 +3,7 @@
 	#mainPopup {
 		padding: 10px;
 		height: 200px;
-		width: 400px;
+		width: 800px;
 		font-family: Helvetica, Ubuntu, Arial, sans-serif;
 	}
 	h1 {
@@ -13,10 +13,13 @@
 
 <div id="mainPopup">
   <h2>Udacity Feedback Settings</h2>
+  <h3>Beta!</h3>
   <div>
-    <label for="switch">Show feedback?</label>
-    <input id="switch" type="radio" label="yes">
-    <input id="switch" type="radio" label="no">
+    <label for="switch">Activate feedback for this site?</label>
+    <form>
+      <input name="switch" type="radio" value="yes">Yes
+      <input name="switch" type="radio" value="no" checked>No
+    </form>
   </div>
   <div>
     <h4>Load New Tests</h4>

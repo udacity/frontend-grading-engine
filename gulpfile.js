@@ -1,8 +1,7 @@
-// TODO: vulcanize, minify
+// TODO: minify
 var gulp = require('gulp'),
     watch = require('gulp-watch'),
     concat = require('gulp-continuous-concat'),
-    // singleConcat = require('gulp-concat'),
     debug = require('gulp-debug'),
     replace = require('gulp-replace'),
     babel = require('gulp-babel'),
@@ -11,13 +10,12 @@ var gulp = require('gulp'),
 var jsFiles = [
   'src/js/intro.js',
   'src/js/helpers.js',
-  // 'src/js/load_widget.js',
   'src/js/Target.js',
   'src/js/GradeBook.js',
   'src/js/TA/collectors.js',
   'src/js/TA/reporters.js',
-  'src/js/active_test.js',
-  'src/js/suite.js',
+  'src/js/ActiveTest.js',
+  'src/js/Suite.js',
   'src/js/registrar.js',
   'src/js/outro.js'
 ];
@@ -25,8 +23,6 @@ var jsFiles = [
 var webComponents = [
   'src/webcomponents/intro.html',
   'src/webcomponents/active-test.html',
-  'src/webcomponents/suite-editor.html',
-  'src/webcomponents/test-editor.html',
   'src/webcomponents/test-results.html',
   'src/webcomponents/test-suite.html',
   'src/webcomponents/test-widget.html',
@@ -77,6 +73,5 @@ gulp.task('watch-build-prod-engine', function() {
     .pipe(debug({title: 'rebuild for prod:'}))
 });
 
-// gulp.task('dev-watch', ['watch-vulcanize', 'watch-build-dev-engine']);
 gulp.task('dev-watch', ['watch-components', 'watch-build-dev-engine']);
 gulp.task('prod-watch', ['watch-vulcanize', 'watch-build-prod-engine']);

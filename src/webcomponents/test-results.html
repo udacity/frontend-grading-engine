@@ -4,7 +4,7 @@ This component (<test-results>) describes the suite editor view.
 
 <template id="test-results">
   <style scoped>
-    .toggle_display {
+    .toggle-display {
       display: inline;
       height: 2em;
     }
@@ -13,11 +13,11 @@ This component (<test-results>) describes the suite editor view.
       display: none;
     }
 
-    button.shown::before {
+    .shown::before {
       content: "Hide";
     }
 
-    button.hidden::before {
+    .hidden::before {
       content: "Show";
     }
 
@@ -26,9 +26,8 @@ This component (<test-results>) describes the suite editor view.
     }
   </style>
   <div class="test-results">
-    <button class="toggle_display shown"> Test Results</button>
+    <button class="toggle-display shown"> Test Results</button>
     <div class="test-suites"></div>
-    <button class="add-suite" onclick="testWidget.editSuite()">Add Suite</button>
   </div>
 </template>
 
@@ -55,6 +54,7 @@ This component (<test-results>) describes the suite editor view.
     };
 
     proto.attachedCallback = function() {
+      var self = this;
       var testSuites = this.shadowRoot.querySelector('.test-suites');
 
       // TODO: would love to move this to hotel at some point
@@ -64,17 +64,7 @@ This component (<test-results>) describes the suite editor view.
         _testSuite.setAttribute('name', newSuite.name);
         _testSuite.setAttribute('suite-passed', false);
         _testSuite.code = newSuite.code;  // to avoid leaving the code as an easy-to-spot attribute
-
         _testSuite.suite = newSuite;
-
-        _testSuite.createTest = function (_test) {
-          // TODO: actually collect this from the DOM
-          newSuite.createTest({
-            description: _test.description,
-            activeTest: _test.activeTest,
-            flags: _test.flags || []
-          })
-        }
 
         testSuites.appendChild(_testSuite);
 
@@ -82,14 +72,12 @@ This component (<test-results>) describes the suite editor view.
       }
       exports.buildSuiteElement = buildSuiteElement;
 
-      var testResults = this.shadowRoot.querySelector('.test-results');
-      var toggleDisplayElem = testResults.querySelector('.toggle_display');
-      
-      toggleDisplayElem.onclick = function() {
-        testResults.querySelector('.test-suites').classList.toggle('hide');
-        testResults.querySelector('.toggle_display').classList.toggle('hidden');
-        testResults.querySelector('.toggle_display').classList.toggle('shown');
-      }
+      var hideShowButton = this.shadowRoot.querySelector('button.toggle-display');
+      hideShowButton.onclick = function () {
+        self.shadowRoot.querySelector('.test-suites').classList.toggle('hide');
+        this.classList.toggle('shown');
+        this.classList.toggle('hidden');
+      };
     };
 
     document.registerElement('test-results', {prototype: proto});

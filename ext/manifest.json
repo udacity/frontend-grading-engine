@@ -5,9 +5,9 @@
   "description": "Run tests against an external page's HTML.",
   "homepage_url": "http://github.com/udacity/frontend-grading-engine",
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/udacity16.png",
+    "48": "icons/udacity48.png",
+    "128": "icons/udacity128.png"
   },
   "default_locale": "en",
   "background": {

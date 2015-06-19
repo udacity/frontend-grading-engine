@@ -63,16 +63,10 @@ This component holds a single test.
       justify-content: space-between;
     }
 
-    .edit {
-      transform: scale(-1, 1);
-      cursor: pointer;
-      display: none;
-    }
-
   </style>
   <div class="active-test">
     <div class="flex-container">
-      <div class="mark incorrect"><span class="test-desc"></span><span class="test-result"></span></div><a class="edit" onclick="this.edit()">✎</a>
+      <div class="mark incorrect"><span class="test-desc"></span><span class="test-result"></span></div>
     </div>
   </div>
 </template>
@@ -100,9 +94,6 @@ This component holds a single test.
     */
     proto.attachedCallback = function() {
       self = this;
-      var editButton = this.shadowRoot.querySelector('a.edit');
-      
-      editButton.edit = this.edit;
       updateView();
     };
 
@@ -148,174 +139,12 @@ This component holds a single test.
   })();
 </script>
 <!--
-This component (<suite-editor>) describes the suite editor view.
--->
-
-<template id="suite-editor">
-  <style scoped>
-    .new::after {
-      content: " New"
-    }
-  </style>
-  <div class="suite-editor">
-    <button onclick="testWidget.seeResults();">back to results</button>
-    <label for="name">Suite Name</label>
-    <input id="name" type="text">
-    <label for="code">Code</label>
-    <input id="code" type="text">
-
-    <button id="save-suite" onclick="suiteEditor.saveSuite();">Save</button>
-  </div>
-</template>
-
-<script>
-  var suiteEditor = (function() {
-    'use strict';
-    var exports = {};
-    var importDoc = document.currentScript.ownerDocument; // importee
-
-    // Define and register <test-widget>
-    // that uses Shadow DOM and a template.
-    var proto = Object.create(HTMLElement.prototype);
-
-    proto.createdCallback = function() {
-      // get template in import
-      var template = importDoc.querySelector('#suite-editor');
-
-      // import template into
-      var clone = document.importNode(template.content, true);
-
-      var root = this.createShadowRoot();
-      root.appendChild(clone);
-    };
-
-    var suiteEditor;
-    proto.attachedCallback = function() {
-      suiteEditor = this.shadowRoot.querySelector('.suite-editor');
-    };
-
-    document.registerElement('suite-editor', {prototype: proto});
-    
-    function saveSuite() {
-      GE.registerSuite({
-        name: suiteEditor.querySelector('#name').value,
-        code: suiteEditor.querySelector('#code').value
-      });
-    };
-    exports.saveSuite = saveSuite;
-    return exports;
-  })();
-    
-</script>
-<!--
-This component (<test-editor>) describes the suite editor view.
--->
-
-<template id="test-editor">
-  <style scoped>
-    .new::after {
-      content: " New"
-    }
-  </style>
-  <div class="test-editor">
-    <button onclick="testWidget.seeResults();">back to results</button>
-    <h4 class="suite-name"></h4>
-    <label for="active-test-description">Description</label>
-    <input id="active-test-description" type="text">
-    <label for="active-test-input">Active Test</label>
-    <input id="active-test-input" type="text" placeholder="broken at the moment">
-    <label for="flags">Flags</label>
-    <input id="flags" type="flags" placeholder="also broken">
-    <button id="save-test" onclick="testEditor.saveTest();">Save</button>
-  </div>
-</template>
-
-<script>
-  var testEditor = (function() {
-    'use strict';
-    var exports = {};
-    var importDoc = document.currentScript.ownerDocument; // importee
-    var elemItself = null;
-
-    // Define and register <test-widget>
-    // that uses Shadow DOM and a template.
-    var proto = Object.create(HTMLElement.prototype);
-
-    proto.createdCallback = function() {
-      // get template in import
-      var template = importDoc.querySelector('#test-editor');
-
-      // import template into
-      var clone = document.importNode(template.content, true);
-
-      var root = this.createShadowRoot();
-      root.appendChild(clone);
-    };
-
-    proto.attachedCallback = function() {
-      elemItself = this.shadowRoot.querySelector('.test-editor');
-    };
-
-    document.registerElement('test-editor', {prototype: proto});
-    
-    var currentSuite = null;
-    var currentTest = null;
-
-    function saveTest() {
-      var assumedEditedDescription = elemItself.querySelector('#active-test-description').value;
-      var assumedEditedTest = elemItself.querySelector('#active-test-input').value;
-
-      var alwaysCorrect = function () {
-        return {
-          isCorrect: true,
-          questions: []
-        }
-      }
-
-      var testInView = {
-        description: assumedEditedDescription,
-        activeTest: assumedEditedTest || alwaysCorrect
-        // flags: assumedEditedFlags
-      }
-
-      if (!elemItself.test) {
-        currentSuite.element.createTest(testInView);
-      } else {
-        elemItself.test.update(testInView);
-      }
-
-      // TODO: show a quick confirmation. wait 1 second so the test gets registered.
-
-      testWidget.seeResults();
-    };
-    exports.saveTest = saveTest;
-
-    function setTest(test) {
-      elemItself.test = test;
-      var descriptionView = elemItself.querySelector('#active-test-description');
-      // var activeTestView = elemItself.querySelector('#active-test-input');
-      descriptionView.value = test.description;
-      // activeTestView.value = test.activeTest;
-    }
-    exports.setTest = setTest;
-
-    function setCurrentSuite(suite) {
-      currentSuite = suite;
-      elemItself.querySelector('h4.suite-name').innerHTML = currentSuite.name;
-    }
-    exports.setCurrentSuite = setCurrentSuite;
-
-    return exports;
-  })();
-  
-</script>
-<!--
 This component (<test-results>) describes the suite editor view.
 -->
 
 <template id="test-results">
   <style scoped>
-    .toggle_display {
+    .toggle-display {
       display: inline;
       height: 2em;
     }
@@ -324,11 +153,11 @@ This component (<test-results>) describes the suite editor view.
       display: none;
     }
 
-    button.shown::before {
+    .shown::before {
       content: "Hide";
     }
 
-    button.hidden::before {
+    .hidden::before {
       content: "Show";
     }
 
@@ -337,9 +166,8 @@ This component (<test-results>) describes the suite editor view.
     }
   </style>
   <div class="test-results">
-    <button class="toggle_display shown"> Test Results</button>
+    <button class="toggle-display shown"> Test Results</button>
     <div class="test-suites"></div>
-    <button class="add-suite" onclick="testWidget.editSuite()">Add Suite</button>
   </div>
 </template>
 
@@ -366,6 +194,7 @@ This component (<test-results>) describes the suite editor view.
     };
 
     proto.attachedCallback = function() {
+      var self = this;
       var testSuites = this.shadowRoot.querySelector('.test-suites');
 
       // TODO: would love to move this to hotel at some point
@@ -375,17 +204,7 @@ This component (<test-results>) describes the suite editor view.
         _testSuite.setAttribute('name', newSuite.name);
         _testSuite.setAttribute('suite-passed', false);
         _testSuite.code = newSuite.code;  // to avoid leaving the code as an easy-to-spot attribute
-
         _testSuite.suite = newSuite;
-
-        _testSuite.createTest = function (_test) {
-          // TODO: actually collect this from the DOM
-          newSuite.createTest({
-            description: _test.description,
-            activeTest: _test.activeTest,
-            flags: _test.flags || []
-          })
-        }
 
         testSuites.appendChild(_testSuite);
 
@@ -393,14 +212,12 @@ This component (<test-results>) describes the suite editor view.
       }
       exports.buildSuiteElement = buildSuiteElement;
 
-      var testResults = this.shadowRoot.querySelector('.test-results');
-      var toggleDisplayElem = testResults.querySelector('.toggle_display');
-      
-      toggleDisplayElem.onclick = function() {
-        testResults.querySelector('.test-suites').classList.toggle('hide');
-        testResults.querySelector('.toggle_display').classList.toggle('hidden');
-        testResults.querySelector('.toggle_display').classList.toggle('shown');
-      }
+      var hideShowButton = this.shadowRoot.querySelector('button.toggle-display');
+      hideShowButton.onclick = function () {
+        self.shadowRoot.querySelector('.test-suites').classList.toggle('hide');
+        this.classList.toggle('shown');
+        this.classList.toggle('hidden');
+      };
     };
 
     document.registerElement('test-results', {prototype: proto});
@@ -437,7 +254,6 @@ This component holds a suite of tests.
   <div class="suite">
     <div class="suite-title"></div>
     <div class="active-tests"></div>
-    <button class="create-test" onclick="this.createTest();">Create New Test</button>
     <div class="suite-code"></div>
   </div>
 </template>
@@ -457,16 +273,7 @@ This component holds a suite of tests.
     };
 
     proto.attachedCallback = function() {
-      // var self = this;
-      // TODO: figure out why self seemed to be getting rewritten when new testSuites get created. Shouldn't it be scoped to this IIFE?
-
       var suite = this.suite;
-      var createTestElem = this.shadowRoot.querySelector('button.create-test');
-      
-      createTestElem.createTest = function() {
-        testEditor.setCurrentSuite(suite);
-        testWidget.editTest();
-      };
       
       updateView();
     };
@@ -502,8 +309,6 @@ This component holds a suite of tests.
 
     document.registerElement('test-suite', {prototype: proto});
   })();
-  function createTest(suite) {
-  };
 </script>
 <!--
 This component (<test-widget>) describes the grader as a whole.
@@ -533,7 +338,7 @@ when all suites pass.
       padding: 0.5em;
       text-align: left;
       max-height: 100%;
-      overflow-y: hidden;
+      overflow-y: scroll;
       transition: opacity 0.3s, max-height 0.3s;;
     }
 
@@ -555,10 +360,6 @@ when all suites pass.
 
     .test-editor {
       /*padding-left: 2em;*/
-    }
-
-    .test-editor, .edit-area, .new-suite-editor, .test-editor {
-      display: none;
     }
 
   </style>
@@ -596,42 +397,8 @@ when all suites pass.
 
       // initialize the view options
       var testResultsElem = document.createElement('test-results');
-      var suiteEditorElem = document.createElement('suite-editor');
-      var testEditorElem = document.createElement('test-editor');
 
       viewContainer.appendChild(testResultsElem);
-      viewContainer.appendChild(suiteEditorElem);
-      viewContainer.appendChild(testEditorElem);
-
-      window.onload = function() {
-        testWidgetDisplay.style.top = window.scrollY + "px";
-      };
-
-      // better organize these
-      function seeResults () {
-        testResultsElem.style.display = 'block';
-        suiteEditorElem.style.display = 'none';
-        testEditorElem.style.display = 'none';
-      };
-      exports.seeResults = seeResults;
-
-      function editSuite () {
-        testResultsElem.style.display = 'none';
-        suiteEditorElem.style.display = 'block';
-        testEditorElem.style.display = 'none';
-      };
-      exports.editSuite = editSuite;
-
-      function editTest () {
-        // testEditor.setTest(test);
-
-        testResultsElem.style.display = 'none';
-        suiteEditorElem.style.display = 'none';
-        testEditorElem.style.display = 'block';
-      };
-      exports.editTest = editTest;
-
-      seeResults();
     };
 
     document.registerElement('test-widget', {prototype: proto});

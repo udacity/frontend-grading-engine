@@ -1,8 +1,3 @@
-/*
-start tracking suites and tests here now?
-*/
-
-
 chrome.runtime.sendMessage({}, function(response) {
   var readyStateCheckInterval = setInterval(function() {
     if (document.readyState === "complete") {
@@ -50,13 +45,16 @@ chrome.runtime.sendMessage({}, function(response) {
         };
       };
 
-      injectWidgets();
-
       chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-        // console.log(message.message);
-        newTestSuites = document.createElement('script');
-        newTestSuites.innerHTML = f;
+        var newTestSuites = document.createElement('script');
+
+        // Yes, this is kind of a hack and I'm ok with that.
+        // You don't have access to the GE here, but you can inject a script into the document that does.
+        newTestSuites.innerHTML = 'GE.registerSuites(' + JSON.stringify(message) + ')';
+        document.body.appendChild(newTestSuites);
       })
+
+      injectWidgets();
     }
   }, 10);
 });
