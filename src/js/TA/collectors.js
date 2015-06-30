@@ -25,6 +25,7 @@ function TA() {
   this.operations = [];
   this.gradeOpposite = false;
   this.picky = false;
+  this.queue = new Queue();
 };
 
 Object.defineProperties(TA.prototype, {
@@ -34,21 +35,24 @@ Object.defineProperties(TA.prototype, {
      * @return {object} TA - the TA instance for chaining.
      */
     get: function () {
-      this.runAgainstBottomTargets(function (target) {
-        var elem = target.element;
-        var position = null;
-        // TODO: correct for other non-normal DOM elems?
-        var ignoreTheseNodes = 0;
-        Array.prototype.slice.apply(target.element.parentNode.children).forEach(function(val, index, arr) {
-          if (val.nodeName === '#text') {
-            ignoreTheseNodes += 1;
-          }
-          if (val === elem) {
-            position = index - ignoreTheseNodes;
-          }
-        })
-        return position;
-      })
+      var self = this;
+      this.queue.add(function () {
+        self.runAgainstBottomTargets(function (target) {
+          var elem = target.element;
+          var position = null;
+          // TODO: correct for other non-normal DOM elems?
+          var ignoreTheseNodes = 0;
+          Array.prototype.slice.apply(target.element.parentNode.children).forEach(function(val, index, arr) {
+            if (val.nodeName === '#text') {
+              ignoreTheseNodes += 1;
+            }
+            if (val === elem) {
+              position = index - ignoreTheseNodes;
+            }
+          });
+          return position;
+        });
+      });
 
       return this;
     }
@@ -59,10 +63,13 @@ Object.defineProperties(TA.prototype, {
      * @return {object} TA - the TA instance for chaining.
      */
     get: function() {
-      // doing more than accessing a property on existing target because counting can move up the bullseye to past Targets. Need to reset operations
-      this.registerOperation('count');
-      this.runAgainstNextToBottomTargets(function (target) {
-        return target.children.length;
+      var self = this;
+      this.queue.add(function () {
+        // doing more than accessing a property on existing target because counting can move up the bullseye to past Targets. Need to reset operations
+        self.registerOperation('count');
+        self.runAgainstNextToBottomTargets(function (target) {
+          return target.children.length;
+        });
       });
       return this;
     }
@@ -73,10 +80,13 @@ Object.defineProperties(TA.prototype, {
      * @return {object} TA - the TA instance for chaining.
      */
     get: function () {
-      this.registerOperation('index');
-      this.runAgainstBottomTargets(function (target) {
-        return target.index;
-      })
+      var self = this;
+      this.queue.add(function () {
+        self.registerOperation('index');
+        self.runAgainstBottomTargets(function (target) {
+          return target.index;
+        });
+      });
       return this;
     }
   },
@@ -86,10 +96,13 @@ Object.defineProperties(TA.prototype, {
      * @return {object} TA - the TA instance for chaining.
      */
     get: function () {
-      this.registerOperation('innerHTML');
-      this.runAgainstBottomTargetElements(function (element) {
-        return element.innerHTML;
-      })
+      var self = this;
+      this.queue.add(function () {
+        self.registerOperation('innerHTML');
+        self.runAgainstBottomTargetElements(function (element) {
+          return element.innerHTML;
+        });
+      });
       return this;
     }
   },
@@ -99,7 +112,10 @@ Object.defineProperties(TA.prototype, {
      * @return {object} TA - the TA instance for chaining.
      */
     get: function () {
-      this.gradeOpposite = true;
+      var self = this;
+      this.queue.add(function () {
+        self.gradeOpposite = true;
+      });
       return this;
     }
   },
@@ -118,7 +134,10 @@ Object.defineProperties(TA.prototype, {
      * @return {object} TA - the TA instance for chaining.
      */
     get: function () {
-      this.picky = 'onlyOneOf';
+      var self = this;
+      this.queue.add(function () {
+        self.picky = 'onlyOneOf';
+      });
       return this;
     }
   },
@@ -128,7 +147,10 @@ Object.defineProperties(TA.prototype, {
      * @return {object} TA - the TA instance for chaining.
      */
     get: function () {
-      this.picky = 'someOf';
+      var self = this;
+      this.queue.add(function () {
+        self.picky = 'someOf';
+      });
       return this;
     }
   },
@@ -147,16 +169,24 @@ Object.defineProperties(TA.prototype, {
   },
   UAString: {
     /**
-     * [get description]
+     * Get the User-Agent string of the browser.
      * @return {object} TA - the TA instance for chaining.
      */
     get: function () {
-      this.operations = navigator.userAgent;
-      this.documentValueSpecified = navigator.userAgent;
+      var self = this;
+      this.queue.add(function () {
+        self.operations = navigator.userAgent;
+        self.documentValueSpecified = navigator.userAgent;
+      });
       return this;
     }
   }
 })
+
+/**
+ * Initialized for async call later.
+ */
+TA.prototype.onresult = function (testResult) {};
 
 /**
  * Let the TA know this just happened and refresh the questions in the GradeBook.
@@ -284,21 +314,21 @@ TA.prototype.runAgainstNextToBottomTargets = function (callback) {
  * @return {object} TA - the TA instance for chaining.
  */
 TA.prototype.theseElements = function (selector) {
-  this.registerOperation('gatherElements');
-
-  this.target = new Target();
-
   var self = this;
+  this.queue.add(function () {
+    self.registerOperation('gatherElements');
 
-  this.runAgainstTopTargetOnly(function (topTarget) {
-    getDomNodeArray(selector).forEach(function (elem, index, arr) {
-      var target = new Target();
-      target.element = elem;
-      target.index = index;
-      topTarget.children.push(target);
+    self.target = new Target();
+
+    self.runAgainstTopTargetOnly(function (topTarget) {
+      getDomNodeArray(selector).forEach(function (elem, index, arr) {
+        var target = new Target();
+        target.element = elem;
+        target.index = index;
+        topTarget.children.push(target);
+      });
     });
-  })
-
+  });
   return this;
 }
 // for legacy quizzes
@@ -310,14 +340,17 @@ TA.prototype.theseNodes = TA.prototype.theseElements;
  * @return {object} TA - the TA instance for chaining.
  */
 TA.prototype.deepChildren = function (selector) {
-  this.registerOperation('gatherDeepChildElements');
+  var self = this;
+  this.queue.add(function () {
+    self.registerOperation('gatherDeepChildElements');
 
-  this.runAgainstBottomTargets(function (target) {
-    getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
-      var childTarget = new Target();
-      childTarget.element = newElem;
-      childTarget.index = index;
-      target.children.push(childTarget);
+    self.runAgainstBottomTargets(function (target) {
+      getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
+        var childTarget = new Target();
+        childTarget.element = newElem;
+        childTarget.index = index;
+        target.children.push(childTarget);
+      });
     });
   });
 
@@ -328,15 +361,19 @@ TA.prototype.children = TA.prototype.deepChildren;
 
 // TODO: broken :(
 TA.prototype.shallowChildren = function (selector) {
-  this.registerOperation('gatherShallowChildElements');
+  var self = this;
+  this.queue.add(function () {
+    self.registerOperation('gatherShallowChildElements');
 
-  this.runAgainstBottomTargets(function (target) {
-    getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
-      var childTarget = new Target();
-      childTarget.element = newElem;
-      childTarget.index = index;
-      target.children.push(childTarget);
+    self.runAgainstBottomTargets(function (target) {
+      getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
+        var childTarget = new Target();
+        childTarget.element = newElem;
+        childTarget.index = index;
+        target.children.push(childTarget);
+      });
     });
+
   });
   return this;
 };
@@ -347,12 +384,15 @@ TA.prototype.shallowChildren = function (selector) {
  * @return {object} TA - the TA instance for chaining.
  */
 TA.prototype.cssProperty = function (property) {
-  this.registerOperation('cssProperty');
+  var self = this;
+  this.queue.add(function () {
+    self.registerOperation('cssProperty');
 
-  this.runAgainstBottomTargetElements(function (elem) {
-    var styles = getComputedStyle(elem);
-    // TODO: this is causing a FSL that could affect framerate
-    return styles[property];
+    self.runAgainstBottomTargetElements(function (elem) {
+      var styles = getComputedStyle(elem);
+      // TODO: this is causing a FSL that could affect framerate
+      return styles[property];
+    });
   });
   return this;
 }
@@ -363,14 +403,17 @@ TA.prototype.cssProperty = function (property) {
  * @return {object} TA - the TA instance for chaining.
  */
 TA.prototype.attribute = function (attribute) {
-  this.registerOperation('attribute')
+  var self = this;
+  this.queue.add(function () {
+    self.registerOperation('attribute')
 
-  this.runAgainstBottomTargetElements(function (elem) {
-    var attrValue = elem.getAttribute(attribute);
-    if (attrValue === '') {
-      attrValue = true;
-    }
-    return attrValue;
+    self.runAgainstBottomTargetElements(function (elem) {
+      var attrValue = elem.getAttribute(attribute);
+      if (attrValue === '') {
+        attrValue = true;
+      }
+      return attrValue;
+    });
   });
   return this;
 }
@@ -381,79 +424,82 @@ TA.prototype.attribute = function (attribute) {
  * @return {object} TA - the TA instance for chaining.
  */
 TA.prototype.absolutePosition = function (side) {
-  this.registerOperation('absolutePosition');
-  // http://stackoverflow.com/questions/2880957/detect-inline-block-type-of-a-dom-element
-  function getDisplayType (element) {
-    var cStyle = element.currentStyle || window.getComputedStyle(element, ""); 
-    return cStyle.display;
-  };
+  var self = this;
+  this.queue.add(function () {
+    self.registerOperation('absolutePosition');
+    // http://stackoverflow.com/questions/2880957/detect-inline-block-type-of-a-dom-element
+    function getDisplayType (element) {
+      var cStyle = element.currentStyle || window.getComputedStyle(element, ""); 
+      return cStyle.display;
+    };
 
-  var selectorFunc = function () {};
-  switch (side) {
-    case 'top':
-      var selectorFunc = function (elem) {
-        var displayType = getDisplayType(elem);
-        var value = NaN;
-        if (displayType === 'block') {
-          value = elem.offsetTop;
-        } else if (displayType === 'inline') {
-          value = elem.getBoundingClientRect()[side];
+    var selectorFunc = function () {};
+    switch (side) {
+      case 'top':
+        var selectorFunc = function (elem) {
+          var displayType = getDisplayType(elem);
+          var value = NaN;
+          if (displayType === 'block') {
+            value = elem.offsetTop;
+          } else if (displayType === 'inline') {
+            value = elem.getBoundingClientRect()[side];
+          };
+          return value;
         };
-        return value;
-      };
-      break;
-    case 'left':
-      var selectorFunc = function (elem) {
-        var displayType = getDisplayType(elem);
-        var value = NaN;
-        if (displayType === 'block') {
-          value = elem.offsetLeft;
-        } else if (displayType === 'inline') {
-          value = elem.getBoundingClientRect()[side];
+        break;
+      case 'left':
+        var selectorFunc = function (elem) {
+          var displayType = getDisplayType(elem);
+          var value = NaN;
+          if (displayType === 'block') {
+            value = elem.offsetLeft;
+          } else if (displayType === 'inline') {
+            value = elem.getBoundingClientRect()[side];
+          };
+          return value;
         };
-        return value;
-      };
-      break;
-    case 'bottom':
-      var selectorFunc = function (elem) {
-        var displayType = getDisplayType(elem);
-        var value = NaN;
-        if (displayType === 'block') {
-          value = elem.offsetTop + elem.offsetHeight;
-        } else if (displayType === 'inline') {
-          value = elem.getBoundingClientRect()[side];
+        break;
+      case 'bottom':
+        var selectorFunc = function (elem) {
+          var displayType = getDisplayType(elem);
+          var value = NaN;
+          if (displayType === 'block') {
+            value = elem.offsetTop + elem.offsetHeight;
+          } else if (displayType === 'inline') {
+            value = elem.getBoundingClientRect()[side];
+          };
+          if (value === Math.max(document.documentElement.clientHeight, window.innerHeight || 0)) {
+            value = 'max';
+          };
+          return value;
         };
-        if (value === Math.max(document.documentElement.clientHeight, window.innerHeight || 0)) {
-          value = 'max';
+        break;
+      case 'right':
+        var selectorFunc = function (elem) {
+          var displayType = getDisplayType(elem);
+          var value = NaN;
+          if (displayType === 'block') {
+            value = elem.offsetLeft + elem.offsetWidth;
+          } else if (displayType === 'inline') {
+            value = elem.getBoundingClientRect()[side];
+          };
+          if (value === Math.max(document.documentElement.clientWidth, window.innerWidth || 0)) {
+            value = 'max';
+          };
+          return value;
         };
-        return value;
-      };
-      break;
-    case 'right':
-      var selectorFunc = function (elem) {
-        var displayType = getDisplayType(elem);
-        var value = NaN;
-        if (displayType === 'block') {
-          value = elem.offsetLeft + elem.offsetWidth;
-        } else if (displayType === 'inline') {
-          value = elem.getBoundingClientRect()[side];
+        break;
+      default:
+        selectorFunc = function () {
+          console.log("You didn't pick a side for absolutePosition! Options are 'top', 'left', 'bottom' and 'right'.");
+          return NaN;
         };
-        if (value === Math.max(document.documentElement.clientWidth, window.innerWidth || 0)) {
-          value = 'max';
-        };
-        return value;
-      };
-      break;
-    default:
-      selectorFunc = function () {
-        console.log("You didn't pick a side for absolutePosition! Options are 'top', 'left', 'bottom' and 'right'.");
-        return NaN;
-      };
-      break;
-  };
+        break;
+    };
 
-  this.runAgainstBottomTargetElements(function (elem) {
-    return selectorFunc(elem);
+    self.runAgainstBottomTargetElements(function (elem) {
+      return selectorFunc(elem);
+    });
   });
   return this;
 };

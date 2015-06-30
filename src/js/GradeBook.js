@@ -100,6 +100,10 @@ GradeBook.prototype.reset = function () {
   this.passed = false;
 };
 
+GradeBook.prototype.fireFinished = function () {
+
+};
+
 /**
  * Will iterate through all the questions and return if they meet grade criteria
  * @param  {Object} config - {string} config.strictness, {boolean} config.not, {function} config.callback

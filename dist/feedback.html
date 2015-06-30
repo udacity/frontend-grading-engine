@@ -69,11 +69,18 @@ This component holds a single test.
       <div class="mark incorrect"><span class="test-desc"></span><span class="test-result"></span></div>
     </div>
   </div>
+  <!-- TODO: does the iFrame still run scripts if it is display: noned? -->
+  <iframe style="display: none;" sandbox="allow-scripts">
+    <html>
+      <head>
+        <script id="test-runner"></script>
+      </head>
+    </html>
+  </iframe>
 </template>
 <script>
   (function() {
     'use strict';
-    var exports = {};
     var self = null;
 
     var importDoc = document.currentScript.ownerDocument;
@@ -135,7 +142,6 @@ This component holds a single test.
     };
 
     document.registerElement('active-test', {prototype: proto});
-    return exports;
   })();
 </script>
 <!--

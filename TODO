@@ -1,8 +1,15 @@
 At the moment
 -------------
+* creating the concierge
+* running tests in an iframe instead
 
-
-
+ASYNC TA:
+either: http://www.dustindiaz.com/async-method-queues
+  - or -
+methods chained after theseNodes now simply queue up
+theseNodes is a promise, when it resolves, run through the queue
+  * but what about .children?
+  * are all methods now promises that, when resolved, call the next method in the queue?
 
 Overall
 -------
@@ -16,8 +23,6 @@ Compare network response:
 * bytes by file
 * bytes by filetype
 * time
-
-Misc:
 * Page size
 
 Flags:
@@ -26,22 +31,15 @@ Flags:
 New:
 * click and draggable widget window
 * pinnable widget window
-* write tests
-  * delete new tests
-* create new tests
-* edit old tests
-* create suites
-* edit suites
-  * needs a button
-* save tests as JSON file
 * load tests from JSON file
 * browser action
   * toggle button to show/hide feedback within browser action
   * turn on / turn off
   * always run on a page
 * better UI
+* show current on widget
 * interactive GUI for test editor
-* use a service worker to handle loading the engine and template resources
+* use a service worker to handle loading the engine and template resources?
 
 Documenting:
 * new README
@@ -59,5 +57,8 @@ Code cleanliness:
 Fixes:
 * absolute position gives position relative to viewport. is that desired behavior?
 * expand toEqual to match arrays and objects as well
-* less janky way of hide/expand test results
+
+Performance:
 * cssProperty creates a FSL
+* how performant are sandboxed iframes???
+* can I create sandboxed web workers???

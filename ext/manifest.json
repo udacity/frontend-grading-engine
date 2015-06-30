@@ -1,5 +1,5 @@
 {
-  "name": "Udacity External Grader",
+  "name": "Udacity External Grader (beta)",
   "version": "0.4",
   "manifest_version": 2,
   "description": "Run tests against an external page's HTML.",

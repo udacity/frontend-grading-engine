@@ -2,16 +2,12 @@ function ActiveTest(rawTest) {
   var description = rawTest.description;
   var activeTest = rawTest.activeTest;
   var flags = rawTest.flags || {};
+  var id = parseInt(Math.random() * 1000000);
 
-  // TODO: validate flags
   // this specific validation is probably less than useful...
   if (flags.alwaysRun === undefined) {
     flags.alwaysRun = false;
   }
-
-  var parentSuiteName = rawTest.parentSuiteName;
-
-  var id = parseInt(Math.random() * 1000000);
 
   // TODO: move this out of here
   // validate the description.
@@ -35,6 +31,7 @@ function ActiveTest(rawTest) {
   this.id = id;
   this.testPassed = false;
   this.optional = flags.optional;
+  this.gradeRunner = function() {};
 
   this.iwant = new TA();
 };
@@ -46,14 +43,14 @@ function ActiveTest(rawTest) {
  */
 ActiveTest.prototype.hasPassed = function (didPass) {
   var attribute = null;
-  if (didPass === false) {
+  if (!didPass) {
     attribute = false;
   } else {
     attribute = true;
     this.testPassed = true;
     
     if (!this.flags.alwaysRun || this.flags.noRepeat) {
-      this.stop();
+      this.stopTest();
     };
   }
   this.element.setAttribute('test-passed', attribute);
@@ -61,7 +58,8 @@ ActiveTest.prototype.hasPassed = function (didPass) {
 };
 
 
-ActiveTest.prototype.runSyncTest = function () {
+// TODO: move this to the sandbox
+ActiveTest.prototype.runTest = function () {
   /*
   Run a synchronous activeTest every 1000 ms
   @param: none
@@ -73,28 +71,35 @@ ActiveTest.prototype.runSyncTest = function () {
   */
   var noRepeat = this.flags.noRepeat || false; // run only once on load
   var alwaysRun = this.flags.alwaysRun || false; // keep running even if test passes
-  var async = this.flags.async || false;  // async
-  var showCurrent = this.flags.showCurrent || false;  // TODO: show currently resolved value
   var optional = this.flags.optional || false; // test does not affect code display
 
-  var runTest = function () {
+  var testRunner = function () {
     // run the test
-    var testResult = self.activeTest(self.iwant);
-    var testCorrect = testResult.isCorrect || false;
-    
-    var testValues = '';
-    testResult.questions.forEach(function (val) {
-      testValues = testValues + ' ' + val.value;
-    })
+    var promise = new Promise(function (resolve, reject) {
+      // resolve when the test finishes
+      self.iwant.onresult = function (result) {
+        resolve(result);
+      };
+      // clean out the queue from the last run
+      self.iwant.queue.clear();
 
-    self.hasPassed(testCorrect);
+      self.activeTest(self.iwant);
+    }).then(function (resolve) {
+      var testCorrect = resolve.isCorrect || false;
+      var testValues = '';
+      resolve.questions.forEach(function (val) {
+        testValues = testValues + ' ' + val.value;
+      });
+
+      self.hasPassed(testCorrect);
+    });
   };
 
-  clearInterval(this.gradeRunner);
-  this.gradeRunner = setInterval(runTest, 1000);
+  // clearInterval(this.gradeRunner);
+  this.gradeRunner = setInterval(testRunner, 1000);
 };
 
-ActiveTest.prototype.stop = function () {
+ActiveTest.prototype.stopTest = function () {
   clearInterval(this.gradeRunner);
 };
 
@@ -104,8 +109,6 @@ ActiveTest.prototype.update = function (config) {
   var activeTest = config.activeTest || false;
   var flags = config.flags || false;
 
-  // TODO: validate these!!! move validation logic to its own method on ActiveTest?
-  // create setter for properties to check if valid???
   if (description) {
     this.description = description;
     this.element.setAttribute('description', this.description);
@@ -117,5 +120,5 @@ ActiveTest.prototype.update = function (config) {
     this.flags = flags;
   };
 
-  this.runSyncTest();
+  this.runTest();
 };

@@ -123,6 +123,83 @@ function executeFunctionByName(functionName, context) {
   }
   return context[func].apply(this, args);
 }
+var concierge = (function () {
+  // add listener for postMessage
+  window.addEventListener('message', function (e) {
+
+    var frame = document.getElementById('sandboxed');
+    if (e.origin === "null" && e.source === frame.contentWindow) {
+      // will need to figure out a way to work with different frames
+      // could the frame id be part of the message?
+      // or could I just use the source?
+      var data = getFromDOM(e.data) // TODO: I think it's e.data?
+
+      frame.postMessage(data);
+    }
+  })
+
+  function getFromDOM (selector) {
+    if (typeof selector !== 'string') {
+      return;
+    }
+    var results = getDomNodeArray(selector);
+    return results;
+  }
+
+  // TODO: once more network based tests become necessary
+  function getFromNetwork (url) {};
+
+  return {
+    // queryDocument: function (selector) {
+    //   var elements = getFromDOM(selector);
+    // };
+  }
+})();
+// Inspired by http://www.dustindiaz.com/async-method-queues
+// also helpful http://www.mattgreer.org/articles/promises-in-wicked-detail/
+
+
+function Queue() {
+  this._methods = [];
+  this._flushing = false;
+}
+
+Queue.prototype = {
+  add: function(fn) {
+    this._methods.push(fn);
+    if (!this._flushing) {
+      this.step();
+    }
+  },
+
+  clear: function() {
+    this._flushing = false;
+    this._methods = [];
+  },
+
+  step: function(resp) {
+    var self = this;
+
+    if (!this._flushing) {
+      this._flushing = true;
+    }
+    
+    function executeInPromise (fn) {
+      return new Promise(function (resolve, reject) {
+        if (fn) {
+          var ret = fn();
+        }
+        resolve(ret);
+      });
+    }
+
+    executeInPromise(this._methods.shift()).then(function (resolve) {
+      if (self._methods.length > 0) {
+        self.step();
+      }
+    })
+  }
+};
 
 /***
  *      _______                   _   
@@ -298,6 +375,10 @@ GradeBook.prototype.reset = function () {
   this.passed = false;
 };
 
+GradeBook.prototype.fireFinished = function () {
+
+};
+
 /**
  * Will iterate through all the questions and return if they meet grade criteria
  * @param  {Object} config - {string} config.strictness, {boolean} config.not, {function} config.callback
@@ -365,6 +446,7 @@ function TA() {
   this.operations = [];
   this.gradeOpposite = false;
   this.picky = false;
+  this.queue = new Queue();
 };
 
 Object.defineProperties(TA.prototype, {
@@ -374,21 +456,24 @@ Object.defineProperties(TA.prototype, {
      * @return {object} TA - the TA instance for chaining.
      */
     get: function () {
-      this.runAgainstBottomTargets(function (target) {
-        var elem = target.element;
-        var position = null;
-        // TODO: correct for other non-normal DOM elems?
-        var ignoreTheseNodes = 0;
-        Array.prototype.slice.apply(target.element.parentNode.children).forEach(function(val, index, arr) {
-          if (val.nodeName === '#text') {
-            ignoreTheseNodes += 1;
-          }
-          if (val === elem) {
-            position = index - ignoreTheseNodes;
-          }
-        })
-        return position;
-      })
+      var self = this;
+      this.queue.add(function () {
+        self.runAgainstBottomTargets(function (target) {
+          var elem = target.element;
+          var position = null;
+          // TODO: correct for other non-normal DOM elems?
+          var ignoreTheseNodes = 0;
+          Array.prototype.slice.apply(target.element.parentNode.children).forEach(function(val, index, arr) {
+            if (val.nodeName === '#text') {
+              ignoreTheseNodes += 1;
+            }
+            if (val === elem) {
+              position = index - ignoreTheseNodes;
+            }
+          });
+          return position;
+        });
+      });
 
       return this;
     }
@@ -399,10 +484,13 @@ Object.defineProperties(TA.prototype, {
      * @return {object} TA - the TA instance for chaining.
      */
     get: function() {
-      // doing more than accessing a property on existing target because counting can move up the bullseye to past Targets. Need to reset operations
-      this.registerOperation('count');
-      this.runAgainstNextToBottomTargets(function (target) {
-        return target.children.length;
+      var self = this;
+      this.queue.add(function () {
+        // doing more than accessing a property on existing target because counting can move up the bullseye to past Targets. Need to reset operations
+        self.registerOperation('count');
+        self.runAgainstNextToBottomTargets(function (target) {
+          return target.children.length;
+        });
       });
       return this;
     }
@@ -413,10 +501,13 @@ Object.defineProperties(TA.prototype, {
      * @return {object} TA - the TA instance for chaining.
      */
     get: function () {
-      this.registerOperation('index');
-      this.runAgainstBottomTargets(function (target) {
-        return target.index;
-      })
+      var self = this;
+      this.queue.add(function () {
+        self.registerOperation('index');
+        self.runAgainstBottomTargets(function (target) {
+          return target.index;
+        });
+      });
       return this;
     }
   },
@@ -426,10 +517,13 @@ Object.defineProperties(TA.prototype, {
      * @return {object} TA - the TA instance for chaining.
      */
     get: function () {
-      this.registerOperation('innerHTML');
-      this.runAgainstBottomTargetElements(function (element) {
-        return element.innerHTML;
-      })
+      var self = this;
+      this.queue.add(function () {
+        self.registerOperation('innerHTML');
+        self.runAgainstBottomTargetElements(function (element) {
+          return element.innerHTML;
+        });
+      });
       return this;
     }
   },
@@ -439,7 +533,10 @@ Object.defineProperties(TA.prototype, {
      * @return {object} TA - the TA instance for chaining.
      */
     get: function () {
-      this.gradeOpposite = true;
+      var self = this;
+      this.queue.add(function () {
+        self.gradeOpposite = true;
+      });
       return this;
     }
   },
@@ -458,7 +555,10 @@ Object.defineProperties(TA.prototype, {
      * @return {object} TA - the TA instance for chaining.
      */
     get: function () {
-      this.picky = 'onlyOneOf';
+      var self = this;
+      this.queue.add(function () {
+        self.picky = 'onlyOneOf';
+      });
       return this;
     }
   },
@@ -468,7 +568,10 @@ Object.defineProperties(TA.prototype, {
      * @return {object} TA - the TA instance for chaining.
      */
     get: function () {
-      this.picky = 'someOf';
+      var self = this;
+      this.queue.add(function () {
+        self.picky = 'someOf';
+      });
       return this;
     }
   },
@@ -487,16 +590,24 @@ Object.defineProperties(TA.prototype, {
   },
   UAString: {
     /**
-     * [get description]
+     * Get the User-Agent string of the browser.
      * @return {object} TA - the TA instance for chaining.
      */
     get: function () {
-      this.operations = navigator.userAgent;
-      this.documentValueSpecified = navigator.userAgent;
+      var self = this;
+      this.queue.add(function () {
+        self.operations = navigator.userAgent;
+        self.documentValueSpecified = navigator.userAgent;
+      });
       return this;
     }
   }
 })
+
+/**
+ * Initialized for async call later.
+ */
+TA.prototype.onresult = function (testResult) {};
 
 /**
  * Let the TA know this just happened and refresh the questions in the GradeBook.
@@ -624,21 +735,21 @@ TA.prototype.runAgainstNextToBottomTargets = function (callback) {
  * @return {object} TA - the TA instance for chaining.
  */
 TA.prototype.theseElements = function (selector) {
-  this.registerOperation('gatherElements');
-
-  this.target = new Target();
-
   var self = this;
+  this.queue.add(function () {
+    self.registerOperation('gatherElements');
 
-  this.runAgainstTopTargetOnly(function (topTarget) {
-    getDomNodeArray(selector).forEach(function (elem, index, arr) {
-      var target = new Target();
-      target.element = elem;
-      target.index = index;
-      topTarget.children.push(target);
+    self.target = new Target();
+
+    self.runAgainstTopTargetOnly(function (topTarget) {
+      getDomNodeArray(selector).forEach(function (elem, index, arr) {
+        var target = new Target();
+        target.element = elem;
+        target.index = index;
+        topTarget.children.push(target);
+      });
     });
-  })
-
+  });
   return this;
 }
 // for legacy quizzes
@@ -650,14 +761,17 @@ TA.prototype.theseNodes = TA.prototype.theseElements;
  * @return {object} TA - the TA instance for chaining.
  */
 TA.prototype.deepChildren = function (selector) {
-  this.registerOperation('gatherDeepChildElements');
+  var self = this;
+  this.queue.add(function () {
+    self.registerOperation('gatherDeepChildElements');
 
-  this.runAgainstBottomTargets(function (target) {
-    getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
-      var childTarget = new Target();
-      childTarget.element = newElem;
-      childTarget.index = index;
-      target.children.push(childTarget);
+    self.runAgainstBottomTargets(function (target) {
+      getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
+        var childTarget = new Target();
+        childTarget.element = newElem;
+        childTarget.index = index;
+        target.children.push(childTarget);
+      });
     });
   });
 
@@ -668,15 +782,19 @@ TA.prototype.children = TA.prototype.deepChildren;
 
 // TODO: broken :(
 TA.prototype.shallowChildren = function (selector) {
-  this.registerOperation('gatherShallowChildElements');
+  var self = this;
+  this.queue.add(function () {
+    self.registerOperation('gatherShallowChildElements');
 
-  this.runAgainstBottomTargets(function (target) {
-    getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
-      var childTarget = new Target();
-      childTarget.element = newElem;
-      childTarget.index = index;
-      target.children.push(childTarget);
+    self.runAgainstBottomTargets(function (target) {
+      getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
+        var childTarget = new Target();
+        childTarget.element = newElem;
+        childTarget.index = index;
+        target.children.push(childTarget);
+      });
     });
+
   });
   return this;
 };
@@ -687,12 +805,15 @@ TA.prototype.shallowChildren = function (selector) {
  * @return {object} TA - the TA instance for chaining.
  */
 TA.prototype.cssProperty = function (property) {
-  this.registerOperation('cssProperty');
+  var self = this;
+  this.queue.add(function () {
+    self.registerOperation('cssProperty');
 
-  this.runAgainstBottomTargetElements(function (elem) {
-    var styles = getComputedStyle(elem);
-    // TODO: this is causing a FSL that could affect framerate
-    return styles[property];
+    self.runAgainstBottomTargetElements(function (elem) {
+      var styles = getComputedStyle(elem);
+      // TODO: this is causing a FSL that could affect framerate
+      return styles[property];
+    });
   });
   return this;
 }
@@ -703,14 +824,17 @@ TA.prototype.cssProperty = function (property) {
  * @return {object} TA - the TA instance for chaining.
  */
 TA.prototype.attribute = function (attribute) {
-  this.registerOperation('attribute')
+  var self = this;
+  this.queue.add(function () {
+    self.registerOperation('attribute')
 
-  this.runAgainstBottomTargetElements(function (elem) {
-    var attrValue = elem.getAttribute(attribute);
-    if (attrValue === '') {
-      attrValue = true;
-    }
-    return attrValue;
+    self.runAgainstBottomTargetElements(function (elem) {
+      var attrValue = elem.getAttribute(attribute);
+      if (attrValue === '') {
+        attrValue = true;
+      }
+      return attrValue;
+    });
   });
   return this;
 }
@@ -721,79 +845,82 @@ TA.prototype.attribute = function (attribute) {
  * @return {object} TA - the TA instance for chaining.
  */
 TA.prototype.absolutePosition = function (side) {
-  this.registerOperation('absolutePosition');
-  // http://stackoverflow.com/questions/2880957/detect-inline-block-type-of-a-dom-element
-  function getDisplayType (element) {
-    var cStyle = element.currentStyle || window.getComputedStyle(element, ""); 
-    return cStyle.display;
-  };
+  var self = this;
+  this.queue.add(function () {
+    self.registerOperation('absolutePosition');
+    // http://stackoverflow.com/questions/2880957/detect-inline-block-type-of-a-dom-element
+    function getDisplayType (element) {
+      var cStyle = element.currentStyle || window.getComputedStyle(element, ""); 
+      return cStyle.display;
+    };
 
-  var selectorFunc = function () {};
-  switch (side) {
-    case 'top':
-      var selectorFunc = function (elem) {
-        var displayType = getDisplayType(elem);
-        var value = NaN;
-        if (displayType === 'block') {
-          value = elem.offsetTop;
-        } else if (displayType === 'inline') {
-          value = elem.getBoundingClientRect()[side];
+    var selectorFunc = function () {};
+    switch (side) {
+      case 'top':
+        var selectorFunc = function (elem) {
+          var displayType = getDisplayType(elem);
+          var value = NaN;
+          if (displayType === 'block') {
+            value = elem.offsetTop;
+          } else if (displayType === 'inline') {
+            value = elem.getBoundingClientRect()[side];
+          };
+          return value;
         };
-        return value;
-      };
-      break;
-    case 'left':
-      var selectorFunc = function (elem) {
-        var displayType = getDisplayType(elem);
-        var value = NaN;
-        if (displayType === 'block') {
-          value = elem.offsetLeft;
-        } else if (displayType === 'inline') {
-          value = elem.getBoundingClientRect()[side];
+        break;
+      case 'left':
+        var selectorFunc = function (elem) {
+          var displayType = getDisplayType(elem);
+          var value = NaN;
+          if (displayType === 'block') {
+            value = elem.offsetLeft;
+          } else if (displayType === 'inline') {
+            value = elem.getBoundingClientRect()[side];
+          };
+          return value;
         };
-        return value;
-      };
-      break;
-    case 'bottom':
-      var selectorFunc = function (elem) {
-        var displayType = getDisplayType(elem);
-        var value = NaN;
-        if (displayType === 'block') {
-          value = elem.offsetTop + elem.offsetHeight;
-        } else if (displayType === 'inline') {
-          value = elem.getBoundingClientRect()[side];
+        break;
+      case 'bottom':
+        var selectorFunc = function (elem) {
+          var displayType = getDisplayType(elem);
+          var value = NaN;
+          if (displayType === 'block') {
+            value = elem.offsetTop + elem.offsetHeight;
+          } else if (displayType === 'inline') {
+            value = elem.getBoundingClientRect()[side];
+          };
+          if (value === Math.max(document.documentElement.clientHeight, window.innerHeight || 0)) {
+            value = 'max';
+          };
+          return value;
         };
-        if (value === Math.max(document.documentElement.clientHeight, window.innerHeight || 0)) {
-          value = 'max';
+        break;
+      case 'right':
+        var selectorFunc = function (elem) {
+          var displayType = getDisplayType(elem);
+          var value = NaN;
+          if (displayType === 'block') {
+            value = elem.offsetLeft + elem.offsetWidth;
+          } else if (displayType === 'inline') {
+            value = elem.getBoundingClientRect()[side];
+          };
+          if (value === Math.max(document.documentElement.clientWidth, window.innerWidth || 0)) {
+            value = 'max';
+          };
+          return value;
         };
-        return value;
-      };
-      break;
-    case 'right':
-      var selectorFunc = function (elem) {
-        var displayType = getDisplayType(elem);
-        var value = NaN;
-        if (displayType === 'block') {
-          value = elem.offsetLeft + elem.offsetWidth;
-        } else if (displayType === 'inline') {
-          value = elem.getBoundingClientRect()[side];
+        break;
+      default:
+        selectorFunc = function () {
+          console.log("You didn't pick a side for absolutePosition! Options are 'top', 'left', 'bottom' and 'right'.");
+          return NaN;
         };
-        if (value === Math.max(document.documentElement.clientWidth, window.innerWidth || 0)) {
-          value = 'max';
-        };
-        return value;
-      };
-      break;
-    default:
-      selectorFunc = function () {
-        console.log("You didn't pick a side for absolutePosition! Options are 'top', 'left', 'bottom' and 'right'.");
-        return NaN;
-      };
-      break;
-  };
+        break;
+    };
 
-  this.runAgainstBottomTargetElements(function (elem) {
-    return selectorFunc(elem);
+    self.runAgainstBottomTargetElements(function (elem) {
+      return selectorFunc(elem);
+    });
   });
   return this;
 };
@@ -821,42 +948,45 @@ Object.defineProperties(TA.prototype, {
      * @return {object} result - the GradeBook's list of questions and overall correctness.
      */
     get: function() {
-      var typeOfOperation = this.operations[this.operations.length - 1];
-
       var self = this;
-      var doesExistFunc = function () {};
-      switch (typeOfOperation) {
-        case 'gatherElements':
-          doesExistFunc = function (topTarget) {
-            console.log('hi')
-            return topTarget.children.length > 0;
-          };
-          break;
-        case 'gatherDeepChildElements':
-          doesExistFunc = function (target) {
-            var hasElement = false;
-            if (target.element) {
-              hasElement = true;
-            }
-            return hasElement;
-          };
-          break;
-        default:
-          doesExistFunc = function (target) {
-            var doesExist = false;
-            if (target.value || target.element) {
-              doesExist = true;
-            }
-            return doesExist
-          }
-          break;
-      }
+      this.queue.add(function () {
+        var typeOfOperation = self.operations[self.operations.length - 1];
 
-      return this.gradebook.grade({
-        callback: doesExistFunc,
-        not: this.gradeOpposite,
-        strictness: this.picky
-      })
+        var doesExistFunc = function () {};
+        switch (typeOfOperation) {
+          case 'gatherElements':
+            doesExistFunc = function (topTarget) {
+              console.log('hi')
+              return topTarget.children.length > 0;
+            };
+            break;
+          case 'gatherDeepChildElements':
+            doesExistFunc = function (target) {
+              var hasElement = false;
+              if (target.element) {
+                hasElement = true;
+              }
+              return hasElement;
+            };
+            break;
+          default:
+            doesExistFunc = function (target) {
+              var doesExist = false;
+              if (target.value || target.element) {
+                doesExist = true;
+              }
+              return doesExist
+            }
+            break;
+        }
+
+        var testResult = self.gradebook.grade({
+          callback: doesExistFunc,
+          not: self.gradeOpposite,
+          strictness: self.picky
+        });
+        self.onresult(testResult);
+      });
     }
   },
   value: {
@@ -864,6 +994,7 @@ Object.defineProperties(TA.prototype, {
      * Use for debug purposes only. Returns the first value found on the bullseye.
      * @return {*} value - the value retrieved.
      */
+    // TODO: see if this is broken now that async tests run
     get: function () {
       // TA returns a single value from the first Target hit with a value. Used to create vars in active_tests.
       var value = null;
@@ -881,16 +1012,20 @@ Object.defineProperties(TA.prototype, {
      * Use for debug purposes only. Returns all values found on the bullseye.
      * @return {[]} values - all the values retrieved.
      */
+    // TODO: see if this is broken now that async tests run
     get: function () {
-      // TA returns a flat array of values. Used to create vars in active_tests.
-      var values = [];
-      this.runAgainstBottomTargets(function (target) {
-        if (target.value) {
-          values.push(target.value);
-        };
-        return target.value;
+      var self = this;
+      this.queue.add(function () {
+        // TA returns a flat array of values. Used to create vars in active_tests.
+        var values = [];
+        self.runAgainstBottomTargets(function (target) {
+          if (target.value) {
+            values.push(target.value);
+          };
+          return target.value;
+        });
+        return values;
       });
-      return values;
     }
   }
 })
@@ -902,32 +1037,36 @@ Object.defineProperties(TA.prototype, {
  * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
 TA.prototype.toEqual = function (expected, noStrict) {
-  noStrict = noStrict || false;
-  
-  var equalityFunc = function() {};
-  switch (noStrict) {
-    case true:
-      equalityFunc = function (target) {
-        return target.value == expected;
-      };
-      break;
-    case false:
-      equalityFunc = function (target) {
-        return target.value === expected;
-      };
-      break;
-    default:
-      equalityFunc = function (target) {
-        return target.value === expected;
-      };
-      break;
-  }
+  var self = this;
+  this.queue.add(function () {
+    noStrict = noStrict || false;
+    
+    var equalityFunc = function() {};
+    switch (noStrict) {
+      case true:
+        equalityFunc = function (target) {
+          return target.value == expected;
+        };
+        break;
+      case false:
+        equalityFunc = function (target) {
+          return target.value === expected;
+        };
+        break;
+      default:
+        equalityFunc = function (target) {
+          return target.value === expected;
+        };
+        break;
+    }
 
-  return this.gradebook.grade({
-    callback: equalityFunc,
-    not: this.gradeOpposite,
-    strictness: this.picky
-  })
+    var testResult = self.gradebook.grade({
+      callback: equalityFunc,
+      not: self.gradeOpposite,
+      strictness: self.picky
+    });
+    self.onresult(testResult);
+  });
 }
 
 /**
@@ -937,41 +1076,45 @@ TA.prototype.toEqual = function (expected, noStrict) {
  * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
 TA.prototype.toBeGreaterThan = function (expected, orEqualTo) {
-  orEqualTo = orEqualTo || false;
+  var self = this;
+  this.queue.add(function () {
+    orEqualTo = orEqualTo || false;
 
-  var greaterThanFunc = function() {};
-  switch (orEqualTo) {
-    case true:
-      greaterThanFunc = function (target) {
-        var isGreaterThan = false;
-        if (target.value >= expected) {
-          isGreaterThan = true;
+    var greaterThanFunc = function() {};
+    switch (orEqualTo) {
+      case true:
+        greaterThanFunc = function (target) {
+          var isGreaterThan = false;
+          if (target.value >= expected) {
+            isGreaterThan = true;
+          }
+          return isGreaterThan;
         }
-        return isGreaterThan;
-      }
-    case false:
-      greaterThanFunc = function (target) {
-        var isGreaterThan = false;
-        if (target.value > expected) {
-          isGreaterThan = true;
+      case false:
+        greaterThanFunc = function (target) {
+          var isGreaterThan = false;
+          if (target.value > expected) {
+            isGreaterThan = true;
+          }
+          return isGreaterThan;
         }
-        return isGreaterThan;
-      }
-    default:
-      greaterThanFunc = function (target) {
-        var isGreaterThan = false;
-        if (target.value > expected) {
-          isGreaterThan = true;
+      default:
+        greaterThanFunc = function (target) {
+          var isGreaterThan = false;
+          if (target.value > expected) {
+            isGreaterThan = true;
+          }
+          return isGreaterThan;
         }
-        return isGreaterThan;
-      }
-  }
+    }
 
-  return this.gradebook.grade({
-    callback: greaterThanFunc,
-    not: this.gradeOpposite,
-    strictness: this.picky
-  })
+    var testResult = self.gradebook.grade({
+      callback: greaterThanFunc,
+      not: self.gradeOpposite,
+      strictness: self.picky
+    });
+    self.onresult(testResult);
+  });
 }
 
 /**
@@ -981,41 +1124,45 @@ TA.prototype.toBeGreaterThan = function (expected, orEqualTo) {
  * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
 TA.prototype.toBeLessThan = function(expected, orEqualTo) {
-  orEqualTo = orEqualTo || false;
+  var self = this;
+  this.queue.add(function () {
+    orEqualTo = orEqualTo || false;
 
-  var lessThanFunc = function() {};
-  switch (orEqualTo) {
-    case true:
-      lessThanFunc = function (target) {
-        var isLessThan = false;
-        if (target.value <= expected) {
-          isLessThan = true;
+    var lessThanFunc = function() {};
+    switch (orEqualTo) {
+      case true:
+        lessThanFunc = function (target) {
+          var isLessThan = false;
+          if (target.value <= expected) {
+            isLessThan = true;
+          }
+          return isLessThan;
         }
-        return isLessThan;
-      }
-    case false:
-      lessThanFunc = function (target) {
-        var isLessThan = false;
-        if (target.value < expected) {
-          isLessThan = true;
+      case false:
+        lessThanFunc = function (target) {
+          var isLessThan = false;
+          if (target.value < expected) {
+            isLessThan = true;
+          }
+          return isLessThan;
         }
-        return isLessThan;
-      }
-    default:
-      lessThanFunc = function (target) {
-        var isLessThan = false;
-        if (target.value < expected) {
-          isLessThan = true;
+      default:
+        lessThanFunc = function (target) {
+          var isLessThan = false;
+          if (target.value < expected) {
+            isLessThan = true;
+          }
+          return isLessThan;
         }
-        return isLessThan;
-      }
-  }
+    }
 
-  return this.gradebook.grade({
-    callback: lessThanFunc,
-    not: this.gradeOpposite,
-    strictness: this.picky
-  })
+    var testResult = self.gradebook.grade({
+      callback: lessThanFunc,
+      not: self.gradeOpposite,
+      strictness: self.picky
+    });
+    self.onresult(testResult);
+  });
 };
 
 /**
@@ -1027,87 +1174,91 @@ TA.prototype.toBeLessThan = function(expected, orEqualTo) {
  * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
 TA.prototype.toBeInRange = function(lower, upper, lowerInclusive, upperInclusive) {
-  lowerInclusive = lowerInclusive || true;
-  upperInclusive = upperInclusive || true;
+  var self = this;
+  this.queue.add(function () {
+    lowerInclusive = lowerInclusive || true;
+    upperInclusive = upperInclusive || true;
 
-  // just in case someone screws up the order
-  if (lower > upper) {
-    var temp = lower;
-    lower = upper;
-    upper = temp;
-  };
+    // just in case someone screws up the order
+    if (lower > upper) {
+      var temp = lower;
+      lower = upper;
+      upper = temp;
+    };
 
-  var xIsLessThan = function () {};
-  switch (upperInclusive) {
-    case true:
-      xIsLessThan = function (target) {
-        var isInRange = false;
-        if (target.value <= upper) {
-          isInRange = true;
+    var xIsLessThan = function () {};
+    switch (upperInclusive) {
+      case true:
+        xIsLessThan = function (target) {
+          var isInRange = false;
+          if (target.value <= upper) {
+            isInRange = true;
+          }
+          return isInRange;
         }
-        return isInRange;
-      }
-    case false:
-      xIsLessThan = function (target) {
-        var isInRange = false;
-        if (target.value < upper) {
-          isInRange = true;
+      case false:
+        xIsLessThan = function (target) {
+          var isInRange = false;
+          if (target.value < upper) {
+            isInRange = true;
+          }
+          return isInRange;
         }
-        return isInRange;
-      }
-    default:
-      xIsLessThan = function (target) {
-        var isInRange = false;
-        if (target.value < upper) {
-          isInRange = true;
+      default:
+        xIsLessThan = function (target) {
+          var isInRange = false;
+          if (target.value < upper) {
+            isInRange = true;
+          }
+          return isInRange;
         }
-        return isInRange;
-      }
-  }
-
-  var xIsGreaterThan = function () {};
-  switch (lowerInclusive) {
-    case true:
-      xIsGreaterThan = function (target) {
-        var isInRange = false;
-        if (target.value >= lower) {
-          isInRange = true;
-        }
-        return isInRange;
-      }
-    case false:
-      xIsGreaterThan = function (target) {
-        var isInRange = false;
-        if (target.value > lower) {
-          isInRange = true;
-        }
-        return isInRange;
-      }
-    default:
-      xIsGreaterThan = function (target) {
-        var isInRange = false;
-        if (target.value > lower) {
-          isInRange = true;
-        }
-        return isInRange;
-      }
-  }
-
-  var inRangeFunc = function (target) {
-    var isInRange = false;
-    target.value = target.value.replace('px', '');
-    target.value = target.value.replace('%', '');
-    if (xIsLessThan(target) && xIsGreaterThan(target)) {
-      isInRange = true;
     }
-    return isInRange;
-  }
 
-  return this.gradebook.grade({
-    callback: inRangeFunc,
-    not: this.gradeOpposite,
-    strictness: this.picky
-  })
+    var xIsGreaterThan = function () {};
+    switch (lowerInclusive) {
+      case true:
+        xIsGreaterThan = function (target) {
+          var isInRange = false;
+          if (target.value >= lower) {
+            isInRange = true;
+          }
+          return isInRange;
+        }
+      case false:
+        xIsGreaterThan = function (target) {
+          var isInRange = false;
+          if (target.value > lower) {
+            isInRange = true;
+          }
+          return isInRange;
+        }
+      default:
+        xIsGreaterThan = function (target) {
+          var isInRange = false;
+          if (target.value > lower) {
+            isInRange = true;
+          }
+          return isInRange;
+        }
+    }
+
+    var inRangeFunc = function (target) {
+      var isInRange = false;
+      target.value = target.value.replace('px', '');
+      target.value = target.value.replace('%', '');
+      if (xIsLessThan(target) && xIsGreaterThan(target)) {
+        isInRange = true;
+      }
+      return isInRange;
+    }
+
+    var testResult = self.gradebook.grade({
+      callback: inRangeFunc,
+      not: self.gradeOpposite,
+      strictness: self.picky
+    });
+    self.onresult(testResult);
+  });
 };
 
 /**
@@ -1117,67 +1268,66 @@ TA.prototype.toBeInRange = function(lower, upper, lowerInclusive, upperInclusive
  * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
 TA.prototype.toHaveSubstring = function (expectedValues, config) {
-  config = config || {};
-
   var self = this;
-  // make sure expectedValues are an array
-  if (!(expectedValues instanceof Array)) {
-    expectedValues = [expectedValues];
-  };
+  this.queue.add(function () {
+    config = config || {};
 
-  var nInstances            = config.nInstances || false,   // TODO: not being used (is there a good use case?)
-      minInstances          = config.minInstances || 1,     // TODO: not being used
-      maxInstances          = config.maxInstances || false, // TODO: not being used
-      nValues               = config.nValues || false,
-      minValues             = config.minValues || 1,
-      maxValues             = config.maxValues || 'all';
-
-  if (maxValues === 'all') {
-    maxValues = expectedValues.length;
-  };
-
-  /**
-   * Is there a substring in a string? This will answer that question.
-   * @param  {object} target - the Target in question
-   * @return {boolean} - whether or not expected substring is in target.value
-   */
-  var substringFunc = function (target) {
-    var hasNumberOfValsExpected = false;
-    var hits = 0;
-    expectedValues.forEach(function(val, index, arr) {
-      if (target.value.search(val) > -1) {
-        hits+=1;
-      };
-    });
-
-    if (nValues) {
-      (hits === nValues) ? hasNumberOfValsExpected = true : hasNumberOfValsExpected = false;
-    } else if (hits >= minValues && hits <= maxValues) {
-      hasNumberOfValsExpected = true;
+    // make sure expectedValues are an array
+    if (!(expectedValues instanceof Array)) {
+      expectedValues = [expectedValues];
     };
-    return hasNumberOfValsExpected;
-  };
 
-  return this.gradebook.grade({
-    callback: substringFunc,
-    not: this.gradeOpposite,
-    strictness: this.picky
-  })
+    var nInstances   = config.nInstances || false,   // TODO: not being used (is there a good use case?)
+        minInstances = config.minInstances || 1,     // TODO: not being used
+        maxInstances = config.maxInstances || false, // TODO: not being used
+        nValues      = config.nValues || false,
+        minValues    = config.minValues || 1,
+        maxValues    = config.maxValues || 'all';
+
+    if (maxValues === 'all') {
+      maxValues = expectedValues.length;
+    };
+
+    /**
+     * Is there a substring in a string? This will answer that question.
+     * @param  {object} target - the Target in question
+     * @return {boolean} - whether or not expected substring is in target.value
+     */
+    var substringFunc = function (target) {
+      var hasNumberOfValsExpected = false;
+      var hits = 0;
+      expectedValues.forEach(function(val, index, arr) {
+        if (target.value.search(val) > -1) {
+          hits+=1;
+        };
+      });
+
+      if (nValues) {
+        (hits === nValues) ? hasNumberOfValsExpected = true : hasNumberOfValsExpected = false;
+      } else if (hits >= minValues && hits <= maxValues) {
+        hasNumberOfValsExpected = true;
+      };
+      return hasNumberOfValsExpected;
+    };
+
+    var testResult = self.gradebook.grade({
+      callback: substringFunc,
+      not: self.gradeOpposite,
+      strictness: self.picky
+    });
+    self.onresult(testResult);
+  });
 }
 function ActiveTest(rawTest) {
   var description = rawTest.description;
   var activeTest = rawTest.activeTest;
   var flags = rawTest.flags || {};
+  var id = parseInt(Math.random() * 1000000);
 
-  // TODO: validate flags
   // this specific validation is probably less than useful...
   if (flags.alwaysRun === undefined) {
     flags.alwaysRun = false;
   }
-
-  var parentSuiteName = rawTest.parentSuiteName;
-
-  var id = parseInt(Math.random() * 1000000);
 
   // TODO: move this out of here
   // validate the description.
@@ -1201,6 +1351,7 @@ function ActiveTest(rawTest) {
   this.id = id;
   this.testPassed = false;
   this.optional = flags.optional;
+  this.gradeRunner = function() {};
 
   this.iwant = new TA();
 };
@@ -1212,14 +1363,14 @@ function ActiveTest(rawTest) {
  */
 ActiveTest.prototype.hasPassed = function (didPass) {
   var attribute = null;
-  if (didPass === false) {
+  if (!didPass) {
     attribute = false;
   } else {
     attribute = true;
     this.testPassed = true;
     
     if (!this.flags.alwaysRun || this.flags.noRepeat) {
-      this.stop();
+      this.stopTest();
     };
   }
   this.element.setAttribute('test-passed', attribute);
@@ -1227,7 +1378,8 @@ ActiveTest.prototype.hasPassed = function (didPass) {
 };
 
 
-ActiveTest.prototype.runSyncTest = function () {
+// TODO: move this to the sandbox
+ActiveTest.prototype.runTest = function () {
   /*
   Run a synchronous activeTest every 1000 ms
   @param: none
@@ -1239,28 +1391,35 @@ ActiveTest.prototype.runSyncTest = function () {
   */
   var noRepeat = this.flags.noRepeat || false; // run only once on load
   var alwaysRun = this.flags.alwaysRun || false; // keep running even if test passes
-  var async = this.flags.async || false;  // async
-  var showCurrent = this.flags.showCurrent || false;  // TODO: show currently resolved value
   var optional = this.flags.optional || false; // test does not affect code display
 
-  var runTest = function () {
+  var testRunner = function () {
     // run the test
-    var testResult = self.activeTest(self.iwant);
-    var testCorrect = testResult.isCorrect || false;
-    
-    var testValues = '';
-    testResult.questions.forEach(function (val) {
-      testValues = testValues + ' ' + val.value;
-    })
+    var promise = new Promise(function (resolve, reject) {
+      // resolve when the test finishes
+      self.iwant.onresult = function (result) {
+        resolve(result);
+      };
+      // clean out the queue from the last run
+      self.iwant.queue.clear();
 
-    self.hasPassed(testCorrect);
+      self.activeTest(self.iwant);
+    }).then(function (resolve) {
+      var testCorrect = resolve.isCorrect || false;
+      var testValues = '';
+      resolve.questions.forEach(function (val) {
+        testValues = testValues + ' ' + val.value;
+      });
+
+      self.hasPassed(testCorrect);
+    });
   };
 
-  clearInterval(this.gradeRunner);
-  this.gradeRunner = setInterval(runTest, 1000);
+  // clearInterval(this.gradeRunner);
+  this.gradeRunner = setInterval(testRunner, 1000);
 };
 
-ActiveTest.prototype.stop = function () {
+ActiveTest.prototype.stopTest = function () {
   clearInterval(this.gradeRunner);
 };
 
@@ -1270,8 +1429,6 @@ ActiveTest.prototype.update = function (config) {
   var activeTest = config.activeTest || false;
   var flags = config.flags || false;
 
-  // TODO: validate these!!! move validation logic to its own method on ActiveTest?
-  // create setter for properties to check if valid???
   if (description) {
     this.description = description;
     this.element.setAttribute('description', this.description);
@@ -1283,7 +1440,7 @@ ActiveTest.prototype.update = function (config) {
     this.flags = flags;
   };
 
-  this.runSyncTest();
+  this.runTest();
 };
 function Suite(rawSuite) {
   var name = rawSuite.name;
@@ -1383,7 +1540,7 @@ Suite.prototype.createTest = function (rawTest) {
     description: test.description,
     passed: test.testPassed
   });
-  test.runSyncTest();
+  test.runTest();
   this.activeTests.push(test);
 };
 

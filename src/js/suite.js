@@ -96,7 +96,7 @@ Suite.prototype.createTest = function (rawTest) {
     description: test.description,
     passed: test.testPassed
   });
-  test.runSyncTest();
+  test.runTest();
   this.activeTests.push(test);
 };
 
