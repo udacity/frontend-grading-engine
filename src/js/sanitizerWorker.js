@@ -3,12 +3,16 @@ TODO: make sure no XHRs can happen
 * testMock gets rebuilt for every test. any way around this?
  */
 
-var testMock = {};
+var testMock = {
+  // testComponents: []
+};
 var testComponents = [];
 
 function compileMock (methods) {
+  testComponents = [];
   methods.forEach(function (method) {
     testMock[method] = function (param) {
+      console.log(method);
       testComponents.push({
         method: method,
         argument: param || null
@@ -16,15 +20,19 @@ function compileMock (methods) {
       return testMock;
     };
   });
+  console.log(testMock)
 };
 
+'iwant.thesenodes().not.toExist'
+
 function evalUserCode (uncleanActiveTest) {
-  testComponents = [];
   uncleanActiveTest = uncleanActiveTest.replace('iwant','testMock');
   try {
+    console.log('in')
     eval(uncleanActiveTest); // TODO: why THE FUCK is this only evaling the first method???
-    postMessage({activeTest: testComponents});
+    console.log('out')
   } catch (e) {
+    console.log(e)
     throw new Error("Illegal code in active test: " + e);
   };
   postMessage({activeTest: testComponents});
