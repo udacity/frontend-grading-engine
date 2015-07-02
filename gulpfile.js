@@ -10,7 +10,6 @@ var gulp = require('gulp'),
 var jsFiles = [
   'src/js/intro.js',
   'src/js/helpers.js',
-  'src/js/Concierge.js',
   'src/js/Queue.js',
   'src/js/Target.js',
   'src/js/GradeBook.js',
@@ -18,6 +17,7 @@ var jsFiles = [
   'src/js/TA/reporters.js',
   'src/js/ActiveTest.js',
   'src/js/Suite.js',
+  // 'src/js/sanitizer.js',
   'src/js/registrar.js',
   'src/js/outro.js'
 ];

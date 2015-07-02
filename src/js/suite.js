@@ -75,27 +75,29 @@ Suite.prototype.createTest = function (rawTest) {
   test.suite = this;
 
   function createTestElement(newTest) {
-    var activeTest = document.createElement('active-test');
-    var activeTests = test.suite.element.shadowRoot.querySelector('.active-tests');
-    // activeTest.testDefinition = newTest;
-    activeTest.setAttribute('description', newTest.description);
-    // TODO: make attributes hyphenated!!!
-    activeTest.setAttribute('test-passed', newTest.testPassed);
-    test.element = activeTest;
+    var activeTestElement = document.createElement('active-test');
     
-    activeTest.edit = function () {
-      // only coming in to the ActiveTest to grab a reference to the test for the tes editor
-      testWidget.editTest(test);
-    };
-
-    activeTests.appendChild(activeTest);
-    return activeTest;
+    // find the suite element to which the test belongs
+    var activeTestsContainer = test.suite.element.shadowRoot.querySelector('.active-tests');
+    // attributes get applied to the view
+    activeTestElement.setAttribute('description', newTest.description);
+    activeTestElement.setAttribute('test-passed', newTest.testPassed);
+    // give the element access to the actual test
+    // activeTestElement.activeTest = newTest.activeTest;
+    
+    // let the Test know which element belongs to it
+    test.element = activeTestElement;
+    
+    activeTestsContainer.appendChild(activeTestElement);
+    return activeTestElement;
   }
 
   test.element = createTestElement({
     description: test.description,
     passed: test.testPassed
+    // activeTest: test.activeTest
   });
+  // can't do this here because it needs to happen in the widget
   test.runTest();
   this.activeTests.push(test);
 };

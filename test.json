@@ -8,7 +8,7 @@
     },
     {
       "description": "smiley_face.png is gone",
-      "activeTest": "console.log('hiiii')"  
+      "activeTest": "iwant.theseNodes('img[src=\"images_src/fixed/smiley_face.png\"]').toExist;"  
     }
   ]
 }]

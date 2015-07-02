@@ -19,7 +19,7 @@ chrome.runtime.sendMessage({}, function(response) {
         link.rel = 'import';
         link.href = '/frontend-grading-engine/dist/feedback.html';
         document.head.appendChild(link);
-        
+
         link.onload = function(e) {
           console.log('Loaded Udacity feedback widget');
           injectGradingEngine();

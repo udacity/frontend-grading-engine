@@ -11,104 +11,32 @@ function handleFileSelect(evt) {
   var file = files[0];
 
   var reader = new FileReader();
-  reader.onload = (function (file) {
-    return function (e) {
-      if (file.type === 'application/json') {
-        
-        var invalidStrings = [
-          {
-            regex: 'document',
-            errorMessage: "No references to document are allowed in activeTests."
-          },
-          {
-            regex: 'window',
-            errorMessage: "No references to window are allowed in activeTests."
-          },
-          {
-            regex: 'event',
-            errorMessage: "No references to event are allowed in activeTests."
-          },
-          {
-            regex: '&&',
-            errorMessage: "No boolean operators are allowed in activeTests."
-          },
-          {
-            regex: '\|\|',
-            errorMessage: "No boolean operators are allowed in activeTests."
-          },
-          {
-            regex: 'appendChild',
-            errorMessage: "No DOM manipulation methods are allowed in activeTests."
-          },
-          {
-            regex: 'insertBefore',
-            errorMessage: "No DOM manipulation methods are allowed in activeTests."
-          },
-          {
-            regex: 'createElement',
-            errorMessage: "No DOM manipulation methods are allowed in activeTests."
-          },
-          {
-            regex: 'function\s?\(.*\)\s?\{.*\}',
-            errorMessage: "No function definitions are allowed in activeTests."
-          },
-          {
-            regex: 'function\s*\w*\s?\(.*\)\s?\{.*\}'
-            errorMessage: "No function definitions are allowed in activeTests."
-          },
-          {
-            regex: 'localStorage'
-            errorMessage: "No references to localStorage are allowed in activeTests."
-          },
-          {
-            regex: 'sessionStorage'
-            errorMessage: "No references to sessionStorage are allowed in activeTests."
-          },
-          {
-            regex: 'indexedDB'
-            errorMessage: "No references to indexedDB are allowed in activeTests."
-          },
-          {
-            regex: 'Worker'
-            errorMessage: "No references to Worker are allowed in activeTests."
-          },
-          {
-            // regex: 'new\s*\w*\s*(\(.*\))?', // necessary or overkill to check () at end?
-            regex: 'new',
-            errorMessage: "No references to Worker are allowed in activeTests."
-          }
-        ]
 
-        var requiredStrings = [
-          {
-            regex: '^iwant\.',
-            errorMessage: "Each activeTest much start with iwant."
-          }
-        ]
+  reader.onerror = function (e) {
+    document.querySelector('.is-testing').innerHTML = "Something went wrong: " + JSON.stringify(e);
+  };
 
-        // prompt users with exactly what tests will be added
-        // create a sandboxed iframe in testwidget
-        // run code in sandbox, send message to DOM to ask for info
-
-        sendFileToTab(e.target.result);
-      }
-    }
-  })(file);
-
-  reader.readAsText(file);
+  reader.onload = function (file) {
+    document.querySelector('.is-testing').innerHTML = "loaded?";
+      sendDataToTab(file.target.result);
+  };
+  
+  if (file.type === 'application/json') {
+    reader.readAsText(file);
+  }
 };
 
-function sendFileToTab(file) {
-  chrome.tabs.query({
-    active: true,
-    currentWindow: true},
-    function (arrayOfTabs) {
-      var activeTab = arrayOfTabs[0];
-      var activeTabId = activeTab.id;
-      document.querySelector('.is-testing').innerHTML = activeTabId;
-      chrome.tabs.sendMessage(activeTabId, file);
-    }
-  );
+function sendDataToTab(file) {
+  // actually post data to a tab
+  var fireOffData = function (arrayOfTabs) {
+    var activeTab = arrayOfTabs[0];
+    var activeTabId = activeTab.id;
+    document.querySelector('.is-testing').innerHTML = activeTabId;
+    chrome.tabs.sendMessage(activeTabId, file);
+  }
+
+  // get the current tab then send data to it
+  chrome.tabs.query({active: true, currentWindow: true}, fireOffData);
 };
 
 document.getElementById('ud-file-loader').addEventListener('change', handleFileSelect, false);

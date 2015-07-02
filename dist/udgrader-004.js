@@ -123,38 +123,6 @@ function executeFunctionByName(functionName, context) {
   }
   return context[func].apply(this, args);
 }
-var concierge = (function () {
-  // add listener for postMessage
-  window.addEventListener('message', function (e) {
-
-    var frame = document.getElementById('sandboxed');
-    if (e.origin === "null" && e.source === frame.contentWindow) {
-      // will need to figure out a way to work with different frames
-      // could the frame id be part of the message?
-      // or could I just use the source?
-      var data = getFromDOM(e.data) // TODO: I think it's e.data?
-
-      frame.postMessage(data);
-    }
-  })
-
-  function getFromDOM (selector) {
-    if (typeof selector !== 'string') {
-      return;
-    }
-    var results = getDomNodeArray(selector);
-    return results;
-  }
-
-  // TODO: once more network based tests become necessary
-  function getFromNetwork (url) {};
-
-  return {
-    // queryDocument: function (selector) {
-    //   var elements = getFromDOM(selector);
-    // };
-  }
-})();
 // Inspired by http://www.dustindiaz.com/async-method-queues
 // also helpful http://www.mattgreer.org/articles/promises-in-wicked-detail/
 
@@ -458,7 +426,7 @@ Object.defineProperties(TA.prototype, {
     get: function () {
       var self = this;
       this.queue.add(function () {
-        self.runAgainstBottomTargets(function (target) {
+        self._runAgainstBottomTargets(function (target) {
           var elem = target.element;
           var position = null;
           // TODO: correct for other non-normal DOM elems?
@@ -487,8 +455,8 @@ Object.defineProperties(TA.prototype, {
       var self = this;
       this.queue.add(function () {
         // doing more than accessing a property on existing target because counting can move up the bullseye to past Targets. Need to reset operations
-        self.registerOperation('count');
-        self.runAgainstNextToBottomTargets(function (target) {
+        self._registerOperation('count');
+        self._runAgainstNextToBottomTargets(function (target) {
           return target.children.length;
         });
       });
@@ -503,8 +471,8 @@ Object.defineProperties(TA.prototype, {
     get: function () {
       var self = this;
       this.queue.add(function () {
-        self.registerOperation('index');
-        self.runAgainstBottomTargets(function (target) {
+        self._registerOperation('index');
+        self._runAgainstBottomTargets(function (target) {
           return target.index;
         });
       });
@@ -519,8 +487,8 @@ Object.defineProperties(TA.prototype, {
     get: function () {
       var self = this;
       this.queue.add(function () {
-        self.registerOperation('innerHTML');
-        self.runAgainstBottomTargetElements(function (element) {
+        self._registerOperation('innerHTML');
+        self._runAgainstBottomTargetElements(function (element) {
           return element.innerHTML;
         });
       });
@@ -546,7 +514,7 @@ Object.defineProperties(TA.prototype, {
      * @return {integer} - the number of targets
      */
     get: function () {
-      return this.targetIds.length;
+      return this._targetIds.length;
     }
   },
   onlyOneOf: {
@@ -575,14 +543,14 @@ Object.defineProperties(TA.prototype, {
       return this;
     }
   },
-  targetIds: {
+  _targetIds: {
     /**
      * Not a collector! Private use only. Get an array of all target ids.
      * @return {array} ids of all targets in the bullseye.
      */
     get: function () {
       var ids = [];
-      this.traverseTargets(function (target) {
+      this._traverseTargets(function (target) {
         ids.push(target.id);
       });
       return ids;
@@ -613,7 +581,7 @@ TA.prototype.onresult = function (testResult) {};
  * Let the TA know this just happened and refresh the questions in the GradeBook.
  * @param {string} operation - the thing that just happened
  */
-TA.prototype.registerOperation = function (operation) {
+TA.prototype._registerOperation = function (operation) {
   this.operations.push(operation);
   this.gradebook.reset();
 };
@@ -622,7 +590,7 @@ TA.prototype.registerOperation = function (operation) {
  * Private method to traverse all targets in the bullseye.
  * @param  {Function} callback - method to call against each target
  */
-TA.prototype.traverseTargets = function (callback) {
+TA.prototype._traverseTargets = function (callback) {
   // http://www.timlabonne.com/2013/07/tree-traversals-with-javascript/
 
   /**
@@ -646,7 +614,7 @@ TA.prototype.traverseTargets = function (callback) {
  * Private use only! Run a function against the top-level Target in the bullseye
  * @param  {function} callback - the function to run against specified Targets
  */
-TA.prototype.runAgainstTopTargetOnly = function (callback) {
+TA.prototype._runAgainstTopTargetOnly = function (callback) {
   var self = this;
   this.target.value = callback(this.target);
 
@@ -663,12 +631,12 @@ TA.prototype.runAgainstTopTargetOnly = function (callback) {
  * Private use only! Run a function against bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified Targets
  */
-TA.prototype.runAgainstBottomTargets = function (callback) {
+TA.prototype._runAgainstBottomTargets = function (callback) {
   var self = this;
 
-  var allTargets = this.targetIds;
+  var allTargets = this._targetIds;
 
-  this.traverseTargets(function (target) {
+  this._traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target);
       
@@ -687,12 +655,12 @@ TA.prototype.runAgainstBottomTargets = function (callback) {
  * Private use only! Run a function against the elements of the bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified elements
  */
-TA.prototype.runAgainstBottomTargetElements = function (callback) {
+TA.prototype._runAgainstBottomTargetElements = function (callback) {
   var self = this;
 
-  var allTargets = this.targetIds;
+  var allTargets = this._targetIds;
 
-  this.traverseTargets(function (target) {
+  this._traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target.element);
       
@@ -711,10 +679,10 @@ TA.prototype.runAgainstBottomTargetElements = function (callback) {
  * Private use only! Run a function against the next to bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified elements
  */
-TA.prototype.runAgainstNextToBottomTargets = function (callback) {
+TA.prototype._runAgainstNextToBottomTargets = function (callback) {
   var self = this;
 
-  this.traverseTargets(function (target) {
+  this._traverseTargets(function (target) {
     if (target.hasChildren && !target.hasGrandkids) {
       target.value = callback(target);
       
@@ -737,11 +705,11 @@ TA.prototype.runAgainstNextToBottomTargets = function (callback) {
 TA.prototype.theseElements = function (selector) {
   var self = this;
   this.queue.add(function () {
-    self.registerOperation('gatherElements');
+    self._registerOperation('gatherElements');
 
     self.target = new Target();
 
-    self.runAgainstTopTargetOnly(function (topTarget) {
+    self._runAgainstTopTargetOnly(function (topTarget) {
       getDomNodeArray(selector).forEach(function (elem, index, arr) {
         var target = new Target();
         target.element = elem;
@@ -763,9 +731,9 @@ TA.prototype.theseNodes = TA.prototype.theseElements;
 TA.prototype.deepChildren = function (selector) {
   var self = this;
   this.queue.add(function () {
-    self.registerOperation('gatherDeepChildElements');
+    self._registerOperation('gatherDeepChildElements');
 
-    self.runAgainstBottomTargets(function (target) {
+    self._runAgainstBottomTargets(function (target) {
       getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
         var childTarget = new Target();
         childTarget.element = newElem;
@@ -784,9 +752,9 @@ TA.prototype.children = TA.prototype.deepChildren;
 TA.prototype.shallowChildren = function (selector) {
   var self = this;
   this.queue.add(function () {
-    self.registerOperation('gatherShallowChildElements');
+    self._registerOperation('gatherShallowChildElements');
 
-    self.runAgainstBottomTargets(function (target) {
+    self._runAgainstBottomTargets(function (target) {
       getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
         var childTarget = new Target();
         childTarget.element = newElem;
@@ -807,9 +775,9 @@ TA.prototype.shallowChildren = function (selector) {
 TA.prototype.cssProperty = function (property) {
   var self = this;
   this.queue.add(function () {
-    self.registerOperation('cssProperty');
+    self._registerOperation('cssProperty');
 
-    self.runAgainstBottomTargetElements(function (elem) {
+    self._runAgainstBottomTargetElements(function (elem) {
       var styles = getComputedStyle(elem);
       // TODO: this is causing a FSL that could affect framerate
       return styles[property];
@@ -826,9 +794,9 @@ TA.prototype.cssProperty = function (property) {
 TA.prototype.attribute = function (attribute) {
   var self = this;
   this.queue.add(function () {
-    self.registerOperation('attribute')
+    self._registerOperation('attribute')
 
-    self.runAgainstBottomTargetElements(function (elem) {
+    self._runAgainstBottomTargetElements(function (elem) {
       var attrValue = elem.getAttribute(attribute);
       if (attrValue === '') {
         attrValue = true;
@@ -847,7 +815,7 @@ TA.prototype.attribute = function (attribute) {
 TA.prototype.absolutePosition = function (side) {
   var self = this;
   this.queue.add(function () {
-    self.registerOperation('absolutePosition');
+    self._registerOperation('absolutePosition');
     // http://stackoverflow.com/questions/2880957/detect-inline-block-type-of-a-dom-element
     function getDisplayType (element) {
       var cStyle = element.currentStyle || window.getComputedStyle(element, ""); 
@@ -918,7 +886,7 @@ TA.prototype.absolutePosition = function (side) {
         break;
     };
 
-    self.runAgainstBottomTargetElements(function (elem) {
+    self._runAgainstBottomTargetElements(function (elem) {
       return selectorFunc(elem);
     });
   });
@@ -998,7 +966,7 @@ Object.defineProperties(TA.prototype, {
     get: function () {
       // TA returns a single value from the first Target hit with a value. Used to create vars in active_tests.
       var value = null;
-      this.runAgainstBottomTargets(function (target) {
+      this._runAgainstBottomTargets(function (target) {
         if (target.value) {
           value = target.value
         };
@@ -1018,7 +986,7 @@ Object.defineProperties(TA.prototype, {
       this.queue.add(function () {
         // TA returns a flat array of values. Used to create vars in active_tests.
         var values = [];
-        self.runAgainstBottomTargets(function (target) {
+        self._runAgainstBottomTargets(function (target) {
           if (target.value) {
             values.push(target.value);
           };
@@ -1034,7 +1002,6 @@ Object.defineProperties(TA.prototype, {
  * Check that question values match an expected value.
  * @param  {*} expected - any value to match against, but typically a string or int.
  * @param  {boolean} noStrict - check will run as === unless noStrict is true.
- * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
 TA.prototype.toEqual = function (expected, noStrict) {
   var self = this;
@@ -1073,7 +1040,6 @@ TA.prototype.toEqual = function (expected, noStrict) {
  * Check that the target value is greater than the given value.
  * @param  {Number} expected - the number for comparison
  * @param  {boolean} orEqualTo - if true, run as >= instead of >
- * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
 TA.prototype.toBeGreaterThan = function (expected, orEqualTo) {
   var self = this;
@@ -1121,7 +1087,6 @@ TA.prototype.toBeGreaterThan = function (expected, orEqualTo) {
  * Check that the target value is less than the given value.
  * @param  {Number} expected - the number for comparison
  * @param  {boolean} orEqualTo - if true, run as <= instead of <
- * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
 TA.prototype.toBeLessThan = function(expected, orEqualTo) {
   var self = this;
@@ -1171,7 +1136,6 @@ TA.prototype.toBeLessThan = function(expected, orEqualTo) {
  * @param  {Number} upper - the upper bounds of the comparison
  * @param  {Boolean} lowerInclusive - if true, run lower check as >= instead of >
  * @param  {Boolean} upperInclusive - if true, run upper check as <= instead of <
- * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
 TA.prototype.toBeInRange = function(lower, upper, lowerInclusive, upperInclusive) {
   var self = this;
@@ -1318,6 +1282,11 @@ TA.prototype.toHaveSubstring = function (expectedValues, config) {
     self.onresult(testResult);
   });
 }
+
+// get all the exposed methods so that the translator knows what's acceptable
+var taAvailableMethods = Object.getOwnPropertyNames(TA.prototype).filter(function (key) {
+  return key.indexOf('_') === -1 && key !== 'constructor';
+});
 function ActiveTest(rawTest) {
   var description = rawTest.description;
   var activeTest = rawTest.activeTest;
@@ -1519,27 +1488,29 @@ Suite.prototype.createTest = function (rawTest) {
   test.suite = this;
 
   function createTestElement(newTest) {
-    var activeTest = document.createElement('active-test');
-    var activeTests = test.suite.element.shadowRoot.querySelector('.active-tests');
-    // activeTest.testDefinition = newTest;
-    activeTest.setAttribute('description', newTest.description);
-    // TODO: make attributes hyphenated!!!
-    activeTest.setAttribute('test-passed', newTest.testPassed);
-    test.element = activeTest;
+    var activeTestElement = document.createElement('active-test');
     
-    activeTest.edit = function () {
-      // only coming in to the ActiveTest to grab a reference to the test for the tes editor
-      testWidget.editTest(test);
-    };
-
-    activeTests.appendChild(activeTest);
-    return activeTest;
+    // find the suite element to which the test belongs
+    var activeTestsContainer = test.suite.element.shadowRoot.querySelector('.active-tests');
+    // attributes get applied to the view
+    activeTestElement.setAttribute('description', newTest.description);
+    activeTestElement.setAttribute('test-passed', newTest.testPassed);
+    // give the element access to the actual test
+    // activeTestElement.activeTest = newTest.activeTest;
+    
+    // let the Test know which element belongs to it
+    test.element = activeTestElement;
+    
+    activeTestsContainer.appendChild(activeTestElement);
+    return activeTestElement;
   }
 
   test.element = createTestElement({
     description: test.description,
     passed: test.testPassed
+    // activeTest: test.activeTest
   });
+  // can't do this here because it needs to happen in the widget
   test.runTest();
   this.activeTests.push(test);
 };
@@ -1566,12 +1537,8 @@ Suite.prototype.checkTests = function () {
 */
 
 /*
-Assume that each web component has properties defined with attributes
-Use attributeChangedCallback on each web component to update its values
-
 The hotel simply changes the attributes on each web component
  */
-
 var hotel = {
   occupiedSuites: [],
   createSuite: function (rawSuite) {
@@ -1640,6 +1607,16 @@ function registerSuite(rawSuite) {
   }
 }
 
+function createWorkerPayload (type, data) {
+  return {
+    type: type,
+    activeTest: data,
+    methods: taAvailableMethods
+  }
+};
+
+var sanitizer = new Worker('/frontend-grading-engine/src/js/sanitizerWorker.js');
+
 // basically for use only when loading a new JSON with suites
 function registerSuites(suitesJSON) {
   var suites = JSON.parse(suitesJSON);
@@ -1650,13 +1627,22 @@ function registerSuites(suitesJSON) {
     });
 
     suite.tests.forEach(function (test) {
-      newSuite.registerTest({
-        description: test.description,
-        activeTest: new Function('return this.' + (test.activeTest || test.active_test)),
-        flags: test.flags
-      })
-    })
-  })
+      var promise = new Promise(function (resolve, reject) {
+        var payload = createWorkerPayload('activeTestString', test.activeTest || test.active_test);
+        sanitizer.postMessage(payload);
+        sanitizer.onmessage = function (e) {
+          resolve(e.data.activeTest/*, suite*/); // TODO: might be able to do without suite here
+        };
+      }).then(function (resolve) {
+        console.log(resolve);
+        newSuite.registerTest({
+          description: test.description,
+          activeTest: resolve, // TODO: resolve should be the clean test component array?
+          flags: test.flags
+        });
+      });
+    });
+  });
 };
 
 exports.registerSuite = registerSuite;

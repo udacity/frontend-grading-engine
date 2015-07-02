@@ -1,15 +1,10 @@
-At the moment
--------------
-* creating the concierge
-* running tests in an iframe instead
+NEW SAFETY STRATEGY
+-------------------
 
-ASYNC TA:
-either: http://www.dustindiaz.com/async-method-queues
-  - or -
-methods chained after theseNodes now simply queue up
-theseNodes is a promise, when it resolves, run through the queue
-  * but what about .children?
-  * are all methods now promises that, when resolved, call the next method in the queue?
+* Rather than executing arbitrary code willy-nilly, the TA simply creates a config object that gets passed to the GE.
+* You know what, fuck it, the TA basically stays the same. Concierge becomes the object that converts chained methods to an array of configs consisting of function, argument pairs.
+  - The conversion happens in a sandbox.
+
 
 Overall
 -------

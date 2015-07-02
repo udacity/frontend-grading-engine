@@ -14,12 +14,8 @@
 */
 
 /*
-Assume that each web component has properties defined with attributes
-Use attributeChangedCallback on each web component to update its values
-
 The hotel simply changes the attributes on each web component
  */
-
 var hotel = {
   occupiedSuites: [],
   createSuite: function (rawSuite) {
@@ -88,6 +84,16 @@ function registerSuite(rawSuite) {
   }
 }
 
+function createWorkerPayload (type, data) {
+  return {
+    type: type,
+    activeTest: data,
+    methods: taAvailableMethods
+  }
+};
+
+var sanitizer = new Worker('/frontend-grading-engine/src/js/sanitizerWorker.js');
+
 // basically for use only when loading a new JSON with suites
 function registerSuites(suitesJSON) {
   var suites = JSON.parse(suitesJSON);
@@ -98,13 +104,22 @@ function registerSuites(suitesJSON) {
     });
 
     suite.tests.forEach(function (test) {
-      newSuite.registerTest({
-        description: test.description,
-        activeTest: new Function('return this.' + (test.activeTest || test.active_test)),
-        flags: test.flags
-      })
-    })
-  })
+      var promise = new Promise(function (resolve, reject) {
+        var payload = createWorkerPayload('activeTestString', test.activeTest || test.active_test);
+        sanitizer.postMessage(payload);
+        sanitizer.onmessage = function (e) {
+          resolve(e.data.activeTest/*, suite*/); // TODO: might be able to do without suite here
+        };
+      }).then(function (resolve) {
+        console.log(resolve);
+        newSuite.registerTest({
+          description: test.description,
+          activeTest: resolve, // TODO: resolve should be the clean test component array?
+          flags: test.flags
+        });
+      });
+    });
+  });
 };
 
 exports.registerSuite = registerSuite;

@@ -37,7 +37,7 @@ Object.defineProperties(TA.prototype, {
     get: function () {
       var self = this;
       this.queue.add(function () {
-        self.runAgainstBottomTargets(function (target) {
+        self._runAgainstBottomTargets(function (target) {
           var elem = target.element;
           var position = null;
           // TODO: correct for other non-normal DOM elems?
@@ -66,8 +66,8 @@ Object.defineProperties(TA.prototype, {
       var self = this;
       this.queue.add(function () {
         // doing more than accessing a property on existing target because counting can move up the bullseye to past Targets. Need to reset operations
-        self.registerOperation('count');
-        self.runAgainstNextToBottomTargets(function (target) {
+        self._registerOperation('count');
+        self._runAgainstNextToBottomTargets(function (target) {
           return target.children.length;
         });
       });
@@ -82,8 +82,8 @@ Object.defineProperties(TA.prototype, {
     get: function () {
       var self = this;
       this.queue.add(function () {
-        self.registerOperation('index');
-        self.runAgainstBottomTargets(function (target) {
+        self._registerOperation('index');
+        self._runAgainstBottomTargets(function (target) {
           return target.index;
         });
       });
@@ -98,8 +98,8 @@ Object.defineProperties(TA.prototype, {
     get: function () {
       var self = this;
       this.queue.add(function () {
-        self.registerOperation('innerHTML');
-        self.runAgainstBottomTargetElements(function (element) {
+        self._registerOperation('innerHTML');
+        self._runAgainstBottomTargetElements(function (element) {
           return element.innerHTML;
         });
       });
@@ -125,7 +125,7 @@ Object.defineProperties(TA.prototype, {
      * @return {integer} - the number of targets
      */
     get: function () {
-      return this.targetIds.length;
+      return this._targetIds.length;
     }
   },
   onlyOneOf: {
@@ -154,14 +154,14 @@ Object.defineProperties(TA.prototype, {
       return this;
     }
   },
-  targetIds: {
+  _targetIds: {
     /**
      * Not a collector! Private use only. Get an array of all target ids.
      * @return {array} ids of all targets in the bullseye.
      */
     get: function () {
       var ids = [];
-      this.traverseTargets(function (target) {
+      this._traverseTargets(function (target) {
         ids.push(target.id);
       });
       return ids;
@@ -192,7 +192,7 @@ TA.prototype.onresult = function (testResult) {};
  * Let the TA know this just happened and refresh the questions in the GradeBook.
  * @param {string} operation - the thing that just happened
  */
-TA.prototype.registerOperation = function (operation) {
+TA.prototype._registerOperation = function (operation) {
   this.operations.push(operation);
   this.gradebook.reset();
 };
@@ -201,7 +201,7 @@ TA.prototype.registerOperation = function (operation) {
  * Private method to traverse all targets in the bullseye.
  * @param  {Function} callback - method to call against each target
  */
-TA.prototype.traverseTargets = function (callback) {
+TA.prototype._traverseTargets = function (callback) {
   // http://www.timlabonne.com/2013/07/tree-traversals-with-javascript/
 
   /**
@@ -225,7 +225,7 @@ TA.prototype.traverseTargets = function (callback) {
  * Private use only! Run a function against the top-level Target in the bullseye
  * @param  {function} callback - the function to run against specified Targets
  */
-TA.prototype.runAgainstTopTargetOnly = function (callback) {
+TA.prototype._runAgainstTopTargetOnly = function (callback) {
   var self = this;
   this.target.value = callback(this.target);
 
@@ -242,12 +242,12 @@ TA.prototype.runAgainstTopTargetOnly = function (callback) {
  * Private use only! Run a function against bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified Targets
  */
-TA.prototype.runAgainstBottomTargets = function (callback) {
+TA.prototype._runAgainstBottomTargets = function (callback) {
   var self = this;
 
-  var allTargets = this.targetIds;
+  var allTargets = this._targetIds;
 
-  this.traverseTargets(function (target) {
+  this._traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target);
       
@@ -266,12 +266,12 @@ TA.prototype.runAgainstBottomTargets = function (callback) {
  * Private use only! Run a function against the elements of the bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified elements
  */
-TA.prototype.runAgainstBottomTargetElements = function (callback) {
+TA.prototype._runAgainstBottomTargetElements = function (callback) {
   var self = this;
 
-  var allTargets = this.targetIds;
+  var allTargets = this._targetIds;
 
-  this.traverseTargets(function (target) {
+  this._traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target.element);
       
@@ -290,10 +290,10 @@ TA.prototype.runAgainstBottomTargetElements = function (callback) {
  * Private use only! Run a function against the next to bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified elements
  */
-TA.prototype.runAgainstNextToBottomTargets = function (callback) {
+TA.prototype._runAgainstNextToBottomTargets = function (callback) {
   var self = this;
 
-  this.traverseTargets(function (target) {
+  this._traverseTargets(function (target) {
     if (target.hasChildren && !target.hasGrandkids) {
       target.value = callback(target);
       
@@ -316,11 +316,11 @@ TA.prototype.runAgainstNextToBottomTargets = function (callback) {
 TA.prototype.theseElements = function (selector) {
   var self = this;
   this.queue.add(function () {
-    self.registerOperation('gatherElements');
+    self._registerOperation('gatherElements');
 
     self.target = new Target();
 
-    self.runAgainstTopTargetOnly(function (topTarget) {
+    self._runAgainstTopTargetOnly(function (topTarget) {
       getDomNodeArray(selector).forEach(function (elem, index, arr) {
         var target = new Target();
         target.element = elem;
@@ -342,9 +342,9 @@ TA.prototype.theseNodes = TA.prototype.theseElements;
 TA.prototype.deepChildren = function (selector) {
   var self = this;
   this.queue.add(function () {
-    self.registerOperation('gatherDeepChildElements');
+    self._registerOperation('gatherDeepChildElements');
 
-    self.runAgainstBottomTargets(function (target) {
+    self._runAgainstBottomTargets(function (target) {
       getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
         var childTarget = new Target();
         childTarget.element = newElem;
@@ -363,9 +363,9 @@ TA.prototype.children = TA.prototype.deepChildren;
 TA.prototype.shallowChildren = function (selector) {
   var self = this;
   this.queue.add(function () {
-    self.registerOperation('gatherShallowChildElements');
+    self._registerOperation('gatherShallowChildElements');
 
-    self.runAgainstBottomTargets(function (target) {
+    self._runAgainstBottomTargets(function (target) {
       getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
         var childTarget = new Target();
         childTarget.element = newElem;
@@ -386,9 +386,9 @@ TA.prototype.shallowChildren = function (selector) {
 TA.prototype.cssProperty = function (property) {
   var self = this;
   this.queue.add(function () {
-    self.registerOperation('cssProperty');
+    self._registerOperation('cssProperty');
 
-    self.runAgainstBottomTargetElements(function (elem) {
+    self._runAgainstBottomTargetElements(function (elem) {
       var styles = getComputedStyle(elem);
       // TODO: this is causing a FSL that could affect framerate
       return styles[property];
@@ -405,9 +405,9 @@ TA.prototype.cssProperty = function (property) {
 TA.prototype.attribute = function (attribute) {
   var self = this;
   this.queue.add(function () {
-    self.registerOperation('attribute')
+    self._registerOperation('attribute')
 
-    self.runAgainstBottomTargetElements(function (elem) {
+    self._runAgainstBottomTargetElements(function (elem) {
       var attrValue = elem.getAttribute(attribute);
       if (attrValue === '') {
         attrValue = true;
@@ -426,7 +426,7 @@ TA.prototype.attribute = function (attribute) {
 TA.prototype.absolutePosition = function (side) {
   var self = this;
   this.queue.add(function () {
-    self.registerOperation('absolutePosition');
+    self._registerOperation('absolutePosition');
     // http://stackoverflow.com/questions/2880957/detect-inline-block-type-of-a-dom-element
     function getDisplayType (element) {
       var cStyle = element.currentStyle || window.getComputedStyle(element, ""); 
@@ -497,7 +497,7 @@ TA.prototype.absolutePosition = function (side) {
         break;
     };
 
-    self.runAgainstBottomTargetElements(function (elem) {
+    self._runAgainstBottomTargetElements(function (elem) {
       return selectorFunc(elem);
     });
   });

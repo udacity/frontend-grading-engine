@@ -72,7 +72,7 @@ Object.defineProperties(TA.prototype, {
     get: function () {
       // TA returns a single value from the first Target hit with a value. Used to create vars in active_tests.
       var value = null;
-      this.runAgainstBottomTargets(function (target) {
+      this._runAgainstBottomTargets(function (target) {
         if (target.value) {
           value = target.value
         };
@@ -92,7 +92,7 @@ Object.defineProperties(TA.prototype, {
       this.queue.add(function () {
         // TA returns a flat array of values. Used to create vars in active_tests.
         var values = [];
-        self.runAgainstBottomTargets(function (target) {
+        self._runAgainstBottomTargets(function (target) {
           if (target.value) {
             values.push(target.value);
           };
@@ -108,7 +108,6 @@ Object.defineProperties(TA.prototype, {
  * Check that question values match an expected value.
  * @param  {*} expected - any value to match against, but typically a string or int.
  * @param  {boolean} noStrict - check will run as === unless noStrict is true.
- * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
 TA.prototype.toEqual = function (expected, noStrict) {
   var self = this;
@@ -147,7 +146,6 @@ TA.prototype.toEqual = function (expected, noStrict) {
  * Check that the target value is greater than the given value.
  * @param  {Number} expected - the number for comparison
  * @param  {boolean} orEqualTo - if true, run as >= instead of >
- * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
 TA.prototype.toBeGreaterThan = function (expected, orEqualTo) {
   var self = this;
@@ -195,7 +193,6 @@ TA.prototype.toBeGreaterThan = function (expected, orEqualTo) {
  * Check that the target value is less than the given value.
  * @param  {Number} expected - the number for comparison
  * @param  {boolean} orEqualTo - if true, run as <= instead of <
- * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
 TA.prototype.toBeLessThan = function(expected, orEqualTo) {
   var self = this;
@@ -245,7 +242,6 @@ TA.prototype.toBeLessThan = function(expected, orEqualTo) {
  * @param  {Number} upper - the upper bounds of the comparison
  * @param  {Boolean} lowerInclusive - if true, run lower check as >= instead of >
  * @param  {Boolean} upperInclusive - if true, run upper check as <= instead of <
- * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
 TA.prototype.toBeInRange = function(lower, upper, lowerInclusive, upperInclusive) {
   var self = this;
@@ -392,3 +388,8 @@ TA.prototype.toHaveSubstring = function (expectedValues, config) {
     self.onresult(testResult);
   });
 }
+
+// get all the exposed methods so that the translator knows what's acceptable
+var taAvailableMethods = Object.getOwnPropertyNames(TA.prototype).filter(function (key) {
+  return key.indexOf('_') === -1 && key !== 'constructor';
+});

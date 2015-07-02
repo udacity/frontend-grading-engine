@@ -24,10 +24,14 @@
   },
   "permissions": [
     "contextMenus",
-    "cookies",
+    // "cookies",
     "tabs",
     "http://udacity.github.io/*"
   ],
+  // "content_security_policy": "",
+  "sandbox": {
+    "pages": ["src/js/sanitizerWorker.js"]
+  },
   "content_scripts": [
     {
       "matches": [
