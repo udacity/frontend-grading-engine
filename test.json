@@ -4,11 +4,15 @@
   "tests": [
     {
       "description": "smiley_face.png is gone",
-      "activeTest": "iwant.theseNodes('img[src=\"images_src/fixed/smiley_face.png\"]').not.toExist;"
+      "definition": {
+        "nodes": "img[src=\"images_src/fixed/smiley_face.png\"]",
+        "not": true,
+        "toExist": true // TODO: even better, toExist: false
+      }
     },
     {
       "description": "smiley_face.png is gone",
-      "activeTest": "iwant.theseNodes('img[src=\"images_src/fixed/smiley_face.png\"]').toExist;"  
+      "definition": "iwant.theseNodes('img[src=\"images_src/fixed/smiley_face.png\"]').toExist;"  
     }
   ]
 }]

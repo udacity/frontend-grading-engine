@@ -17,7 +17,6 @@ var jsFiles = [
   'src/js/TA/reporters.js',
   'src/js/ActiveTest.js',
   'src/js/Suite.js',
-  // 'src/js/sanitizer.js',
   'src/js/registrar.js',
   'src/js/outro.js'
 ];

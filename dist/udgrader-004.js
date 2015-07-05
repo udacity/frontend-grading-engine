@@ -415,6 +415,13 @@ function TA() {
   this.gradeOpposite = false;
   this.picky = false;
   this.queue = new Queue();
+
+  this.translateConfigToMethods = function (config) {
+    // need to keep a running tally of all possible methods, their possible arguments, how many times they can get called, the correct order they can be called in
+    
+    // return an array of anonymous functions that are closed over this scope.
+  };
+
 };
 
 Object.defineProperties(TA.prototype, {
@@ -1287,26 +1294,45 @@ TA.prototype.toHaveSubstring = function (expectedValues, config) {
 var taAvailableMethods = Object.getOwnPropertyNames(TA.prototype).filter(function (key) {
   return key.indexOf('_') === -1 && key !== 'constructor';
 });
+
+// create a mock that calls the eponymous TA method with the specified scope
+function TAMock (scope) {
+  var TAMock = {};
+  taAvailableMethods.forEach(function (method) {
+    TAMock[method] = function () {
+      // convert arguments to an actual array for .apply
+      var args = [];
+      for (var i = 0; i < arguments.length; i++) {
+        args.push(arguments[i]);
+      }
+      // where scope is the this.iwant for the appropriate ActiveTest
+      scope[method].apply(scope, args)
+    };
+  });
+  return TAMock;
+}
 function ActiveTest(rawTest) {
-  var description = rawTest.description;
-  var activeTest = rawTest.activeTest;
-  var flags = rawTest.flags || {};
-  var id = parseInt(Math.random() * 1000000);
+  // will need to validate all of these
+  this.description = rawTest.description;
+  this.flags = rawTest.flags || {};
+  this.id = parseInt(Math.random() * 1000000);
+  this.testPassed = false;
+  // this.optional = flags.optional;
+  this.gradeRunner = function() {};
 
-  // this specific validation is probably less than useful...
-  if (flags.alwaysRun === undefined) {
-    flags.alwaysRun = false;
-  }
-
-  // TODO: move this out of here
+  // TODO: move this validation stuff out of here
   // validate the description.
   if (typeof description !== 'string') {
-    throw new TypeError('Every suite needs a description string.');
+    throw new TypeError("Every suite needs a description string.");
   }
 
   // validate the activeTest
-  if (typeof activeTest !== 'function') {
-    throw new TypeError('Every suite needs an activeTest function.');
+  // if (typeof activeTest !== 'function') {
+  //   throw new TypeError("Every suite needs an activeTest function or config.");
+  // }
+
+  if (typeof activeTest === 'object') {
+    // check methods here?
   }
 
   // validate the flags
@@ -1314,15 +1340,33 @@ function ActiveTest(rawTest) {
     throw new TypeError('If assigned, flags must be an object.');
   }
 
-  this.description = description;
-  this.activeTest = activeTest;
-  this.flags = flags;
-  this.id = id;
-  this.testPassed = false;
-  this.optional = flags.optional;
-  this.gradeRunner = function() {};
-
   this.iwant = new TA();
+
+  var self = this;
+  this.activeTest = (function (config) {
+    var methodsToQueue = [];
+
+    // TODO: parse the config
+    var methodsToQueue = self.iwant.translateConfigToMethods(config);
+
+    // TODO!: maybe the mock is unnecessary. Can I move all the scoping and queuing to translateConfigToMethods?
+
+    var taMock = new TAMock(self.iwant);
+
+    var queueUp = function () {
+      methodsToQueue.forEach(function (method) {
+        // hopefully call the right method on the mock, which should call the eponymous method on this.iwant
+        // taMock[method.name](method.arguments);
+        // TODO: if scoping works within tCTM, then I should just be able to call each method here instead.
+        method();
+      });
+    };
+
+    return {
+      queueUp: queueUp
+    }
+
+  })(rawTest.definition);
 };
 
 /**
@@ -1371,8 +1415,10 @@ ActiveTest.prototype.runTest = function () {
       };
       // clean out the queue from the last run
       self.iwant.queue.clear();
+      
+      // this call actually runs the test
+      self.activeTest.queueUp();
 
-      self.activeTest(self.iwant);
     }).then(function (resolve) {
       var testCorrect = resolve.isCorrect || false;
       var testValues = '';
@@ -1596,7 +1642,7 @@ function registerSuite(rawSuite) {
   function registerTest(_test) {
     newSuite.createTest({
       description: _test.description,
-      activeTest: _test.active_test || _test.activeTest, // accounts for old API
+      activeTest: _test.activeTest, // TODO: will break in a sec
       flags: _test.flags,
       iwant: new TA()
     })
@@ -1606,16 +1652,6 @@ function registerSuite(rawSuite) {
     registerTest: registerTest
   }
 }
-
-function createWorkerPayload (type, data) {
-  return {
-    type: type,
-    activeTest: data,
-    methods: taAvailableMethods
-  }
-};
-
-var sanitizer = new Worker('/frontend-grading-engine/src/js/sanitizerWorker.js');
 
 // basically for use only when loading a new JSON with suites
 function registerSuites(suitesJSON) {
@@ -1627,19 +1663,10 @@ function registerSuites(suitesJSON) {
     });
 
     suite.tests.forEach(function (test) {
-      var promise = new Promise(function (resolve, reject) {
-        var payload = createWorkerPayload('activeTestString', test.activeTest || test.active_test);
-        sanitizer.postMessage(payload);
-        sanitizer.onmessage = function (e) {
-          resolve(e.data.activeTest/*, suite*/); // TODO: might be able to do without suite here
-        };
-      }).then(function (resolve) {
-        console.log(resolve);
-        newSuite.registerTest({
-          description: test.description,
-          activeTest: resolve, // TODO: resolve should be the clean test component array?
-          flags: test.flags
-        });
+      newSuite.registerTest({
+        description: test.description,
+        activeTestConfig: test.definition,
+        flags: test.flags
       });
     });
   });

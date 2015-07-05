@@ -73,7 +73,7 @@ function registerSuite(rawSuite) {
   function registerTest(_test) {
     newSuite.createTest({
       description: _test.description,
-      activeTest: _test.active_test || _test.activeTest, // accounts for old API
+      activeTest: _test.activeTest, // TODO: will break in a sec
       flags: _test.flags,
       iwant: new TA()
     })
@@ -83,16 +83,6 @@ function registerSuite(rawSuite) {
     registerTest: registerTest
   }
 }
-
-function createWorkerPayload (type, data) {
-  return {
-    type: type,
-    activeTest: data,
-    methods: taAvailableMethods
-  }
-};
-
-var sanitizer = new Worker('/frontend-grading-engine/src/js/sanitizerWorker.js');
 
 // basically for use only when loading a new JSON with suites
 function registerSuites(suitesJSON) {
@@ -104,19 +94,10 @@ function registerSuites(suitesJSON) {
     });
 
     suite.tests.forEach(function (test) {
-      var promise = new Promise(function (resolve, reject) {
-        var payload = createWorkerPayload('activeTestString', test.activeTest || test.active_test);
-        sanitizer.postMessage(payload);
-        sanitizer.onmessage = function (e) {
-          resolve(e.data.activeTest/*, suite*/); // TODO: might be able to do without suite here
-        };
-      }).then(function (resolve) {
-        console.log(resolve);
-        newSuite.registerTest({
-          description: test.description,
-          activeTest: resolve, // TODO: resolve should be the clean test component array?
-          flags: test.flags
-        });
+      newSuite.registerTest({
+        description: test.description,
+        activeTestConfig: test.definition,
+        flags: test.flags
       });
     });
   });

@@ -26,6 +26,13 @@ function TA() {
   this.gradeOpposite = false;
   this.picky = false;
   this.queue = new Queue();
+
+  this.translateConfigToMethods = function (config) {
+    // need to keep a running tally of all possible methods, their possible arguments, how many times they can get called, the correct order they can be called in
+    
+    // return an array of anonymous functions that are closed over this scope.
+  };
+
 };
 
 Object.defineProperties(TA.prototype, {

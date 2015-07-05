@@ -1,23 +1,25 @@
 function ActiveTest(rawTest) {
-  var description = rawTest.description;
-  var activeTest = rawTest.activeTest;
-  var flags = rawTest.flags || {};
-  var id = parseInt(Math.random() * 1000000);
+  // will need to validate all of these
+  this.description = rawTest.description;
+  this.flags = rawTest.flags || {};
+  this.id = parseInt(Math.random() * 1000000);
+  this.testPassed = false;
+  // this.optional = flags.optional;
+  this.gradeRunner = function() {};
 
-  // this specific validation is probably less than useful...
-  if (flags.alwaysRun === undefined) {
-    flags.alwaysRun = false;
-  }
-
-  // TODO: move this out of here
+  // TODO: move this validation stuff out of here
   // validate the description.
   if (typeof description !== 'string') {
-    throw new TypeError('Every suite needs a description string.');
+    throw new TypeError("Every suite needs a description string.");
   }
 
   // validate the activeTest
-  if (typeof activeTest !== 'function') {
-    throw new TypeError('Every suite needs an activeTest function.');
+  // if (typeof activeTest !== 'function') {
+  //   throw new TypeError("Every suite needs an activeTest function or config.");
+  // }
+
+  if (typeof activeTest === 'object') {
+    // check methods here?
   }
 
   // validate the flags
@@ -25,15 +27,33 @@ function ActiveTest(rawTest) {
     throw new TypeError('If assigned, flags must be an object.');
   }
 
-  this.description = description;
-  this.activeTest = activeTest;
-  this.flags = flags;
-  this.id = id;
-  this.testPassed = false;
-  this.optional = flags.optional;
-  this.gradeRunner = function() {};
-
   this.iwant = new TA();
+
+  var self = this;
+  this.activeTest = (function (config) {
+    var methodsToQueue = [];
+
+    // TODO: parse the config
+    var methodsToQueue = self.iwant.translateConfigToMethods(config);
+
+    // TODO!: maybe the mock is unnecessary. Can I move all the scoping and queuing to translateConfigToMethods?
+
+    var taMock = new TAMock(self.iwant);
+
+    var queueUp = function () {
+      methodsToQueue.forEach(function (method) {
+        // hopefully call the right method on the mock, which should call the eponymous method on this.iwant
+        // taMock[method.name](method.arguments);
+        // TODO: if scoping works within tCTM, then I should just be able to call each method here instead.
+        method();
+      });
+    };
+
+    return {
+      queueUp: queueUp
+    }
+
+  })(rawTest.definition);
 };
 
 /**
@@ -82,8 +102,10 @@ ActiveTest.prototype.runTest = function () {
       };
       // clean out the queue from the last run
       self.iwant.queue.clear();
+      
+      // this call actually runs the test
+      self.activeTest.queueUp();
 
-      self.activeTest(self.iwant);
     }).then(function (resolve) {
       var testCorrect = resolve.isCorrect || false;
       var testValues = '';

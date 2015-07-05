@@ -68,9 +68,6 @@ This component holds a single test.
     <div class="flex-container">
       <div class="mark incorrect"><span class="test-desc"></span><span class="test-result"></span></div>
     </div>
-    <iframe id="sandboxed">
-      <head></head>
-    </iframe>
   </div>
 </template>
 <script>
@@ -96,19 +93,6 @@ This component holds a single test.
     */
     proto.attachedCallback = function() {
       self = this;
-
-      // TODO: when sandboxing is a go again
-      // var iframe = self.shadowRoot.querySelector('iframe');
-      // iframe.sandbox = 'allow-scripts';
-
-      // var script = document.createElement('script');
-      // script.innerHTML = "console.log(chrome)";
-      // iframe.contentDocument.head.appendChild(script);
-      // script.innerHTML = '(' + self.activeTest.toString() + ')()';
-      // script.iwant = "hi"
-
-      // self.shadowRoot.querySelector('.active-test').appendChild(iframe);
-
       updateView();
     };
 

@@ -393,3 +393,20 @@ TA.prototype.toHaveSubstring = function (expectedValues, config) {
 var taAvailableMethods = Object.getOwnPropertyNames(TA.prototype).filter(function (key) {
   return key.indexOf('_') === -1 && key !== 'constructor';
 });
+
+// create a mock that calls the eponymous TA method with the specified scope
+function TAMock (scope) {
+  var TAMock = {};
+  taAvailableMethods.forEach(function (method) {
+    TAMock[method] = function () {
+      // convert arguments to an actual array for .apply
+      var args = [];
+      for (var i = 0; i < arguments.length; i++) {
+        args.push(arguments[i]);
+      }
+      // where scope is the this.iwant for the appropriate ActiveTest
+      scope[method].apply(scope, args)
+    };
+  });
+  return TAMock;
+}
