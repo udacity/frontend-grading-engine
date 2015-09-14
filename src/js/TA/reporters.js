@@ -15,104 +15,91 @@ Reporters live on the TA and are responsible for:
 
  */
 
-Object.defineProperties(TA.prototype, {
-  toExist: {
-    /**
-     * Checks that either values or elements exist on questions in GradeBook.
-     * @return {object} result - the GradeBook's list of questions and overall correctness.
-     */
-    get: function() {
-      var self = this;
-      this.queue.add(function () {
-        var typeOfOperation = self.operations[self.operations.length - 1];
+/**
+ * Checks that either values or elements exist on questions in GradeBook.
+ */
+TA.prototype.exists = function (bool) {
+  var self = this;
 
-        var doesExistFunc = function () {};
-        switch (typeOfOperation) {
-          case 'gatherElements':
-            doesExistFunc = function (topTarget) {
-              console.log('hi')
-              return topTarget.children.length > 0;
-            };
-            break;
-          case 'gatherDeepChildElements':
-            doesExistFunc = function (target) {
-              var hasElement = false;
-              if (target.element) {
-                hasElement = true;
-              }
-              return hasElement;
-            };
-            break;
-          default:
-            doesExistFunc = function (target) {
-              var doesExist = false;
-              if (target.value || target.element) {
-                doesExist = true;
-              }
-              return doesExist
-            }
-            break;
-        }
-
-        var testResult = self.gradebook.grade({
-          callback: doesExistFunc,
-          not: self.gradeOpposite,
-          strictness: self.picky
-        });
-        self.onresult(testResult);
-      });
-    }
-  },
-  value: {
-    /**
-     * Use for debug purposes only. Returns the first value found on the bullseye.
-     * @return {*} value - the value retrieved.
-     */
-    // TODO: see if this is broken now that async tests run
-    get: function () {
-      // TA returns a single value from the first Target hit with a value. Used to create vars in active_tests.
-      var value = null;
-      this._runAgainstBottomTargets(function (target) {
-        if (target.value) {
-          value = target.value
-        };
-        return target.value;
-      });
-      return value;
-    }
-  },
-  values: {
-    /**
-     * Use for debug purposes only. Returns all values found on the bullseye.
-     * @return {[]} values - all the values retrieved.
-     */
-    // TODO: see if this is broken now that async tests run
-    get: function () {
-      var self = this;
-      this.queue.add(function () {
-        // TA returns a flat array of values. Used to create vars in active_tests.
-        var values = [];
-        self._runAgainstBottomTargets(function (target) {
-          if (target.value) {
-            values.push(target.value);
-          };
-          return target.value;
-        });
-        return values;
-      });
-    }
+  // to account for "exists": false
+  // bool must actually be false
+  if (bool === false && typeof bool === 'boolean') {
+    self.not(true);
   }
-})
+
+  this.queue.add(function () {
+    var typeOfOperation = self.operations[self.operations.length - 1];
+
+    var doesExistFunc = function () {};
+    switch (typeOfOperation) {
+      case 'gatherElements':
+        doesExistFunc = function (topTarget) {
+          return topTarget.children.length > 0;
+        };
+        break;
+      case 'gatherDeepChildElements':
+        doesExistFunc = function (target) {
+          var hasElement = false;
+          if (target.element) {
+            hasElement = true;
+          }
+          return hasElement;
+        };
+        break;
+      default:
+        doesExistFunc = function (target) {
+          var doesExist = false;
+          if (target.value || target.element) {
+            doesExist = true;
+          }
+          return doesExist
+        }
+        break;
+    }
+
+    var testResult = self.gradebook.grade({
+      callback: doesExistFunc,
+      not: self.gradeOpposite,
+      strictness: self.picky
+    });
+    self.onresult(testResult);
+  });
+}
+
+
+/**
+ * Used by the GradeBook to negate the correctness of a test.
+ * @param  {Boolean} bool The gradeOpposite param gets set to this. Will default to true if it isn't present or is not specifically false.
+ */
+TA.prototype.not = function (bool) {
+  var self = this;
+  
+  if (typeof bool !== 'boolean') {
+    bool = true;
+  }
+  
+  this.queue.add(function () {
+    if (bool) {
+      self.gradeOpposite = !self.gradeOpposite;
+    }
+  });
+};
 
 /**
  * Check that question values match an expected value.
  * @param  {*} expected - any value to match against, but typically a string or int.
  * @param  {boolean} noStrict - check will run as === unless noStrict is true.
  */
-TA.prototype.toEqual = function (expected, noStrict) {
+TA.prototype.equals = function (config) {
   var self = this;
   this.queue.add(function () {
-    noStrict = noStrict || false;
+    var expected, noStrict;
+    if (typeof config === 'object') {
+      expected = config.expected,
+      noStrict = config.noStrict || false;
+    } else {
+      expected = config;
+    }
     
     var equalityFunc = function() {};
     switch (noStrict) {
@@ -147,10 +134,11 @@ TA.prototype.toEqual = function (expected, noStrict) {
  * @param  {Number} expected - the number for comparison
  * @param  {boolean} orEqualTo - if true, run as >= instead of >
  */
-TA.prototype.toBeGreaterThan = function (expected, orEqualTo) {
+TA.prototype.isGreaterThan = function (config) {
   var self = this;
   this.queue.add(function () {
-    orEqualTo = orEqualTo || false;
+    var expected = config.expected,
+        orEqualTo = config.orEqualTo || false;
 
     var greaterThanFunc = function() {};
     switch (orEqualTo) {
@@ -194,10 +182,11 @@ TA.prototype.toBeGreaterThan = function (expected, orEqualTo) {
  * @param  {Number} expected - the number for comparison
  * @param  {boolean} orEqualTo - if true, run as <= instead of <
  */
-TA.prototype.toBeLessThan = function(expected, orEqualTo) {
+TA.prototype.isLessThan = function(config) {
   var self = this;
   this.queue.add(function () {
-    orEqualTo = orEqualTo || false;
+    var expected = config.expected,
+        orEqualTo = config.orEqualTo || false;
 
     var lessThanFunc = function() {};
     switch (orEqualTo) {
@@ -243,11 +232,13 @@ TA.prototype.toBeLessThan = function(expected, orEqualTo) {
  * @param  {Boolean} lowerInclusive - if true, run lower check as >= instead of >
  * @param  {Boolean} upperInclusive - if true, run upper check as <= instead of <
  */
-TA.prototype.toBeInRange = function(lower, upper, lowerInclusive, upperInclusive) {
+TA.prototype.isInRange = function(config) {
   var self = this;
   this.queue.add(function () {
-    lowerInclusive = lowerInclusive || true;
-    upperInclusive = upperInclusive || true;
+    var lower = config.lower,
+        upper = config.upper,
+        lowerInclusive = config.lowerInclusive || true,
+        upperInclusive = config.upperInclusive || true;
 
     // just in case someone screws up the order
     if (lower > upper) {
@@ -337,20 +328,18 @@ TA.prototype.toBeInRange = function(lower, upper, lowerInclusive, upperInclusive
  * @param  {Object} config - includes: nValues, minValues, maxValues. Designate the number of values in expectedValues expected to be found in the target value. Defaults to at least one value needs to be found.
  * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
-TA.prototype.toHaveSubstring = function (expectedValues, config) {
+TA.prototype.hasSubstring = function (config) {
   var self = this;
   this.queue.add(function () {
     config = config || {};
+    var expectedValues = config.expectedValues;
 
     // make sure expectedValues are an array
     if (!(expectedValues instanceof Array)) {
       expectedValues = [expectedValues];
     };
 
-    var nInstances   = config.nInstances || false,   // TODO: not being used (is there a good use case?)
-        minInstances = config.minInstances || 1,     // TODO: not being used
-        maxInstances = config.maxInstances || false, // TODO: not being used
-        nValues      = config.nValues || false,
+    var nValues      = config.nValues || false,
         minValues    = config.minValues || 1,
         maxValues    = config.maxValues || 'all';
 
@@ -394,19 +383,34 @@ var taAvailableMethods = Object.getOwnPropertyNames(TA.prototype).filter(functio
   return key.indexOf('_') === -1 && key !== 'constructor';
 });
 
-// create a mock that calls the eponymous TA method with the specified scope
-function TAMock (scope) {
-  var TAMock = {};
-  taAvailableMethods.forEach(function (method) {
-    TAMock[method] = function () {
-      // convert arguments to an actual array for .apply
-      var args = [];
-      for (var i = 0; i < arguments.length; i++) {
-        args.push(arguments[i]);
+TA.prototype.translateConfigToMethods = function (config) {
+  var self = this;
+  // return an array of anonymous functions that are closed over this scope.
+  var methods = [];
+  
+  // so either nodes or elements works in config object
+  config['nodes'] = config['nodes'] || config['elements'];
+  
+  var definitions = Object.keys(config);
+
+  // TODO: ensure that definitions are in the correct order for the TA to work.
+  // Pretty sure this is necessary? Not 100%
+  // Might need to add other methods to ensure the right order.
+  // definitions.sort(function (a, b) {
+  //   if (a.indexOf('nodes') > -1) {
+  //     return -1;
+  //   }
+  // });
+
+  methods = definitions.map(function (method) {
+    return function () {
+      try {
+        self[method](config[method]);
+      } catch (e) {
+        throw new Error("Method '" + method + "' did not execute. " + e);
       }
-      // where scope is the this.iwant for the appropriate ActiveTest
-      scope[method].apply(scope, args)
-    };
+    }
   });
-  return TAMock;
-}
+
+  return methods;
+};

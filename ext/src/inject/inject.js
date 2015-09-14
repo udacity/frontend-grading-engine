@@ -29,7 +29,15 @@ chrome.runtime.sendMessage({}, function(response) {
         }
       };
 
+      function loadTests (json) {
+        var newTestSuites = document.createElement('script');
+        newTestSuites.innerHTML = 'GE.registerSuites(' + JSON.stringify(json) + ');';
+        document.body.appendChild(newTestSuites);
+      };
+
       // TODO: make sure the grader isn't already on the page
+      // TODO: make sure CSP is cool
+      // TODO: inject a JSON instead?
       function injectGradingEngine() {
         var ge = document.createElement('script');
         ge.src = '/frontend-grading-engine/dist/udgrader-004.js';
@@ -38,20 +46,26 @@ chrome.runtime.sendMessage({}, function(response) {
         ge.onload = function (e) {
           var preDefinedTestSuites = document.querySelector('meta[name="udacity-grader"]') || false;
           if (preDefinedTestSuites) {
-            var testSuiteDefinitions = document.createElement('script');
+            // TODO: inject a small script that calls GE.registerTests against the JSON? can I install a watcher with the GE that looks for JSONs being injected?
+            // var testSuiteDefinitions = document.createElement('script');
             testSuiteDefinitions.src = '/frontend-grading-engine/ext/tests/' + preDefinedTestSuites.content;
             document.body.appendChild(testSuiteDefinitions);
+
+            // TODO: actually write this. can I get a nice, lite version of just $.ajax?
+            // http://blog.garstasio.com/you-dont-need-jquery/ajax/
+            $.ajax('/frontend-grading-engine/ext/tests/' + preDefinedTestSuites.content, loadTests)
           }
         };
       };
 
       chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-        var newTestSuites = document.createElement('script');
+        // var newTestSuites = document.createElement('script');
 
         // Yes, this is kind of a hack and I'm ok with that.
         // You don't have access to the GE here, but you can inject a script into the document that does.
-        newTestSuites.innerHTML = 'GE.registerSuites(' + JSON.stringify(message) + ')';
-        document.body.appendChild(newTestSuites);
+        // newTestSuites.innerHTML = 'GE.registerSuites(' + JSON.stringify(message) + ');';
+        // document.body.appendChild(newTestSuites);
+        loadTests(message);
       })
 
       injectWidgets();

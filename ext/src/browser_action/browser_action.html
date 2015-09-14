@@ -1,37 +1,43 @@
 <!doctype html>
 <style type="text/css">
-	#mainPopup {
-		padding: 10px;
-		height: 200px;
-		width: 800px;
-		font-family: Helvetica, Ubuntu, Arial, sans-serif;
+	#main {
+		margin: 1em;
+		height: 100%;
+    width: 30em;
+		/*font-family: Helvetica, Ubuntu, Arial, sans-serif;*/
+    font-family: 'Source Sans Pro', sans-serif;
 	}
 	h1 {
-		font-size: 2em;
+		font-size: 3em;
 	}
+  .alert {
+    color: #78F;
+    display: none;
+  }
+  .loader {
+    margin-bottom: 1em;
+  }
+  .loader-description {
+    margin-bottom: 1em;
+  }
 </style>
 
-<div id="mainPopup">
-  <h2>Udacity Feedback Settings</h2>
-  <h3>Beta!</h3>
-  <div>
-    <label for="switch">Activate feedback for this site?</label>
+<div id="main">
+  <h3>Udacity Feedback Settings beta</h3>
+  <div class="autorun">
+    <label for="switch">Allow feedback on this site?</label>
     <form>
-      <input name="switch" type="radio" value="yes">Yes
-      <input name="switch" type="radio" value="no" checked>No
+      <input name="switch" type="radio" value="yes" checked>Yes
+      <input name="switch" type="radio" value="no">No
     </form>
   </div>
-  <div>
-    <h4>Load New Tests</h4>
-    <input id="ud-file-loader" type="file">
+  <div class="loader">
+    <h4>Load Tests</h4>
+    <div class="loader-description">
+      Load tests to run against the current website. Click <a href="https://github.com/udacity/frontend-grading-engine" target="_blank">here</a> to learn how to write your own tests.
+    </div>
+    <input id="ud-file-loader" type="file" />
+    <div class="alert"></div>
   </div>
-  <div>
-    <h4>Save Current Tests</h4>
-  </div>
-  <button id="test">Test!!!</button>
-  <div class="is-testing">hasn't changed</div>
-  
-  <output id="list">List</output>
-  <div id="the-file">Contents</div>
 </div>
 <script src="browser_action.js"></script>

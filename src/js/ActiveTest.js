@@ -9,7 +9,7 @@ function ActiveTest(rawTest) {
 
   // TODO: move this validation stuff out of here
   // validate the description.
-  if (typeof description !== 'string') {
+  if (typeof this.description !== 'string') {
     throw new TypeError("Every suite needs a description string.");
   }
 
@@ -18,12 +18,12 @@ function ActiveTest(rawTest) {
   //   throw new TypeError("Every suite needs an activeTest function or config.");
   // }
 
-  if (typeof activeTest === 'object') {
-    // check methods here?
-  }
+  // if (typeof activeTest === 'object') {
+  //   // check methods here?
+  // }
 
   // validate the flags
-  if (typeof flags !== 'object') {
+  if (typeof this.flags !== 'object') {
     throw new TypeError('If assigned, flags must be an object.');
   }
 
@@ -31,20 +31,10 @@ function ActiveTest(rawTest) {
 
   var self = this;
   this.activeTest = (function (config) {
-    var methodsToQueue = [];
-
-    // TODO: parse the config
     var methodsToQueue = self.iwant.translateConfigToMethods(config);
-
-    // TODO!: maybe the mock is unnecessary. Can I move all the scoping and queuing to translateConfigToMethods?
-
-    var taMock = new TAMock(self.iwant);
 
     var queueUp = function () {
       methodsToQueue.forEach(function (method) {
-        // hopefully call the right method on the mock, which should call the eponymous method on this.iwant
-        // taMock[method.name](method.arguments);
-        // TODO: if scoping works within tCTM, then I should just be able to call each method here instead.
         method();
       });
     };
@@ -142,5 +132,6 @@ ActiveTest.prototype.update = function (config) {
     this.flags = flags;
   };
 
+  // TODO: this won't work!
   this.runTest();
 };

@@ -73,9 +73,8 @@ function registerSuite(rawSuite) {
   function registerTest(_test) {
     newSuite.createTest({
       description: _test.description,
-      activeTest: _test.activeTest, // TODO: will break in a sec
-      flags: _test.flags,
-      iwant: new TA()
+      definition: _test.definition,
+      flags: _test.flags
     })
     return self;
   }
@@ -86,8 +85,12 @@ function registerSuite(rawSuite) {
 
 // basically for use only when loading a new JSON with suites
 function registerSuites(suitesJSON) {
-  var suites = JSON.parse(suitesJSON);
-  suites.forEach(function (suite, index, arr) {
+  try {
+    var suites = JSON.parse(suitesJSON);
+  } catch (e) {
+    throw new TypeError("Invalid JSON format." + e);
+  }
+  suites.forEach(function (suite) {
     var newSuite = registerSuite({
       name: suite.name,
       code: suite.code
@@ -96,12 +99,12 @@ function registerSuites(suitesJSON) {
     suite.tests.forEach(function (test) {
       newSuite.registerTest({
         description: test.description,
-        activeTestConfig: test.definition,
+        definition: test.definition,
         flags: test.flags
       });
     });
   });
 };
 
-exports.registerSuite = registerSuite;
+// exports.registerSuite = registerSuite;
 exports.registerSuites = registerSuites;

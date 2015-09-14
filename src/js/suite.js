@@ -94,11 +94,12 @@ Suite.prototype.createTest = function (rawTest) {
 
   test.element = createTestElement({
     description: test.description,
-    passed: test.testPassed
+    passed: test.testPassed,
     // activeTest: test.activeTest
+    definition: test.definition
   });
   // can't do this here because it needs to happen in the widget
-  test.runTest();
+  // test.runTest();
   this.activeTests.push(test);
 };
 

@@ -1,11 +1,3 @@
-NEW SAFETY STRATEGY
--------------------
-
-* Rather than executing arbitrary code willy-nilly, the TA simply creates a config object that gets passed to the GE.
-* You know what, fuck it, the TA basically stays the same. Concierge becomes the object that converts chained methods to an array of configs consisting of function, argument pairs.
-  - The conversion happens in a sandbox.
-
-
 Overall
 -------
 
@@ -26,7 +18,6 @@ Flags:
 New:
 * click and draggable widget window
 * pinnable widget window
-* load tests from JSON file
 * browser action
   * toggle button to show/hide feedback within browser action
   * turn on / turn off
@@ -34,7 +25,8 @@ New:
 * better UI
 * show current on widget
 * interactive GUI for test editor
-* use a service worker to handle loading the engine and template resources?
+* more limits
+* style output: https://developer.chrome.com/devtools/docs/console#styling-console-output-with-css
 
 Documenting:
 * new README

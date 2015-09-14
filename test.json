@@ -3,16 +3,19 @@
   "code": "whatevs",
   "tests": [
     {
-      "description": "smiley_face.png is gone",
+      "description": "2 images. should fail",
       "definition": {
-        "nodes": "img[src=\"images_src/fixed/smiley_face.png\"]",
-        "not": true,
-        "toExist": true // TODO: even better, toExist: false
+        "nodes": "img",
+        "get": "count",
+        "equals": 8
       }
     },
     {
       "description": "smiley_face.png is gone",
-      "definition": "iwant.theseNodes('img[src=\"images_src/fixed/smiley_face.png\"]').toExist;"  
+      "definition": {
+        "nodes": "img[src=\"images_src/fixed/smiley_face.png\"]",
+        "exists": false
+      }
     }
   ]
 }]

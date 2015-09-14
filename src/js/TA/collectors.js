@@ -26,13 +26,6 @@ function TA() {
   this.gradeOpposite = false;
   this.picky = false;
   this.queue = new Queue();
-
-  this.translateConfigToMethods = function (config) {
-    // need to keep a running tally of all possible methods, their possible arguments, how many times they can get called, the correct order they can be called in
-    
-    // return an array of anonymous functions that are closed over this scope.
-  };
-
 };
 
 Object.defineProperties(TA.prototype, {
@@ -49,7 +42,7 @@ Object.defineProperties(TA.prototype, {
           var position = null;
           // TODO: correct for other non-normal DOM elems?
           var ignoreTheseNodes = 0;
-          Array.prototype.slice.apply(target.element.parentNode.children).forEach(function(val, index, arr) {
+          Array.prototype.slice.apply(target.element.parentNode.children).forEach(function (val, index) {
             if (val.nodeName === '#text') {
               ignoreTheseNodes += 1;
             }
@@ -81,6 +74,7 @@ Object.defineProperties(TA.prototype, {
       return this;
     }
   },
+  // TODO: delete because it isn't being used???
   index: {
     /**
      * To find the index of a target from when it was created.
@@ -113,19 +107,7 @@ Object.defineProperties(TA.prototype, {
       return this;
     }
   },
-  not: {
-    /**
-     * Not a collector! Used by the GradeBook to negate the correctness of a test.
-     * @return {object} TA - the TA instance for chaining.
-     */
-    get: function () {
-      var self = this;
-      this.queue.add(function () {
-        self.gradeOpposite = true;
-      });
-      return this;
-    }
-  },
+  // TODO: delete if not being used
   numberOfTargets: {
     /**
      * Not a collector! Private use only. Find the total number of targets in the bullseye.
@@ -158,7 +140,6 @@ Object.defineProperties(TA.prototype, {
       this.queue.add(function () {
         self.picky = 'someOf';
       });
-      return this;
     }
   },
   _targetIds: {
@@ -171,7 +152,6 @@ Object.defineProperties(TA.prototype, {
       this._traverseTargets(function (target) {
         ids.push(target.id);
       });
-      return ids;
     }
   },
   UAString: {
@@ -185,7 +165,6 @@ Object.defineProperties(TA.prototype, {
         self.operations = navigator.userAgent;
         self.documentValueSpecified = navigator.userAgent;
       });
-      return this;
     }
   }
 })
@@ -339,7 +318,7 @@ TA.prototype.theseElements = function (selector) {
   return this;
 }
 // for legacy quizzes
-TA.prototype.theseNodes = TA.prototype.theseElements;
+TA.prototype.nodes = TA.prototype.theseElements;
 
 /**
  * Will run a query against the lowest level targets in the Target tree. Note it will traverse all the way down the DOM.
@@ -360,8 +339,6 @@ TA.prototype.deepChildren = function (selector) {
       });
     });
   });
-
-  return this;
 };
 // for alternate syntax options
 TA.prototype.children = TA.prototype.deepChildren;
@@ -382,7 +359,42 @@ TA.prototype.shallowChildren = function (selector) {
     });
 
   });
-  return this;
+};
+
+TA.prototype.get = function (typeOfValue) {
+  var self = this;
+  switch (typeOfValue) {
+    case 'count':
+      self.count;
+      break;
+    case 'childPosition':
+      self.childPosition;
+      break;
+    case 'innerHTML':
+      self.innerHTML;
+      break;
+    case 'UAString':
+      self.UAString;
+      break;
+    default:
+      throw new Error("Cannot 'get': " + typeOfValue + ".");
+      break;
+  }
+};
+
+TA.prototype.limit = function (byHowMuch) {
+  var self = this;
+  switch (byHowMuch) {
+    case 1:
+      self.onlyOneOf;
+      break;
+    case 'some':
+      self.someOf;
+      break;
+    default:
+      throw new Error("Illegal 'limit'. Options include: 1 or 'some'.");
+      break;
+  }
 };
 
 /**
