@@ -36,8 +36,6 @@ chrome.runtime.sendMessage({}, function(response) {
       };
 
       // TODO: make sure the grader isn't already on the page
-      // TODO: make sure CSP is cool
-      // TODO: inject a JSON instead?
       function injectGradingEngine() {
         var ge = document.createElement('script');
         ge.src = '/frontend-grading-engine/dist/udgrader-004.js';
@@ -53,7 +51,7 @@ chrome.runtime.sendMessage({}, function(response) {
 
             // TODO: actually write this. can I get a nice, lite version of just $.ajax?
             // http://blog.garstasio.com/you-dont-need-jquery/ajax/
-            $.ajax('/frontend-grading-engine/ext/tests/' + preDefinedTestSuites.content, loadTests)
+            // $.ajax('/frontend-grading-engine/ext/tests/' + preDefinedTestSuites.content, loadTests)
           }
         };
       };
@@ -63,8 +61,6 @@ chrome.runtime.sendMessage({}, function(response) {
 
         // Yes, this is kind of a hack and I'm ok with that.
         // You don't have access to the GE here, but you can inject a script into the document that does.
-        // newTestSuites.innerHTML = 'GE.registerSuites(' + JSON.stringify(message) + ');';
-        // document.body.appendChild(newTestSuites);
         loadTests(message);
       })
 

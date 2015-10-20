@@ -1,14 +1,4 @@
-
-/***
- *      _______                  _____                       _                
- *     |__   __|/\              |  __ \                     | |               
- *        | |  /  \     ______  | |__) |___ _ __   ___  _ __| |_ ___ _ __ ___ 
- *        | | / /\ \   |______| |  _  // _ \ '_ \ / _ \| '__| __/ _ \ '__/ __|
- *        | |/ ____ \           | | \ \  __/ |_) | (_) | |  | ||  __/ |  \__ \
- *        |_/_/    \_\          |_|  \_\___| .__/ \___/|_|   \__\___|_|  |___/
- *                                         | |                                
- *                                         |_|                                
- 
+/**
 Reporters live on the TA and are responsible for:
   * giving the GradeBook instructions for evaluating the questions it has collected.
   * instantiating the grading process by calling gradebook.grade()

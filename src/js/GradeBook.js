@@ -1,14 +1,4 @@
-
-/***
- *       _____               _      ____              _    
- *      / ____|             | |    |  _ \            | |   
- *     | |  __ _ __ __ _  __| | ___| |_) | ___   ___ | | __
- *     | | |_ | '__/ _` |/ _` |/ _ \  _ < / _ \ / _ \| |/ /
- *     | |__| | | | (_| | (_| |  __/ |_) | (_) | (_) |   < 
- *      \_____|_|  \__,_|\__,_|\___|____/ \___/ \___/|_|\_\
- *                                                         
- *                                                         
-
+/**
 The GradeBook maintains and reports on the state of a set of questions registered by the TA. The GradeBook reports out on the final state of each active_test.
 */
 

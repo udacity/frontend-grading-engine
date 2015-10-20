@@ -1,22 +1,10 @@
-
-/***
- *      _______                   _   
- *     |__   __|                 | |  
- *        | | __ _ _ __ __ _  ___| |_ 
- *        | |/ _` | '__/ _` |/ _ \ __|
- *        | | (_| | | | (_| |  __/ |_ 
- *        |_|\__,_|_|  \__, |\___|\__|
- *                      __/ |         
- *                     |___/          
- 
-An instance of a Target represents a piece of information about the page.
-
+/**
 Targets are:
   * nested into a tree-like structure called a bullseye
   * usually mapped 1:1 with DOM elements
 
 The top-level target living directly on the TA will not map to any element. But it contains children which do map 1:1 with elements.
-*/
+ */
 
 /**
  * Target constructor sets the target defaults. It includes a unique id number for private tracking.

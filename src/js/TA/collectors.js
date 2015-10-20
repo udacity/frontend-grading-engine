@@ -1,14 +1,4 @@
-
-/***
- *      _______                   _____      _ _           _                 
- *     |__   __|/\               / ____|    | | |         | |                
- *        | |  /  \     ______  | |     ___ | | | ___  ___| |_ ___  _ __ ___ 
- *        | | / /\ \   |______| | |    / _ \| | |/ _ \/ __| __/ _ \| '__/ __|
- *        | |/ ____ \           | |___| (_) | | |  __/ (__| || (_) | |  \__ \
- *        |_/_/    \_\           \_____\___/|_|_|\___|\___|\__\___/|_|  |___/
- *                                                                           
- *                                                                                   
-
+/**
 The Teaching Assistant (TA) is responsible for:
   * collecting data from the page and creating a tree of Targets (called a bullseye) representing the information
   * traverseing the bullseye and reporting relevant data from Targets and grading instructions into a GradeBook.
@@ -231,7 +221,9 @@ TA.prototype._runAgainstTopTargetOnly = function (callback) {
 TA.prototype._runAgainstBottomTargets = function (callback) {
   var self = this;
 
-  var allTargets = this._targetIds;
+  var allTargets = this._targetIds || [];
+
+  console.log(allTargets);
 
   this._traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {

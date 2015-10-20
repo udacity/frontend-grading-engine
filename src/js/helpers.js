@@ -1,18 +1,3 @@
-
-/***
- *     _   _      _                     
- *    | | | |    | |                    
- *    | |_| | ___| |_ __   ___ _ __ ___ 
- *    |  _  |/ _ \ | '_ \ / _ \ '__/ __|
- *    | | | |  __/ | |_) |  __/ |  \__ \
- *    \_| |_/\___|_| .__/ \___|_|  |___/
- *                 | |                  
- *                 |_|                  
- */
- /*
-    Wonderful functions to make life easier.
- */
-
 // http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
 function arrEquals(array1, array2) {
   if (!array1 || !array2)
@@ -33,7 +18,7 @@ function arrEquals(array1, array2) {
 
 /**
  * Creates an Array of DOM nodes that match the selector
- * @param  {string} CSS selector - selector to match against
+ * @param selector {string} CSS selector - selector to match against
  * @param  {DOM node} parent - parent for starting point
  * @return {array} Array of DOM nodes
  */

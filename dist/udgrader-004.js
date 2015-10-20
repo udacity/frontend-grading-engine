@@ -1,30 +1,21 @@
-/***
- *    ______ _____   _____               _ _               _____            _            
- *    |  ___|  ___| |  __ \             | (_)             |  ___|          (_)           
- *    | |_  | |__   | |  \/_ __ __ _  __| |_ _ __   __ _  | |__ _ __   __ _ _ _ __   ___ 
- *    |  _| |  __|  | | __| '__/ _` |/ _` | | '_ \ / _` | |  __| '_ \ / _` | | '_ \ / _ \
- *    | |   | |___  | |_\ \ | | (_| | (_| | | | | | (_| | | |__| | | | (_| | | | | |  __/
- *    \_|   \____/   \____/_|  \__,_|\__,_|_|_| |_|\__, | \____/_| |_|\__, |_|_| |_|\___|
- *                                                  __/ |              __/ |             
- *                                                 |___/              |___/              
- */
-/*                    Udacity's library for immediate front-end feedback.
+/*
+Udacity's library for immediate front-end feedback.
 
-                  Version:      0.4
-                  Tech:         HTML Imports,
-                                Custom Elements,
-                                gulp
-                  url:          http://github.com/udacity/frontend-grading-engine
-                  author:       Cameron Pittman
-                              
-                              New for version 0.4!
-                                * Now a Chrome Extension!
-                                * Editable tests! (inluding totally rewritten view logic)
-          
-                              New for version 0.3!
-                                * Better security!
-                                * Better encapsulation!
-                                * Chaining test methods
+Version:      0.4
+Tech:         HTML Imports,
+              Custom Elements,
+              gulp
+url:          http://github.com/udacity/frontend-grading-engine
+author:       Cameron Pittman
+            
+            New for version 0.4!
+              * Now a Chrome Extension!
+              * Editable tests! (inluding totally rewritten view logic)
+
+            New for version 0.3!
+              * Better security!
+              * Better encapsulation!
+              * Chaining test methods
 
 Lexicon:
   * Active Test:    A test running against the page. Some logic returns true/false.
@@ -34,8 +25,6 @@ Lexicon:
 
   * Widget:         A collection of Test Suites.
                     Lives as a shadow DOM that exists as a child on the body.
-
-  * Engine:         The logic used to compare some active tests with the document.
 */
 
 /**
@@ -46,21 +35,6 @@ Lexicon:
   'use strict';
   var exports = {};
   var debugMode = false;
-
-/***
- *     _   _      _                     
- *    | | | |    | |                    
- *    | |_| | ___| |_ __   ___ _ __ ___ 
- *    |  _  |/ _ \ | '_ \ / _ \ '__/ __|
- *    | | | |  __/ | |_) |  __/ |  \__ \
- *    \_| |_/\___|_| .__/ \___|_|  |___/
- *                 | |                  
- *                 |_|                  
- */
- /*
-    Wonderful functions to make life easier.
- */
-
 // http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
 function arrEquals(array1, array2) {
   if (!array1 || !array2)
@@ -81,7 +55,7 @@ function arrEquals(array1, array2) {
 
 /**
  * Creates an Array of DOM nodes that match the selector
- * @param  {string} CSS selector - selector to match against
+ * @param selector {string} CSS selector - selector to match against
  * @param  {DOM node} parent - parent for starting point
  * @return {array} Array of DOM nodes
  */
@@ -126,7 +100,6 @@ function executeFunctionByName(functionName, context) {
 // Inspired by http://www.dustindiaz.com/async-method-queues
 // also helpful http://www.mattgreer.org/articles/promises-in-wicked-detail/
 
-
 function Queue() {
   this._methods = [];
   this._flushing = false;
@@ -168,25 +141,13 @@ Queue.prototype = {
     })
   }
 };
-
-/***
- *      _______                   _   
- *     |__   __|                 | |  
- *        | | __ _ _ __ __ _  ___| |_ 
- *        | |/ _` | '__/ _` |/ _ \ __|
- *        | | (_| | | | (_| |  __/ |_ 
- *        |_|\__,_|_|  \__, |\___|\__|
- *                      __/ |         
- *                     |___/          
- 
-An instance of a Target represents a piece of information about the page.
-
+/**
 Targets are:
   * nested into a tree-like structure called a bullseye
   * usually mapped 1:1 with DOM elements
 
 The top-level target living directly on the TA will not map to any element. But it contains children which do map 1:1 with elements.
-*/
+ */
 
 /**
  * Target constructor sets the target defaults. It includes a unique id number for private tracking.
@@ -241,17 +202,7 @@ Object.defineProperties(Target.prototype, {
     }
   }
 });
-
-/***
- *       _____               _      ____              _    
- *      / ____|             | |    |  _ \            | |   
- *     | |  __ _ __ __ _  __| | ___| |_) | ___   ___ | | __
- *     | | |_ | '__/ _` |/ _` |/ _ \  _ < / _ \ / _ \| |/ /
- *     | |__| | | | (_| | (_| |  __/ |_) | (_) | (_) |   < 
- *      \_____|_|  \__,_|\__,_|\___|____/ \___/ \___/|_|\_\
- *                                                         
- *                                                         
-
+/**
 The GradeBook maintains and reports on the state of a set of questions registered by the TA. The GradeBook reports out on the final state of each active_test.
 */
 
@@ -387,17 +338,7 @@ GradeBook.prototype.grade = function (config) {
   };
   return this.report;
 };
-
-/***
- *      _______                   _____      _ _           _                 
- *     |__   __|/\               / ____|    | | |         | |                
- *        | |  /  \     ______  | |     ___ | | | ___  ___| |_ ___  _ __ ___ 
- *        | | / /\ \   |______| | |    / _ \| | |/ _ \/ __| __/ _ \| '__/ __|
- *        | |/ ____ \           | |___| (_) | | |  __/ (__| || (_) | |  \__ \
- *        |_/_/    \_\           \_____\___/|_|_|\___|\___|\__\___/|_|  |___/
- *                                                                           
- *                                                                                   
-
+/**
 The Teaching Assistant (TA) is responsible for:
   * collecting data from the page and creating a tree of Targets (called a bullseye) representing the information
   * traverseing the bullseye and reporting relevant data from Targets and grading instructions into a GradeBook.
@@ -620,7 +561,9 @@ TA.prototype._runAgainstTopTargetOnly = function (callback) {
 TA.prototype._runAgainstBottomTargets = function (callback) {
   var self = this;
 
-  var allTargets = this._targetIds;
+  var allTargets = this._targetIds || [];
+
+  console.log(allTargets);
 
   this._traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
@@ -911,17 +854,7 @@ TA.prototype.absolutePosition = function (side) {
   });
   return this;
 };
-
-/***
- *      _______                  _____                       _                
- *     |__   __|/\              |  __ \                     | |               
- *        | |  /  \     ______  | |__) |___ _ __   ___  _ __| |_ ___ _ __ ___ 
- *        | | / /\ \   |______| |  _  // _ \ '_ \ / _ \| '__| __/ _ \ '__/ __|
- *        | |/ ____ \           | | \ \  __/ |_) | (_) | |  | ||  __/ |  \__ \
- *        |_/_/    \_\          |_|  \_\___| .__/ \___/|_|   \__\___|_|  |___/
- *                                         | |                                
- *                                         |_|                                
- 
+/**
 Reporters live on the TA and are responsible for:
   * giving the GradeBook instructions for evaluating the questions it has collected.
   * instantiating the grading process by calling gradebook.grade()
@@ -1560,11 +1493,12 @@ Suite.prototype.createTest = function (rawTest) {
 
   test.element = createTestElement({
     description: test.description,
-    passed: test.testPassed
+    passed: test.testPassed,
     // activeTest: test.activeTest
+    definition: test.definition
   });
   // can't do this here because it needs to happen in the widget
-  test.runTest();
+  // test.runTest();
   this.activeTests.push(test);
 };
 
@@ -1574,17 +1508,6 @@ Suite.prototype.checkTests = function () {
   this.element.suitePassed = passed;
   this.element.setAttribute('suite-passed', passed);
 };
-
-/***
-*    ______           _     _                  
-*    | ___ \         (_)   | |                 
-*    | |_/ /___  __ _ _ ___| |_ _ __ __ _ _ __ 
-*    |    // _ \/ _` | / __| __| '__/ _` | '__|
-*    | |\ \  __/ (_| | \__ \ |_| | | (_| | |   
-*    \_| \_\___|\__, |_|___/\__|_|  \__,_|_|   
-*                __/ |                         
-*               |___/                          
-*/
 /*
   Expose functions that create and monitor tests.
 */
@@ -1684,29 +1607,5 @@ function registerSuites(suitesJSON) {
 
 // exports.registerSuite = registerSuite;
 exports.registerSuites = registerSuites;
-
-/***
- *     _____ _            _____          _   
- *    |_   _| |          |  ___|        | |  
- *      | | | |__   ___  | |__ _ __   __| |  
- *      | | | '_ \ / _ \ |  __| '_ \ / _` |  
- *      | | | | | |  __/ | |__| | | | (_| |_ 
- *      \_/ |_| |_|\___| \____/_| |_|\__,_(_)
- *                                           
- *                                           
- */
- /*
-    Why an IIFE? All the encapsulated goodness.
- */
-function debugMode() {
-  debugMode = !debugMode;
-};
-exports.debugMode = debugMode;
-
-// TODO
-function pause() {
-};
-// exports.pause = pause;
-
 return exports;
 }( window ));
