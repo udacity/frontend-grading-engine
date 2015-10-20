@@ -4,7 +4,6 @@ var gulp = require('gulp'),
     concat = require('gulp-continuous-concat'),
     debug = require('gulp-debug'),
     replace = require('gulp-replace'),
-    babel = require('gulp-babel'),
     vulcanize = require('gulp-vulcanize');
 
 var jsFiles = [
