@@ -1,6 +1,7 @@
 {
-  "name": "Udacity External Grader (beta)",
-  "version": "0.05",
+  "name": "Udacity Front End Feedback",
+  "short_name": "Udacity Feedback",
+  "version": "0.0.5",
   "manifest_version": 2,
   "description": "Run tests against any page.",
   "homepage_url": "http://github.com/udacity/frontend-grading-engine",
