@@ -42,5 +42,9 @@
         "src/inject/inject.js"
       ]
     }
+  ],
+  "web_accessible_resources": [
+    "js/*.js",
+    "templates/*.html"
   ]
 }

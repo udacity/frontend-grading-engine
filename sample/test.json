@@ -1,20 +1,13 @@
 [{
-  "name": "project part deux",
-  "code": "whatevs",
+  "name": "Test Name",
+  "code": "testcode",
   "tests": [
     {
-      "description": "2 images. should fail",
+      "description": "There are 15 divs (just delete one)",
       "definition": {
-        "nodes": "img",
+        "nodes": "div",
         "get": "count",
-        "equals": 8
-      }
-    },
-    {
-      "description": "smiley_face.png is gone",
-      "definition": {
-        "nodes": "img[src=\"images_src/fixed/smiley_face.png\"]",
-        "exists": false
+        "equals": 15
       }
     }
   ]

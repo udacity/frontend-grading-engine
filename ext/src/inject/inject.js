@@ -4,20 +4,11 @@ chrome.runtime.sendMessage({}, function(response) {
       clearInterval(readyStateCheckInterval);
       
       function injectWidgets() {
-        function supportsImports() {
-          return 'import' in document.createElement('link');
-        }
-        if (supportsImports()) {
-          // Cool!
-        } else {
-          // Use other libraries/require systems to load files.
-          alert("You must use the latest version of Google Chrome to get feedback and a code for this quiz. Sorry!");
-        }
-
         // import templates
         var link = document.createElement('link');
         link.rel = 'import';
-        link.href = '/frontend-grading-engine/dist/feedback.html';
+
+        link.href = chrome.extension.getURL('templates/feedback.html');
         document.head.appendChild(link);
 
         link.onload = function(e) {
@@ -29,42 +20,42 @@ chrome.runtime.sendMessage({}, function(response) {
         }
       };
 
+      // You don't have access to the GE here, but you can inject a script into the document that does.
       function loadTests (json) {
         var newTestSuites = document.createElement('script');
         newTestSuites.innerHTML = 'GE.registerSuites(' + JSON.stringify(json) + ');';
         document.body.appendChild(newTestSuites);
       };
 
-      // TODO: make sure the grader isn't already on the page
       function injectGradingEngine() {
         var ge = document.createElement('script');
-        ge.src = '/frontend-grading-engine/dist/udgrader-004.js';
+        ge.src = chrome.extension.getURL('js/udgrader-004.js');
+        ge.setAttribute('ud-grader', true);
         document.body.appendChild(ge);
 
         ge.onload = function (e) {
+          // can't load tests until the grading engine has loaded. loadTests() needs GE
           var preDefinedTestSuites = document.querySelector('meta[name="udacity-grader"]') || false;
           if (preDefinedTestSuites) {
-            // TODO: inject a small script that calls GE.registerTests against the JSON? can I install a watcher with the GE that looks for JSONs being injected?
-            // var testSuiteDefinitions = document.createElement('script');
-            testSuiteDefinitions.src = '/frontend-grading-engine/ext/tests/' + preDefinedTestSuites.content;
-            document.body.appendChild(testSuiteDefinitions);
-
-            // TODO: actually write this. can I get a nice, lite version of just $.ajax?
-            // http://blog.garstasio.com/you-dont-need-jquery/ajax/
-            // $.ajax('/frontend-grading-engine/ext/tests/' + preDefinedTestSuites.content, loadTests)
+            // http://stackoverflow.com/a/14274828
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function(){
+              if(xmlhttp.status == 200 && xmlhttp.readyState == 4){
+                loadTests(xmlhttp.responseText);
+              }
+            };
+            xmlhttp.open("GET",preDefinedTestSuites.content,true);
+            xmlhttp.send();
           }
         };
       };
 
       chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-        // var newTestSuites = document.createElement('script');
-
-        // Yes, this is kind of a hack and I'm ok with that.
-        // You don't have access to the GE here, but you can inject a script into the document that does.
         loadTests(message);
       })
-
+      
       injectWidgets();
+
     }
   }, 10);
 });

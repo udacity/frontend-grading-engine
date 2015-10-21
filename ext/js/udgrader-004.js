@@ -1275,15 +1275,6 @@ function ActiveTest(rawTest) {
     throw new TypeError("Every suite needs a description string.");
   }
 
-  // validate the activeTest
-  // if (typeof activeTest !== 'function') {
-  //   throw new TypeError("Every suite needs an activeTest function or config.");
-  // }
-
-  // if (typeof activeTest === 'object') {
-  //   // check methods here?
-  // }
-
   // validate the flags
   if (typeof this.flags !== 'object') {
     throw new TypeError('If assigned, flags must be an object.');
@@ -1329,13 +1320,11 @@ ActiveTest.prototype.hasPassed = function (didPass) {
   this.suite.checkTests();
 };
 
-
-// TODO: move this to the sandbox
+/**
+Run a synchronous activeTest every 1000 ms
+@param: none
+*/
 ActiveTest.prototype.runTest = function () {
-  /*
-  Run a synchronous activeTest every 1000 ms
-  @param: none
-  */
   var self = this;
 
   /*
@@ -1364,7 +1353,7 @@ ActiveTest.prototype.runTest = function () {
       resolve.questions.forEach(function (val) {
         testValues = testValues + ' ' + val.value;
       });
-
+      console.log(resolve);
       self.hasPassed(testCorrect);
     });
   };

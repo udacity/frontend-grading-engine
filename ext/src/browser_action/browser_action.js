@@ -48,6 +48,3 @@ function sendDataToTab(file) {
 };
 
 document.querySelector('#ud-file-loader').addEventListener('change', handleFileSelect, false);
-document.querySelector('#ud-file-loader').onclick = function () {
-  // document.querySelector('#main').style.width = '800px';
-};
