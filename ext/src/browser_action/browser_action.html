@@ -3,9 +3,8 @@
 	#main {
 		margin: 1em;
 		height: 100%;
-    width: 30em;
-		/*font-family: Helvetica, Ubuntu, Arial, sans-serif;*/
-    font-family: 'Source Sans Pro', sans-serif;
+    width: 800px;
+		font-family: Helvetica, Ubuntu, Arial, sans-serif;
 	}
 	h1 {
 		font-size: 3em;
@@ -24,20 +23,21 @@
 
 <div id="main">
   <h3>Udacity Feedback Settings beta</h3>
-  <div class="autorun">
-    <label for="switch">Allow feedback on this site?</label>
-    <form>
-      <input name="switch" type="radio" value="yes" checked>Yes
-      <input name="switch" type="radio" value="no">No
-    </form>
-  </div>
   <div class="loader">
-    <h4>Load Tests</h4>
     <div class="loader-description">
-      Load tests to run against the current website. Click <a href="https://github.com/udacity/frontend-grading-engine" target="_blank">here</a> to learn how to write your own tests.
+      Click <a href="https://github.com/udacity/frontend-grading-engine" target="_blank">here</a> to learn how to write your own tests.
     </div>
-    <input id="ud-file-loader" type="file" />
+    <label for="ud-file-loader"><strong>Load Files</strong>
+      <input id="ud-file-loader" type="file">
+    </label>
     <div class="alert"></div>
+  </div>
+  <div class="autorun">
+    <form>
+      <label for="allow-feedback">Allow feedback on this site?
+        <input id="allow-feedback" type="checkbox" value="yes" checked disabled>
+      </label>
+    </form>
   </div>
 </div>
 <script src="browser_action.js"></script>

@@ -14,6 +14,9 @@ var hotel = {
     suite.element = testResults.buildSuiteElement(suite);
     this.occupiedSuites.push(suite);
     return suite;
+  },
+  clearSuites: function () {
+    this.occupiedSuites = [];
   }
 };
 
@@ -79,13 +82,13 @@ function registerSuites(suitesJSON) {
   } catch (e) {
     throw new TypeError("Invalid JSON format." + e);
   }
-  suites.forEach(function (suite) {
+  suites.forEach(function (_suite) {
     var newSuite = registerSuite({
-      name: suite.name,
-      code: suite.code
+      name: _suite.name,
+      code: _suite.code
     });
 
-    suite.tests.forEach(function (test) {
+    _suite.tests.forEach(function (test) {
       newSuite.registerTest({
         description: test.description,
         definition: test.definition,
@@ -95,5 +98,5 @@ function registerSuites(suitesJSON) {
   });
 };
 
-// exports.registerSuite = registerSuite;
+exports.clear = hotel.clearSuites;
 exports.registerSuites = registerSuites;

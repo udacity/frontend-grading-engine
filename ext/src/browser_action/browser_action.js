@@ -2,15 +2,11 @@
 TODO:
   * find an event I can use to shrink the browser_action
   * tooltip over the "Allow feedback" options
-
  */
 
 // http://html5rocks.com/en/tutorials/file/dndfiles/
 function handleFileSelect(evt) {
-  // shrink the browser action back to its original size
-  document.querySelector('#main').style.width = '30em';
-
-  var files = evt.target.files;  // FileList object
+  var files = evt.target.files;
   var file = files[0];
   var reader = new FileReader();
   var alert = document.querySelector('.alert');
@@ -45,6 +41,12 @@ function sendDataToTab(file) {
 
   // get the current tab then send data to it
   chrome.tabs.query({active: true, currentWindow: true}, fireOffData);
+};
+
+document.querySelector('#allow-feedback').onchange = function () {
+  if (!this.checked) {
+    // TODO: need to figure out a way to turn it off!
+  }
 };
 
 document.querySelector('#ud-file-loader').addEventListener('change', handleFileSelect, false);

@@ -71,14 +71,14 @@ Object.defineProperties(Suite.prototype, {
 })
 
 Suite.prototype.createTest = function (rawTest) {
-  var test = new ActiveTest(rawTest);
-  test.suite = this;
+  var activeTest = new ActiveTest(rawTest);
+  activeTest.suite = this;
 
   function createTestElement(newTest) {
     var activeTestElement = document.createElement('active-test');
     
     // find the suite element to which the test belongs
-    var activeTestsContainer = test.suite.element.shadowRoot.querySelector('.active-tests');
+    var activeTestsContainer = activeTest.suite.element.shadowRoot.querySelector('.active-tests');
     // attributes get applied to the view
     activeTestElement.setAttribute('description', newTest.description);
     activeTestElement.setAttribute('test-passed', newTest.testPassed);
@@ -86,21 +86,21 @@ Suite.prototype.createTest = function (rawTest) {
     // activeTestElement.activeTest = newTest.activeTest;
     
     // let the Test know which element belongs to it
-    test.element = activeTestElement;
+    activeTest.element = activeTestElement;
     
     activeTestsContainer.appendChild(activeTestElement);
     return activeTestElement;
   }
 
-  test.element = createTestElement({
-    description: test.description,
-    passed: test.testPassed,
-    // activeTest: test.activeTest
-    definition: test.definition
+  activeTest.element = createTestElement({
+    description: activeTest.description,
+    passed: activeTest.testPassed,
+    // activeTest: activeTest.activeTest
+    definition: activeTest.definition
   });
-  // can't do this here because it needs to happen in the widget
-  // test.runTest();
-  this.activeTests.push(test);
+
+  this.activeTests.push(activeTest);
+  activeTest.runTest();
 };
 
 Suite.prototype.checkTests = function () {

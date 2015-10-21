@@ -1,13 +1,13 @@
 {
   "name": "Udacity External Grader (beta)",
-  "version": "0.4",
+  "version": "0.05",
   "manifest_version": 2,
-  "description": "Run tests against an external page's HTML.",
+  "description": "Run tests against any page.",
   "homepage_url": "http://github.com/udacity/frontend-grading-engine",
   "icons": {
-    "16": "icons/udacity16.png",
-    "48": "icons/udacity48.png",
-    "128": "icons/udacity128.png"
+    "16": "icons/udacity-invert16.png",
+    "48": "icons/udacity-invert48.png",
+    "128": "icons/udacity-invert128.png"
   },
   "default_locale": "en",
   "background": {
@@ -18,20 +18,15 @@
   },
   "options_page": "src/options/index.html",
   "browser_action": {
-    "default_icon": "icons/icon19.png",
-    "default_title": "browser action demo",
+    "default_icon": "icons/udacity-invert48.png",
+    "default_title": "Udacity Feedback",
     "default_popup": "src/browser_action/browser_action.html"
   },
   "permissions": [
     "contextMenus",
-    // "cookies",
     "tabs",
     "http://udacity.github.io/*"
   ],
-  // "content_security_policy": "",
-  "sandbox": {
-    "pages": ["src/js/sanitizerWorker.js"]
-  },
   "content_scripts": [
     {
       "matches": [
@@ -45,6 +40,8 @@
   ],
   "web_accessible_resources": [
     "js/*.js",
+    "fonts/*.css",
+    "fonts/*/*",
     "templates/*.html"
   ]
 }

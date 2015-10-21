@@ -1266,7 +1266,9 @@ function ActiveTest(rawTest) {
   this.flags = rawTest.flags || {};
   this.id = parseInt(Math.random() * 1000000);
   this.testPassed = false;
+
   // this.optional = flags.optional;
+
   this.gradeRunner = function() {};
 
   // TODO: move this validation stuff out of here
@@ -1353,13 +1355,12 @@ ActiveTest.prototype.runTest = function () {
       resolve.questions.forEach(function (val) {
         testValues = testValues + ' ' + val.value;
       });
-      console.log(resolve);
       self.hasPassed(testCorrect);
     });
   };
 
   // clearInterval(this.gradeRunner);
-  this.gradeRunner = setInterval(testRunner, 1000);
+  this.gradeRunner = window.setInterval(testRunner, 1000);
 };
 
 ActiveTest.prototype.stopTest = function () {
@@ -1459,14 +1460,14 @@ Object.defineProperties(Suite.prototype, {
 })
 
 Suite.prototype.createTest = function (rawTest) {
-  var test = new ActiveTest(rawTest);
-  test.suite = this;
+  var activeTest = new ActiveTest(rawTest);
+  activeTest.suite = this;
 
   function createTestElement(newTest) {
     var activeTestElement = document.createElement('active-test');
     
     // find the suite element to which the test belongs
-    var activeTestsContainer = test.suite.element.shadowRoot.querySelector('.active-tests');
+    var activeTestsContainer = activeTest.suite.element.shadowRoot.querySelector('.active-tests');
     // attributes get applied to the view
     activeTestElement.setAttribute('description', newTest.description);
     activeTestElement.setAttribute('test-passed', newTest.testPassed);
@@ -1474,21 +1475,21 @@ Suite.prototype.createTest = function (rawTest) {
     // activeTestElement.activeTest = newTest.activeTest;
     
     // let the Test know which element belongs to it
-    test.element = activeTestElement;
+    activeTest.element = activeTestElement;
     
     activeTestsContainer.appendChild(activeTestElement);
     return activeTestElement;
   }
 
-  test.element = createTestElement({
-    description: test.description,
-    passed: test.testPassed,
-    // activeTest: test.activeTest
-    definition: test.definition
+  activeTest.element = createTestElement({
+    description: activeTest.description,
+    passed: activeTest.testPassed,
+    // activeTest: activeTest.activeTest
+    definition: activeTest.definition
   });
-  // can't do this here because it needs to happen in the widget
-  // test.runTest();
-  this.activeTests.push(test);
+
+  this.activeTests.push(activeTest);
+  activeTest.runTest();
 };
 
 Suite.prototype.checkTests = function () {
@@ -1513,6 +1514,9 @@ var hotel = {
     suite.element = testResults.buildSuiteElement(suite);
     this.occupiedSuites.push(suite);
     return suite;
+  },
+  clearSuites: function () {
+    this.occupiedSuites = [];
   }
 };
 
@@ -1578,13 +1582,13 @@ function registerSuites(suitesJSON) {
   } catch (e) {
     throw new TypeError("Invalid JSON format." + e);
   }
-  suites.forEach(function (suite) {
+  suites.forEach(function (_suite) {
     var newSuite = registerSuite({
-      name: suite.name,
-      code: suite.code
+      name: _suite.name,
+      code: _suite.code
     });
 
-    suite.tests.forEach(function (test) {
+    _suite.tests.forEach(function (test) {
       newSuite.registerTest({
         description: test.description,
         definition: test.definition,
@@ -1594,7 +1598,7 @@ function registerSuites(suitesJSON) {
   });
 };
 
-// exports.registerSuite = registerSuite;
+exports.clear = hotel.clearSuites;
 exports.registerSuites = registerSuites;
 return exports;
 }( window ));

@@ -43,7 +43,6 @@ gulp.task('watch-components', function () {
   return gulp.src(webComponents)
     .pipe(watch(webComponents))
     .pipe(concat('feedback.html'))
-    // .pipe(gulp.dest('dist/'))
     .pipe(gulp.dest('ext/templates/'))
     .pipe(debug({title: 'built dev feedback: '}))
 });
@@ -60,8 +59,7 @@ gulp.task('vulcanize', function () {
 gulp.task('watch-build-dev-engine', function() {
   return gulp.src(jsFiles)
     .pipe(watch(jsFiles))
-    .pipe(concat('udgrader-004.js'))
-    // .pipe(gulp.dest('dist/'))
+    .pipe(concat('udgrader.js'))
     .pipe(gulp.dest('ext/js/'))
     .pipe(debug({title: 'built dev grading engine:'}))
 });

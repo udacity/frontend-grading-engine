@@ -4,7 +4,9 @@ function ActiveTest(rawTest) {
   this.flags = rawTest.flags || {};
   this.id = parseInt(Math.random() * 1000000);
   this.testPassed = false;
+
   // this.optional = flags.optional;
+
   this.gradeRunner = function() {};
 
   // TODO: move this validation stuff out of here
@@ -91,13 +93,12 @@ ActiveTest.prototype.runTest = function () {
       resolve.questions.forEach(function (val) {
         testValues = testValues + ' ' + val.value;
       });
-      console.log(resolve);
       self.hasPassed(testCorrect);
     });
   };
 
   // clearInterval(this.gradeRunner);
-  this.gradeRunner = setInterval(testRunner, 1000);
+  this.gradeRunner = window.setInterval(testRunner, 1000);
 };
 
 ActiveTest.prototype.stopTest = function () {

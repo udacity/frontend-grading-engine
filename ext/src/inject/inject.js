@@ -29,7 +29,7 @@ chrome.runtime.sendMessage({}, function(response) {
 
       function injectGradingEngine() {
         var ge = document.createElement('script');
-        ge.src = chrome.extension.getURL('js/udgrader-004.js');
+        ge.src = chrome.extension.getURL('js/udgrader.js');
         ge.setAttribute('ud-grader', true);
         document.body.appendChild(ge);
 
@@ -55,7 +55,7 @@ chrome.runtime.sendMessage({}, function(response) {
       })
       
       injectWidgets();
-
+      clearInterval(readyStateCheckInterval);
     }
   }, 10);
 });
