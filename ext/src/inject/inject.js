@@ -8,7 +8,7 @@ chrome.runtime.sendMessage({}, function(response) {
         var link = document.createElement('link');
         link.rel = 'import';
 
-        link.href = chrome.extension.getURL('templates/feedback.html');
+        link.href = chrome.extension.getURL('src/templates/feedback.html');
         document.head.appendChild(link);
 
         link.onload = function(e) {
@@ -29,7 +29,7 @@ chrome.runtime.sendMessage({}, function(response) {
 
       function injectGradingEngine() {
         var ge = document.createElement('script');
-        ge.src = chrome.extension.getURL('js/udgrader.js');
+        ge.src = chrome.extension.getURL('src/js/udgrader.js');
         ge.setAttribute('ud-grader', true);
         document.body.appendChild(ge);
 

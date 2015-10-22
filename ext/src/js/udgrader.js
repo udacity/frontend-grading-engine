@@ -159,6 +159,7 @@ function Target() {
   this.operation = null;
   this.children = [];
   this.index = null;
+  this.correct = false;
 };
 
 Object.defineProperties(Target.prototype, {
@@ -217,7 +218,7 @@ function GradeBook () {
 Object.defineProperties(GradeBook.prototype, {
   numberOfQuestions: {
     /**
-     * Private use only. Find the number of questions.
+     * Find the number of questions.
      * @return {Number} number of questions
      */
     get: function () {
@@ -226,7 +227,7 @@ Object.defineProperties(GradeBook.prototype, {
   },
   numberCorrectQuestions: {
     /**
-     * Private use only. Find the number of questions evaluated as correct.
+     * Find the number of questions evaluated as correct.
      * @return {Number} numberCorrect - number of correct questions.
      */
     get: function () {
@@ -241,7 +242,7 @@ Object.defineProperties(GradeBook.prototype, {
   },
   allCorrect: {
     /**
-     * Private use only. Compares the total questions to total questions correct.
+     * Compares the total questions to total questions correct.
      * @return {Boolean} isAllGood - true if all are correct and false otherwise.
      */
     get: function () {
@@ -254,7 +255,7 @@ Object.defineProperties(GradeBook.prototype, {
   },
   numberWrongQuestions: {
     /**
-     * Private use only. Find the number of wrong questions.
+     * Find the number of wrong questions.
      * @return {Number} numberWrong - the number of wrong questions.
      */
     get: function () {
@@ -265,7 +266,7 @@ Object.defineProperties(GradeBook.prototype, {
   },
   report: {
     /**
-     * Private use only. Returns all questions and the overall correctness of the active_test. Note: this is the data returned to the active_test component.
+     * Returns all questions and the overall correctness of the active_test. Note: this is the data returned to the active_test component.
      * @return {Object} - contains a boolean indicating whether the test passes and an array of all questions.
      */
     get: function () {
@@ -294,23 +295,20 @@ GradeBook.prototype.reset = function () {
   this.passed = false;
 };
 
-GradeBook.prototype.fireFinished = function () {
-
-};
-
 /**
  * Will iterate through all the questions and return if they meet grade criteria
- * @param  {Object} config - {string} config.strictness, {boolean} config.not, {function} config.callback
+ * @param  {Object} config - {String} config.strictness, {Boolean} config.not, {Function} config.callback
  * @return {Object} the report from the gradebook instance containing whether the test passed and all of the questions in consideration.
  */
 GradeBook.prototype.grade = function (config) {
   var strictness, not, callback;
   strictness = config.strictness;
   not = config.not;
-  callback = config.callback; // expect that the callback encapsulates any comparison values from us
+  callback = config.callback;
 
   this.questions.forEach(function (question) {
     question.correct = callback(question);
+
     if (not) {
       question.correct = !question.correct;
     }
@@ -383,7 +381,6 @@ Object.defineProperties(TA.prototype, {
           return position;
         });
       });
-
       return this;
     }
   },
@@ -470,6 +467,7 @@ Object.defineProperties(TA.prototype, {
       this.queue.add(function () {
         self.picky = 'someOf';
       });
+      return this;
     }
   },
   _targetIds: {
@@ -482,6 +480,7 @@ Object.defineProperties(TA.prototype, {
       this._traverseTargets(function (target) {
         ids.push(target.id);
       });
+      return ids;
     }
   },
   UAString: {
@@ -495,6 +494,7 @@ Object.defineProperties(TA.prototype, {
         self.operations = navigator.userAgent;
         self.documentValueSpecified = navigator.userAgent;
       });
+      return this;
     }
   }
 })
@@ -523,22 +523,22 @@ TA.prototype._traverseTargets = function (callback) {
   /**
    * Recursively dive into a tree structure from the top. Used on the Target structure here.
    * @param  {object} node - a target of bullseye. Start with the top.
-   * @param  {function} func - function to run against each node
+   * @param  {function} callback - function to run against each node
    */
-  function visitDfs (node, func) {
-    if (func) {
-      func(node);
+  function visitDfs (node, callback) {
+    if (callback) {
+      callback(node);
     }
  
     node.children.forEach(function (child, index, arr) {
-      visitDfs(child, func);
+      visitDfs(child, callback);
     });
   };
   visitDfs(this.target, callback);
 };
 
 /**
- * Private use only! Run a function against the top-level Target in the bullseye
+ * Run a function against the top-level Target in the bullseye
  * @param  {function} callback - the function to run against specified Targets
  */
 TA.prototype._runAgainstTopTargetOnly = function (callback) {
@@ -555,15 +555,13 @@ TA.prototype._runAgainstTopTargetOnly = function (callback) {
 };
 
 /**
- * Private use only! Run a function against bottom targets in the bullseye
+ * Run a function against bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified Targets
  */
 TA.prototype._runAgainstBottomTargets = function (callback) {
   var self = this;
 
-  var allTargets = this._targetIds || [];
-
-  console.log(allTargets);
+  var allTargets = this._targetIds;
 
   this._traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
@@ -581,7 +579,7 @@ TA.prototype._runAgainstBottomTargets = function (callback) {
 };
 
 /**
- * Private use only! Run a function against the elements of the bottom targets in the bullseye
+ * Run a function against the elements of the bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified elements
  */
 TA.prototype._runAgainstBottomTargetElements = function (callback) {
@@ -605,7 +603,7 @@ TA.prototype._runAgainstBottomTargetElements = function (callback) {
 };
 
 /**
- * Private use only! Run a function against the next to bottom targets in the bullseye
+ * Run a function against the next to bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified elements
  */
 TA.prototype._runAgainstNextToBottomTargets = function (callback) {
@@ -867,8 +865,6 @@ Reporters live on the TA and are responsible for:
 TA.prototype.exists = function (bool) {
   var self = this;
 
-  // to account for "exists": false
-  // bool must actually be false
   if (bool === false && typeof bool === 'boolean') {
     self.not(true);
   }
@@ -880,7 +876,11 @@ TA.prototype.exists = function (bool) {
     switch (typeOfOperation) {
       case 'gatherElements':
         doesExistFunc = function (topTarget) {
-          return topTarget.children.length > 0;
+          var doesExist = false;
+          if (topTarget.children.length > 0 || topTarget.element || topTarget.value) {
+            doesExist = true;
+          }
+          return doesExist;
         };
         break;
       case 'gatherDeepChildElements':
@@ -926,7 +926,7 @@ TA.prototype.not = function (bool) {
   
   this.queue.add(function () {
     if (bool) {
-      self.gradeOpposite = !self.gradeOpposite;
+      self.gradeOpposite = true;
     }
   });
 };
@@ -1239,15 +1239,6 @@ TA.prototype.translateConfigToMethods = function (config) {
   
   var definitions = Object.keys(config);
 
-  // TODO: ensure that definitions are in the correct order for the TA to work.
-  // Pretty sure this is necessary? Not 100%
-  // Might need to add other methods to ensure the right order.
-  // definitions.sort(function (a, b) {
-  //   if (a.indexOf('nodes') > -1) {
-  //     return -1;
-  //   }
-  // });
-
   methods = definitions.map(function (method) {
     return function () {
       try {
@@ -1261,13 +1252,11 @@ TA.prototype.translateConfigToMethods = function (config) {
   return methods;
 };
 function ActiveTest(rawTest) {
-  // will need to validate all of these
+  // TODO: will need to validate all of these
   this.description = rawTest.description;
   this.flags = rawTest.flags || {};
   this.id = parseInt(Math.random() * 1000000);
   this.testPassed = false;
-
-  // this.optional = flags.optional;
 
   this.gradeRunner = function() {};
 
@@ -1324,14 +1313,10 @@ ActiveTest.prototype.hasPassed = function (didPass) {
 
 /**
 Run a synchronous activeTest every 1000 ms
-@param: none
 */
 ActiveTest.prototype.runTest = function () {
   var self = this;
 
-  /*
-  Optional flags specific to the test
-  */
   var noRepeat = this.flags.noRepeat || false; // run only once on load
   var alwaysRun = this.flags.alwaysRun || false; // keep running even if test passes
   var optional = this.flags.optional || false; // test does not affect code display
@@ -1351,6 +1336,7 @@ ActiveTest.prototype.runTest = function () {
 
     }).then(function (resolve) {
       var testCorrect = resolve.isCorrect || false;
+      // TODO: nothing is done with the values. Do something?
       var testValues = '';
       resolve.questions.forEach(function (val) {
         testValues = testValues + ' ' + val.value;
@@ -1359,33 +1345,11 @@ ActiveTest.prototype.runTest = function () {
     });
   };
 
-  // clearInterval(this.gradeRunner);
   this.gradeRunner = window.setInterval(testRunner, 1000);
 };
 
 ActiveTest.prototype.stopTest = function () {
   clearInterval(this.gradeRunner);
-};
-
-ActiveTest.prototype.update = function (config) {
-  // TODO: need to convert config.activeTest into a function
-  var description = config.description || false;
-  var activeTest = config.activeTest || false;
-  var flags = config.flags || false;
-
-  if (description) {
-    this.description = description;
-    this.element.setAttribute('description', this.description);
-  };
-  if (activeTest) {
-    this.activeTest = activeTest;
-  };
-  if (flags) {
-    this.flags = flags;
-  };
-
-  // TODO: this won't work!
-  this.runTest();
 };
 function Suite(rawSuite) {
   var name = rawSuite.name;

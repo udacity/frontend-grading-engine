@@ -1,11 +1,9 @@
 function ActiveTest(rawTest) {
-  // will need to validate all of these
+  // TODO: will need to validate all of these
   this.description = rawTest.description;
   this.flags = rawTest.flags || {};
   this.id = parseInt(Math.random() * 1000000);
   this.testPassed = false;
-
-  // this.optional = flags.optional;
 
   this.gradeRunner = function() {};
 
@@ -62,14 +60,10 @@ ActiveTest.prototype.hasPassed = function (didPass) {
 
 /**
 Run a synchronous activeTest every 1000 ms
-@param: none
 */
 ActiveTest.prototype.runTest = function () {
   var self = this;
 
-  /*
-  Optional flags specific to the test
-  */
   var noRepeat = this.flags.noRepeat || false; // run only once on load
   var alwaysRun = this.flags.alwaysRun || false; // keep running even if test passes
   var optional = this.flags.optional || false; // test does not affect code display
@@ -97,31 +91,9 @@ ActiveTest.prototype.runTest = function () {
     });
   };
 
-  // clearInterval(this.gradeRunner);
   this.gradeRunner = window.setInterval(testRunner, 1000);
 };
 
 ActiveTest.prototype.stopTest = function () {
   clearInterval(this.gradeRunner);
-};
-
-ActiveTest.prototype.update = function (config) {
-  // TODO: need to convert config.activeTest into a function
-  var description = config.description || false;
-  var activeTest = config.activeTest || false;
-  var flags = config.flags || false;
-
-  if (description) {
-    this.description = description;
-    this.element.setAttribute('description', this.description);
-  };
-  if (activeTest) {
-    this.activeTest = activeTest;
-  };
-  if (flags) {
-    this.flags = flags;
-  };
-
-  // TODO: this won't work!
-  this.runTest();
 };

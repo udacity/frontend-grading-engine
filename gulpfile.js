@@ -12,8 +12,8 @@ var jsFiles = [
   'src/js/Queue.js',
   'src/js/Target.js',
   'src/js/GradeBook.js',
-  'src/js/TA/collectors.js',
-  'src/js/TA/reporters.js',
+  'src/js/TACollectors.js',
+  'src/js/TAReporters.js',
   'src/js/ActiveTest.js',
   'src/js/Suite.js',
   'src/js/registrar.js',
@@ -28,22 +28,12 @@ var webComponents = [
   'src/webcomponents/test-widget.html',
   'src/webcomponents/outro.html',
 ]
- 
-gulp.task('watch-vulcanize', function () {
-  return gulp.src('src/webcomponents/feedback.html')
-    .pipe(watch(webComponents))
-    .pipe(vulcanize({
-      stripComments: true
-    }))
-    .pipe(gulp.dest('dist'))
-    .pipe(debug({title: 'vulcanized: '}))
-});
 
 gulp.task('watch-components', function () {
   return gulp.src(webComponents)
     .pipe(watch(webComponents))
     .pipe(concat('feedback.html'))
-    .pipe(gulp.dest('ext/templates/'))
+    .pipe(gulp.dest('ext/src/templates/'))
     .pipe(debug({title: 'built dev feedback: '}))
 });
 
@@ -60,7 +50,7 @@ gulp.task('watch-build-dev-engine', function() {
   return gulp.src(jsFiles)
     .pipe(watch(jsFiles))
     .pipe(concat('udgrader.js'))
-    .pipe(gulp.dest('ext/js/'))
+    .pipe(gulp.dest('ext/src/js/'))
     .pipe(debug({title: 'built dev grading engine:'}))
 });
 

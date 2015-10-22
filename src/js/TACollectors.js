@@ -43,7 +43,6 @@ Object.defineProperties(TA.prototype, {
           return position;
         });
       });
-
       return this;
     }
   },
@@ -130,6 +129,7 @@ Object.defineProperties(TA.prototype, {
       this.queue.add(function () {
         self.picky = 'someOf';
       });
+      return this;
     }
   },
   _targetIds: {
@@ -142,6 +142,7 @@ Object.defineProperties(TA.prototype, {
       this._traverseTargets(function (target) {
         ids.push(target.id);
       });
+      return ids;
     }
   },
   UAString: {
@@ -155,6 +156,7 @@ Object.defineProperties(TA.prototype, {
         self.operations = navigator.userAgent;
         self.documentValueSpecified = navigator.userAgent;
       });
+      return this;
     }
   }
 })
@@ -183,22 +185,22 @@ TA.prototype._traverseTargets = function (callback) {
   /**
    * Recursively dive into a tree structure from the top. Used on the Target structure here.
    * @param  {object} node - a target of bullseye. Start with the top.
-   * @param  {function} func - function to run against each node
+   * @param  {function} callback - function to run against each node
    */
-  function visitDfs (node, func) {
-    if (func) {
-      func(node);
+  function visitDfs (node, callback) {
+    if (callback) {
+      callback(node);
     }
  
     node.children.forEach(function (child, index, arr) {
-      visitDfs(child, func);
+      visitDfs(child, callback);
     });
   };
   visitDfs(this.target, callback);
 };
 
 /**
- * Private use only! Run a function against the top-level Target in the bullseye
+ * Run a function against the top-level Target in the bullseye
  * @param  {function} callback - the function to run against specified Targets
  */
 TA.prototype._runAgainstTopTargetOnly = function (callback) {
@@ -215,15 +217,13 @@ TA.prototype._runAgainstTopTargetOnly = function (callback) {
 };
 
 /**
- * Private use only! Run a function against bottom targets in the bullseye
+ * Run a function against bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified Targets
  */
 TA.prototype._runAgainstBottomTargets = function (callback) {
   var self = this;
 
-  var allTargets = this._targetIds || [];
-
-  console.log(allTargets);
+  var allTargets = this._targetIds;
 
   this._traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
@@ -241,7 +241,7 @@ TA.prototype._runAgainstBottomTargets = function (callback) {
 };
 
 /**
- * Private use only! Run a function against the elements of the bottom targets in the bullseye
+ * Run a function against the elements of the bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified elements
  */
 TA.prototype._runAgainstBottomTargetElements = function (callback) {
@@ -265,7 +265,7 @@ TA.prototype._runAgainstBottomTargetElements = function (callback) {
 };
 
 /**
- * Private use only! Run a function against the next to bottom targets in the bullseye
+ * Run a function against the next to bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified elements
  */
 TA.prototype._runAgainstNextToBottomTargets = function (callback) {

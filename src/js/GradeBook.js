@@ -13,7 +13,7 @@ function GradeBook () {
 Object.defineProperties(GradeBook.prototype, {
   numberOfQuestions: {
     /**
-     * Private use only. Find the number of questions.
+     * Find the number of questions.
      * @return {Number} number of questions
      */
     get: function () {
@@ -22,7 +22,7 @@ Object.defineProperties(GradeBook.prototype, {
   },
   numberCorrectQuestions: {
     /**
-     * Private use only. Find the number of questions evaluated as correct.
+     * Find the number of questions evaluated as correct.
      * @return {Number} numberCorrect - number of correct questions.
      */
     get: function () {
@@ -37,7 +37,7 @@ Object.defineProperties(GradeBook.prototype, {
   },
   allCorrect: {
     /**
-     * Private use only. Compares the total questions to total questions correct.
+     * Compares the total questions to total questions correct.
      * @return {Boolean} isAllGood - true if all are correct and false otherwise.
      */
     get: function () {
@@ -50,7 +50,7 @@ Object.defineProperties(GradeBook.prototype, {
   },
   numberWrongQuestions: {
     /**
-     * Private use only. Find the number of wrong questions.
+     * Find the number of wrong questions.
      * @return {Number} numberWrong - the number of wrong questions.
      */
     get: function () {
@@ -61,7 +61,7 @@ Object.defineProperties(GradeBook.prototype, {
   },
   report: {
     /**
-     * Private use only. Returns all questions and the overall correctness of the active_test. Note: this is the data returned to the active_test component.
+     * Returns all questions and the overall correctness of the active_test. Note: this is the data returned to the active_test component.
      * @return {Object} - contains a boolean indicating whether the test passes and an array of all questions.
      */
     get: function () {
@@ -90,23 +90,20 @@ GradeBook.prototype.reset = function () {
   this.passed = false;
 };
 
-GradeBook.prototype.fireFinished = function () {
-
-};
-
 /**
  * Will iterate through all the questions and return if they meet grade criteria
- * @param  {Object} config - {string} config.strictness, {boolean} config.not, {function} config.callback
+ * @param  {Object} config - {String} config.strictness, {Boolean} config.not, {Function} config.callback
  * @return {Object} the report from the gradebook instance containing whether the test passed and all of the questions in consideration.
  */
 GradeBook.prototype.grade = function (config) {
   var strictness, not, callback;
   strictness = config.strictness;
   not = config.not;
-  callback = config.callback; // expect that the callback encapsulates any comparison values from us
+  callback = config.callback;
 
   this.questions.forEach(function (question) {
     question.correct = callback(question);
+
     if (not) {
       question.correct = !question.correct;
     }

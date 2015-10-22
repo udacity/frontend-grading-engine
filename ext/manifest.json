@@ -1,9 +1,9 @@
 {
   "name": "Udacity Front End Feedback",
   "short_name": "Udacity Feedback",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "manifest_version": 2,
-  "description": "Run tests against any page.",
+  "description": "Get feedback on the structure of any page.",
   "homepage_url": "http://github.com/udacity/frontend-grading-engine",
   "icons": {
     "16": "icons/udacity-invert16.png",
@@ -40,9 +40,9 @@
     }
   ],
   "web_accessible_resources": [
-    "js/*.js",
+    "src/js/*.js",
     "fonts/*.css",
     "fonts/*/*",
-    "templates/*.html"
+    "src/templates/*.html"
   ]
 }

@@ -11,8 +11,6 @@ Reporters live on the TA and are responsible for:
 TA.prototype.exists = function (bool) {
   var self = this;
 
-  // to account for "exists": false
-  // bool must actually be false
   if (bool === false && typeof bool === 'boolean') {
     self.not(true);
   }
@@ -24,7 +22,11 @@ TA.prototype.exists = function (bool) {
     switch (typeOfOperation) {
       case 'gatherElements':
         doesExistFunc = function (topTarget) {
-          return topTarget.children.length > 0;
+          var doesExist = false;
+          if (topTarget.children.length > 0 || topTarget.element || topTarget.value) {
+            doesExist = true;
+          }
+          return doesExist;
         };
         break;
       case 'gatherDeepChildElements':
@@ -70,7 +72,7 @@ TA.prototype.not = function (bool) {
   
   this.queue.add(function () {
     if (bool) {
-      self.gradeOpposite = !self.gradeOpposite;
+      self.gradeOpposite = true;
     }
   });
 };
@@ -382,15 +384,6 @@ TA.prototype.translateConfigToMethods = function (config) {
   config['nodes'] = config['nodes'] || config['elements'];
   
   var definitions = Object.keys(config);
-
-  // TODO: ensure that definitions are in the correct order for the TA to work.
-  // Pretty sure this is necessary? Not 100%
-  // Might need to add other methods to ensure the right order.
-  // definitions.sort(function (a, b) {
-  //   if (a.indexOf('nodes') > -1) {
-  //     return -1;
-  //   }
-  // });
 
   methods = definitions.map(function (method) {
     return function () {
