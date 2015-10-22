@@ -83,6 +83,7 @@ ActiveTest.prototype.runTest = function () {
 
     }).then(function (resolve) {
       var testCorrect = resolve.isCorrect || false;
+      // TODO: nothing is done with the values. Do something?
       var testValues = '';
       resolve.questions.forEach(function (val) {
         testValues = testValues + ' ' + val.value;

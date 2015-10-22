@@ -16,6 +16,7 @@ function Target() {
   this.operation = null;
   this.children = [];
   this.index = null;
+  this.correct = false;
 };
 
 Object.defineProperties(Target.prototype, {

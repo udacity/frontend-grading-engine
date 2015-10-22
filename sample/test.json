@@ -1,6 +1,21 @@
 [{
-  "name": "Sample Name",
-  "code": "testcode",
+  "name": "Meta info",
+  "code": "Got the meta stuff",
+  "tests": [
+    {
+      "description": "&lt;meta&gt; has name set to udacity-grader",
+      "definition": {
+        "nodes": "meta",
+        "limit": 1,
+        "attribute": "name",
+        "equals": "udacity-grader"
+      }
+    }
+  ]
+},
+{
+  "name": "These should fail",
+  "code": "Looking at the DOM",
   "tests": [
     {
       "description": "There are 15 divs (just delete one)",
@@ -8,6 +23,56 @@
         "nodes": "div",
         "get": "count",
         "equals": 15
+      }
+    },
+    {
+      "description": "Width check - 75% of page width is between 900 and 1000 px (just resize)",
+      "definition": {
+        "nodes": ".three-quarters",
+        "cssProperty": "width",
+        "isInRange": {
+          "lower": 800,
+          "upper": 900
+        }
+      }
+    },
+    {
+      "description": "No ✔︎ / x image (delete the ✔︎ / x image)",
+      "definition": {
+        "nodes": "img#udacity",
+        "exists": false
+      }
+    }
+  ]
+},
+{
+  "name": "These should pass",
+  "code": "Looking at the DOM",
+  "tests": [
+    {
+      "description": "There are 16 divs",
+      "definition": {
+        "nodes": "div",
+        "get": "count",
+        "equals": 16
+      }
+    },
+    {
+      "description": "Width check - 75% of page width is between 900 and 1000 px",
+      "definition": {
+        "nodes": ".three-quarters",
+        "cssProperty": "width",
+        "isInRange": {
+          "lower": 900,
+          "upper": 1000
+        }
+      }
+    },
+    {
+      "description": "There is a ✔︎ / x image",
+      "definition": {
+        "nodes": "img#udacity",
+        "exists": true
       }
     }
   ]

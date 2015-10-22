@@ -2,6 +2,9 @@
   <title>Sample Tests</title>
   <meta name="udacity-grader" content="test.json">
   <style>
+    body {
+      width: 100%;
+    }
     .box {
       background-color: #fcc;
     }
@@ -43,11 +46,19 @@
       min-height: 30px;
       min-width: calc( (100% - 10px) / 4);
     }
+    .three-quarters {
+      width: 75%;
+    }
+    #udacity {
+      height: 100px;
+      width: auto;
+    }
   </style>
 <head>
 <body>
   <h1>Grading Engine Test!</h1>
-  <div class="box box1">a</div>
+  <img id="udacity" src="udacity.jpg" height="697" width="687" alt="yes or no">
+  <div class="box box1 three-quarters">75% width</div>
   <div class="box box2">b</div>
   <div class="box box3">c</div>
   <div class="box box4">d</div>
