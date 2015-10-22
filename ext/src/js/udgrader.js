@@ -116,12 +116,13 @@ function getUnitlessMeasurement(measurement) {
 function Queue() {
   this._methods = [];
   this._flushing = false;
+  this._blocked = false;
 }
 
 Queue.prototype = {
   add: function(fn) {
     this._methods.push(fn);
-    if (!this._flushing) {
+    if (!this._flushing && !this._blocked) {
       this.step();
     }
   },
@@ -131,7 +132,7 @@ Queue.prototype = {
     this._methods = [];
   },
 
-  step: function(resp) {
+  step: function() {
     var self = this;
 
     if (!this._flushing) {
@@ -146,12 +147,22 @@ Queue.prototype = {
         resolve(ret);
       });
     }
+    if (!this._blocked) {
+      executeInPromise(this._methods.shift()).then(function (resolve) {
+        if (self._methods.length > 0) {
+          self.step();
+        }
+      })
+    }
+  },
 
-    executeInPromise(this._methods.shift()).then(function (resolve) {
-      if (self._methods.length > 0) {
-        self.step();
-      }
-    })
+  block: function () {
+    this._blocked = true;
+  },
+
+  unblock: function () {
+    this._blocked = false;
+    this.step();
   }
 };
 /**
@@ -842,6 +853,28 @@ TA.prototype.absolutePosition = function (side) {
 };
 
 /**
+ * Must be used with noRepeat: true
+ * Waits for an event. Grades against event.detail
+ * @param  {[type]} eventName [description]
+ * @return {[type]}           [description]
+ */
+TA.prototype.waitForEvent = function (eventName) {
+  var self = this;
+  self.queue.block();
+  window.addEventListener(eventName, function (e) {
+    self.queue.unblock();
+    self._runAgainstTopTargetOnly(function (topTarget) {
+      return e.detail;
+    });
+  });
+  this.queue.add(function () {
+    self._registerOperation('gatherElements');
+    self.target = new Target();
+  });
+  return this;
+};
+
+/**
 Reporters live on the TA and are responsible for:
   * giving the GradeBook instructions for evaluating the questions it has collected.
   * instantiating the grading process by calling gradebook.grade()
@@ -1241,18 +1274,16 @@ function ActiveTest(rawTest) {
   this.iwant = new TA();
 
   var self = this;
-  this.activeTest = (function (config) {
+
+  // translates json definitions to method calls
+  self.queueUp = (function (config) {
     var methodsToQueue = self.iwant._translateConfigToMethods(config);
 
-    var queueUp = function () {
+    return function () {
       methodsToQueue.forEach(function (method) {
         method();
       });
     };
-
-    return {
-      queueUp: queueUp
-    }
 
   })(rawTest.definition);
 };
@@ -1299,7 +1330,7 @@ ActiveTest.prototype.runTest = function () {
       self.iwant.queue.clear();
       
       // this call actually runs the test
-      self.activeTest.queueUp();
+      self.queueUp();
 
     }).then(function (resolve) {
       var testCorrect = resolve.isCorrect || false;
@@ -1312,7 +1343,11 @@ ActiveTest.prototype.runTest = function () {
     });
   };
 
-  this.gradeRunner = window.setInterval(testRunner, 1000);
+  if (noRepeat) {
+    testRunner();
+  } else {
+    this.gradeRunner = window.setInterval(testRunner, 1000);
+  }
 };
 
 ActiveTest.prototype.stopTest = function () {
@@ -1403,8 +1438,6 @@ Suite.prototype.createTest = function (rawTest) {
     // attributes get applied to the view
     activeTestElement.setAttribute('description', newTest.description);
     activeTestElement.setAttribute('test-passed', newTest.testPassed);
-    // give the element access to the actual test
-    // activeTestElement.activeTest = newTest.activeTest;
     
     // let the Test know which element belongs to it
     activeTest.element = activeTestElement;
@@ -1416,7 +1449,6 @@ Suite.prototype.createTest = function (rawTest) {
   activeTest.element = createTestElement({
     description: activeTest.description,
     passed: activeTest.testPassed,
-    // activeTest: activeTest.activeTest
     definition: activeTest.definition
   });
 

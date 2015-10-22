@@ -82,8 +82,6 @@ Suite.prototype.createTest = function (rawTest) {
     // attributes get applied to the view
     activeTestElement.setAttribute('description', newTest.description);
     activeTestElement.setAttribute('test-passed', newTest.testPassed);
-    // give the element access to the actual test
-    // activeTestElement.activeTest = newTest.activeTest;
     
     // let the Test know which element belongs to it
     activeTest.element = activeTestElement;
@@ -95,7 +93,6 @@ Suite.prototype.createTest = function (rawTest) {
   activeTest.element = createTestElement({
     description: activeTest.description,
     passed: activeTest.testPassed,
-    // activeTest: activeTest.activeTest
     definition: activeTest.definition
   });
 

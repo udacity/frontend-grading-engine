@@ -21,18 +21,16 @@ function ActiveTest(rawTest) {
   this.iwant = new TA();
 
   var self = this;
-  this.activeTest = (function (config) {
+
+  // translates json definitions to method calls
+  self.queueUp = (function (config) {
     var methodsToQueue = self.iwant._translateConfigToMethods(config);
 
-    var queueUp = function () {
+    return function () {
       methodsToQueue.forEach(function (method) {
         method();
       });
     };
-
-    return {
-      queueUp: queueUp
-    }
 
   })(rawTest.definition);
 };
@@ -79,7 +77,7 @@ ActiveTest.prototype.runTest = function () {
       self.iwant.queue.clear();
       
       // this call actually runs the test
-      self.activeTest.queueUp();
+      self.queueUp();
 
     }).then(function (resolve) {
       var testCorrect = resolve.isCorrect || false;
@@ -92,7 +90,11 @@ ActiveTest.prototype.runTest = function () {
     });
   };
 
-  this.gradeRunner = window.setInterval(testRunner, 1000);
+  if (noRepeat) {
+    testRunner();
+  } else {
+    this.gradeRunner = window.setInterval(testRunner, 1000);
+  }
 };
 
 ActiveTest.prototype.stopTest = function () {

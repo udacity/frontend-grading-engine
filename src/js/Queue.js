@@ -4,12 +4,13 @@
 function Queue() {
   this._methods = [];
   this._flushing = false;
+  this._blocked = false;
 }
 
 Queue.prototype = {
   add: function(fn) {
     this._methods.push(fn);
-    if (!this._flushing) {
+    if (!this._flushing && !this._blocked) {
       this.step();
     }
   },
@@ -19,7 +20,7 @@ Queue.prototype = {
     this._methods = [];
   },
 
-  step: function(resp) {
+  step: function() {
     var self = this;
 
     if (!this._flushing) {
@@ -34,11 +35,21 @@ Queue.prototype = {
         resolve(ret);
       });
     }
+    if (!this._blocked) {
+      executeInPromise(this._methods.shift()).then(function (resolve) {
+        if (self._methods.length > 0) {
+          self.step();
+        }
+      })
+    }
+  },
 
-    executeInPromise(this._methods.shift()).then(function (resolve) {
-      if (self._methods.length > 0) {
-        self.step();
-      }
-    })
+  block: function () {
+    this._blocked = true;
+  },
+
+  unblock: function () {
+    this._blocked = false;
+    this.step();
   }
 };

@@ -489,3 +489,25 @@ TA.prototype.absolutePosition = function (side) {
   });
   return this;
 };
+
+/**
+ * Must be used with noRepeat: true
+ * Waits for an event. Grades against event.detail
+ * @param  {[type]} eventName [description]
+ * @return {[type]}           [description]
+ */
+TA.prototype.waitForEvent = function (eventName) {
+  var self = this;
+  self.queue.block();
+  window.addEventListener(eventName, function (e) {
+    self.queue.unblock();
+    self._runAgainstTopTargetOnly(function (topTarget) {
+      return e.detail;
+    });
+  });
+  this.queue.add(function () {
+    self._registerOperation('gatherElements');
+    self.target = new Target();
+  });
+  return this;
+};
