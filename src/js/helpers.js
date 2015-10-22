@@ -60,3 +60,15 @@ function executeFunctionByName(functionName, context) {
   }
   return context[func].apply(this, args);
 }
+
+/**
+ * Get the actual number from a measurement.
+ * @param  {String} measurement - the measurement to strip
+ * @return {Number} - the number inside
+ */
+function getUnitlessMeasurement(measurement) {
+  if (typeof measurement === 'number') {
+    return measurement;
+  }
+  return measurement.match(/\d+/g)[0];
+}

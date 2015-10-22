@@ -129,35 +129,29 @@ TA.prototype.equals = function (config) {
 TA.prototype.isGreaterThan = function (config) {
   var self = this;
   this.queue.add(function () {
-    var expected = config.expected,
-        orEqualTo = config.orEqualTo || false;
+    var expected = config.expected || config;
+    var orEqualTo = config.orEqualTo || false;
 
     var greaterThanFunc = function() {};
     switch (orEqualTo) {
       case true:
         greaterThanFunc = function (target) {
           var isGreaterThan = false;
-          if (target.value >= expected) {
+          if (getUnitlessMeasurement(target.value) >= getUnitlessMeasurement(expected)) {
             isGreaterThan = true;
           }
           return isGreaterThan;
         }
-      case false:
-        greaterThanFunc = function (target) {
-          var isGreaterThan = false;
-          if (target.value > expected) {
-            isGreaterThan = true;
-          }
-          return isGreaterThan;
-        }
+        break;
       default:
         greaterThanFunc = function (target) {
           var isGreaterThan = false;
-          if (target.value > expected) {
+          if (getUnitlessMeasurement(target.value) > getUnitlessMeasurement(expected)) {
             isGreaterThan = true;
           }
           return isGreaterThan;
         }
+        break;
     }
 
     var testResult = self.gradebook.grade({
@@ -177,35 +171,29 @@ TA.prototype.isGreaterThan = function (config) {
 TA.prototype.isLessThan = function(config) {
   var self = this;
   this.queue.add(function () {
-    var expected = config.expected,
-        orEqualTo = config.orEqualTo || false;
+    var expected = config.expected || config;
+    var orEqualTo = config.orEqualTo || false;
 
     var lessThanFunc = function() {};
     switch (orEqualTo) {
       case true:
         lessThanFunc = function (target) {
           var isLessThan = false;
-          if (target.value <= expected) {
+          if (getUnitlessMeasurement(target.value) <= getUnitlessMeasurement(expected)) {
             isLessThan = true;
           }
           return isLessThan;
         }
-      case false:
-        lessThanFunc = function (target) {
-          var isLessThan = false;
-          if (target.value < expected) {
-            isLessThan = true;
-          }
-          return isLessThan;
-        }
+        break;
       default:
         lessThanFunc = function (target) {
           var isLessThan = false;
-          if (target.value < expected) {
+          if (getUnitlessMeasurement(target.value) < getUnitlessMeasurement(expected)) {
             isLessThan = true;
           }
           return isLessThan;
         }
+        break;
     }
 
     var testResult = self.gradebook.grade({
@@ -323,8 +311,14 @@ TA.prototype.isInRange = function(config) {
 TA.prototype.hasSubstring = function (config) {
   var self = this;
   this.queue.add(function () {
+    // TODO: why not just abort?
     config = config || {};
     var expectedValues = config.expectedValues;
+
+    // this simplifies JSON syntax
+    if (typeof config === 'string' || expectedValues instanceof Array) {
+      expectedValues = config;
+    }
 
     // make sure expectedValues are an array
     if (!(expectedValues instanceof Array)) {
@@ -333,11 +327,7 @@ TA.prototype.hasSubstring = function (config) {
 
     var nValues      = config.nValues || false,
         minValues    = config.minValues || 1,
-        maxValues    = config.maxValues || 'all';
-
-    if (maxValues === 'all') {
-      maxValues = expectedValues.length;
-    };
+        maxValues    = config.maxValues || expectedValues.length;
 
     /**
      * Is there a substring in a string? This will answer that question.

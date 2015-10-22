@@ -96,16 +96,6 @@ Object.defineProperties(TA.prototype, {
       return this;
     }
   },
-  // TODO: delete if not being used
-  numberOfTargets: {
-    /**
-     * Not a collector! Private use only. Find the total number of targets in the bullseye.
-     * @return {integer} - the number of targets
-     */
-    get: function () {
-      return this._targetIds.length;
-    }
-  },
   onlyOneOf: {
     /**
      * Not a collector! Used by the GradeBook to set a threshold for number of questions to pass in order to count the whole test as correct.
@@ -153,8 +143,11 @@ Object.defineProperties(TA.prototype, {
     get: function () {
       var self = this;
       this.queue.add(function () {
-        self.operations = navigator.userAgent;
-        self.documentValueSpecified = navigator.userAgent;
+        self._registerOperation('gatherElements');
+        self.target = new Target();
+        self._runAgainstTopTargetOnly(function (topTarget) {
+          return navigator.userAgent;
+        })
       });
       return this;
     }
@@ -335,24 +328,6 @@ TA.prototype.deepChildren = function (selector) {
 // for alternate syntax options
 TA.prototype.children = TA.prototype.deepChildren;
 
-// TODO: broken :(
-TA.prototype.shallowChildren = function (selector) {
-  var self = this;
-  this.queue.add(function () {
-    self._registerOperation('gatherShallowChildElements');
-
-    self._runAgainstBottomTargets(function (target) {
-      getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
-        var childTarget = new Target();
-        childTarget.element = newElem;
-        childTarget.index = index;
-        target.children.push(childTarget);
-      });
-    });
-
-  });
-};
-
 TA.prototype.get = function (typeOfValue) {
   var self = this;
   switch (typeOfValue) {
@@ -384,7 +359,7 @@ TA.prototype.limit = function (byHowMuch) {
       self.someOf;
       break;
     default:
-      throw new Error("Illegal 'limit'. Options include: 1 or 'some'.");
+      throw new RangeError("Illegal 'limit'. Options include: 1 or 'some'.");
       break;
   }
 };

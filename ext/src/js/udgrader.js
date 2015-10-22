@@ -97,6 +97,19 @@ function executeFunctionByName(functionName, context) {
   }
   return context[func].apply(this, args);
 }
+
+/**
+ * Get the actual number from a measurement.
+ * @param  {String} measurement - the measurement to strip
+ * @return {Number} - the number inside
+ */
+function getUnitlessMeasurement(measurement) {
+  if (typeof measurement === 'number') {
+    return measurement;
+  }
+  return measurement.match(/\d+/g)[0];
+}
+
 // Inspired by http://www.dustindiaz.com/async-method-queues
 // also helpful http://www.mattgreer.org/articles/promises-in-wicked-detail/
 
@@ -434,16 +447,6 @@ Object.defineProperties(TA.prototype, {
       return this;
     }
   },
-  // TODO: delete if not being used
-  numberOfTargets: {
-    /**
-     * Not a collector! Private use only. Find the total number of targets in the bullseye.
-     * @return {integer} - the number of targets
-     */
-    get: function () {
-      return this._targetIds.length;
-    }
-  },
   onlyOneOf: {
     /**
      * Not a collector! Used by the GradeBook to set a threshold for number of questions to pass in order to count the whole test as correct.
@@ -491,8 +494,11 @@ Object.defineProperties(TA.prototype, {
     get: function () {
       var self = this;
       this.queue.add(function () {
-        self.operations = navigator.userAgent;
-        self.documentValueSpecified = navigator.userAgent;
+        self._registerOperation('gatherElements');
+        self.target = new Target();
+        self._runAgainstTopTargetOnly(function (topTarget) {
+          return navigator.userAgent;
+        })
       });
       return this;
     }
@@ -673,24 +679,6 @@ TA.prototype.deepChildren = function (selector) {
 // for alternate syntax options
 TA.prototype.children = TA.prototype.deepChildren;
 
-// TODO: broken :(
-TA.prototype.shallowChildren = function (selector) {
-  var self = this;
-  this.queue.add(function () {
-    self._registerOperation('gatherShallowChildElements');
-
-    self._runAgainstBottomTargets(function (target) {
-      getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
-        var childTarget = new Target();
-        childTarget.element = newElem;
-        childTarget.index = index;
-        target.children.push(childTarget);
-      });
-    });
-
-  });
-};
-
 TA.prototype.get = function (typeOfValue) {
   var self = this;
   switch (typeOfValue) {
@@ -722,7 +710,7 @@ TA.prototype.limit = function (byHowMuch) {
       self.someOf;
       break;
     default:
-      throw new Error("Illegal 'limit'. Options include: 1 or 'some'.");
+      throw new RangeError("Illegal 'limit'. Options include: 1 or 'some'.");
       break;
   }
 };
@@ -852,6 +840,7 @@ TA.prototype.absolutePosition = function (side) {
   });
   return this;
 };
+
 /**
 Reporters live on the TA and are responsible for:
   * giving the GradeBook instructions for evaluating the questions it has collected.
@@ -983,35 +972,29 @@ TA.prototype.equals = function (config) {
 TA.prototype.isGreaterThan = function (config) {
   var self = this;
   this.queue.add(function () {
-    var expected = config.expected,
-        orEqualTo = config.orEqualTo || false;
+    var expected = config.expected || config;
+    var orEqualTo = config.orEqualTo || false;
 
     var greaterThanFunc = function() {};
     switch (orEqualTo) {
       case true:
         greaterThanFunc = function (target) {
           var isGreaterThan = false;
-          if (target.value >= expected) {
+          if (getUnitlessMeasurement(target.value) >= getUnitlessMeasurement(expected)) {
             isGreaterThan = true;
           }
           return isGreaterThan;
         }
-      case false:
-        greaterThanFunc = function (target) {
-          var isGreaterThan = false;
-          if (target.value > expected) {
-            isGreaterThan = true;
-          }
-          return isGreaterThan;
-        }
+        break;
       default:
         greaterThanFunc = function (target) {
           var isGreaterThan = false;
-          if (target.value > expected) {
+          if (getUnitlessMeasurement(target.value) > getUnitlessMeasurement(expected)) {
             isGreaterThan = true;
           }
           return isGreaterThan;
         }
+        break;
     }
 
     var testResult = self.gradebook.grade({
@@ -1031,35 +1014,29 @@ TA.prototype.isGreaterThan = function (config) {
 TA.prototype.isLessThan = function(config) {
   var self = this;
   this.queue.add(function () {
-    var expected = config.expected,
-        orEqualTo = config.orEqualTo || false;
+    var expected = config.expected || config;
+    var orEqualTo = config.orEqualTo || false;
 
     var lessThanFunc = function() {};
     switch (orEqualTo) {
       case true:
         lessThanFunc = function (target) {
           var isLessThan = false;
-          if (target.value <= expected) {
+          if (getUnitlessMeasurement(target.value) <= getUnitlessMeasurement(expected)) {
             isLessThan = true;
           }
           return isLessThan;
         }
-      case false:
-        lessThanFunc = function (target) {
-          var isLessThan = false;
-          if (target.value < expected) {
-            isLessThan = true;
-          }
-          return isLessThan;
-        }
+        break;
       default:
         lessThanFunc = function (target) {
           var isLessThan = false;
-          if (target.value < expected) {
+          if (getUnitlessMeasurement(target.value) < getUnitlessMeasurement(expected)) {
             isLessThan = true;
           }
           return isLessThan;
         }
+        break;
     }
 
     var testResult = self.gradebook.grade({
@@ -1177,8 +1154,14 @@ TA.prototype.isInRange = function(config) {
 TA.prototype.hasSubstring = function (config) {
   var self = this;
   this.queue.add(function () {
+    // TODO: why not just abort?
     config = config || {};
     var expectedValues = config.expectedValues;
+
+    // this simplifies JSON syntax
+    if (typeof config === 'string' || expectedValues instanceof Array) {
+      expectedValues = config;
+    }
 
     // make sure expectedValues are an array
     if (!(expectedValues instanceof Array)) {
@@ -1187,11 +1170,7 @@ TA.prototype.hasSubstring = function (config) {
 
     var nValues      = config.nValues || false,
         minValues    = config.minValues || 1,
-        maxValues    = config.maxValues || 'all';
-
-    if (maxValues === 'all') {
-      maxValues = expectedValues.length;
-    };
+        maxValues    = config.maxValues || expectedValues.length;
 
     /**
      * Is there a substring in a string? This will answer that question.
@@ -1351,6 +1330,7 @@ ActiveTest.prototype.runTest = function () {
 ActiveTest.prototype.stopTest = function () {
   clearInterval(this.gradeRunner);
 };
+
 function Suite(rawSuite) {
   var name = rawSuite.name;
   var code = rawSuite.code;

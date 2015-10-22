@@ -10,12 +10,85 @@
         "attribute": "name",
         "equals": "udacity-grader"
       }
+    },
+    {
+      "description": "&lt;meta&gt; has a content tag with a link to json",
+      "definition": {
+        "nodes": "meta",
+        "limit": 1,
+        "attribute": "content",
+        "hasSubstring": ".json"
+      }
+    }
+  ]
+},
+{
+  "name": "These should pass",
+  "code": "you should see this",
+  "tests": [
+    {
+      "description": "There are 16 divs",
+      "definition": {
+        "nodes": "div",
+        "get": "count",
+        "equals": 16
+      }
+    },
+    {
+      "description": "Width check - 75% of page width is between 1 and 10000 px",
+      "definition": {
+        "nodes": ".three-quarters",
+        "cssProperty": "width",
+        "isInRange": {
+          "lower": 1,
+          "upper": 10000
+        }
+      }
+    },
+    {
+      "description": "There is a ✔︎ / x image",
+      "definition": {
+        "nodes": "img#udacity",
+        "exists": true
+      }
+    },
+    {
+      "description": "One div has test attr",
+      "definition": {
+        "nodes": "div",
+        "limit": 1,
+        "attribute": "test",
+        "exists": true
+      }
+    },
+    {
+      "description": "The innerHTML div has correct innerHTML",
+      "definition": {
+        "nodes": "div.innerHTML",
+        "get": "innerHTML",
+        "equals": "this is the correct innerHTML"
+      }
+    },
+    {
+      "description": "The UA string has Mozilla in it",
+      "definition": {
+        "get": "UAString",
+        "hasSubstring": "Mozilla"
+      }
+    },
+    {
+      "description": "page body is bigger than 400px",
+      "definition": {
+        "nodes": "body",
+        "cssProperty": "width",
+        "isGreaterThan": 400
+      }
     }
   ]
 },
 {
   "name": "These should fail",
-  "code": "Looking at the DOM",
+  "code": "it's bad if you see this",
   "tests": [
     {
       "description": "There are 15 divs (just delete one)",
@@ -42,37 +115,38 @@
         "nodes": "img#udacity",
         "exists": false
       }
-    }
-  ]
-},
-{
-  "name": "These should pass",
-  "code": "Looking at the DOM",
-  "tests": [
+    },
     {
-      "description": "There are 16 divs",
+      "description": "No divs have test attr",
       "definition": {
         "nodes": "div",
-        "get": "count",
-        "equals": 16
+        "limit": 1,
+        "attribute": "test",
+        "exists": false
       }
     },
     {
-      "description": "Width check - 75% of page width is between 900 and 1000 px",
+      "description": "The innerHTML div has incorrect innerHTML",
       "definition": {
-        "nodes": ".three-quarters",
+        "nodes": "div.innerHTML",
+        "get": "innerHTML",
+        "not": true,
+        "equals": "this is the correct innerHTML"
+      }
+    },
+    {
+      "description": "The UA string has iPad in it",
+      "definition": {
+        "get": "UAString",
+        "hasSubstring": "iPad"
+      }
+    },
+    {
+      "description": "page body is less than 400px",
+      "definition": {
+        "nodes": "body",
         "cssProperty": "width",
-        "isInRange": {
-          "lower": 900,
-          "upper": 1000
-        }
-      }
-    },
-    {
-      "description": "There is a ✔︎ / x image",
-      "definition": {
-        "nodes": "img#udacity",
-        "exists": true
+        "isLessThan": 400
       }
     }
   ]
