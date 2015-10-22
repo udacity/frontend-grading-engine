@@ -25,11 +25,6 @@ function arrEquals(array1, array2) {
 function getDomNodeArray(selector, parent) {
   parent = parent || document;
   var nodes = Array.prototype.slice.apply(parent.querySelectorAll(selector));
-  if (debugMode) {
-    nodes.forEach(function (elem) {
-      elem.classList.add('GE-test');
-    });
-  }
   return nodes;
 }
 

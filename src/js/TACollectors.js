@@ -493,8 +493,8 @@ TA.prototype.absolutePosition = function (side) {
 /**
  * Must be used with noRepeat: true
  * Waits for an event. Grades against event.detail
- * @param  {[type]} eventName [description]
- * @return {[type]}           [description]
+ * @param  {String} eventName - custom event to listen for
+ * @return {Object} TA for chaining
  */
 TA.prototype.waitForEvent = function (eventName) {
   var self = this;

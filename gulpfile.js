@@ -1,10 +1,11 @@
 // TODO: minify
-var gulp = require('gulp'),
-    watch = require('gulp-watch'),
-    concat = require('gulp-continuous-concat'),
-    debug = require('gulp-debug'),
-    replace = require('gulp-replace'),
-    vulcanize = require('gulp-vulcanize');
+var gulp = require('gulp');
+var watch = require('gulp-watch');
+var concat = require('gulp-concat');
+var debug = require('gulp-debug');
+var replace = require('gulp-replace');
+var vulcanize = require('gulp-vulcanize');
+var batch = require('gulp-batch');
 
 var jsFiles = [
   'src/js/intro.js',
@@ -29,40 +30,27 @@ var webComponents = [
   'src/webcomponents/outro.html',
 ]
 
-gulp.task('watch-components', function () {
+var allFiles = jsFiles.concat(webComponents)
+
+gulp.task('concat', function () {
   return gulp.src(webComponents)
-    .pipe(watch(webComponents))
     .pipe(concat('feedback.html'))
     .pipe(gulp.dest('ext/src/templates/'))
-    .pipe(debug({title: 'built dev feedback: '}))
+    .pipe(debug({title: 'built feedback: '}))
 });
 
-gulp.task('vulcanize', function () {
-  return gulp.src('src/webcomponents/feedback.html')
-    .pipe(vulcanize({
-      stripComments: true
-    }))
-    .pipe(gulp.dest('dist'))
-    .pipe(debug({title: 'vulcanized: '}))
-});
-
-gulp.task('watch-build-dev-engine', function() {
+gulp.task('GE', function() {
   return gulp.src(jsFiles)
-    .pipe(watch(jsFiles))
-    .pipe(concat('udgrader.js'))
-    .pipe(gulp.dest('ext/src/js/'))
+    .pipe(concat('GE.js'))
+    .pipe(gulp.dest('ext/src/js/libs/'))
     .pipe(debug({title: 'built dev grading engine:'}))
 });
 
-gulp.task('watch-build-prod-engine', function() {
-  return gulp.src(jsFiles)
-    .pipe(watch(jsFiles))
-    .pipe(concat('udgrader-prod.js'))
-    .pipe(replace('/frontend-grading-engine/', 'http://udacity.github.io/frontend-grading-engine/'))
-    .pipe(gulp.dest('dist/'))
-    .pipe(debug({title: 'rebuild for prod:'}))
-});
+gulp.task('default', ['concat', 'GE']);
 
-gulp.task('default', ['watch-components', 'watch-build-dev-engine']);
-gulp.task('dev-watch', ['watch-components', 'watch-build-dev-engine']);
-gulp.task('prod-watch', ['watch-vulcanize', 'watch-build-prod-engine']);
+gulp.task('watch', function () {
+  gulp.start('default');
+  watch(allFiles, batch(function (events, done) {
+    gulp.start('default', done);
+  }));
+});

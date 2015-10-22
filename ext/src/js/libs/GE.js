@@ -1,30 +1,5 @@
 /*
 Udacity's library for immediate front-end feedback.
-
-Version:      0.4
-Tech:         HTML Imports,
-              Custom Elements,
-              gulp
-url:          http://github.com/udacity/frontend-grading-engine
-author:       Cameron Pittman
-            
-            New for version 0.4!
-              * Now a Chrome Extension!
-              * Editable tests! (inluding totally rewritten view logic)
-
-            New for version 0.3!
-              * Better security!
-              * Better encapsulation!
-              * Chaining test methods
-
-Lexicon:
-  * Active Test:    A test running against the page. Some logic returns true/false.
-                    There are many different kind of active tests.
-                    
-  * Test Suite:     A collection of active tests that displays a code when appropriate.
-
-  * Widget:         A collection of Test Suites.
-                    Lives as a shadow DOM that exists as a child on the body.
 */
 
 /**
@@ -34,7 +9,6 @@ Lexicon:
 ;var GE = (function( window, undefined ){
   'use strict';
   var exports = {};
-  var debugMode = false;
 // http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
 function arrEquals(array1, array2) {
   if (!array1 || !array2)
@@ -62,11 +36,6 @@ function arrEquals(array1, array2) {
 function getDomNodeArray(selector, parent) {
   parent = parent || document;
   var nodes = Array.prototype.slice.apply(parent.querySelectorAll(selector));
-  if (debugMode) {
-    nodes.forEach(function (elem) {
-      elem.classList.add('GE-test');
-    });
-  }
   return nodes;
 }
 
@@ -855,8 +824,8 @@ TA.prototype.absolutePosition = function (side) {
 /**
  * Must be used with noRepeat: true
  * Waits for an event. Grades against event.detail
- * @param  {[type]} eventName [description]
- * @return {[type]}           [description]
+ * @param  {String} eventName - custom event to listen for
+ * @return {Object} TA for chaining
  */
 TA.prototype.waitForEvent = function (eventName) {
   var self = this;

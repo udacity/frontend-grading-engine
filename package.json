@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "Udacity Front-End Grading Engine",
   "main": "Gruntfile.js",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
+    "gulp-batch": "^1.0.5",
+    "gulp-concat": "^2.6.0",
     "gulp-debug": "^2.0.1",
     "gulp-install": "^0.4.0",
     "gulp-replace": "^0.5.3",

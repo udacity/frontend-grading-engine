@@ -35,12 +35,13 @@
         "http://localhost/*"
       ],
       "js": [
-        "src/inject/inject.js"
+        "src/js/inject.js"
       ]
     }
   ],
   "web_accessible_resources": [
     "src/js/*.js",
+    "src/js/libs/*.js",
     "fonts/*.css",
     "fonts/*/*",
     "src/templates/*.html"
