@@ -344,7 +344,7 @@ TA.prototype.get = function (typeOfValue) {
       self.UAString;
       break;
     default:
-      throw new Error("Cannot 'get': " + typeOfValue + ".");
+      throw new Error("Cannot 'get': " + typeOfValue + ". Options include: 'count', 'childPosition', innerHTML', and 'UAString'.");
       break;
   }
 };

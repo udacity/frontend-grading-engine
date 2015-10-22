@@ -46,7 +46,7 @@
       }
     },
     {
-      "description": "There is a ✔︎ / x image",
+      "description": "There is a Udacity logo",
       "definition": {
         "nodes": "img#udacity",
         "exists": true
@@ -83,6 +83,14 @@
         "cssProperty": "width",
         "isGreaterThan": 400
       }
+    },
+    {
+      "description": "the random div is in the right spot",
+      "definition": {
+        "nodes": ".abs",
+        "absolutePosition": "top",
+        "equals": 30
+      }
     }
   ]
 },
@@ -110,7 +118,7 @@
       }
     },
     {
-      "description": "No ✔︎ / x image (delete the ✔︎ / x image)",
+      "description": "No Udacity logo (delete the Udacity logo)",
       "definition": {
         "nodes": "img#udacity",
         "exists": false
@@ -147,6 +155,14 @@
         "nodes": "body",
         "cssProperty": "width",
         "isLessThan": 400
+      }
+    },
+    {
+      "description": "the random div is in the wrong spot",
+      "definition": {
+        "nodes": ".abs",
+        "absolutePosition": "left",
+        "equals": 401
       }
     }
   ]

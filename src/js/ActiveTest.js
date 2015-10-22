@@ -22,7 +22,7 @@ function ActiveTest(rawTest) {
 
   var self = this;
   this.activeTest = (function (config) {
-    var methodsToQueue = self.iwant.translateConfigToMethods(config);
+    var methodsToQueue = self.iwant._translateConfigToMethods(config);
 
     var queueUp = function () {
       methodsToQueue.forEach(function (method) {
