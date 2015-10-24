@@ -37,7 +37,9 @@ chrome.runtime.sendMessage({}, function(response) {
 
       function loadLibraries () {
         // TODO: make sure that metaTag exists first!
-        var libraries = metaTag.getAttribute('libraries');
+        if (metaTag) {
+          var libraries = metaTag.getAttribute('libraries');
+        }
         
         if (libraries) {
           libraries = libraries.split(' ');
@@ -97,20 +99,22 @@ chrome.runtime.sendMessage({}, function(response) {
 
 
       // syncing with chrome extension storage to determine if extension is allowed to run
+      var whitelistedSites = [];
+      var isAllowed = false;
+      var checkedState = false;
 
-      var blacklistedSites = [];
-      function setSyncData(site, value, callback) {
-        var index = blacklistedSites.indexOf(site);
+      function syncWithWhitelist(site, value, callback) {
+        var index = whitelistedSites.indexOf(site);
         if (value === 'off') {
-          if (index === -1) {
-            blacklistedSites.push(site);
+          if (index > -1) {
+            whitelistedSites.splice(index, 1);
           }
         } else if (value === 'on') {
-          if (index > -1) {
-            blacklistedSites.splice(index, 1);
+          if (index === -1) {
+            whitelistedSites.push(site);
           }
         }
-        var data = {blacklist: blacklistedSites};
+        var data = {whitelist: whitelistedSites};
 
         chrome.storage.sync.set(data, function () {
           if (callback) {
@@ -127,34 +131,36 @@ chrome.runtime.sendMessage({}, function(response) {
         });
       };
 
-      var isAllowed = false;
       function whitelistSite (callback) {
         var thisHost = location.hostname;
-        setSyncData(thisHost.toString(), 'on', function() {
+        syncWithWhitelist(thisHost.toString(), 'on', function() {
           isAllowed = true;
         });
       };
 
       function blacklistSite (callback) {
         var thisHost = location.hostname;
-        setSyncData(thisHost.toString(), 'off', function () {
+        syncWithWhitelist(thisHost.toString(), 'off', function () {
           isAllowed = false;
         });
       };
 
-      var checkedState = false;
       function checkCurrentHostIsAllowed (callback) {
+        var thisHost = location.hostname.toString();
         if (checkedState && callback) {
           callback(isAllowed);
         }
-        var thisHost = location.hostname.toString();
         getSyncData(function (response) {
-          if (response.blacklist) {
-            blacklistedSites = response.blacklist;
+          if (response.whitelist) {
+            whitelistedSites = response.whitelist;
           }
-          if (blacklistedSites.indexOf(thisHost) === -1) {
+
+          if (whitelistedSites.indexOf(thisHost) > -1) {
             isAllowed = true;
+          } else {
+            isAllowed = false;
           }
+
           if (callback) {
             callback(isAllowed);
           }
