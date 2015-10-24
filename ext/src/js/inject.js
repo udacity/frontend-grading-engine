@@ -3,6 +3,8 @@ chrome.runtime.sendMessage({}, function(response) {
     if (document.readyState === "complete") {
       clearInterval(readyStateCheckInterval);
 
+      // start of load sequence
+
       var metaTag = document.querySelector('meta[name="udacity-grader"]');
 
       function injectWidgets () {
@@ -12,11 +14,9 @@ chrome.runtime.sendMessage({}, function(response) {
 
         link.href = chrome.extension.getURL('src/templates/feedback.html');
         
-        // TODO: on-off logic here
         document.head.appendChild(link);
 
         link.onload = function(e) {
-          console.log('Loaded Udacity feedback widget');
           injectGradingEngine();
         }
         link.onerror = function(e) {
@@ -24,25 +24,19 @@ chrome.runtime.sendMessage({}, function(response) {
         }
       };
 
-      // You don't have access to the GE here, but you can inject a script into the document that does.
-      function registerTestSuites (json) {
-        var newTestSuites = document.createElement('script');
-        newTestSuites.innerHTML = 'GE.registerSuites(' + JSON.stringify(json) + ');';
-        document.body.appendChild(newTestSuites);
-      };
+      function injectGradingEngine() {
+        var ge = document.createElement('script');
+        ge.src = chrome.extension.getURL('src/js/libs/GE.min.js');
+        document.body.appendChild(ge);
 
-      function loadUnitTests () {
-        var unitTests = metaTag.getAttribute('unit-tests');
-        if (!unitTests) {
-          return;
-        }
-
-        var script = document.createElement('script');
-        script.src = unitTests;
-        document.body.appendChild(script);
+        ge.onload = function (e) {
+          // can't load tests until the grading engine has loaded. registerTestSuites() needs GE
+          loadLibraries();
+        };
       };
 
       function loadLibraries () {
+        // TODO: make sure that metaTag exists first!
         var libraries = metaTag.getAttribute('libraries');
         
         if (libraries) {
@@ -59,7 +53,7 @@ chrome.runtime.sendMessage({}, function(response) {
           script.onload = function () {
             loadedLibs += 1;
             if (loadedLibs === libraries.length) {
-              loadJSONTestsFromFile();
+              loadJSONTestsFromFile(isAllowed);
             }
           };
           document.body.appendChild(script);
@@ -81,23 +75,152 @@ chrome.runtime.sendMessage({}, function(response) {
         }
       }
 
-      function injectGradingEngine() {
-        var ge = document.createElement('script');
-        ge.src = chrome.extension.getURL('src/js/libs/GE.js');
-        document.body.appendChild(ge);
-
-        ge.onload = function (e) {
-          // can't load tests until the grading engine has loaded. registerTestSuites() needs GE
-          loadLibraries();
-        };
+      // You don't have access to the GE here, but you can inject a script into the document that does.
+      function registerTestSuites (json) {
+        var newTestSuites = document.createElement('script');
+        newTestSuites.innerHTML = 'GE.registerSuites(' + JSON.stringify(json) + ');';
+        document.body.appendChild(newTestSuites);
       };
 
-      // load tests from browser action
-      chrome.runtime.onMessage.addListener(function (message) {
-        registerTestSuites(message);
+      function loadUnitTests () {
+        var unitTests = metaTag.getAttribute('unit-tests');
+        if (!unitTests) {
+          return;
+        }
+
+        var script = document.createElement('script');
+        script.src = unitTests;
+        document.body.appendChild(script);
+      };
+
+      // end of load sequence
+
+
+      // syncing with chrome extension storage to determine if extension is allowed to run
+
+      var blacklistedSites = [];
+      function setSyncData(site, value, callback) {
+        var index = blacklistedSites.indexOf(site);
+        if (value === 'off') {
+          if (index === -1) {
+            blacklistedSites.push(site);
+          }
+        } else if (value === 'on') {
+          if (index > -1) {
+            blacklistedSites.splice(index, 1);
+          }
+        }
+        var data = {blacklist: blacklistedSites};
+
+        chrome.storage.sync.set(data, function () {
+          if (callback) {
+            callback(true);
+          }
+        });
+      };
+
+      function getSyncData (callback) {
+        chrome.storage.sync.get(null, function (response) {
+          if (callback) {
+            callback(response);
+          }
+        });
+      };
+
+      var isAllowed = false;
+      function whitelistSite (callback) {
+        var thisHost = location.hostname;
+        setSyncData(thisHost.toString(), 'on', function() {
+          isAllowed = true;
+        });
+      };
+
+      function blacklistSite (callback) {
+        var thisHost = location.hostname;
+        setSyncData(thisHost.toString(), 'off', function () {
+          isAllowed = false;
+        });
+      };
+
+      var checkedState = false;
+      function checkCurrentHostIsAllowed (callback) {
+        if (checkedState && callback) {
+          callback(isAllowed);
+        }
+        var thisHost = location.hostname.toString();
+        getSyncData(function (response) {
+          if (response.blacklist) {
+            blacklistedSites = response.blacklist;
+          }
+          if (blacklistedSites.indexOf(thisHost) === -1) {
+            isAllowed = true;
+          }
+          if (callback) {
+            callback(isAllowed);
+          }
+          if (!checkedState) {
+            checkedState = true;
+          }
+        });
+      };
+
+      function turnOn () {
+        var g = document.querySelector('#ud-grader-options')
+        if (g) {
+          document.head.removeChild(g);
+        }
+        var geOptionsScript = document.createElement('script');
+        geOptionsScript.id = 'ud-grader-options';
+        geOptionsScript.innerHTML = 'GE.turnOn();';
+        document.head.appendChild(geOptionsScript);
+      };
+
+      function turnOff () {
+        var g = document.querySelector('#ud-grader-options')
+        if (g) {
+          document.head.removeChild(g);
+        }
+        var geOptionsScript = document.createElement('script');
+        geOptionsScript.id = 'ud-grader-options';
+        geOptionsScript.innerHTML = 'GE.turnOff();';
+        document.head.appendChild(geOptionsScript);
+      };
+
+      // wait for messages from browser action
+      chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+        switch (message.type) {
+          case 'json':
+            registerTestSuites(message.data);
+            break;
+          case 'on-off':
+            if (message.data === 'on') {
+              whitelistSite();
+              turnOn();
+            } else if (message.data === 'off') {
+              blacklistSite();
+              turnOff();
+            }
+            break;
+          case 'background-wake':
+            checkCurrentHostIsAllowed(function () {
+              sendResponse(isAllowed);
+            });
+            break;
+          default:
+            console.log('invalid message type for: %s from %s', message, sender)
+            break;
+        }
+      });
+
+      window.addEventListener('GE-on', function () {
+        if (isAllowed) {
+          turnOn();
+        }
       })
-      
-      injectWidgets();
+
+      checkCurrentHostIsAllowed(function () {
+        injectWidgets();
+      });
       clearInterval(readyStateCheckInterval);
     }
   }, 10);

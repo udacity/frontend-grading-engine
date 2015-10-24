@@ -11,12 +11,6 @@
     "128": "icons/udacity-invert128.png"
   },
   "default_locale": "en",
-  "background": {
-    "scripts": [
-      "src/bg/background.js"
-    ],
-    "persistent": false
-  },
   "options_page": "src/options/index.html",
   "browser_action": {
     "default_icon": "icons/udacity-invert48.png",
@@ -26,13 +20,15 @@
   "permissions": [
     "contextMenus",
     "tabs",
-    "http://udacity.github.io/*"
+    "storage"
   ],
   "content_scripts": [
     {
       "matches": [
         "http://udacity.github.io/*",
-        "http://localhost/*"
+        "http://localhost/*",
+        "http://*/*",
+        "https://*/*"
       ],
       "js": [
         "src/js/inject.js"

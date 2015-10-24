@@ -12,19 +12,16 @@ Compare network response:
 * time
 * Page size
 
-Flags:
-* repeat test even if it passes
-
 New:
 * click and draggable widget window
 * pinnable widget window
 * browser action
-  * toggle button to show/hide feedback within browser action
   * turn on / turn off
-  * always run on a page
+  * stop testRunner onerror
+  * more useful error types
+  * toggle button to show/hide feedback within browser action
 * better UI
 * show current on widget
-* interactive GUI for test editor
 * more limits
 * style output: https://developer.chrome.com/devtools/docs/console#styling-console-output-with-css
 
@@ -33,20 +30,10 @@ Documenting:
 
 Debugging:
 * debug mode
-* pause mode
-
-Code cleanliness:
-* make private TA methods actually private
-* merge TA.value and TA.values by querying the GradeBook for values instead
-* Target.value setter calls gradebook.registerQuestion() instead?
-* separate collectors and reporters into separate objects within the TA?
 
 Fixes:
 * absolute position gives position relative to viewport. is that desired behavior?
 * expand toEqual to match arrays and objects as well
-* autoload meta[name="udacity-grader"]
 
 Performance:
 * cssProperty creates a FSL
-* how performant are sandboxed iframes???
-* can I create sandboxed web workers???

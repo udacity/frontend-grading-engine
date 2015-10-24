@@ -13,7 +13,7 @@ function handleFileSelect(evt) {
   alert.style.display = 'block';
   
   reader.onload = function (file) {
-    sendDataToTab(file.target.result);
+    sendDataToTab(file.target.result, 'json');
   };
 
   reader.onerror = function (e) {
@@ -31,22 +31,41 @@ function handleFileSelect(evt) {
   }
 };
 
-function sendDataToTab(file) {
-  // actually post data to a tab
-  var fireOffData = function (arrayOfTabs) {
-    var activeTab = arrayOfTabs[0];
-    var activeTabId = activeTab.id;
-    chrome.tabs.sendMessage(activeTabId, file);
-  }
-
+function sendDataToTab(data, type, callback) {
   // get the current tab then send data to it
   chrome.tabs.query({active: true, currentWindow: true}, fireOffData);
+  
+  // actually post data to a tab
+  function fireOffData (arrayOfTabs) {
+    var activeTab = arrayOfTabs[0];
+    var activeTabId = activeTab.id;
+    var message = {'data': data, 'type': type};
+    chrome.tabs.sendMessage(activeTabId, message, function (response) {
+      if (callback) {
+        callback(response);
+      }
+    });
+  }
 };
 
-document.querySelector('#allow-feedback').onchange = function () {
+var allowFeedback = document.querySelector('#allow-feedback');
+allowFeedback.onchange = function () {
   if (!this.checked) {
-    // TODO: need to figure out a way to turn it off!
+    sendDataToTab('off', 'on-off');
+  } else if (this.checked) {
+    sendDataToTab('on', 'on-off');
   }
 };
 
 document.querySelector('#ud-file-loader').addEventListener('change', handleFileSelect, false);
+
+function checkSiteStatus () {
+  // talk to background script
+  sendDataToTab(true, 'background-wake', function (response) {
+    if (response) {
+      allowFeedback.checked = true;
+    }
+  })
+};
+
+checkSiteStatus();

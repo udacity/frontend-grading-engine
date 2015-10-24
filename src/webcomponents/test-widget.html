@@ -90,9 +90,18 @@ when all suites pass.
     };
 
     document.registerElement('test-widget', {prototype: proto});
+    
+    exports.buildWidget = function () {
+      var tw = document.createElement('test-widget');
+      document.body.appendChild(tw);
+    };
+
+    exports.killWidget = function () {
+      var tw = document.querySelector('test-widget');
+      document.body.removeChild(tw);
+    };
+
     return exports;
   })();
   
-  var tw = document.createElement('test-widget');
-  document.body.appendChild(tw);
 </script>

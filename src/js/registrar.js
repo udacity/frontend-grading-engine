@@ -14,9 +14,6 @@ var hotel = {
     suite.element = testResults.buildSuiteElement(suite);
     this.occupiedSuites.push(suite);
     return suite;
-  },
-  clearSuites: function () {
-    this.occupiedSuites = [];
   }
 };
 
@@ -24,7 +21,7 @@ Object.defineProperties(hotel, {
   numberOfPassedSuites: {
     get: function () {
       var numberPassed = 0;
-      this.occupiedSuites.forEach(function (suite, index, arr) {
+      this.occupiedSuites.forEach(function (suite) {
         if (suite.suitePassed) {
           numberPassed += 1;
         }
@@ -75,14 +72,35 @@ function registerSuite(rawSuite) {
   }
 }
 
-// basically for use only when loading a new JSON with suites
+var userData = [];
+var currentState = {
+  on: false
+};
+exports.currentState = currentState;
+/**
+ * For use only when loading a new JSON with user data about the tests they want to run
+ * @param  {JSON} suitesJSON Everything the GE needs to know about your tests
+ */
 function registerSuites(suitesJSON) {
   try {
-    var suites = JSON.parse(suitesJSON);
+    userData = JSON.parse(suitesJSON);
   } catch (e) {
     throw new TypeError("Invalid JSON format." + e);
   }
-  suites.forEach(function (_suite) {
+  if (currentState.on) {
+    startTests();
+  }
+};
+
+function turnOn() {
+  if (!currentState.on) {
+    testWidget.buildWidget();
+    currentState.on = true;
+  }
+};
+
+function startTests() {
+  userData.forEach(function (_suite) {
     var newSuite = registerSuite({
       name: _suite.name,
       code: _suite.code
@@ -98,5 +116,23 @@ function registerSuites(suitesJSON) {
   });
 };
 
-exports.clear = hotel.clearSuites;
+Object.observe(currentState, function (changes) {
+  if (changes[0].object.on && changes[0].oldValue === false) {
+    startTests();
+  }
+})
+
+function turnOff () {
+  hotel.occupiedSuites.forEach(function (suite) {
+    suite.activeTests.forEach(function (activeTest) {
+      activeTest.stopTest();
+    });
+  });
+  hotel.occupiedSuites = [];
+  testWidget.killWidget();
+  currentState.on = false;
+};
+
+exports.turnOn = turnOn;
+exports.turnOff = turnOff;
 exports.registerSuites = registerSuites;

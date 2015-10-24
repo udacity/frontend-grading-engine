@@ -6,6 +6,7 @@ var debug = require('gulp-debug');
 var replace = require('gulp-replace');
 var vulcanize = require('gulp-vulcanize');
 var batch = require('gulp-batch');
+var uglify = require('gulp-uglify');
 
 var jsFiles = [
   'src/js/intro.js',
@@ -30,7 +31,7 @@ var webComponents = [
   'src/webcomponents/outro.html',
 ]
 
-var allFiles = jsFiles.concat(webComponents)
+var allFiles = jsFiles.concat(webComponents);
 
 gulp.task('concat', function () {
   return gulp.src(webComponents)
@@ -39,14 +40,24 @@ gulp.task('concat', function () {
     .pipe(debug({title: 'built feedback: '}))
 });
 
+gulp.task('GE-prod', function() {
+  return gulp.src(jsFiles)
+    .pipe(concat('GE.min.js'))
+    .pipe(uglify())
+    .pipe(gulp.dest('ext/src/js/libs/'))
+    .pipe(debug({title: 'built dev grading engine:'}))
+});
+
 gulp.task('GE', function() {
   return gulp.src(jsFiles)
-    .pipe(concat('GE.js'))
+    .pipe(concat('GE.min.js'))
     .pipe(gulp.dest('ext/src/js/libs/'))
     .pipe(debug({title: 'built dev grading engine:'}))
 });
 
 gulp.task('default', ['concat', 'GE']);
+
+gulp.task('prod', ['concat', 'GE-prod'])
 
 gulp.task('watch', function () {
   gulp.start('default');
