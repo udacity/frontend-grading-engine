@@ -3,8 +3,6 @@ var gulp = require('gulp');
 var watch = require('gulp-watch');
 var concat = require('gulp-concat');
 var debug = require('gulp-debug');
-var replace = require('gulp-replace');
-var vulcanize = require('gulp-vulcanize');
 var batch = require('gulp-batch');
 var uglify = require('gulp-uglify');
 
