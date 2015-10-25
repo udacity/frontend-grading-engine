@@ -15,7 +15,7 @@ function TA(description) {
   this.operations = [];
   this.gradeOpposite = false;
   this.picky = false;
-  this.queue = new Queue(description);
+  this.queue = new Queue();
   this.description = description;
 };
 

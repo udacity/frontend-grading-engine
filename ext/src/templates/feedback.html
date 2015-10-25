@@ -21,47 +21,10 @@ This component holds a single test.
       width: 100%;
     }
     .error {
-      color: #FCD209;
+      color: #A48700;
     }
     .error::before {
-      content: "¿? ";
-    }
-
-    /* http://www.menucool.com/tooltip/css-tooltip */
-    .test-desc {outline:none;}
-    .test-desc strong {line-height:30px;}
-    .test-desc:hover {text-decoration:none;} 
-    .test-desc span.test-result {
-      z-index: 10;
-      display: none;
-      padding: 14px 20px;
-      margin-top: -30px;
-      margin-left: 28px;
-      max-width: 400px;
-      line-height: 16px;
-    }
-/*    .test-desc:hover span.test-result {
-      display: inline;
-      position: absolute;
-      color: #111;
-      border: 1px solid #DCA;
-      background: #fffAF0;
-    }
-*/
-    .active-test:hover .edit {
-      display: inline;
-    }
-
-    .test-result {
-      z-index: 20;
-      position: absolute;
-      top: 30px;
-      border: 0;
-      left: -12px;
-    }
-    .test-desc span.test-result {
-      border-radius:4px;
-      box-shadow: 5px 5px 8px #CCC;
+      content: "?? ";
     }
 
     .flex-container {
@@ -72,7 +35,7 @@ This component holds a single test.
   </style>
   <div class="active-test">
     <div class="flex-container">
-      <div class="mark incorrect"><span class="test-desc"></span><span class="test-result"></span></div>
+      <div class="mark incorrect"><span class="test-desc"></span></div>
     </div>
   </div>
 </template>
@@ -124,18 +87,27 @@ This component holds a single test.
 
       function testHasPassed() {
         markRightOrWrong.classList.remove('incorrect');
+        markRightOrWrong.classList.remove('error');
         markRightOrWrong.classList.add('correct');
       };
 
       function testHasFailed() {
         markRightOrWrong.classList.add('incorrect');
         markRightOrWrong.classList.remove('correct');
+        markRightOrWrong.classList.remove('error');
+      };
+
+      function testHasErred() {
+        markRightOrWrong.classList.remove('incorrect');
+        markRightOrWrong.classList.add('error');
       };
 
       if (testPassed === 'true') {
         testHasPassed();
-      } else {
+      } else if (testPassed === 'false') {
         testHasFailed();
+      } else {
+        testHasErred();
       }
     };
 
@@ -343,7 +315,8 @@ when all suites pass.
       text-align: left;
       max-height: 100%;
       overflow-y: scroll;
-      transition: opacity 0.3s, max-height 0.3s;;
+      transition: opacity 0.3s, max-height 0.3s;
+      z-index: 99999 !important;
     }
 
 /*    @media screen and (max-width: 800px) {

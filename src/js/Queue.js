@@ -1,11 +1,10 @@
 // Inspired by http://www.dustindiaz.com/async-method-queues
 // also helpful http://www.mattgreer.org/articles/promises-in-wicked-detail/
 
-function Queue(description) {
+function Queue() {
   this._methods = [];
   this._flushing = false;
   this._blocked = false;
-  this.description = description;
 }
 
 Queue.prototype = {
