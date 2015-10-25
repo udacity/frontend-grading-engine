@@ -4,13 +4,38 @@ This component (<test-results>) describes the suite editor view.
 
 <template id="test-results">
   <style scoped>
+    * {
+      font-family: 'Source Sans Pro', sans-serif;
+    }
     .toggle-display {
-      display: inline;
+      display: inline-block;
+      float: right;
       height: 2em;
+
+      color: white;
+
+      box-sizing: border-box;
+      
+      border-radius: 2px;
+      border-color: #777;
+      border: 1px solid transparent;
+      
+      background-color: #777;
+    }
+
+    .toggle-display:hover:not(:disabled) {
+      border-color: #555;
+      background-color: #555;
+    }
+
+    .toggle-display:disabled {
+      background-color: #888;
+      color: #ddd;
     }
 
     .hide {
-      display: none;
+      max-height: 0px;
+      overflow: hidden;
     }
 
     .shown::before {
@@ -20,13 +45,12 @@ This component (<test-results>) describes the suite editor view.
     .hidden::before {
       content: "Show";
     }
-
-    button.add-suite {
-      display: block;
-    }
   </style>
   <div class="test-results">
-    <button class="toggle-display shown"> Test Results</button>
+    <div class="upper-display">
+      <em class="placeholder">No tests loaded</em>
+      <button class="toggle-display shown" disabled> Test Results</button>
+    </div>
     <div class="test-suites"></div>
   </div>
 </template>
@@ -57,8 +81,18 @@ This component (<test-results>) describes the suite editor view.
       var self = this;
       var testSuites = this.shadowRoot.querySelector('.test-suites');
 
-      // TODO: would love to move this to hotel at some point
+      var hideShowButton = this.shadowRoot.querySelector('button.toggle-display');
+      var placeholder = this.shadowRoot.querySelector('em.placeholder');
+
+      var maxHeight = null;
       var buildSuiteElement = function (newSuite) {
+        // toggle button and placeholder views
+        if (hideShowButton.disabled === true) {
+          hideShowButton.removeAttribute('disabled');
+        }
+        placeholder.innerHTML = '';
+
+        // actually create the suite
         var _testSuite = document.createElement('test-suite');
 
         _testSuite.setAttribute('name', newSuite.name);
@@ -72,11 +106,19 @@ This component (<test-results>) describes the suite editor view.
       }
       exports.buildSuiteElement = buildSuiteElement;
 
-      var hideShowButton = this.shadowRoot.querySelector('button.toggle-display');
-      hideShowButton.onclick = function () {
-        self.shadowRoot.querySelector('.test-suites').classList.toggle('hide');
+      hideShowButton.onclick = function () {        
+        testSuites.classList.toggle('hide');
+
         this.classList.toggle('shown');
         this.classList.toggle('hidden');
+
+        placeholder.classList.toggle('hide');
+
+        if (this.classList.contains('hidden')) {
+          placeholder.innerHTML = "Tests hidden";
+        } else {
+          placeholder.innerHTML = "";
+        }
       };
     };
 
