@@ -64,6 +64,9 @@ function executeFunctionByName(functionName, context) {
 function getUnitlessMeasurement(measurement) {
   if (typeof measurement === 'number') {
     return measurement;
+  } else if (typeof measurement === 'string') {
+    return measurement.match(/\d+/g)[0];
+  } else {
+    throw new TypeError('Measurement needs to be passed a string or number.');
   }
-  return measurement.match(/\d+/g)[0];
 }

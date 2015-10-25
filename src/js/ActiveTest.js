@@ -18,7 +18,7 @@ function ActiveTest(rawTest) {
     throw new TypeError('If assigned, flags must be an object.');
   }
 
-  this.iwant = new TA();
+  this.iwant = new TA(this.description);
 
   var self = this;
 

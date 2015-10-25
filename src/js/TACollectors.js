@@ -9,13 +9,14 @@ The Teaching Assistant (TA) is responsible for:
 /**
  * The TA constructor sets default values and instantiates a GradeBook.
  */
-function TA() {
+function TA(description) {
   this.target = null;
   this.gradebook = new GradeBook();
   this.operations = [];
   this.gradeOpposite = false;
   this.picky = false;
-  this.queue = new Queue();
+  this.queue = new Queue(description);
+  this.description = description;
 };
 
 Object.defineProperties(TA.prototype, {
@@ -57,7 +58,14 @@ Object.defineProperties(TA.prototype, {
         // doing more than accessing a property on existing target because counting can move up the bullseye to past Targets. Need to reset operations
         self._registerOperation('count');
         self._runAgainstNextToBottomTargets(function (target) {
-          return target.children.length;
+          var length = null;
+          try {
+            length = target.children.length;
+          } catch (e) {
+            console.log(e);
+            throw new Error();
+          }
+          return length;
         });
       });
       return this;
@@ -90,7 +98,14 @@ Object.defineProperties(TA.prototype, {
       this.queue.add(function () {
         self._registerOperation('innerHTML');
         self._runAgainstBottomTargetElements(function (element) {
-          return element.innerHTML;
+          var html = '';
+          try {
+            html = element.innerHTML;
+          } catch (e) {
+            console.log(e);
+            throw new Error();
+          }
+          return html;
         });
       });
       return this;
@@ -146,7 +161,14 @@ Object.defineProperties(TA.prototype, {
         self._registerOperation('gatherElements');
         self.target = new Target();
         self._runAgainstTopTargetOnly(function (topTarget) {
-          return navigator.userAgent;
+          var ua = '';
+          try {
+            ua = navigator.userAgent;
+          } catch (e) {
+            console.log("%cCan't find a user agent string. See " + self.description, "color: red;");
+            throw new Error();
+          }
+          return ua;
         })
       });
       return this;
@@ -292,12 +314,19 @@ TA.prototype.theseElements = function (selector) {
     self.target = new Target();
 
     self._runAgainstTopTargetOnly(function (topTarget) {
-      getDomNodeArray(selector).forEach(function (elem, index, arr) {
-        var target = new Target();
-        target.element = elem;
-        target.index = index;
-        topTarget.children.push(target);
-      });
+      var elems = getDomNodeArray(selector);
+      
+      if (elems.length === 0 && selector) {
+        console.log("%cSelector " + selector + " found 0 elements. See " + self.description, "color: red;");
+        throw new Error();
+      } else if (elems.length > 0) {
+        elems.forEach(function (elem, index, arr) {
+          var target = new Target();
+          target.element = elem;
+          target.index = index;
+          topTarget.children.push(target);
+        });
+      }
     });
   });
   return this;
@@ -359,7 +388,8 @@ TA.prototype.limit = function (byHowMuch) {
       self.someOf;
       break;
     default:
-      throw new RangeError("Illegal 'limit'. Options include: 1 or 'some'.");
+      console.log("%cIllegal 'limit'. Options include: 1 or 'some'. See " + self.description, "color: red;");
+      throw new Error();
       break;
   }
 };
@@ -375,9 +405,17 @@ TA.prototype.cssProperty = function (property) {
     self._registerOperation('cssProperty');
 
     self._runAgainstBottomTargetElements(function (elem) {
-      var styles = getComputedStyle(elem);
-      // TODO: this is causing a FSL that could affect framerate
-      return styles[property];
+      var styles = {};
+      var style = null;
+      try {
+        styles = window.getComputedStyle(elem);
+        style = styles[property];
+      } catch (e) {
+        console.log("%cCannot get CSS property: " + property + ". See " + self.description, "color: red;");
+        throw new Error();
+      }
+      // TODO: this is causing a FSL that could affect framerate?
+      return style;
     });
   });
   return this;
@@ -394,7 +432,13 @@ TA.prototype.attribute = function (attribute) {
     self._registerOperation('attribute')
 
     self._runAgainstBottomTargetElements(function (elem) {
-      var attrValue = elem.getAttribute(attribute);
+      var attrValue = null;
+      try {
+        attrValue = elem.getAttribute(attribute);
+      } catch (e) {
+        console.log("%cCannot get attribute " + attribute + ". See " + self.description, "color: red;");
+        throw new Error();
+      }
       if (attrValue === '') {
         attrValue = true;
       }
@@ -484,7 +528,14 @@ TA.prototype.absolutePosition = function (side) {
     };
 
     self._runAgainstBottomTargetElements(function (elem) {
-      return selectorFunc(elem);
+      var absPos = null;
+      try {
+        absPos = selectorFunc(elem);
+      } catch (e) {
+        console.log("%cCannot get absolute position of " + side + ". See " + self.description, "color: red;");
+        throw new Error();
+      }
+      return absPos;
     });
   });
   return this;

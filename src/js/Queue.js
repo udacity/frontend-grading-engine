@@ -1,10 +1,11 @@
 // Inspired by http://www.dustindiaz.com/async-method-queues
 // also helpful http://www.mattgreer.org/articles/promises-in-wicked-detail/
 
-function Queue() {
+function Queue(description) {
   this._methods = [];
   this._flushing = false;
   this._blocked = false;
+  this.description = description;
 }
 
 Queue.prototype = {
@@ -30,7 +31,11 @@ Queue.prototype = {
     function executeInPromise (fn) {
       return new Promise(function (resolve, reject) {
         if (fn) {
-          var ret = fn();
+          try {
+            var ret = fn();
+          } catch (e) {
+            self.block();
+          }
         }
         resolve(ret);
       });

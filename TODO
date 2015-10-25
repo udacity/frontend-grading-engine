@@ -13,17 +13,17 @@ Compare network response:
 * Page size
 
 New:
-* click and draggable widget window
-* pinnable widget window
-* browser action
-  * turn on / turn off
-  * stop testRunner onerror
-  * more useful error types
-  * toggle button to show/hide feedback within browser action
 * better UI
+	* separate window?
+	* z-index the shit out of the widget
+	* placeholder when tests results are hidden or missing
+	* 'Test' vs 'Tests' if a suite only has one test
+* prevent a test with an error to rerun
+  * more useful error types
+
 * show current on widget
+	* get debug output
 * more limits
-* style output: https://developer.chrome.com/devtools/docs/console#styling-console-output-with-css
 
 Documenting:
 * new README

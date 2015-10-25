@@ -87,12 +87,15 @@ TA.prototype.equals = function (config) {
   this.queue.add(function () {
     var expected, noStrict;
     if (typeof config === 'object') {
-      expected = config.expected,
+      expected = config.expected;
       noStrict = config.noStrict || false;
     } else {
       expected = config;
     }
-    
+    if (!expected) {
+      console.log("%c'equals' needs a value. See " + self.description, "color: red;");
+      throw new Error();
+    }
     var equalityFunc = function() {};
     switch (noStrict) {
       case true:
@@ -131,6 +134,11 @@ TA.prototype.isGreaterThan = function (config) {
   this.queue.add(function () {
     var expected = config.expected || config;
     var orEqualTo = config.orEqualTo || false;
+
+    if (!expected) {
+      console.log("%c'isGreaterThan' needs a value. See " + self.description, "color: red;");
+      throw new Error();
+    }
 
     var greaterThanFunc = function() {};
     switch (orEqualTo) {
@@ -174,6 +182,11 @@ TA.prototype.isLessThan = function(config) {
     var expected = config.expected || config;
     var orEqualTo = config.orEqualTo || false;
 
+    if (!expected) {
+      console.log("%c'isLessThan' needs a value. See " + self.description, "color: red;");
+      throw new Error();
+    }
+
     var lessThanFunc = function() {};
     switch (orEqualTo) {
       case true:
@@ -216,8 +229,8 @@ TA.prototype.isInRange = function(config) {
   // TODO: would be fantastic to use isLessThan and isGreaterThan instead
   var self = this;
   this.queue.add(function () {
-    var lower = config.lower,
-        upper = config.upper,
+    var lower = getUnitlessMeasurement(config.lower),
+        upper = getUnitlessMeasurement(config.upper),
         lowerInclusive = config.lowerInclusive || true,
         upperInclusive = config.upperInclusive || true;
 
@@ -227,6 +240,11 @@ TA.prototype.isInRange = function(config) {
       lower = upper;
       upper = temp;
     };
+
+    if (typeof lower !== 'number' || typeof upper !== 'number') {
+      console.log("%c'isInRange' needs an upper and a lower value in its config object. See " + self.description, "color: red;");
+      throw new Error();
+    }
 
     var xIsLessThan = function () {};
     switch (upperInclusive) {
@@ -311,6 +329,11 @@ TA.prototype.hasSubstring = function (config) {
     if (!(expectedValues instanceof Array)) {
       expectedValues = [expectedValues];
     };
+
+    if (!expectedValues || expectedValues.length === 0) {
+      console.log("%c'hasSubstring' needs at least one regex comparison. See " + self.description, "color: red;");
+      throw new Error();
+    }
 
     var nValues      = config.nValues || false,
         minValues    = config.minValues || 1,
