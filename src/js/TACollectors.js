@@ -167,7 +167,7 @@ Object.defineProperties(TA.prototype, {
           try {
             ua = navigator.userAgent;
           } catch (e) {
-            console.log("%cCan't find a user agent string. See " + self.description, "color: red;");
+            console.log("%cCan't find a user agent string. See '" + self.description + "'", "color: red;");
             self.onerror();
             throw new Error();
           }
@@ -319,10 +319,8 @@ TA.prototype.theseElements = function (selector) {
     self._runAgainstTopTargetOnly(function (topTarget) {
       var elems = getDomNodeArray(selector);
       
-      if (elems.length === 0 && selector) {
-        console.log("%cSelector " + selector + " found 0 elements. See " + self.description, "color: red;");
-        self.onerror();
-        throw new Error();
+      if (!selector) {
+        self.onerror("Cannot find elements without a selector.", true);
       } else if (elems.length > 0) {
         elems.forEach(function (elem, index, arr) {
           var target = new Target();
@@ -349,12 +347,19 @@ TA.prototype.deepChildren = function (selector) {
     self._registerOperation('gatherDeepChildElements');
 
     self._runAgainstBottomTargets(function (target) {
-      getDomNodeArray(selector, target.element).forEach(function (newElem, index) {
-        var childTarget = new Target();
-        childTarget.element = newElem;
-        childTarget.index = index;
-        target.children.push(childTarget);
-      });
+      var elems = getDomNodeArray(selector, target.element);
+
+      if (!selector) {
+        self.onerror("Cannot find elements without a selector.", true);
+        throw new Error();
+      } else if (target.element) {
+        elems.forEach(function (newElem, index) {
+          var childTarget = new Target();
+          childTarget.element = newElem;
+          childTarget.index = index;
+          target.children.push(childTarget);
+        });
+      }
     });
   });
 };
@@ -392,8 +397,7 @@ TA.prototype.limit = function (byHowMuch) {
       self.someOf;
       break;
     default:
-      console.log("%cIllegal 'limit'. Options include: 1 or 'some'. See " + self.description, "color: red;");
-      self.onerror();
+      self.onerror("Illegal 'limit'. Options include: 1 or 'some'.");
       throw new Error();
       break;
   }
@@ -416,8 +420,7 @@ TA.prototype.cssProperty = function (property) {
         styles = window.getComputedStyle(elem);
         style = styles[property];
       } catch (e) {
-        console.log("%cCannot get CSS property: " + property + ". See " + self.description, "color: red;");
-        self.onerror();
+        self.onerror("Cannot get CSS property: " + property + ".");
         throw new Error();
       }
       // TODO: this is causing a FSL that could affect framerate?
@@ -442,8 +445,7 @@ TA.prototype.attribute = function (attribute) {
       try {
         attrValue = elem.getAttribute(attribute);
       } catch (e) {
-        console.log("%cCannot get attribute " + attribute + ". See " + self.description, "color: red;");
-        self.onerror();
+        self.onerror("Cannot get attribute " + attribute + ".");
         throw new Error();
       }
       if (attrValue === '') {
@@ -539,8 +541,7 @@ TA.prototype.absolutePosition = function (side) {
       try {
         absPos = selectorFunc(elem);
       } catch (e) {
-        console.log("%cCannot get absolute position of " + side + ". See " + self.description, "color: red;");
-        self.onerror();
+        self.onerror("Cannot get absolute position of " + side + ".");
         throw new Error();
       }
       return absPos;

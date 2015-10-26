@@ -4,6 +4,7 @@ function ActiveTest(rawTest) {
   this.flags = rawTest.flags || {};
   this.id = parseInt(Math.random() * 1000000);
   this.testPassed = false;
+  this.debugData = [];
 
   this.gradeRunner = function() {};
 
@@ -72,15 +73,19 @@ ActiveTest.prototype.runTest = function () {
   var optional = this.flags.optional || false; // test does not affect code display
 
   var testRunner = function () {
-    // run the test
     var promise = new Promise(function (resolve, reject) {
+      // clear for every run
+      self.debugData = [];
       // resolve when the test finishes
       self.iwant.onresult = function (result) {
         resolve(result);
       };
 
-      self.iwant.onerror = function() {
-        self.hasErred();
+      self.iwant.onerror = function (reason, keepGoing) {
+        self.debugData.push(reason);
+        if (!keepGoing) {
+          self.hasErred();
+        }
       };
 
       // clean out the queue from the last run
@@ -104,6 +109,7 @@ ActiveTest.prototype.runTest = function () {
   if (noRepeat) {
     testRunner();
   } else {
+    testRunner();
     this.gradeRunner = window.setInterval(testRunner, 1000);
   }
 };

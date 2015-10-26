@@ -23,6 +23,9 @@ function arrEquals(array1, array2) {
  * @return {array} Array of DOM nodes
  */
 function getDomNodeArray(selector, parent) {
+  if (!selector) {
+    return [];
+  }
   parent = parent || document;
   var nodes = Array.prototype.slice.apply(parent.querySelectorAll(selector));
   return nodes;

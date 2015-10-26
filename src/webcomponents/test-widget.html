@@ -19,15 +19,20 @@ when all suites pass.
     .test-widget-display {
       position: fixed;
       min-width: 325px;
-      background-color: rgba(230, 230, 230, 0.9);
-      opacity: 0.5;
-      right: 0px;
-      top: 0px;
-      padding: 0.5em;
-      text-align: left;
+      max-width: 500px;
       max-height: 100%;
       overflow-y: scroll;
+      
+      background-color: rgba(230, 230, 230, 0.9);
+      opacity: 0.5;
       transition: opacity 0.3s, max-height 0.3s;
+      
+      top: 0px;
+      right: 0px;
+      padding: 0.5em;
+
+      text-align: left;
+
       z-index: 99999 !important;
     }
 

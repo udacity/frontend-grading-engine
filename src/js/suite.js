@@ -67,8 +67,16 @@ Object.defineProperties(Suite.prototype, {
       }
       return allGood;
     }
-  }
+  },
 })
+
+Suite.prototype.getDebugData = function () {
+  this.activeTests.forEach(function (at) {
+    if (at.debugData.length > 0) {
+      console.log("%c" + at.description + " : " + at.debugData.join(' '), "color: red;");
+    }
+  });
+}
 
 Suite.prototype.createTest = function (rawTest) {
   var activeTest = new ActiveTest(rawTest);

@@ -4,20 +4,22 @@ This component holds a single test.
 
 <template id="active-test">
   <style scoped>
+    .test-desc {
+      width: 100%;
+    }
+
     .correct {
       color: #060;
     }
     .correct::before {
       content: "✓ ";
     }
+    
     .incorrect {
       color: #900;
     }
     .incorrect::before {
       content: "✗ ";
-    }
-    .test-desc {
-      width: 100%;
     }
     .error {
       color: #A48700;

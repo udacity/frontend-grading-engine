@@ -92,13 +92,6 @@ function registerSuites(suitesJSON) {
   }
 };
 
-function turnOn() {
-  if (!currentState.on) {
-    testWidget.buildWidget();
-    currentState.on = true;
-  }
-};
-
 function startTests() {
   userData.forEach(function (_suite) {
     var newSuite = registerSuite({
@@ -120,7 +113,14 @@ Object.observe(currentState, function (changes) {
   if (changes[0].object.on && changes[0].oldValue === false) {
     startTests();
   }
-})
+});
+
+function turnOn() {
+  if (!currentState.on) {
+    testWidget.buildWidget();
+    currentState.on = true;
+  }
+};
 
 function turnOff () {
   hotel.occupiedSuites.forEach(function (suite) {
@@ -133,6 +133,13 @@ function turnOff () {
   currentState.on = false;
 };
 
+function debug() {
+  hotel.occupiedSuites.forEach(function (suite) {
+    suite.getDebugData();
+  });
+};
+
+exports.debug = debug;
 exports.turnOn = turnOn;
 exports.turnOff = turnOff;
 exports.registerSuites = registerSuites;
