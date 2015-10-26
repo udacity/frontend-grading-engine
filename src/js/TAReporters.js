@@ -94,6 +94,7 @@ TA.prototype.equals = function (config) {
     }
     if (!expected) {
       console.log("%c'equals' needs a value. See " + self.description, "color: red;");
+      self.onerror();
       throw new Error();
     }
     var equalityFunc = function() {};
@@ -137,6 +138,7 @@ TA.prototype.isGreaterThan = function (config) {
 
     if (!expected) {
       console.log("%c'isGreaterThan' needs a value. See " + self.description, "color: red;");
+      self.onerror();
       throw new Error();
     }
 
@@ -184,6 +186,7 @@ TA.prototype.isLessThan = function(config) {
 
     if (!expected) {
       console.log("%c'isLessThan' needs a value. See " + self.description, "color: red;");
+      self.onerror();
       throw new Error();
     }
 
@@ -243,6 +246,7 @@ TA.prototype.isInRange = function(config) {
 
     if (typeof lower !== 'number' || typeof upper !== 'number') {
       console.log("%c'isInRange' needs an upper and a lower value in its config object. See " + self.description, "color: red;");
+      self.onerror();
       throw new Error();
     }
 
@@ -332,6 +336,7 @@ TA.prototype.hasSubstring = function (config) {
 
     if (!expectedValues || expectedValues.length === 0) {
       console.log("%c'hasSubstring' needs at least one regex comparison. See " + self.description, "color: red;");
+      self.onerror();
       throw new Error();
     }
 

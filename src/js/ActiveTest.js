@@ -56,6 +56,11 @@ ActiveTest.prototype.hasPassed = function (didPass) {
   this.suite.checkTests();
 };
 
+ActiveTest.prototype.hasErred = function () {
+  this.stopTest();
+  this.element.setAttribute('test-passed', 'error')
+};
+
 /**
 Run a synchronous activeTest every 1000 ms
 */
@@ -73,6 +78,11 @@ ActiveTest.prototype.runTest = function () {
       self.iwant.onresult = function (result) {
         resolve(result);
       };
+
+      self.iwant.onerror = function() {
+        self.hasErred();
+      };
+
       // clean out the queue from the last run
       self.iwant.queue.clear();
       
@@ -80,12 +90,13 @@ ActiveTest.prototype.runTest = function () {
       self.queueUp();
 
     }).then(function (resolve) {
-      var testCorrect = resolve.isCorrect || false;
+      var testCorrect = resolve.isCorrect;
       // TODO: nothing is done with the values. Do something?
       var testValues = '';
       resolve.questions.forEach(function (val) {
         testValues = testValues + ' ' + val.value;
       });
+
       self.hasPassed(testCorrect);
     });
   };
@@ -98,5 +109,6 @@ ActiveTest.prototype.runTest = function () {
 };
 
 ActiveTest.prototype.stopTest = function () {
-  clearInterval(this.gradeRunner);
+  var self = this;
+  clearInterval(self.gradeRunner);
 };

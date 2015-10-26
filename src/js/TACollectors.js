@@ -63,6 +63,7 @@ Object.defineProperties(TA.prototype, {
             length = target.children.length;
           } catch (e) {
             console.log(e);
+            self.onerror();
             throw new Error();
           }
           return length;
@@ -103,6 +104,7 @@ Object.defineProperties(TA.prototype, {
             html = element.innerHTML;
           } catch (e) {
             console.log(e);
+            self.onerror();
             throw new Error();
           }
           return html;
@@ -166,6 +168,7 @@ Object.defineProperties(TA.prototype, {
             ua = navigator.userAgent;
           } catch (e) {
             console.log("%cCan't find a user agent string. See " + self.description, "color: red;");
+            self.onerror();
             throw new Error();
           }
           return ua;
@@ -318,6 +321,7 @@ TA.prototype.theseElements = function (selector) {
       
       if (elems.length === 0 && selector) {
         console.log("%cSelector " + selector + " found 0 elements. See " + self.description, "color: red;");
+        self.onerror();
         throw new Error();
       } else if (elems.length > 0) {
         elems.forEach(function (elem, index, arr) {
@@ -389,6 +393,7 @@ TA.prototype.limit = function (byHowMuch) {
       break;
     default:
       console.log("%cIllegal 'limit'. Options include: 1 or 'some'. See " + self.description, "color: red;");
+      self.onerror();
       throw new Error();
       break;
   }
@@ -412,6 +417,7 @@ TA.prototype.cssProperty = function (property) {
         style = styles[property];
       } catch (e) {
         console.log("%cCannot get CSS property: " + property + ". See " + self.description, "color: red;");
+        self.onerror();
         throw new Error();
       }
       // TODO: this is causing a FSL that could affect framerate?
@@ -437,6 +443,7 @@ TA.prototype.attribute = function (attribute) {
         attrValue = elem.getAttribute(attribute);
       } catch (e) {
         console.log("%cCannot get attribute " + attribute + ". See " + self.description, "color: red;");
+        self.onerror();
         throw new Error();
       }
       if (attrValue === '') {
@@ -533,6 +540,7 @@ TA.prototype.absolutePosition = function (side) {
         absPos = selectorFunc(elem);
       } catch (e) {
         console.log("%cCannot get absolute position of " + side + ". See " + self.description, "color: red;");
+        self.onerror();
         throw new Error();
       }
       return absPos;

@@ -61,6 +61,7 @@ This component holds a single test.
     */
     proto.attachedCallback = function() {
       self = this;
+      self.setAttribute('test-passed', false);
       updateView();
     };
 
@@ -75,7 +76,7 @@ This component holds a single test.
     function updateView() {
       try {
         var testDescription = self.getAttribute('description');
-        var testPassed = self.getAttribute('test-passed');        
+        var testPassed = self.getAttribute('test-passed');
       } catch (e) {
         console.log(e);
       }
@@ -97,6 +98,7 @@ This component holds a single test.
       };
 
       function testHasErred() {
+        markRightOrWrong.classList.remove('correct');
         markRightOrWrong.classList.remove('incorrect');
         markRightOrWrong.classList.add('error');
       };
@@ -105,7 +107,7 @@ This component holds a single test.
         testHasPassed();
       } else if (testPassed === 'false') {
         testHasFailed();
-      } else {
+      } else if (testPassed === 'error') {
         testHasErred();
       }
     };
