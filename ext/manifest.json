@@ -1,7 +1,7 @@
 {
   "name": "Udacity Front End Feedback",
   "short_name": "Udacity Feedback",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "manifest_version": 2,
   "description": "Get feedback on the structure of any page.",
   "homepage_url": "http://github.com/udacity/frontend-grading-engine",
