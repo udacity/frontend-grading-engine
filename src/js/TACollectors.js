@@ -103,8 +103,7 @@ Object.defineProperties(TA.prototype, {
           try {
             html = element.innerHTML;
           } catch (e) {
-            console.log(e);
-            self.onerror();
+            self.onerror("Cannot get innerHTML. Element probably doesn't exist.");
             throw new Error();
           }
           return html;
@@ -167,8 +166,7 @@ Object.defineProperties(TA.prototype, {
           try {
             ua = navigator.userAgent;
           } catch (e) {
-            console.log("%cCan't find a user agent string. See '" + self.description + "'", "color: red;");
-            self.onerror();
+            self.onerror("Can't find a user agent string.");
             throw new Error();
           }
           return ua;
@@ -382,7 +380,8 @@ TA.prototype.get = function (typeOfValue) {
       self.UAString;
       break;
     default:
-      throw new Error("Cannot 'get': " + typeOfValue + ". Options include: 'count', 'childPosition', innerHTML', and 'UAString'.");
+      self.onerror("Cannot 'get': '" + typeOfValue + "'. Options include: 'count', 'childPosition', innerHTML', and 'UAString'.")
+      throw new Error();
       break;
   }
 };
@@ -420,7 +419,7 @@ TA.prototype.cssProperty = function (property) {
         styles = window.getComputedStyle(elem);
         style = styles[property];
       } catch (e) {
-        self.onerror("Cannot get CSS property: " + property + ".");
+        self.onerror("Cannot get CSS property: '" + property + "'.");
         throw new Error();
       }
       // TODO: this is causing a FSL that could affect framerate?
@@ -445,7 +444,7 @@ TA.prototype.attribute = function (attribute) {
       try {
         attrValue = elem.getAttribute(attribute);
       } catch (e) {
-        self.onerror("Cannot get attribute " + attribute + ".");
+        self.onerror("Cannot get attribute '" + attribute + "'.");
         throw new Error();
       }
       if (attrValue === '') {
@@ -541,7 +540,7 @@ TA.prototype.absolutePosition = function (side) {
       try {
         absPos = selectorFunc(elem);
       } catch (e) {
-        self.onerror("Cannot get absolute position of " + side + ".");
+        self.onerror("Cannot get absolute position of '" + side + "'.");
         throw new Error();
       }
       return absPos;

@@ -19,13 +19,13 @@ function ActiveTest(rawTest) {
     throw new TypeError('If assigned, flags must be an object.');
   }
 
-  this.iwant = new TA(this.description);
+  this.ta = new TA(this.description);
 
   var self = this;
 
   // translates json definitions to method calls
   self.queueUp = (function (config) {
-    var methodsToQueue = self.iwant._translateConfigToMethods(config);
+    var methodsToQueue = self.ta._translateConfigToMethods(config);
 
     return function () {
       methodsToQueue.forEach(function (method) {
@@ -77,11 +77,11 @@ ActiveTest.prototype.runTest = function () {
       // clear for every run
       self.debugData = [];
       // resolve when the test finishes
-      self.iwant.onresult = function (result) {
+      self.ta.onresult = function (result) {
         resolve(result);
       };
 
-      self.iwant.onerror = function (reason, keepGoing) {
+      self.ta.onerror = function (reason, keepGoing) {
         self.debugData.push(reason);
         if (!keepGoing) {
           self.hasErred();
@@ -89,7 +89,7 @@ ActiveTest.prototype.runTest = function () {
       };
 
       // clean out the queue from the last run
-      self.iwant.queue.clear();
+      self.ta.queue.clear();
       
       // this call actually runs the test
       self.queueUp();
