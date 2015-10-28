@@ -5,6 +5,7 @@
   "main": "Gruntfile.js",
   "dependencies": {},
   "devDependencies": {
+    "gulp": "^3.9.0",
     "gulp-batch": "^1.0.5",
     "gulp-concat": "^2.6.0",
     "gulp-debug": "^2.0.1",
@@ -20,7 +21,7 @@
     "url": "https://github.com/udacity/frontend-grading-engine.git"
   },
   "author": "Cameron Pittman",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/udacity/frontend-grading-engine/issues"
   },

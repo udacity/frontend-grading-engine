@@ -7,11 +7,10 @@ Immediate, visual feedback about any website's HTML, CSS and JavaScript.
 
 ## Installing from Source
 
-1. Clone this repo and `cd` into it
-2. Install gulp (if necessary) - `npm install gulp`
-3. Install dependencies - `npm install`
-4. Build - `gulp watch` or just `gulp`
-5. Load in Chrome
+1. Clone this repo
+2. `npm install` - install dependencies
+3. `gulp watch` or just `gulp` - build the grading engine
+4. [Load in Chrome](https://developer.chrome.com/extensions/getstarted#unpacked)
   * Open the Extensions window
   * Check 'Developer Mode'
   * Click 'Load unpacked extension...'
@@ -23,7 +22,9 @@ Immediate, visual feedback about any website's HTML, CSS and JavaScript.
 
 Add the following meta tag:
 
-    <meta name="udacity-grader" content="relative_path_to_tests.json">
+```html
+<meta name="udacity-grader" content="relative_path_to_tests.json">
+```
 
 There are two optional attributes: `libraries` and `unit-tests`. `libraries` is always optional and `unit-tests` is only necessary for JS quizzes. More on JS tests [here](#js-tests).
 
@@ -51,52 +52,54 @@ Typical structure is an array of:
 
 Example:
 
-    [{
-      "name": "Learning Udacity Feedback",
-      "code": "This can be an encouraging message",
-      "tests": [
-        {
-          "description": "Test 1 has correct bg color",
-          "definition": {
-            "nodes": ".test1",
-            "cssProperty": "backgroundColor",
-            "equals": "rgb(204, 204, 255)"
-          }
-        }
-      ]
+```javascript
+[{
+  "name": "Learning Udacity Feedback",
+  "code": "This can be an encouraging message",
+  "tests": [
+    {
+      "description": "Test 1 has correct bg color",
+      "definition": {
+        "nodes": ".test1",
+        "cssProperty": "backgroundColor",
+        "equals": "rgb(204, 204, 255)"
+      }
+    }
+  ]
+},
+{
+  "name": "More 'dacity Feedback",
+  "code": "Some message",
+  "tests": [
+    {
+      "description": "Test 2 says 'Hello, world!'",
+      "definition": {
+        "nodes": ".test2",
+        "get": "innerHTML",
+        "hasSubstring": "^Hello, world!$"
+      }
     },
     {
-      "name": "More 'dacity Feedback",
-      "code": "Some message",
-      "tests": [
-        {
-          "description": "Test 2 says 'Hello, world!'",
-          "definition": {
-            "nodes": ".test2",
-            "get": "innerHTML",
-            "hasSubstring": "^Hello, world!$"
-          }
-        },
-        {
-          "description": "Test 3 has two columns",
-          "definition": {
-            "nodes": ".test4",
-            "get": "count",
-            "equals": 2
-          }
-        },
-        {
-          "description": "Test 4 has been dispatched",
-          "definition": {
-            "waitForEvent": "ud-test",
-            "exists": true
-          },
-          "flags": {
-            "noRepeat": true
-          }
-        }
-      ]
-    }]
+      "description": "Test 3 has two columns",
+      "definition": {
+        "nodes": ".test4",
+        "get": "count",
+        "equals": 2
+      }
+    },
+    {
+      "description": "Test 4 has been dispatched",
+      "definition": {
+        "waitForEvent": "ud-test",
+        "exists": true
+      },
+      "flags": {
+        "noRepeat": true
+      }
+    }
+  ]
+}]
+```
 
 *Note that the feedback JSON must be an array of objects*
 
@@ -115,10 +118,12 @@ Think about this sentence as you write tests:
 
 #### 1) Start with `"nodes"`. Every* test against the DOM needs some nodes to examine. This is the start of a "collector".
 
-    "definition": {
-      "nodes": "selector",
-      ...
-    }
+```javascript
+"definition": {
+  "nodes": "selector",
+  ...
+}
+```
 
 **Two exceptions: collecting a user-agent string or in conjunction with `"waitForEvent"`.*
 
@@ -126,11 +131,13 @@ Think about this sentence as you write tests:
 
 **CSS:**
 
-    "definition": {
-      "nodes": ".anything"
-      "cssProperty": "backgroundColor",
-      ...
-    }
+```javascript
+"definition": {
+  "nodes": ".anything"
+  "cssProperty": "backgroundColor",
+  ...
+}
+```
 
 The `"cssProperty"` can be the camelCase version of [any CSS property](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Properties_Reference). `"cssProperty"` takes advantage of `window.getComputedStyle()`.
 
@@ -139,44 +146,52 @@ The `"cssProperty"` can be the camelCase version of [any CSS property](https://d
 
 **Attribute:**
 
-    "definition": {
-      "nodes": "input"
-      "attribute": "for",
-      ...
-    }
+```javascript
+"definition": {
+  "nodes": "input"
+  "attribute": "for",
+  ...
+}
+```
 
 Any attribute works.
 
 **Absolute Position:**
 
-    "definition": {
-      "nodes": ".left-nav"
-      "absolutePosition": "side",
-      ...
-    }
+```javascript
+"definition": {
+  "nodes": ".left-nav"
+  "absolutePosition": "side",
+  ...
+}
+```
 
 Side must be one of: `top`, `left`, `bottom`, or `right`. Currently, the position returned is relative to the viewport, which TBH, seems odd. Be careful because the behavior of `"absolutePosition"` may change in the future.
 
 **Count, innerHTML, ChildPosition, and UAString:**
 
-    "definition": {
-      "nodes": ".box"
-      "get": "count",
-      ...
-    }
+```javascript
+"definition": {
+  "nodes": ".box"
+  "get": "count",
+  ...
+}
+```
 
-These four tests use `"get"` and they are the only tests that use `"get"`. Each of them returns basically what you'd expect. Remember the asterix from earlier about the necessity of `"nodes"`? User-agent strings are one of the exceptions - you can `"get": "UAString"` without `"nodes"`.
+These four tests (`"count"`, `"innerHTML"`, `"childPositions"` and `"UAString"`) use `"get"` and they are the only tests that use `"get"`. Each of them returns basically what you'd expect. Remember the asterix from earlier about the necessity of `"nodes"`? User-agent strings are one of the exceptions - you can `"get": "UAString"` without `"nodes"`.
 
 "Child position? I haven't seen anything about children." - a question you might be asking yourself. Let me answer it.
 
 **Children**
 
-    "definition": {
-      "nodes": ".flex-container",
-      "children": "div",
-      "absolutePosition": "side",
-      ...
-    }
+```javascript
+"definition": {
+  "nodes": ".flex-container",
+  "children": "div",
+  "absolutePosition": "side",
+  ...
+}
+```
 
 `"children"` is a deep children selector. In this example, it was used to select all the divs inside a flex container. Now, reporters will run tests against all of the child divs, not the parent flex container.
 
@@ -184,75 +199,89 @@ These four tests use `"get"` and they are the only tests that use `"get"`. Each 
 
 **Equals**
 
-    "definition": {
-      "nodes": ".flex",
-      "get": "count",
-      "equals": 4
-    }
+```javascript
+"definition": {
+  "nodes": ".flex",
+  "get": "count",
+  "equals": 4
+}
+```
  
 or
 
-    "definition": {
-      "nodes": "input.billing-address",
-      "attribute": "for",
-      "equals": "billing-address"
-    }
+```javascript
+"definition": {
+  "nodes": "input.billing-address",
+  "attribute": "for",
+  "equals": "billing-address"
+}
+```
 
-Set `"equals"` to either strings or numbers and looks for an exact match. In the first example, the test passes when the count of nodes returned by the selector equals for. In the second, the `for` attribute of `<input class="billing-address">` must be set to `"billing-address"`. If you want to compare strings and would prefer to use regex, try `"hasSubstring"`.
+Set `"equals"` to either strings or numbers. It looks for an exact match. In the first example, the test passes when the count of nodes returned by the selector equals four. In the second, the `for` attribute of `<input class="billing-address">` must be set to `"billing-address"`. If you want to compare strings and would prefer to use regex, try `"hasSubstring"`.
 
 **Exists**
 
-    "definition": {
-      "nodes": "input.billing-address",
-      "attribute": "for",
-      "exists": true
-    }
+```javascript
+"definition": {
+  "nodes": "input.billing-address",
+  "attribute": "for",
+  "exists": true
+}
+```
 
 In this example, rather than looking for a specific `for`, I'm just checking to see that it exists at all. The value doesn't matter. If `"exists": false`, then the test will only pass if the attribute does not exist.
 
 **Comparison**
 
-    "definition": {
-      "nodes": ".flex",
-      "get": "count",
-      "isLessThan": 4
-    }
+```javascript
+"definition": {
+  "nodes": ".flex",
+  "get": "count",
+  "isLessThan": 4
+}
+```
 
 `"isLessThan"` and `"isGreaterThan"` share identical behavior.
 
-    "definition": {
-      "nodes": ".flex",
-      "get": "count",
-      "isInRange": {
-        "lower": 4,
-        "upper": 10
-      }
+```javascript
+  "definition": {
+    "nodes": ".flex",
+    "get": "count",
+    "isInRange": {
+      "lower": 4,
+      "upper": 10
     }
+  }
+```
 
 Set an `"upper"` and a `"lower"` value for `"isInRange"`.
 
 **Substrings**
 
-    "definition": {
-      "nodes": ".text",
-      "get": "innerHTML",
-      "hasSubstring": "([A-Z])\w+"
-    }
+```javascript
+"definition": {
+  "nodes": ".text",
+  "get": "innerHTML",
+  "hasSubstring": "([A-Z])\w+"
+}
+```
 
-Run regex tests against strings with `"hasSubstring"`. If 1 or more match groups are returned, the test passes. There are also some optional configs for `"hasSubstring"`.
+Run regex tests against strings with `"hasSubstring"`. If one or more match groups are returned, the test passes. There are also some optional configs for `"hasSubstring"`.
 
-    "definition": {
-      "nodes": ".text",
-      "get": "innerHTML",
-      "hasSubstring": {
-        "expected: [
-          "([A-Z])\w+",
-          "$another^"
-        ],
-        "minValues": 1,
-        "maxValues": 2
-      }
-    }
+```javascript
+"definition": {
+  "nodes": ".text",
+  "get": "innerHTML",
+  "hasSubstring": {
+    "expected": [
+      "([A-Z])\w+",
+      "$another^"
+    ],
+    "minValues": 1,
+    "maxValues": 2
+  }
+}
+```
 
 This test checks that either one or both of the expected values are found.
 
@@ -260,21 +289,25 @@ Feel free to mix and match these. If there is an array of `"expected"` regexes, 
 
 **Utility Properties - `not`, `limit`**
 
-    "definition": {
-      "nodes": ".text",
-      "get": "innerHTML",
-      "not": true,
-      "hasSubstring": "([A-Z])\w+"
-    }
+```javascript
+"definition": {
+  "nodes": ".text",
+  "get": "innerHTML",
+  "not": true,
+  "hasSubstring": "([A-Z])\w+"
+}
+```
 
 Switch behavior with `"not"`. A failing test will now pass and vice versa.
 
-    "definition": {
-      "nodes": ".title",
-      "cssProperty": "marginTop",
-      "limit": 1,
-      "equals": 10
-    }
+```javascript
+"definition": {
+  "nodes": ".title",
+  "cssProperty": "marginTop",
+  "limit": 1,
+  "equals": 10
+}
+```
 
 Currently, the values supported by `"limit"` are `1` and `"some"`.
 
@@ -282,25 +315,29 @@ Remember, by default every node collected by `"nodes"` or `"children"` must pass
 
 **Flags**
 
-    "definition": {
-      "nodes": ".small",
-      "cssProperty": "borderLeft",
-      "equals": 10
-    },
-    "flags": {
-      "noRepeat": true
-    }
+```javascript
+"definition": {
+  "nodes": ".small",
+  "cssProperty": "borderLeft",
+  "equals": 10
+},
+"flags": {
+  "noRepeat": true
+}
+```
 
 Options here currently include `"noRepeat"` and `"alwaysRun"`.
 
 By default, a test runs every 1000ms until it either passes or encounters an error. If `"noRepeat"` is set, the test only runs once when the widget loads and does not rerun every 1000ms. If `"alwaysRun"`, the test continues to run even after it passes.
 
-### JavaScript Tests<a name="js-tests"></a>
+###<a name="js-tests"></a> JavaScript Tests
 
-    "definition": {
-      "waitForEvent": "custom-event",
-      "exists": true
-    }
+```javascript
+"definition": {
+  "waitForEvent": "custom-event",
+  "exists": true
+}
+```
 
 For security reasons, you can only run JavaScript tests against pages that you control. You can trigger tests by dispatching custom events from inside your application or from a script linked in the `unit-tests` attribute of the meta tag. Set `"waitForEvent"` to a custom event. As soon as the custom event is detected, the test passes.
 
@@ -316,7 +353,7 @@ I like to use the jsgrader library for writing JS tests because it supports grad
 
 ![wrong answer, right answer, error](images/wrong-right-error.png)
 
-Green tests have passed, red tests have failed and yellow tests have some kind of error. If there is an error, run `GE.debug()` from the console to see why the yellow tests are erring.
+Green tests with ✓ have passed, red tests with ✗ have failed and yellow tests with ?? have some kind of error. If there is an error, run `GE.debug()` from the console to see why the yellow tests are erring.
 
 ## How Udacity Feedback Works
 
