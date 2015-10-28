@@ -309,10 +309,17 @@ This component holds a suite of tests.
       var suiteName = self.getAttribute('name');
       var suitePassed = self.getAttribute('suite-passed');
       var suiteCode = self.code;
+      var numberOfTests = self.getAttribute('number-of-tests');
 
       var suite = self.shadowRoot.querySelector('.suite');
       var sc = self.shadowRoot.querySelector('.suite-code');
-      self.shadowRoot.querySelector('.suite-title').innerHTML = suiteName + " Tests";
+
+      var titleEnd = " Test";
+      if (numberOfTests > 1) {
+        titleEnd = " Tests";
+      }
+
+      self.shadowRoot.querySelector('.suite-title').innerHTML = suiteName + titleEnd;
 
       function displayCode (show) {
         if (show) {

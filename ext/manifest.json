@@ -1,9 +1,9 @@
 {
   "name": "Udacity Front End Feedback",
   "short_name": "Udacity Feedback",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "manifest_version": 2,
-  "description": "Get feedback on the structure of any page.",
+  "description": "Immediate, visual feedback about any website's HTML, CSS and JavaScript",
   "homepage_url": "http://github.com/udacity/frontend-grading-engine",
   "icons": {
     "16": "icons/udacity-invert16.png",

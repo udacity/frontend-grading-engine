@@ -166,4 +166,18 @@
       }
     }
   ]
+},
+{
+  "name": "Just one",
+  "code": "thing",
+  "tests": [
+    {
+      "description": "There is a body?",
+      "definition": {
+        "nodes": "body",
+        "get": "count",
+        "equals": 1
+      }
+    }
+  ]
 }]

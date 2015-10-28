@@ -176,47 +176,50 @@ TA.prototype.isGreaterThan = function (config) {
  * @param  {Number} expected - the number for comparison
  * @param  {boolean} orEqualTo - if true, run as <= instead of <
  */
-TA.prototype.isLessThan = function(config) {
+TA.prototype.isFewerThan = function(config) {
   var self = this;
   this.queue.add(function () {
     var expected = config.expected || config;
     var orEqualTo = config.orEqualTo || false;
 
     if (!expected) {
-      self.onerror("'isLessThan' needs a value.");
+      self.onerror("'isFewerThan' needs a value.");
       throw new Error();
     }
 
-    var lessThanFunc = function() {};
+    var fewerThanFunc = function() {};
     switch (orEqualTo) {
       case true:
-        lessThanFunc = function (target) {
-          var isLessThan = false;
+        fewerThanFunc = function (target) {
+          var isFewerThan = false;
           if (getUnitlessMeasurement(target.value) <= getUnitlessMeasurement(expected)) {
-            isLessThan = true;
+            isFewerThan = true;
           }
-          return isLessThan;
+          return isFewerThan;
         }
         break;
       default:
-        lessThanFunc = function (target) {
-          var isLessThan = false;
+        fewerThanFunc = function (target) {
+          var isFewerThan = false;
           if (getUnitlessMeasurement(target.value) < getUnitlessMeasurement(expected)) {
-            isLessThan = true;
+            isFewerThan = true;
           }
-          return isLessThan;
+          return isFewerThan;
         }
         break;
     }
 
     var testResult = self.gradebook.grade({
-      callback: lessThanFunc,
+      callback: fewerThanFunc,
       not: self.gradeOpposite,
       strictness: self.picky
     });
     self.onresult(testResult);
   });
 };
+
+// for the less grammatically accurate
+TA.prototype.isLessThan = TA.prototype.isFewerThan;
 
 /**
  * Check that the target value is between upper and lower.
@@ -226,7 +229,7 @@ TA.prototype.isLessThan = function(config) {
  * @param  {Boolean} upperInclusive - if true, run upper check as <= instead of <
  */
 TA.prototype.isInRange = function(config) {
-  // TODO: would be fantastic to use isLessThan and isGreaterThan instead
+  // TODO: would be fantastic to use isFewerThan and isGreaterThan instead
   var self = this;
   this.queue.add(function () {
     var lower = getUnitlessMeasurement(config.lower),

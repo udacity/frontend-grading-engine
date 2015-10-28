@@ -113,4 +113,5 @@ Suite.prototype.checkTests = function () {
   this.suitePassed = passed;
   this.element.suitePassed = passed;
   this.element.setAttribute('suite-passed', passed);
+  this.element.setAttribute('number-of-tests', this.activeTests.length);
 };
