@@ -12,7 +12,7 @@ Immediate, visual feedback about any website's HTML, CSS and JavaScript.
 3. Install dependencies - `npm install`
 4. Build - `gulp watch` or just `gulp`
 5. Load in Chrome
-  * Open the [Extensions](chrome://extensions/) window
+  * Open the Extensions window
   * Check 'Developer Mode'
   * Click 'Load unpacked extension...'
   * Select `ext/`
@@ -25,7 +25,7 @@ Add the following meta tag:
 
     <meta name="udacity-grader" content="relative_path_to_tests.json">
 
-There are two optional attributes: `libraries` and `unit-tests`. `libraries` is always optional and `unit-tests` is only necessary for JS quizzes. More on JS tests here.*****
+There are two optional attributes: `libraries` and `unit-tests`. `libraries` is always optional and `unit-tests` is only necessary for JS quizzes. More on JS tests [here](#js-tests).
 
 ### On sites you don't own
 
@@ -41,7 +41,6 @@ Typical structure is an array of:
     |_name
     |_code
     |_tests
-      |_name
       |_description
       |_definition
       | |_nodes
@@ -79,15 +78,7 @@ Example:
           }
         },
         {
-          "description": "Test 3 has larger columns",
-          "definition": {
-            "nodes": ".test3",
-            "cssProperty": "width",
-            "isGreaterThan": 159
-          }
-        },
-        {
-          "description": "Test 4 has two columns",
+          "description": "Test 3 has two columns",
           "definition": {
             "nodes": ".test4",
             "get": "count",
@@ -95,7 +86,7 @@ Example:
           }
         },
         {
-          "description": "Test 5 has been dispatched",
+          "description": "Test 4 has been dispatched",
           "definition": {
             "waitForEvent": "ud-test",
             "exists": true
@@ -120,28 +111,31 @@ Example:
 
 Think about this sentence as you write tests:
 
-> I want the nodes with [selector] to have [some property] that [compares to some value].
+> I want the nodes of [selector] to have [some property] that [compares to some value].
 
-#### 1) Start with `"nodes"`. Every* test against the DOM needs some nodes to examine. This is a **collector**.
+#### 1) Start with `"nodes"`. Every* test against the DOM needs some nodes to examine. This is the start of a "collector".
 
     "definition": {
       "nodes": "selector",
       ...
     }
 
-*\* Two exceptions: collecting a user-agent string or in conjunction with `"waitForEvent"`.*
+**Two exceptions: collecting a user-agent string or in conjunction with `"waitForEvent"`.*
 
-#### 2) Decide what property you want to test.
+#### 2) Decide what value you want to collect and test.
 
 **CSS:**
 
     "definition": {
       "nodes": ".anything"
-      "cssProperty": "camelCaseProperty",
+      "cssProperty": "backgroundColor",
       ...
     }
 
-The `"cssProperty"` can be the camelCase version of [any CSS property](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Properties_Reference).
+The `"cssProperty"` can be the camelCase version of [any CSS property](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Properties_Reference). `"cssProperty"` takes advantage of `window.getComputedStyle()`.
+
+* Colors will be returned in the form of `"rgb(255, 255, 255)"`. Note the spaces.
+* All `width`, `margin`, etc measurements are returned as pixel values, not percentages.
 
 **Attribute:**
 
@@ -161,7 +155,7 @@ Any attribute works.
       ...
     }
 
-Side must be one of: `top`, `left`, `bottom`, or `right`. Currently, the position returned is relative to the viewport, which TBH, seems odd. Be careful because the behavior of absolutePosition may change in the future.
+Side must be one of: `top`, `left`, `bottom`, or `right`. Currently, the position returned is relative to the viewport, which TBH, seems odd. Be careful because the behavior of `"absolutePosition"` may change in the future.
 
 **Count, innerHTML, ChildPosition, and UAString:**
 
@@ -186,7 +180,7 @@ These four tests use `"get"` and they are the only tests that use `"get"`. Each 
 
 `"children"` is a deep children selector. In this example, it was used to select all the divs inside a flex container. Now, reporters will run tests against all of the child divs, not the parent flex container.
 
-#### 3) Decide how you want to grade the values you just collected. This is a **reporter**.
+#### 3) Decide how you want to grade the values you just collected. This is a "reporter".
 
 **Equals**
 
@@ -221,10 +215,10 @@ In this example, rather than looking for a specific `for`, I'm just checking to 
     "definition": {
       "nodes": ".flex",
       "get": "count",
-      "isFewerThan": 4
+      "isLessThan": 4
     }
 
-`"isFewerThan"` and `"isGreaterThan"` share identical behavior.
+`"isLessThan"` and `"isGreaterThan"` share identical behavior.
 
     "definition": {
       "nodes": ".flex",
@@ -245,9 +239,26 @@ Set an `"upper"` and a `"lower"` value for `"isInRange"`.
       "hasSubstring": "([A-Z])\w+"
     }
 
-Run regex tests against strings with `"hasSubstring"`. If 1 or more match groups are returned, the test passes.
+Run regex tests against strings with `"hasSubstring"`. If 1 or more match groups are returned, the test passes. There are also some optional configs for `"hasSubstring"`.
 
-**Utility Properties**
+    "definition": {
+      "nodes": ".text",
+      "get": "innerHTML",
+      "hasSubstring": {
+        "expected: [
+          "([A-Z])\w+",
+          "$another^"
+        ],
+        "minValues": 1,
+        "maxValues": 2
+      }
+    }
+
+This test checks that either one or both of the expected values are found.
+
+Feel free to mix and match these. If there is an array of `"expected"` regexes, you can use `"minValues"` and `"maxValues"` to determine how many of the expected values need to match in order for the test to pass. Without `"minValues"` and `"maxValues"`, all regexes will need to be matched in order for the test to pass.
+
+**Utility Properties - `not`, `limit`**
 
     "definition": {
       "nodes": ".text",
@@ -265,26 +276,53 @@ Switch behavior with `"not"`. A failing test will now pass and vice versa.
       "equals": 10
     }
 
-Remember, by default every node collected by `"nodes"` or `"children"` must pass the test specified. To change that, use `"limit"`. Current values supported are `1` and `"some"`. If `1`, only one of the nodes collected should pass. If more than one node passes, the test fails. In the case of `"some"`, `1 < number < all` nodes should pass in order for the test to pass. If all, one, or 0 nodes pass, then the test fails.
+Currently, the values supported by `"limit"` are `1` and `"some"`.
 
-### JavaScript Tests
+Remember, by default every node collected by `"nodes"` or `"children"` must pass the test specified. To change that, use `"limit"`. If `1`, only one of the values collected should pass. If more than one value passes, the test fails. In the case of `"some"`, `1 < number < all` values should pass in order for the test to pass. If all, one, or 0 values pass, then the test fails.
+
+**Flags**
+
+    "definition": {
+      "nodes": ".small",
+      "cssProperty": "borderLeft",
+      "equals": 10
+    },
+    "flags": {
+      "noRepeat": true
+    }
+
+Options here currently include `"noRepeat"` and `"alwaysRun"`.
+
+By default, a test runs every 1000ms until it either passes or encounters an error. If `"noRepeat"` is set, the test only runs once when the widget loads and does not rerun every 1000ms. If `"alwaysRun"`, the test continues to run even after it passes.
+
+### JavaScript Tests<a name="js-tests"></a>
 
     "definition": {
       "waitForEvent": "custom-event",
       "exists": true
     }
 
-For security reasons, you can only run JavaScript tests against a page that you control.
+For security reasons, you can only run JavaScript tests against pages that you control. You can trigger tests by dispatching custom events from inside your application or from a script linked in the `unit-tests` attribute of the meta tag. Set `"waitForEvent"` to a custom event. As soon as the custom event is detected, the test passes.
 
-*** write this up! ***
+Example of a custom event:
 
+```javascript
+window.dispatchEvent(new CustomEvent('ud-test', {'detail': 'passed'}));
+```
 
+I like to use the jsgrader library for writing JS tests because it supports grading checkpoints (logic to say "stop grading if this test fails"). You can use it too by setting `libraries="jsgrader"` in the meta tag. [link to documentation forthcoming].
+
+### Test States and Debugging
+
+![wrong answer, right answer, error](images/wrong-right-error.png)
+
+Green tests have passed, red tests have failed and yellow tests have some kind of error. If there is an error, run `GE.debug()` from the console to see why the yellow tests are erring.
 
 ## How Udacity Feedback Works
 
 At the core of Udacity Feedback is the grading engine. The grading engine performs two tasks: collecting information from the DOM and reporting on it. Each test creates its own instance of the grading engine which queries the DOM once a second (unless otherwise specified).
 
-### Some helpful hints for understanding the source code:
+### Overview of the source code:
 
 * **TA** (Teaching Assistant). The TA orchestrates the DOM querying and comparison logic of the grading engine. There is a collection aspect (src/js/TACollectors.js) and a reporting aspect (src/js/TAReporters.js). Collectors pull info from the DOM. Reporters are responsible for the logic of evaluating the information. The TA executes tests as a series of async methods pulled from a Queue.
 * **Gradebook**. Every TA has an instance of a Gradebook, which determines the pass/fail state of a test. Some tests have multiple parts (eg. examining every element of some class to ensure that all have a blue background - each element is a part of the test). The Gradebook compares the parts to the comparison functions as set by the TA and decides if the test has passed or failed.
