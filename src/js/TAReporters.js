@@ -92,7 +92,7 @@ TA.prototype.equals = function (config) {
     } else {
       expected = config;
     }
-    if (!expected) {
+    if (!expected || (typeof expected !== 'string' && typeof expected !== 'number')) {
       self.onerror("'equals' needs a value.");
       throw new Error();
     }
@@ -135,8 +135,8 @@ TA.prototype.isGreaterThan = function (config) {
     var expected = config.expected || config;
     var orEqualTo = config.orEqualTo || false;
 
-    if (!expected) {
-      self.onerror("'isGreaterThan' needs a value.");
+    if (!expected || typeof expected !== 'number') {
+      self.onerror("'isGreaterThan' needs a number.");
       throw new Error();
     }
 
@@ -176,50 +176,47 @@ TA.prototype.isGreaterThan = function (config) {
  * @param  {Number} expected - the number for comparison
  * @param  {boolean} orEqualTo - if true, run as <= instead of <
  */
-TA.prototype.isFewerThan = function(config) {
+TA.prototype.isLessThan = function(config) {
   var self = this;
   this.queue.add(function () {
     var expected = config.expected || config;
     var orEqualTo = config.orEqualTo || false;
 
-    if (!expected) {
-      self.onerror("'isFewerThan' needs a value.");
+    if (!expected || typeof expected !== 'number') {
+      self.onerror("'isLessThan' needs a value.");
       throw new Error();
     }
 
-    var fewerThanFunc = function() {};
+    var lessThanFunc = function() {};
     switch (orEqualTo) {
       case true:
-        fewerThanFunc = function (target) {
-          var isFewerThan = false;
+        lessThanFunc = function (target) {
+          var isLessThan = false;
           if (getUnitlessMeasurement(target.value) <= getUnitlessMeasurement(expected)) {
-            isFewerThan = true;
+            isLessThan = true;
           }
-          return isFewerThan;
+          return isLessThan;
         }
         break;
       default:
-        fewerThanFunc = function (target) {
-          var isFewerThan = false;
+        lessThanFunc = function (target) {
+          var isLessThan = false;
           if (getUnitlessMeasurement(target.value) < getUnitlessMeasurement(expected)) {
-            isFewerThan = true;
+            isLessThan = true;
           }
-          return isFewerThan;
+          return isLessThan;
         }
         break;
     }
 
     var testResult = self.gradebook.grade({
-      callback: fewerThanFunc,
+      callback: lessThanFunc,
       not: self.gradeOpposite,
       strictness: self.picky
     });
     self.onresult(testResult);
   });
 };
-
-// for the less grammatically accurate
-TA.prototype.isLessThan = TA.prototype.isFewerThan;
 
 /**
  * Check that the target value is between upper and lower.
@@ -229,7 +226,7 @@ TA.prototype.isLessThan = TA.prototype.isFewerThan;
  * @param  {Boolean} upperInclusive - if true, run upper check as <= instead of <
  */
 TA.prototype.isInRange = function(config) {
-  // TODO: would be fantastic to use isFewerThan and isGreaterThan instead
+  // TODO: would be fantastic to use isLessThan and isGreaterThan instead
   var self = this;
   this.queue.add(function () {
     var lower = getUnitlessMeasurement(config.lower),
@@ -333,14 +330,19 @@ TA.prototype.hasSubstring = function (config) {
       expectedValues = [expectedValues];
     };
 
-    if (!expectedValues || expectedValues.length === 0) {
-      self.onerror("'hasSubstring' needs at least one regex comparison.");
-      throw new Error();
-    }
-
     var nValues      = config.nValues || false,
         minValues    = config.minValues || 1,
         maxValues    = config.maxValues || expectedValues.length;
+
+    if (!expectedValues || expectedValues.length === 0) {
+      self.onerror("'hasSubstring' needs at least one regex comparison.");
+      throw new Error();
+    };
+
+    if (typeof minValues !== 'number' || typeof maxValues !== 'number') {
+      self.onerror("'hasSubstring' 'minValue' and 'maxValue' need to be numbers.");
+      throw new Error();
+    };
 
     /**
      * Is there a substring in a string? This will answer that question.

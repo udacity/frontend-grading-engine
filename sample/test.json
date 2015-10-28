@@ -18,6 +18,9 @@
         "limit": 1,
         "attribute": "content",
         "hasSubstring": ".json"
+      },
+      "flags": {
+        "optional": true
       }
     }
   ]
@@ -163,6 +166,42 @@
         "nodes": ".abs",
         "absolutePosition": "left",
         "equals": 401
+      }
+    }
+  ]
+},
+{
+  "name": "These tests should err",
+  "code": "ERROR ERROR",
+  "tests": [
+    {
+      "description": "absolute positions",
+      "definition": {
+        "nodes": "body",
+        "absolutePositions": "left",
+        "equals": 1
+      }
+    },
+    {
+      "description": "bad counts",
+      "definition": {
+        "nodes": "body",
+        "get": "counts",
+        "equals": 1
+      }
+    }
+  ]
+},
+{
+  "name": "This should err",
+  "code": "ERROR ERROR",
+  "tests": [
+    {
+      "description": "absolute positionsss",
+      "definitions": {
+        "nodes": "body",
+        "absolutePositions": "left",
+        "equals": 1
       }
     }
   ]

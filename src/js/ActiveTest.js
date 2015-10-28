@@ -8,15 +8,18 @@ function ActiveTest(rawTest) {
 
   this.gradeRunner = function() {};
 
-  // TODO: move this validation stuff out of here
   // validate the description.
   if (typeof this.description !== 'string') {
-    throw new TypeError("Every suite needs a description string.");
+    throw new TypeError("Every test needs a description string.");
   }
 
   // validate the flags
   if (typeof this.flags !== 'object') {
-    throw new TypeError('If assigned, flags must be an object.');
+    throw new TypeError("If assigned, flags must be an object.");
+  }
+
+  if (typeof rawTest.definition !== 'object') {
+    throw new TypeError("Every test needs a definition");
   }
 
   this.ta = new TA(this.description);
@@ -29,7 +32,12 @@ function ActiveTest(rawTest) {
 
     return function () {
       methodsToQueue.forEach(function (method) {
-        method();
+        try {
+          method();
+        } catch (e) {
+          self.hasErred();
+          throw new Error(self.description + " has an invalid definition.")
+        }
       });
     };
 

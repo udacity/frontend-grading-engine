@@ -62,9 +62,7 @@ Object.defineProperties(TA.prototype, {
           try {
             length = target.children.length;
           } catch (e) {
-            console.log(e);
-            self.onerror();
-            throw new Error();
+            length = 0;
           }
           return length;
         });
@@ -72,7 +70,6 @@ Object.defineProperties(TA.prototype, {
       return this;
     }
   },
-  // TODO: delete because it isn't being used???
   index: {
     /**
      * To find the index of a target from when it was created.
@@ -83,7 +80,13 @@ Object.defineProperties(TA.prototype, {
       this.queue.add(function () {
         self._registerOperation('index');
         self._runAgainstBottomTargets(function (target) {
-          return target.index;
+          var index = null;
+          try {
+            index = target.index;
+          } catch (e) {
+            self.onerror("Cannot get index. Elements probably don't exist.");
+          }
+          return index;
         });
       });
       return this;
@@ -103,8 +106,7 @@ Object.defineProperties(TA.prototype, {
           try {
             html = element.innerHTML;
           } catch (e) {
-            self.onerror("Cannot get innerHTML. Element probably doesn't exist.");
-            throw new Error();
+            self.onerror("Cannot get innerHTML. Element probably doesn't exist.", true);
           }
           return html;
         });
@@ -166,8 +168,7 @@ Object.defineProperties(TA.prototype, {
           try {
             ua = navigator.userAgent;
           } catch (e) {
-            self.onerror("Can't find a user agent string.");
-            throw new Error();
+            self.onerror("Can't find a user agent string.", true);
           }
           return ua;
         })
@@ -379,6 +380,9 @@ TA.prototype.get = function (typeOfValue) {
     case 'UAString':
       self.UAString;
       break;
+    case 'index':
+      self.index;
+      break;
     default:
       self.onerror("Cannot 'get': '" + typeOfValue + "'. Options include: 'count', 'childPosition', innerHTML', and 'UAString'.")
       throw new Error();
@@ -419,8 +423,7 @@ TA.prototype.cssProperty = function (property) {
         styles = window.getComputedStyle(elem);
         style = styles[property];
       } catch (e) {
-        self.onerror("Cannot get CSS property: '" + property + "'.");
-        throw new Error();
+        self.onerror("Cannot get CSS property: '" + property + "'.", true);
       }
       // TODO: this is causing a FSL that could affect framerate?
       return style;
@@ -444,8 +447,7 @@ TA.prototype.attribute = function (attribute) {
       try {
         attrValue = elem.getAttribute(attribute);
       } catch (e) {
-        self.onerror("Cannot get attribute '" + attribute + "'.");
-        throw new Error();
+        self.onerror("Cannot get attribute '" + attribute + "'.", true);
       }
       if (attrValue === '') {
         attrValue = true;
@@ -540,8 +542,7 @@ TA.prototype.absolutePosition = function (side) {
       try {
         absPos = selectorFunc(elem);
       } catch (e) {
-        self.onerror("Cannot get absolute position of '" + side + "'.");
-        throw new Error();
+        self.onerror("Cannot get absolute position of '" + side + "'.", true);
       }
       return absPos;
     });

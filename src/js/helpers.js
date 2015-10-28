@@ -70,6 +70,6 @@ function getUnitlessMeasurement(measurement) {
   } else if (typeof measurement === 'string') {
     return measurement.match(/\d+/g)[0];
   } else {
-    throw new TypeError('Measurement needs to be passed a string or number.');
+    return NaN;
   }
 }
