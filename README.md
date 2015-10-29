@@ -347,7 +347,7 @@ Example of a custom event:
 window.dispatchEvent(new CustomEvent('ud-test', {'detail': 'passed'}));
 ```
 
-I like to use the jsgrader library for writing JS tests because it supports grading checkpoints (logic to say "stop grading if this test fails"). You can use it too by setting `libraries="jsgrader"` in the meta tag. [link to documentation forthcoming].
+I like to use the [jsgrader library](https://github.com/udacity/js-grader) for writing JS tests because it supports grading checkpoints (logic to say "stop grading if this test fails"). You can use it too by setting `libraries="jsgrader"` in the meta tag.].
 
 ### Test States and Debugging
 
