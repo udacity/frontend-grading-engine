@@ -1,5 +1,4 @@
 var Grader = (function() {
-  // elem refers to css selector
 
   // http://stackoverflow.com/questions/1068834/object-comparison-in-javascript?lq=1
   function deepCompare () {
@@ -115,7 +114,7 @@ var Grader = (function() {
     return true;
   }
 
-  function Queue(grader) {
+  function Queue (grader) {
     this.grader = grader;
     this.gradingSteps = [];
     this.flushing = false;
@@ -129,7 +128,7 @@ var Grader = (function() {
       }
 
       if (!callback) {
-        throw new Error("UD: Every test added to the queue must have a valid function.");
+        throw new Error("Every test added to the queue must have a valid function.");
       }
 
       this.gradingSteps.push({
@@ -142,44 +141,68 @@ var Grader = (function() {
       });
     },
 
-    flush: function() {    
+    _flush: function () {    
       if (!this.flushing) {
         this.flushing = true;
       }
       this.step();
     },
 
-    clear: function() {
+    clear: function () {
       this.flushing = false;
       this.gradingSteps = [];
+      this.grader.endTests();
     },
 
-    step: function() {
+    step: function () {
+      var self = this;
       if (this.gradingSteps.length === 0) {
         this.clear();
       }
 
+      function executeInPromise (fn) {
+        return new Promise(function (resolve, reject) {
+          if (fn) {
+            try {
+              var result = fn();
+            } catch (e) {
+              self.clear();
+              console.log(e);
+            }
+          }
+          resolve(result);
+        });
+      };
+
+      function takeNextStep (test, result) {
+        test.isCorrect = result;
+          
+        self.registerResults(test);
+
+        if (test.isCorrect || test.keepGoing || self.alwaysGo) {
+          self.step();
+        } else {
+          self.clear();
+        }
+      };
+
       if (this.flushing) {
         var test = this.gradingSteps.shift();
         
-        try {
-          test.isCorrect = test.callback();
-        } catch (e) {
-          console.log(e);
-          test.isCorrect = false;
+        if (this.grader.async) {
+          executeInPromise(test.callback).then(function (resolve) {
+            takeNextStep(test, resolve);
+          });
+        } else if (!this.grader.async) {
+          try {
+            var result = test.callback();
+          } catch (e) {
+            console.log(e);
+            throw new Error();
+          }
+          takeNextStep(test, result);
         }
 
-        if (!test.isCorrect) {
-          // console.log(test.wrongMessage + " " + test.isCorrect);
-        }
-
-        this.registerResults(test);
-
-        if (test.isCorrect || test.keepGoing || this.alwaysGo) {
-          this.step();
-        } else {
-          this.clear();
-        }
       }
     },
 
@@ -188,16 +211,37 @@ var Grader = (function() {
     }
   };
 
-  function Grader (categoryMessages) {
+  function Grader (type, categoryMessages) {
     var self = this;
-
     this.specificFeedback = [];
     this.comments = [];
     this.isCorrect = false;
     this.correctHasChanged = false;
     this.queue = new Queue(self);
-    this.categoryMessages = categoryMessages || null;
+    this.async = false;
+    this.categoryMessages = null;
     this.generalFeedback = [];
+    this.onresult = function () {};
+
+    for (n in arguments) {
+      switch (typeof arguments[n]) {
+        case 'string':
+          if (arguments[n] === 'async') {
+            this.async = true;
+          } else if (arguments[n] === 'sync') {
+            this.async = false;
+          } else {
+            throw new Error("Invalid type argument in Grader constructor");
+          }
+          break;
+        case 'object':
+          this.categoryMessages = arguments[n];
+          break;
+        default:
+          throw new TypeError("Invalid argument in Grader constructor");
+          break;
+      }
+    }
   };
 
   Grader.prototype = {
@@ -209,7 +253,16 @@ var Grader = (function() {
       if (options) {
         this.queue.alwaysGo = options.ignoreCheckpoints || false;
       }
-      this.queue.flush();
+      this.queue._flush();
+    },
+
+    endTests: function () {
+      if (this.queue.flushing) {
+        this.queue.clear();
+      } else {
+        var results = this.gatherResults();
+        this.onresult(results);
+      }
     },
 
     registerResults: function (test) { 
@@ -218,7 +271,6 @@ var Grader = (function() {
       this.setCorrect(test);
     },
 
-    // TODO: CHECK ALL OF THIS LOGIC!
     generateSpecificFeedback: function (test) {
       if (!test.isCorrect && test.wrongMessage) {
         this.addSpecificFeedback(test.wrongMessage);
@@ -252,6 +304,15 @@ var Grader = (function() {
       this.comments.push(feedback);
     },
 
+    gatherResults: function () {
+      var self = this;
+      return {
+        isCorrect: self.isCorrect,
+        testFeedback: self.specificFeedback.concat(self.generalFeedback),
+        testComments: self.comments
+      }
+    },
+
     getFormattedWrongMessages: function (separator) {
       var allMessages, message;
       
@@ -265,66 +326,60 @@ var Grader = (function() {
       return this.comments.join(separator);
     },
 
-    isType: function (theirValue, expectedType, showDefaultWrongMessage) {
-      showDefaultWrongMessage = showDefaultWrongMessage || false;
+    isType: function (value, expectedType) {
       var isCorrect = false;
 
-      if (typeof theirValue !== expectedType) {
+      if (typeof value !== expectedType) {
         
-        if (typeof theirValue === 'function') {
-          theirValue = theirValue.name;
+        if (typeof value === 'function') {
+          value = value.name;
         };
 
         isCorrect = false;
-      } else if (typeof theirValue === expectedType){
+      } else if (typeof value === expectedType){
         isCorrect = true;
       }
       return isCorrect;
     },
 
-    isInstance: function (theirValue, expectedInstance, showDefaultWrongMessage) {
-      showDefaultWrongMessage = showDefaultWrongMessage || false;
+    isInstance: function (value, expectedInstance) {
       var isCorrect = false;
 
-      if (theirValue instanceof expectedInstance !== true) {
+      if (value instanceof expectedInstance !== true) {
 
         isCorrect = false;
-      } else if (theirValue instanceof expectedInstance === true){
+      } else if (value instanceof expectedInstance === true){
         isCorrect = true;
       }
       return isCorrect;
     },
 
-    isValue: function (theirValue, expectedValue, showDefaultWrongMessage) {
-      showDefaultWrongMessage = showDefaultWrongMessage || false;
+    isValue: function (value1, value2) {
       var isCorrect = false;
 
-      if (!deepCompare(theirValue, expectedValue)) {
+      if (!deepCompare(value1, value2)) {
         isCorrect = false;
-      } else if (deepCompare(theirValue, expectedValue)) {
+      } else if (deepCompare(value1, value2)) {
         isCorrect = true;
       }
       return isCorrect;
     },
 
-    isInRange: function (theirValue, lower, upper, showDefaultWrongMessage) {
-      showDefaultWrongMessage = showDefaultWrongMessage || false;
+    isInRange: function (value, lower, upper) {
       var isCorrect = false;
 
-      if (typeof theirValue !== 'number' || isNaN(theirValue)) {
+      if (typeof value !== 'number' || isNaN(value)) {
         isCorrect = false
-      } else if (theirValue > upper || theirValue < lower) {
+      } else if (value > upper || value < lower) {
         isCorrect = false;
 
-      } else if (theirValue < upper || theirValue > lower) {
+      } else if (value < upper || value > lower) {
         isCorrect = true;
       }
       return isCorrect;
     },
 
-    // TODO: does this ever actually fail? or does it just error?
-    isSet: function (value, showDefaultWrongMessage) {
-      showDefaultWrongMessage = showDefaultWrongMessage || false;
+    isSet: function (value) {
       var isCorrect = false;
 
       if (value === undefined) {
@@ -338,24 +393,33 @@ var Grader = (function() {
 
     isjQuery: function (elem) {
       // could use obj.jquery, which will only return true if it is a jquery object
-      if (elem instanceof $) return true;
-      return false;
+      var isjQ = false;
+      if (elem instanceof $) {
+        isjQ = true;
+      }
+      return isjQ;
     },
 
     hasCorrectTag: function (elem, tag) {
       if (!this.isjQuery(elem)) {
         elem = $(elem);
       }
-      if (elem.is(tag)) return true;
-      return false;
+      var hasTag = false;
+      if (elem.is(tag)) {
+        hasTag = true;
+      }
+      return hasTag;
     },
 
     hasCorrectClass: function (elem, className) {
       if (!this.isjQuery(elem)) {
         elem = $(elem);
       }
-      if (elem.hasClass(className)) return true;
-      return false;
+      var hasClass = false;
+      if (elem.hasClass(className)) {
+        hasClass = true;
+      }
+      return hasClass;
     },
 
     hasCorrectId: function (elem, id) {
@@ -367,12 +431,15 @@ var Grader = (function() {
     },
 
     hasCorrectText: function (elem, text) {
-      // TODO: modify to point out specific changes?
       if (!this.isjQuery(elem)) {
         elem = $(elem);
       }
-      if (elem.text() === text) return true;
-      return false;
+      var hasText = false;
+      var re = new RegExp(text);
+      if (elem.text().match(re)) {
+        hasText = true;
+      }
+      return hasText;
     },
 
     hasAttr: function (elem, attrName, correctAttr) {
@@ -392,42 +459,46 @@ var Grader = (function() {
       if (!this.isjQuery(elems)) {
         elems = $(elems);
       }
+      var correctLength = false;
       var cLength = elems.length;
-      if (cLength === _length) return true;
-      return false;
+      if (cLength === _length) {
+        correctLength = true;
+      }
+      return correctLength;
     },
 
     isCorrectElem: function (elem, correctElem) {
       if (!this.isjQuery(elem)) {
         elem = $(elem);
       }
-      if (elem.is(correctElem)) return true;
-      return false;
+      var is = false;
+      if (elem.is(correctElem)) {
+        is = true;
+      }
+      return is;
     },
 
     isCorrectCollection: function (collection, correctCollection) {
       if (!this.isjQuery(elem)) {
         elem = $(elem);
       }
-      if (collection.is(correctCollection)) return true;
-      return false;
+      var is = false;
+      if (collection.is(correctCollection)) {
+        is = true;
+      }
+      return is;
     },
 
-    hasCorrectStyle: function (elem, _style, _correctStyle) {
+    hasCorrectStyle: function (elem, cssProperty, _correctStyle) {
       if (!this.isjQuery(elem)) {
         elem = $(elem);
       }
-      var currentStyle = elem.css(_style);
-      if (currentStyle  === _correctStyle) return true;
-      return false;
-    },
-
-    hasCalledFunction: function (func) {
-      var hasCalledFunction = false;
-      $("script:contains(." + func + ")").each(function() {
-        if ($(this).text().search("For this quiz") !== -1 && $(this).text().search("returns true if") === -1) hasCalledFunction = true;
-      });
-      return hasCalledFunction;
+      var hasCorrectStyle = false;
+      var currentStyle = elem.css(cssProperty);
+      if (currentStyle  === _correctStyle) {
+        hasCorrectStyle = true;
+      }
+      return hasCorrectStyle;
     },
 
     doesExistInParent: function (elem, parentElem) {
@@ -437,27 +508,22 @@ var Grader = (function() {
       if (!this.isjQuery(parentElem)) {
         parentElem = $(parentElem);
       }
-      if (parentElem.find(elem).length > 0) return true;
-      return false;
+      var inParent = false;
+      if (parentElem.find(elem).length > 0) {
+        inParent = true;
+      }
+      return inParent;
     },
 
-    doesNotExistInParent: function (elem, parentElem) {
+    elemDoesExist: function (elem) {
       if (!this.isjQuery(elem)) {
         elem = $(elem);
       }
-      if (!this.isjQuery(parentElem)) {
-        parentElem = $(parentElem);
+      var exists = false;
+      if (elem.length > 0) {
+        exists = true;
       }
-      if (parentElem.find(elem).length === 0) return true;
-      return false;
-    },
-
-    doesExist: function (elem) {
-      if (!this.isjQuery(elem)) {
-        elem = $(elem);
-      }
-      if (elem.length > 0) return true;
-      return false;
+      return exists;
     },
 
     areSiblings: function (elem1, elem2) {
@@ -467,15 +533,13 @@ var Grader = (function() {
       if (!this.isjQuery(elem2)) {
         elem2 = $(elem2);
       }
-      if (elem1.siblings(elem2).length > 0) return true;
-      return false;
+      var siblingLove = false;
+      if (elem1.siblings(elem2).length > 0) {
+        siblingLove = true;
+      }
+      return siblingLove;
     },
 
-    /**
-     * Determine if an elem is an immediate child of a parent.
-     * @param  {String}  elem       CSS selector
-     * @param  {[type]}  parentElem CSS selector or $
-     */
     isImmediateChild: function (elem, parentElem) {
       var isCorrect = false;
       if (this.isjQuery(elem)) {
@@ -502,54 +566,50 @@ var Grader = (function() {
         isCorrect = true;
       }
       return isCorrect;
-    }
-  }
+    },
 
-  function sendResultsToExecutor() {
-    var output = {
-      isCorrect: false,
-      test_feedback: "",
-      test_comments: "",
-      congrats: ""
-    }
-    for (arg in arguments) {
-      var thisIsCorrect = arguments[arg].isCorrect;
-      var thisTestFeedback = arguments[arg].getFormattedWrongMessages();
-      var thisTestComment = arguments[arg].getFormattedComments();
-      if (typeof thisIsCorrect !== 'boolean') {
-        thisIsCorrect = false;
+    sendResultsToExecutor: function () {
+      var output = {
+        isCorrect: false,
+        test_feedback: "",
+        test_comments: "",
+        congrats: ""
       }
+      for (arg in arguments) {
+        var thisIsCorrect = arguments[arg].isCorrect;
+        var thisTestFeedback = arguments[arg].getFormattedWrongMessages();
+        var thisTestComment = arguments[arg].getFormattedComments();
+        if (typeof thisIsCorrect !== 'boolean') {
+          thisIsCorrect = false;
+        }
 
-      switch (arg) {
-        case '0':
-          output.congrats = arguments[arg];
-        case '1':
-          output.isCorrect = thisIsCorrect;
-          output.test_feedback = thisTestFeedback;
-          output.test_comments = thisTestComment;
-          break;
-        default:
-          output.isCorrect = thisIsCorrect && output.isCorrect;
-          if (output.test_feedback !== "") {
-            output.test_feedback = [output.test_feedback, thisTestFeedback].join('\n');
-          } else {
+        switch (arg) {
+          case '0':
+            output.congrats = arguments[arg];
+          case '1':
+            output.isCorrect = thisIsCorrect;
             output.test_feedback = thisTestFeedback;
-          }
-          
-          if (output.test_comments !== "") {
-            output.test_comments = [output.test_comments, thisTestFeedback].join('\n');
-          } else {
             output.test_comments = thisTestComment;
-          }
-          break;
+            break;
+          default:
+            output.isCorrect = thisIsCorrect && output.isCorrect;
+            if (output.test_feedback !== "") {
+              output.test_feedback = [output.test_feedback, thisTestFeedback].join('\n');
+            } else {
+              output.test_feedback = thisTestFeedback;
+            }
+            
+            if (output.test_comments !== "") {
+              output.test_comments = [output.test_comments, thisTestFeedback].join('\n');
+            } else {
+              output.test_comments = thisTestComment;
+            }
+            break;
+        }
       }
+      output = JSON.stringify(output);
+      console.info("UDACITY_RESULT:" + output);
     }
-    output = JSON.stringify(output);
-    console.info("UDACITY_RESULT:" + output);
   }
   return Grader;
 })();
-
-function performTesting() {
-  return {'result': 'noop'}
-}
