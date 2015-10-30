@@ -87,6 +87,9 @@ function registerSuites(suitesJSON) {
   } catch (e) {
     throw new TypeError("Invalid JSON format." + e);
   }
+  if (userData instanceof Array !== true) {
+    throw new TypeError("Invalid test format. Tests must be an array.")
+  }
   if (currentState.on) {
     startTests();
   }
