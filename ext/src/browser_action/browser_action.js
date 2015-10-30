@@ -1,9 +1,3 @@
-/*
-TODO:
-  * find an event I can use to shrink the browser_action
-  * tooltip over the "Allow feedback" options
- */
-
 // http://html5rocks.com/en/tutorials/file/dndfiles/
 function handleFileSelect(evt) {
   var files = evt.target.files;
@@ -22,16 +16,13 @@ function handleFileSelect(evt) {
     console.log(e);
   };
 
-  if (file.type.match('application/json') || file.type.match('text/json')) {
-    alert.innerHTML = "File successfully loaded!";
-    reader.readAsText(file);
-  } else if (file.type.match('text/javascript')) {
-    alert.innerHTML = "File found, but may not load correctly";
-    alert.style.color = "#A48700";
+  if (file.type && (file.type.match('application/json') || file.type.match('text/json'))) {
+    alert.innerHTML = "JSON found!";
     reader.readAsText(file);
   } else {
-    alert.innerHTML = "Error. Tests must be in JSON file format.";
-    alert.style.color = '#900';
+    alert.innerHTML = "File found";
+    alert.style.color = "#A48700";
+    reader.readAsText(file);
   }
 };
 

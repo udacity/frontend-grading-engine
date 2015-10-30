@@ -80,7 +80,20 @@ chrome.runtime.sendMessage({}, function(response) {
       // You don't have access to the GE here, but you can inject a script into the document that does.
       function registerTestSuites (json) {
         var newTestSuites = document.createElement('script');
-        newTestSuites.innerHTML = 'GE.registerSuites(' + JSON.stringify(json) + ');';
+        
+        // validating the JSON
+        try {
+          JSON.parse(json);
+        } catch (e) {
+          throw new Error("Invalid file format.");
+        }
+
+        try {
+          json = JSON.stringify(json);
+          newTestSuites.innerHTML = 'GE.registerSuites(' + json + ');';
+        } catch (e) {
+          throw new Error("Invalid JSON format.")
+        }
         document.body.appendChild(newTestSuites);
       };
 

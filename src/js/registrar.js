@@ -85,10 +85,10 @@ function registerSuites(suitesJSON) {
   try {
     userData = JSON.parse(suitesJSON);
   } catch (e) {
-    throw new TypeError("Invalid JSON format." + e);
+    throw new Error("Invalid JSON format.");
   }
   if (userData instanceof Array !== true) {
-    throw new TypeError("Invalid test format. Tests must be an array.")
+    throw new TypeError("Invalid test format. Tests must be wrapped in an array.")
   }
   if (currentState.on) {
     startTests();
