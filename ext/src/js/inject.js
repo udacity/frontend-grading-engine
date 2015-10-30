@@ -85,6 +85,7 @@ chrome.runtime.sendMessage({}, function(response) {
         try {
           JSON.parse(json);
         } catch (e) {
+          alert("Illegal file format. Udacity grader expects JSON files.");
           throw new Error("Invalid file format.");
         }
 
