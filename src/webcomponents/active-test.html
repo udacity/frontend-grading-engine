@@ -10,11 +10,27 @@ This component holds a single test.
 
     .correct {
       color: #060;
+      -webkit-animation-duration: 0.5s;
+      -webkit-animation-name: popin;
     }
     .correct::before {
       content: "✓ ";
     }
     
+    @keyframes popin {
+      from {
+        font-size: 1em;
+      }
+
+      25% {
+        font-size: 1.5em;
+      }
+
+      to {
+        font-size: 1em;
+      }
+    }
+
     .incorrect {
       color: #900;
     }
