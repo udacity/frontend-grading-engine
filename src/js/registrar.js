@@ -83,7 +83,9 @@ exports.currentState = currentState;
  */
 function registerSuites(suitesJSON) {
   try {
-    userData = JSON.parse(suitesJSON);
+    if (suitesJSON.length > 0) {
+      userData = JSON.parse(suitesJSON);
+    }
   } catch (e) {
     throw new Error("Invalid JSON format.");
   }
