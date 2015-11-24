@@ -93,7 +93,7 @@ chrome.runtime.sendMessage({}, function(response) {
 
         try {
           json = JSON.stringify(json);
-          newTestSuites.innerHTML = 'GE.registerSuites(' + json + ');';
+          newTestSuites.innerHTML = 'UdacityFEGradingEngine.registerSuites(' + json + ');';
         } catch (e) {
           throw new Error("Invalid JSON format.")
         }
@@ -193,7 +193,7 @@ chrome.runtime.sendMessage({}, function(response) {
         }
         var geOptionsScript = document.createElement('script');
         geOptionsScript.id = 'ud-grader-options';
-        geOptionsScript.innerHTML = 'GE.turnOn();';
+        geOptionsScript.innerHTML = 'UdacityFEGradingEngine.turnOn();';
         document.head.appendChild(geOptionsScript);
       };
 
@@ -204,7 +204,7 @@ chrome.runtime.sendMessage({}, function(response) {
         }
         var geOptionsScript = document.createElement('script');
         geOptionsScript.id = 'ud-grader-options';
-        geOptionsScript.innerHTML = 'GE.turnOff();';
+        geOptionsScript.innerHTML = 'UdacityFEGradingEngine.turnOff();';
         document.head.appendChild(geOptionsScript);
       };
 
