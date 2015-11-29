@@ -94,6 +94,13 @@
         "absolutePosition": "top",
         "equals": 30
       }
+    },
+    {
+      "description": "listening to events",
+      "definition": {
+        "waitForEvent": "ud-test",
+        "exists": true
+      }
     }
   ]
 },
