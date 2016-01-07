@@ -353,7 +353,7 @@ I like to use the [jsgrader library](https://github.com/udacity/js-grader) for w
 
 ![wrong answer, right answer, error](images/wrong-right-error.png)
 
-Green tests with ✓ have passed, red tests with ✗ have failed and yellow tests with ?? have some kind of error. If there is an error, run `GE.debug()` from the console to see why the yellow tests are erring.
+Green tests with ✓ have passed, red tests with ✗ have failed and yellow tests with ?? have some kind of error. If there is an error, run `UdacityFEGradingEngine.debug()` from the console to see why the yellow tests are erring.
 
 ## How Udacity Feedback Works
 
