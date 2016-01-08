@@ -25,6 +25,9 @@ chrome.runtime.sendMessage({}, function(response) {
           newTag.onerror = function (e) {
             reject(e);
           };
+          if (tag === 'script' && !newTag.src && (newTag.text || newTag.innerHTML)) {
+            resolve();
+          }
           if (location === 'head') {
             document.head.appendChild(newTag);
           } else {
@@ -107,7 +110,7 @@ chrome.runtime.sendMessage({}, function(response) {
             JSON.parse(json);
           }
         } catch (e) {
-          errorMsg = "Invalid file format.";
+          errorMsg = "Invalid JSON file format.";
         }
         try {
           json = JSON.stringify(json);
@@ -121,7 +124,7 @@ chrome.runtime.sendMessage({}, function(response) {
         } else {
           return injectIntoDocument(
             'script',
-            { innerHTML: 'UdacityFEGradingEngine.registerSuites(' + json + ');' }
+            { text: 'UdacityFEGradingEngine.registerSuites(' + json + ');' }
           )
         }
       };
@@ -129,7 +132,7 @@ chrome.runtime.sendMessage({}, function(response) {
       function loadUnitTests() {
         var unitTests = null;
         if (metaTag) {
-          var unitTests = metaTag.getAttribute('unit-tests');
+          unitTests = metaTag.getAttribute('unit-tests');
         }
         if (!unitTests) {
           return Promise.resolve();
@@ -279,5 +282,5 @@ chrome.runtime.sendMessage({}, function(response) {
         }
       })
     }
-  }, 10);
+  }, 100);
 });
