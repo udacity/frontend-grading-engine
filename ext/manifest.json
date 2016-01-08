@@ -35,8 +35,6 @@
   "web_accessible_resources": [
     "src/js/*.js",
     "src/js/libs/*.js",
-    "fonts/*.css",
-    "fonts/*/*",
     "src/templates/*.html"
   ]
 }
