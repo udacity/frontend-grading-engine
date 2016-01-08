@@ -93,7 +93,7 @@ TA.prototype.equals = function (config) {
       expected = config;
     }
     if (!expected || (typeof expected !== 'string' && typeof expected !== 'number')) {
-      self.onerror("'equals' needs a value.");
+      self.onerror('"equals" needs a string or number value.');
       throw new Error();
     }
     var equalityFunc = function() {};
