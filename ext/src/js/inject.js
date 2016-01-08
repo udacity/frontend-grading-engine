@@ -102,7 +102,6 @@ chrome.runtime.sendMessage({}, function(response) {
         if (!json) {
           return Promise.resolve();
         }
-
         var errorMsg = null;
         // validating the JSON
         try {
@@ -110,12 +109,16 @@ chrome.runtime.sendMessage({}, function(response) {
             JSON.parse(json);
           }
         } catch (e) {
-          errorMsg = "Invalid JSON file format.";
+          if (json.indexOf('\\') > -1) {
+            errorMsg = 'Are you trying to use \'\\\' in a RegEx? Try using \\\\ instead.';
+          } else {
+            errorMsg = 'Invalid JSON file format.';
+          }
         }
         try {
           json = JSON.stringify(json);
         } catch (e) {
-          errorMsg = "Invalid JSON format.";
+          errorMsg = 'Invalid JSON format.';
         }
 
         if (errorMsg) {
@@ -213,7 +216,7 @@ chrome.runtime.sendMessage({}, function(response) {
             return Promise.resolve();
           }, function(e) {
             console.log(e);
-            throw new Error("Something went wrong loading Udacity Feedback. Please reload.");
+            throw new Error('Something went wrong loading Udacity Feedback. Please reload.');
           })
         },
         turnOn: function() {
