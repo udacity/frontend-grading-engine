@@ -1,212 +1,258 @@
 chrome.runtime.sendMessage({}, function(response) {
   var readyStateCheckInterval = setInterval(function() {
-    if (document.readyState === "complete") {
+    if (document.readyState === 'complete') {
       clearInterval(readyStateCheckInterval);
 
+      /**
+       * Adds elements to main page with a promise.
+       * @param  {String} tag       Type of element
+       * @param  {Object} data      Key/value pairs you want to be assigned to as newTag[key] = value
+       * @param  {Object} location  Set to 'head' if you want the element to end up there. Default is body
+       * @return {Promise}
+       */
+      function injectIntoDocument(tag, data, location) {
+        location = location || 'body';
+        return new Promise(function(resolve, reject) {
+          var newTag = document.createElement(tag);
+          if (data) {
+            for (a in data) {
+              newTag[a] = data[a];
+            };
+          };
+          newTag.onload = function (e) {
+            resolve(e);
+          };
+          newTag.onerror = function (e) {
+            reject(e);
+          };
+          if (tag === 'script' && !newTag.src && (newTag.text || newTag.innerHTML)) {
+            resolve();
+          }
+          if (location === 'head') {
+            document.head.appendChild(newTag);
+          } else {
+            document.body.appendChild(newTag);
+          };
+        });
+      };
+
       // start of load sequence
-
       var metaTag = document.querySelector('meta[name="udacity-grader"]');
+      metaTag ? metaTag = metaTag : metaTag = false;
 
-      function injectWidgets () {
-        // import templates
-        var link = document.createElement('link');
-        link.rel = 'import';
-
-        link.href = chrome.extension.getURL('src/templates/feedback.html');
-        
-        document.head.appendChild(link);
-
-        link.onload = function(e) {
-          injectGradingEngine();
-        }
-        link.onerror = function(e) {
-          throw new Error('Failed to load the Udacity Grading Engine. Please reload.');
-        }
+      function importFeedbackWidget() {
+        return injectIntoDocument(
+          'link',
+          { rel: 'import',
+            href: chrome.extension.getURL('src/templates/feedback.html') },
+          'head');
       };
 
       function injectGradingEngine() {
-        var ge = document.createElement('script');
-        ge.src = chrome.extension.getURL('src/js/libs/GE.min.js');
-        document.body.appendChild(ge);
-
-        ge.onload = function (e) {
-          // can't load tests until the grading engine has loaded. registerTestSuites() needs GE
-          loadLibraries();
-        };
+        return injectIntoDocument(
+          'script',
+          { src: chrome.extension.getURL('src/js/libs/GE.min.js') }
+        );
       };
 
-      function loadLibraries () {
-        // TODO: make sure that metaTag exists first!
+      function loadLibraries() {
         if (metaTag) {
           var libraries = metaTag.getAttribute('libraries');
         }
-        
+
         if (libraries) {
           libraries = libraries.split(' ');
         } else {
-          loadJSONTestsFromFile();
-          return;
+          return Promise.resolve();
         }
 
         var loadedLibs = 0;
-        libraries.forEach(function (lib) {
-          var script = document.createElement('script');
-          script.src = chrome.extension.getURL('src/js/libs/' + lib + '.js');
-          script.onload = function () {
-            loadedLibs += 1;
-            if (loadedLibs === libraries.length) {
-              loadJSONTestsFromFile(isAllowed);
-            }
-          };
-          document.body.appendChild(script);
-        });
+        return Promise.all(
+          libraries.map(function (lib) {
+            return injectIntoDocument(
+              'script',
+              { src: chrome.extension.getURL('src/js/libs/' + lib + '.js') }
+            )
+          })
+        )
       }
 
-      function loadJSONTestsFromFile () {
+      function loadJSONTestsFromFile() {
         if (metaTag) {
-          // http://stackoverflow.com/a/14274828
-          var xmlhttp = new XMLHttpRequest();
-          xmlhttp.onreadystatechange = function(){
-            if(xmlhttp.status == 200 && xmlhttp.readyState == 4){
-              registerTestSuites(xmlhttp.responseText);
-              loadUnitTests();
-            }
-          };
-          xmlhttp.open("GET",metaTag.content,true);
-          xmlhttp.send();
+          return new Promise(function(resolve, reject) {
+            // http://stackoverflow.com/a/14274828
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function() {
+              if (xmlhttp.status == 200 && xmlhttp.readyState == 4){
+                resolve(xmlhttp.responseText);
+              } else if (xmlhttp.status >= 400) {
+                reject(false);
+              }
+            };
+            xmlhttp.open("GET",metaTag.content,true);
+            xmlhttp.send();
+          });
+        } else {
+          return Promise.resolve(false);
         }
       }
 
       // You don't have access to the GE here, but you can inject a script into the document that does.
-      function registerTestSuites (json) {
-        var newTestSuites = document.createElement('script');
-        
+      function registerTestSuites(json) {
+        if (!json) {
+          return Promise.resolve();
+        }
+        var errorMsg = null;
         // validating the JSON
         try {
           if (json.length > 0) {
             JSON.parse(json);
           }
         } catch (e) {
-          alert("Illegal file format. Udacity grader expects JSON files.");
-          throw new Error("Invalid file format.");
+          if (json.indexOf('\\') > -1) {
+            errorMsg = 'Are you trying to use \'\\\' in a RegEx? Try using \\\\ instead.';
+          } else {
+            errorMsg = 'Invalid JSON file format.';
+          }
         }
-
         try {
           json = JSON.stringify(json);
-          newTestSuites.innerHTML = 'GE.registerSuites(' + json + ');';
         } catch (e) {
-          throw new Error("Invalid JSON format.")
+          errorMsg = 'Invalid JSON format.';
         }
-        document.body.appendChild(newTestSuites);
+
+        if (errorMsg) {
+          alert(errorMsg);
+          throw new Error(errorMsg);
+        } else {
+          return injectIntoDocument(
+            'script',
+            { text: 'UdacityFEGradingEngine.registerSuites(' + json + ');' }
+          )
+        }
       };
 
-      function loadUnitTests () {
-        var unitTests = metaTag.getAttribute('unit-tests');
+      function loadUnitTests() {
+        var unitTests = null;
+        if (metaTag) {
+          unitTests = metaTag.getAttribute('unit-tests');
+        }
         if (!unitTests) {
-          return;
+          return Promise.resolve();
         }
 
-        var script = document.createElement('script');
-        script.src = unitTests;
-        document.body.appendChild(script);
+        return injectIntoDocument(
+          'script',
+          { src: unitTests }
+        );
       };
 
-      // end of load sequence
+      function StateManager() {
+        this.whitelist = [];
+        this.hostIsAllowed = false;
+        this.host = location.hostname;
+        this.geInjected = false;
+      };
 
-
-      // syncing with chrome extension storage to determine if extension is allowed to run
-      var whitelistedSites = [];
-      var isAllowed = false;
-      var checkedState = false;
-
-      function syncWithWhitelist(site, value, callback) {
-        var index = whitelistedSites.indexOf(site);
-        if (value === 'off') {
-          if (index > -1) {
-            whitelistedSites.splice(index, 1);
+      StateManager.prototype = {
+        isSiteOnWhitelist: function() {
+          var self = this;
+          return new Promise(function (resolve, reject) {
+            chrome.storage.sync.get('whitelist', function (response) {
+              self.whitelist = response.whitelist;
+              if (!(self.whitelist instanceof Array)) {
+                self.whitelist = [self.whitelist];
+              }
+              if (self.whitelist.indexOf(self.host) > -1) {
+                self.isAllowed = true;
+              } else {
+                self.isAllowed = false;
+              }
+              resolve(self.isAllowed);
+            });
+          });
+        },
+        addSiteToWhitelist: function(site) {
+          var self = this;
+          return new Promise(function (resolve, reject) {
+            var index = self.whitelist.indexOf(self.host);
+            if (index === -1) {
+              self.whitelist.push(self.host);
+            }
+            self.isAllowed = true;
+            var data = {whitelist: self.whitelist};
+            chrome.storage.sync.set(data, function () {
+              resolve();
+            });
+          });
+        },
+        removeSiteFromWhitelist: function(site) {
+          var self = this;
+          return new Promise(function (resolve, reject) {
+            var index = self.whitelist.indexOf(self.host);
+            if (index > -1) {
+              self.whitelist.splice(index, 1);
+            }
+            self.isAllowed = false;
+            var data = {whitelist: self.whitelist};
+            chrome.storage.sync.set(data, function () {
+              resolve();
+            });
+          });
+        },
+        getIsAllowed: function() {
+          return this.isAllowed;
+        },
+        runLoadSequence: function() {
+          var self = this;
+          return importFeedbackWidget()
+          .then(injectGradingEngine)
+          .then(loadLibraries)
+          .then(loadJSONTestsFromFile)
+          .then(registerTestSuites)
+          .then(loadUnitTests)
+          .then(function() {
+            self.geInjected = true;
+            return Promise.resolve();
+          }, function(e) {
+            console.log(e);
+            throw new Error('Something went wrong loading Udacity Feedback. Please reload.');
+          })
+        },
+        turnOn: function() {
+          var g = document.querySelector('#ud-grader-options')
+          if (g) {
+            document.head.removeChild(g);
           }
-        } else if (value === 'on') {
-          if (index === -1) {
-            whitelistedSites.push(site);
+          return injectIntoDocument(
+            'script',
+            { id: 'ud-grader-options',
+              innerHTML: 'UdacityFEGradingEngine.turnOn();' },
+            'head'
+          ).then(function() {
+            Promise.resolve(true);
+          })
+        },
+        turnOff: function() {
+          var g = document.querySelector('#ud-grader-options')
+          if (g) {
+            document.head.removeChild(g);
           }
+          return injectIntoDocument(
+            'script',
+            { id: 'ud-grader-options',
+              innerHTML: 'UdacityFEGradingEngine.turnOff();' },
+            'head'
+          ).then(function() {
+            Promise.resolve(false);
+          })
         }
-        var data = {whitelist: whitelistedSites};
-
-        chrome.storage.sync.set(data, function () {
-          if (callback) {
-            callback(true);
-          }
-        });
       };
 
-      function getSyncData (callback) {
-        chrome.storage.sync.get(null, function (response) {
-          if (callback) {
-            callback(response);
-          }
-        });
-      };
+      var stateManager = new StateManager();
 
-      function whitelistSite (callback) {
-        var thisHost = location.hostname;
-        syncWithWhitelist(thisHost.toString(), 'on', function() {
-          isAllowed = true;
-        });
-      };
-
-      function blacklistSite (callback) {
-        var thisHost = location.hostname;
-        syncWithWhitelist(thisHost.toString(), 'off', function () {
-          isAllowed = false;
-        });
-      };
-
-      function checkCurrentHostIsAllowed (callback) {
-        var thisHost = location.hostname.toString();
-        if (checkedState && callback) {
-          callback(isAllowed);
-        }
-        getSyncData(function (response) {
-          if (response.whitelist) {
-            whitelistedSites = response.whitelist;
-          }
-
-          if (whitelistedSites.indexOf(thisHost) > -1) {
-            isAllowed = true;
-          } else {
-            isAllowed = false;
-          }
-
-          if (callback) {
-            callback(isAllowed);
-          }
-          if (!checkedState) {
-            checkedState = true;
-          }
-        });
-      };
-
-      function turnOn () {
-        var g = document.querySelector('#ud-grader-options')
-        if (g) {
-          document.head.removeChild(g);
-        }
-        var geOptionsScript = document.createElement('script');
-        geOptionsScript.id = 'ud-grader-options';
-        geOptionsScript.innerHTML = 'GE.turnOn();';
-        document.head.appendChild(geOptionsScript);
-      };
-
-      function turnOff () {
-        var g = document.querySelector('#ud-grader-options')
-        if (g) {
-          document.head.removeChild(g);
-        }
-        var geOptionsScript = document.createElement('script');
-        geOptionsScript.id = 'ud-grader-options';
-        geOptionsScript.innerHTML = 'GE.turnOff();';
-        document.head.appendChild(geOptionsScript);
-      };
+      stateManager.isSiteOnWhitelist()
+      .then(stateManager.runLoadSequence);
 
       // wait for messages from browser action
       chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
@@ -216,17 +262,15 @@ chrome.runtime.sendMessage({}, function(response) {
             break;
           case 'on-off':
             if (message.data === 'on') {
-              whitelistSite();
-              turnOn();
+              stateManager.addSiteToWhitelist()
+              .then(stateManager.turnOn)
             } else if (message.data === 'off') {
-              blacklistSite();
-              turnOff();
+              stateManager.removeSiteFromWhitelist()
+              .then(stateManager.turnOff);
             }
             break;
           case 'background-wake':
-            checkCurrentHostIsAllowed(function () {
-              sendResponse(isAllowed);
-            });
+            sendResponse(stateManager.getIsAllowed());
             break;
           default:
             console.log('invalid message type for: %s from %s', message, sender)
@@ -234,16 +278,12 @@ chrome.runtime.sendMessage({}, function(response) {
         }
       });
 
+      // for first load
       window.addEventListener('GE-on', function () {
-        if (isAllowed) {
-          turnOn();
+        if (stateManager.isAllowed) {
+          stateManager.turnOn();
         }
       })
-
-      checkCurrentHostIsAllowed(function () {
-        injectWidgets();
-      });
-      clearInterval(readyStateCheckInterval);
     }
-  }, 10);
+  }, 100);
 });
