@@ -266,7 +266,7 @@ Set an `"upper"` and a `"lower"` value for `"isInRange"`.
 }
 ```
 
-Run regex tests against strings with `"hasSubstring"`. If one or more match groups are returned, the test passes. There are also some optional configs for `"hasSubstring"`.
+Run regex tests against strings with `"hasSubstring"`. If one or more match groups are returned, the test passes. There are also some optional configs for `"hasSubstring"`. NOTE: you must escape `\`s! eg. `\wHello` will break, but `\\wHello` will work.
 
 ```javascript
 "definition": {
@@ -274,7 +274,7 @@ Run regex tests against strings with `"hasSubstring"`. If one or more match grou
   "get": "innerHTML",
   "hasSubstring": {
     "expected": [
-      "([A-Z])\w+",
+      "([A-Z])\\w+",
       "$another^"
     ],
     "minValues": 1,
@@ -294,7 +294,7 @@ Feel free to mix and match these. If there is an array of `"expected"` regexes, 
   "nodes": ".text",
   "get": "innerHTML",
   "not": true,
-  "hasSubstring": "([A-Z])\w+"
+  "hasSubstring": "([A-Z])\\w+"
 }
 ```
 

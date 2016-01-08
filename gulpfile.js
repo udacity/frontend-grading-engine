@@ -1,4 +1,3 @@
-// TODO: minify
 var gulp = require('gulp');
 var watch = require('gulp-watch');
 var concat = require('gulp-concat');
