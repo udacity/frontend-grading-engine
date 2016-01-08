@@ -355,6 +355,8 @@ I like to use the [jsgrader library](https://github.com/udacity/js-grader) for w
 
 Green tests with ✓ have passed, red tests with ✗ have failed and yellow tests with ?? have some kind of error. If there is an error, run `UdacityFEGradingEngine.debug()` from the console to see why the yellow tests are erring.
 
+You can find an options page in chrome://extensions. Use the options page to see and modify the list of domains on which the extension will run.
+
 ## How Udacity Feedback Works
 
 At the core of Udacity Feedback is the grading engine. The grading engine performs two tasks: collecting information from the DOM and reporting on it. Each test creates its own instance of the grading engine which queries the DOM once a second (unless otherwise specified).
