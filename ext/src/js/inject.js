@@ -1,6 +1,6 @@
 chrome.runtime.sendMessage({}, function(response) {
   var readyStateCheckInterval = setInterval(function() {
-    if (document.readyState === "complete") {
+    if (document.readyState === 'complete') {
       clearInterval(readyStateCheckInterval);
 
       /**
@@ -59,7 +59,7 @@ chrome.runtime.sendMessage({}, function(response) {
         if (metaTag) {
           var libraries = metaTag.getAttribute('libraries');
         }
-        
+
         if (libraries) {
           libraries = libraries.split(' ');
         } else {
