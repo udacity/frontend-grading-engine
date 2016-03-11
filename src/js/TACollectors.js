@@ -84,7 +84,7 @@ Object.defineProperties(TA.prototype, {
           try {
             index = target.index;
           } catch (e) {
-            self.onerror("Cannot get index. Elements probably don't exist.");
+            self.onerror('Cannot get index. Elements probably don\'t exist.');
           }
           return index;
         });
@@ -106,7 +106,7 @@ Object.defineProperties(TA.prototype, {
           try {
             html = element.innerHTML;
           } catch (e) {
-            self.onerror("Cannot get innerHTML. Element probably doesn't exist.", true);
+            self.onerror('Cannot get innerHTML. Element probably doesn\'t exist.', true);
           }
           return html;
         });
@@ -168,7 +168,7 @@ Object.defineProperties(TA.prototype, {
           try {
             ua = navigator.userAgent;
           } catch (e) {
-            self.onerror("Can't find a user agent string.", true);
+            self.onerror('Can\'t find a user agent string.', true);
           }
           return ua;
         })
@@ -208,7 +208,7 @@ TA.prototype._traverseTargets = function (callback) {
     if (callback) {
       callback(node);
     }
- 
+
     node.children.forEach(function (child, index, arr) {
       visitDfs(child, callback);
     });
@@ -245,7 +245,7 @@ TA.prototype._runAgainstBottomTargets = function (callback) {
   this._traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target);
-      
+
       if (target.value) {
         self.gradebook.recordQuestion(target);
       } else {
@@ -269,7 +269,7 @@ TA.prototype._runAgainstBottomTargetElements = function (callback) {
   this._traverseTargets(function (target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target.element);
-      
+
       if (target.value) {
         self.gradebook.recordQuestion(target);
       } else {
@@ -291,7 +291,7 @@ TA.prototype._runAgainstNextToBottomTargets = function (callback) {
   this._traverseTargets(function (target) {
     if (target.hasChildren && !target.hasGrandkids) {
       target.value = callback(target);
-      
+
       if (target.value) {
         self.gradebook.recordQuestion(target);
       } else {
@@ -317,9 +317,9 @@ TA.prototype.theseElements = function (selector) {
 
     self._runAgainstTopTargetOnly(function (topTarget) {
       var elems = getDomNodeArray(selector);
-      
+
       if (!selector) {
-        self.onerror("Cannot find elements without a selector.", true);
+        self.onerror('Cannot find elements without a selector.', true);
       } else if (elems.length > 0) {
         elems.forEach(function (elem, index, arr) {
           var target = new Target();
@@ -349,7 +349,7 @@ TA.prototype.deepChildren = function (selector) {
       var elems = getDomNodeArray(selector, target.element);
 
       if (!selector) {
-        self.onerror("Cannot find elements without a selector.", true);
+        self.onerror('Cannot find elements without a selector.', true);
         throw new Error();
       } else if (target.element) {
         elems.forEach(function (newElem, index) {
@@ -469,7 +469,7 @@ TA.prototype.absolutePosition = function (side) {
     self._registerOperation('absolutePosition');
     // http://stackoverflow.com/questions/2880957/detect-inline-block-type-of-a-dom-element
     function getDisplayType (element) {
-      var cStyle = element.currentStyle || window.getComputedStyle(element, ""); 
+      var cStyle = element.currentStyle || window.getComputedStyle(element, '');
       return cStyle.display;
     };
 
