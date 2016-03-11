@@ -3,6 +3,7 @@ chrome.runtime.sendMessage({}, function(response) {
     if (document.readyState === 'complete') {
       clearInterval(readyStateCheckInterval);
 
+      var injectedElementsOnPage = [];
       /**
        * Adds elements to main page with a promise.
        * @param  {String} tag       Type of element
@@ -17,12 +18,19 @@ chrome.runtime.sendMessage({}, function(response) {
           if (data) {
             for (a in data) {
               newTag[a] = data[a];
-            };
-          };
-          newTag.onload = function (e) {
+            }
+          }
+
+          if (!newTag.id) {
+            newTag.id = 'ud-' + Math.floor(Math.random() * 100000000).toString();
+          }
+          // for later removal
+          injectedElementsOnPage.push(newTag.id);
+
+          newTag.onload = function(e) {
             resolve(e);
           };
-          newTag.onerror = function (e) {
+          newTag.onerror = function(e) {
             reject(e);
           };
           if (tag === 'script' && !newTag.src && (newTag.text || newTag.innerHTML)) {
@@ -34,26 +42,32 @@ chrome.runtime.sendMessage({}, function(response) {
             document.body.appendChild(newTag);
           };
         });
-      };
+      }
 
       // start of load sequence
       var metaTag = document.querySelector('meta[name="udacity-grader"]');
       metaTag ? metaTag = metaTag : metaTag = false;
 
       function importFeedbackWidget() {
-        return injectIntoDocument(
-          'link',
-          { rel: 'import',
-            href: chrome.extension.getURL('src/templates/feedback.html') },
-          'head');
-      };
+        var twLink = document.querySelector('link#udacity-test-widget');
+
+        if (!twLink) {
+          return injectIntoDocument('link', {
+            rel: 'import',
+            href: chrome.extension.getURL('src/templates/feedback.html'),
+            id: 'udacity-test-widget'
+          }, 'head');
+        } else {
+          return Promise.resolve();
+        }
+      }
 
       function injectGradingEngine() {
-        return injectIntoDocument(
-          'script',
-          { src: chrome.extension.getURL('src/js/libs/GE.min.js') }
-        );
-      };
+        return injectIntoDocument('script', {
+          src: chrome.extension.getURL('src/js/libs/GE.min.js'),
+          id: 'udacity-front-end-feedback'
+        });
+      }
 
       function loadLibraries() {
         if (metaTag) {
@@ -68,13 +82,10 @@ chrome.runtime.sendMessage({}, function(response) {
 
         var loadedLibs = 0;
         return Promise.all(
-          libraries.map(function (lib) {
-            return injectIntoDocument(
-              'script',
-              { src: chrome.extension.getURL('src/js/libs/' + lib + '.js') }
-            )
+          libraries.map(function(lib) {
+            return injectIntoDocument('script', {src: chrome.extension.getURL('src/js/libs/' + lib + '.js')});
           })
-        )
+        );
       }
 
       function loadJSONTestsFromFile() {
@@ -83,13 +94,13 @@ chrome.runtime.sendMessage({}, function(response) {
             // http://stackoverflow.com/a/14274828
             var xmlhttp = new XMLHttpRequest();
             xmlhttp.onreadystatechange = function() {
-              if (xmlhttp.status == 200 && xmlhttp.readyState == 4){
+              if (xmlhttp.status == 200 && xmlhttp.readyState == 4) {
                 resolve(xmlhttp.responseText);
               } else if (xmlhttp.status >= 400) {
                 reject(false);
               }
             };
-            xmlhttp.open("GET",metaTag.content,true);
+            xmlhttp.open('GET', metaTag.content, true);
             xmlhttp.send();
           });
         } else {
@@ -125,12 +136,9 @@ chrome.runtime.sendMessage({}, function(response) {
           alert(errorMsg);
           throw new Error(errorMsg);
         } else {
-          return injectIntoDocument(
-            'script',
-            { text: 'UdacityFEGradingEngine.registerSuites(' + json + ');' }
-          )
+          return injectIntoDocument('script', {text: 'UdacityFEGradingEngine.registerSuites(' + json + ');'});
         }
-      };
+      }
 
       function loadUnitTests() {
         var unitTests = null;
@@ -141,24 +149,51 @@ chrome.runtime.sendMessage({}, function(response) {
           return Promise.resolve();
         }
 
-        return injectIntoDocument(
-          'script',
-          { src: unitTests }
-        );
-      };
+        return injectIntoDocument('script', {src: unitTests});
+      }
+
+      function turnOn() {
+        return injectIntoDocument('script', {
+          id: 'ud-grader-options',
+          innerHTML: 'UdacityFEGradingEngine.turnOn();'
+        }, 'head');
+      }
 
       function StateManager() {
         this.whitelist = [];
         this.hostIsAllowed = false;
         this.host = location.hostname;
         this.geInjected = false;
-      };
 
-      StateManager.prototype = {
-        isSiteOnWhitelist: function() {
+        var currentlyInjecting = false;
+        function runLoadSequence() {
           var self = this;
-          return new Promise(function (resolve, reject) {
-            chrome.storage.sync.get('whitelist', function (response) {
+          if (!currentlyInjecting || self.geInjected) {
+            currentlyInjecting = true;
+            return importFeedbackWidget()
+            .then(injectGradingEngine)
+            .then(loadLibraries)
+            .then(loadJSONTestsFromFile)
+            .then(registerTestSuites)
+            .then(turnOn)
+            .then(loadUnitTests)
+            .then(function() {
+              self.geInjected = true;
+              currentlyInjecting = false;
+              return Promise.resolve();
+            }, function(e) {
+              console.log(e);
+              throw new Error('Something went wrong loading Udacity Feedback. Please reload.');
+            })
+          } else {
+            return Promise.resolve();
+          }
+        }
+
+        this.isSiteOnWhitelist = function() {
+          var self = this;
+          return new Promise(function(resolve, reject) {
+            chrome.storage.sync.get('whitelist', function(response) {
               self.whitelist = response.whitelist;
               if (!(self.whitelist instanceof Array)) {
                 self.whitelist = [self.whitelist];
@@ -171,91 +206,99 @@ chrome.runtime.sendMessage({}, function(response) {
               resolve(self.isAllowed);
             });
           });
-        },
-        addSiteToWhitelist: function(site) {
+        };
+
+        this.addSiteToWhitelist = function(site) {
           var self = this;
-          return new Promise(function (resolve, reject) {
+          return new Promise(function(resolve, reject) {
             var index = self.whitelist.indexOf(self.host);
             if (index === -1) {
               self.whitelist.push(self.host);
             }
             self.isAllowed = true;
             var data = {whitelist: self.whitelist};
-            chrome.storage.sync.set(data, function () {
+            chrome.storage.sync.set(data, function() {
               resolve();
             });
           });
-        },
-        removeSiteFromWhitelist: function(site) {
+        };
+
+        this.removeSiteFromWhitelist = function(site) {
           var self = this;
-          return new Promise(function (resolve, reject) {
+          return new Promise(function(resolve, reject) {
             var index = self.whitelist.indexOf(self.host);
             if (index > -1) {
               self.whitelist.splice(index, 1);
             }
             self.isAllowed = false;
             var data = {whitelist: self.whitelist};
-            chrome.storage.sync.set(data, function () {
+            chrome.storage.sync.set(data, function() {
               resolve();
             });
           });
-        },
-        getIsAllowed: function() {
+        };
+
+        this.getIsAllowed = function() {
           return this.isAllowed;
-        },
-        runLoadSequence: function() {
+        };
+
+        this.turnOn = function() {
           var self = this;
-          return importFeedbackWidget()
-          .then(injectGradingEngine)
-          .then(loadLibraries)
-          .then(loadJSONTestsFromFile)
-          .then(registerTestSuites)
-          .then(loadUnitTests)
+          var g = document.querySelector('#ud-grader-options')
+          if (g) {
+            document.head.removeChild(g);
+          }
+          if (!self.geInjected) {
+            return runLoadSequence().then(function() {
+              Promise.resolve(true);
+            });
+          } else {
+            return Promise.resolve(true);
+          }
+        };
+
+        this.turnOff = function() {
+          var g = document.querySelector('#ud-grader-options')
+          if (g) {
+            document.head.removeChild(g);
+          }
+          return injectIntoDocument('script', {
+            id: 'ud-grader-options',
+            innerHTML: 'UdacityFEGradingEngine.turnOff();delete window.UdacityFEGradingEngine;'
+          }, 'head')
           .then(function() {
-            self.geInjected = true;
-            return Promise.resolve();
-          }, function(e) {
-            console.log(e);
-            throw new Error('Something went wrong loading Udacity Feedback. Please reload.');
+            injectedElementsOnPage.forEach(function(id) {
+              var e = document.querySelector('#' + id);
+              if (e) {
+                try {
+                  document.body.removeChild(e);
+                  document.head.removeChild(e);
+                } catch (e) {
+                  // it's cool. do nothing
+                }
+              }
+            });
+            injectedElementsOnPage = [];
+            // wish I could unregister <test-widget>, but it doesn't look like it's possible at the moment
+            self.geInjected = false;
           })
-        },
-        turnOn: function() {
-          var g = document.querySelector('#ud-grader-options')
-          if (g) {
-            document.head.removeChild(g);
-          }
-          return injectIntoDocument(
-            'script',
-            { id: 'ud-grader-options',
-              innerHTML: 'UdacityFEGradingEngine.turnOn();' },
-            'head'
-          ).then(function() {
-            Promise.resolve(true);
-          })
-        },
-        turnOff: function() {
-          var g = document.querySelector('#ud-grader-options')
-          if (g) {
-            document.head.removeChild(g);
-          }
-          return injectIntoDocument(
-            'script',
-            { id: 'ud-grader-options',
-              innerHTML: 'UdacityFEGradingEngine.turnOff();' },
-            'head'
-          ).then(function() {
-            Promise.resolve(false);
-          })
-        }
-      };
+          .catch(function(e) {
+            throw e;
+          });
+        };
+      }
 
       var stateManager = new StateManager();
 
       stateManager.isSiteOnWhitelist()
-      .then(stateManager.runLoadSequence);
+      .then(function(isAllowed) {
+        if (isAllowed) {
+          stateManager.turnOn();
+        }
+      });
 
       // wait for messages from browser action
-      chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+      chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         switch (message.type) {
           case 'json':
             registerTestSuites(message.data);
@@ -263,7 +306,7 @@ chrome.runtime.sendMessage({}, function(response) {
           case 'on-off':
             if (message.data === 'on') {
               stateManager.addSiteToWhitelist()
-              .then(stateManager.turnOn)
+              .then(stateManager.turnOn);
             } else if (message.data === 'off') {
               stateManager.removeSiteFromWhitelist()
               .then(stateManager.turnOff);
@@ -279,7 +322,7 @@ chrome.runtime.sendMessage({}, function(response) {
       });
 
       // for first load
-      window.addEventListener('GE-on', function () {
+      window.addEventListener('GE-on', function() {
         if (stateManager.isAllowed) {
           stateManager.turnOn();
         }
