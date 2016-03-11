@@ -26,8 +26,8 @@ Queue.prototype = {
     if (!this._flushing) {
       this._flushing = true;
     }
-    
-    function executeInPromise (fn) {
+
+    function executeInPromise(fn) {
       return new Promise(function (resolve, reject) {
         if (fn) {
           try {
@@ -40,7 +40,7 @@ Queue.prototype = {
       });
     }
     if (!this._blocked) {
-      executeInPromise(this._methods.shift()).then(function (resolve) {
+      executeInPromise(this._methods.shift()).then(function(resolve) {
         if (self._methods.length > 0) {
           self.step();
         }
@@ -48,11 +48,11 @@ Queue.prototype = {
     }
   },
 
-  block: function () {
+  block: function() {
     this._blocked = true;
   },
 
-  unblock: function () {
+  unblock: function() {
     this._blocked = false;
     this.step();
   }

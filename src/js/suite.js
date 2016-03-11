@@ -23,14 +23,14 @@ function Suite(rawSuite) {
 
 Object.defineProperties(Suite.prototype, {
   numberOfTests: {
-    get: function () {
-      return this.activeTests.length || 0;      
+    get: function() {
+      return this.activeTests.length || 0;
     }
   },
   numberOfCorrectTests: {
-    get: function () {
+    get: function() {
       var numberCorrect = 0;
-      this.activeTests.forEach(function (test) {
+      this.activeTests.forEach(function(test) {
         if (test.testPassed) {
           numberCorrect += 1;
         }
@@ -39,9 +39,9 @@ Object.defineProperties(Suite.prototype, {
     }
   },
   numberOfCorrectOrOptionalTests: {
-    get: function () {
+    get: function() {
       var numberCorrectOrOptional = 0;
-      this.activeTests.forEach(function (test) {
+      this.activeTests.forEach(function(test) {
         if (test.optional || test.testPassed) {
           numberCorrectOrOptional += 1;
         }
@@ -50,9 +50,9 @@ Object.defineProperties(Suite.prototype, {
     }
   },
   numberOfOptionalTests: {
-    get: function () {
+    get: function() {
       var numberOptional = 0;
-      this.activeTests.forEach(function (test) {
+      this.activeTests.forEach(function(test) {
         if (test.optional) {
           numberOptional += 1;
         }
@@ -60,7 +60,7 @@ Object.defineProperties(Suite.prototype, {
     }
   },
   allCorrect: {
-    get: function () {
+    get: function() {
       var allGood = false;
       if (this.numberOfTests - this.numberOfCorrectOrOptionalTests <= 0) {
         allGood = true;
@@ -70,30 +70,30 @@ Object.defineProperties(Suite.prototype, {
   },
 })
 
-Suite.prototype.getDebugData = function () {
-  this.activeTests.forEach(function (at) {
+Suite.prototype.getDebugData = function() {
+  this.activeTests.forEach(function(at) {
     if (at.debugData.length > 0) {
-      console.log("%c" + at.description + " : " + at.debugData.join(' '), "color: red;");
+      console.log('%c' + at.description + ' : ' + at.debugData.join(' '), 'color: red;');
     }
   });
 }
 
-Suite.prototype.createTest = function (rawTest) {
+Suite.prototype.createTest = function(rawTest) {
   var activeTest = new ActiveTest(rawTest);
   activeTest.suite = this;
 
   function createTestElement(newTest) {
     var activeTestElement = document.createElement('active-test');
-    
+
     // find the suite element to which the test belongs
     var activeTestsContainer = activeTest.suite.element.shadowRoot.querySelector('.active-tests');
     // attributes get applied to the view
     activeTestElement.setAttribute('description', newTest.description);
     activeTestElement.setAttribute('test-passed', newTest.testPassed);
-    
+
     // let the Test know which element belongs to it
     activeTest.element = activeTestElement;
-    
+
     activeTestsContainer.appendChild(activeTestElement);
     return activeTestElement;
   }
@@ -108,7 +108,7 @@ Suite.prototype.createTest = function (rawTest) {
   activeTest.runTest();
 };
 
-Suite.prototype.checkTests = function () {
+Suite.prototype.checkTests = function() {
   var passed = this.allCorrect;
   this.suitePassed = passed;
   this.element.suitePassed = passed;

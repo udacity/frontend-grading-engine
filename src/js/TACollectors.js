@@ -25,15 +25,15 @@ Object.defineProperties(TA.prototype, {
      * To find a child node's index in relation to its immediate siblings
      * @return {object} TA - the TA instance for chaining.
      */
-    get: function () {
+    get: function() {
       var self = this;
-      this.queue.add(function () {
-        self._runAgainstBottomTargets(function (target) {
+      this.queue.add(function() {
+        self._runAgainstBottomTargets(function(target) {
           var elem = target.element;
           var position = null;
           // TODO: correct for other non-normal DOM elems?
           var ignoreTheseNodes = 0;
-          Array.prototype.slice.apply(target.element.parentNode.children).forEach(function (val, index) {
+          Array.prototype.slice.apply(target.element.parentNode.children).forEach(function(val, index) {
             if (val.nodeName === '#text') {
               ignoreTheseNodes += 1;
             }
@@ -54,10 +54,10 @@ Object.defineProperties(TA.prototype, {
      */
     get: function() {
       var self = this;
-      this.queue.add(function () {
+      this.queue.add(function() {
         // doing more than accessing a property on existing target because counting can move up the bullseye to past Targets. Need to reset operations
         self._registerOperation('count');
-        self._runAgainstNextToBottomTargets(function (target) {
+        self._runAgainstNextToBottomTargets(function(target) {
           var length = null;
           try {
             length = target.children.length;
@@ -75,11 +75,11 @@ Object.defineProperties(TA.prototype, {
      * To find the index of a target from when it was created.
      * @return {object} TA - the TA instance for chaining.
      */
-    get: function () {
+    get: function() {
       var self = this;
-      this.queue.add(function () {
+      this.queue.add(function() {
         self._registerOperation('index');
-        self._runAgainstBottomTargets(function (target) {
+        self._runAgainstBottomTargets(function(target) {
           var index = null;
           try {
             index = target.index;
@@ -97,11 +97,11 @@ Object.defineProperties(TA.prototype, {
      * To pull the innerHTML of a DOM node.
      * @return {object} TA - the TA instance for chaining.
      */
-    get: function () {
+    get: function() {
       var self = this;
-      this.queue.add(function () {
+      this.queue.add(function() {
         self._registerOperation('innerHTML');
-        self._runAgainstBottomTargetElements(function (element) {
+        self._runAgainstBottomTargetElements(function(element) {
           var html = '';
           try {
             html = element.innerHTML;
@@ -119,9 +119,9 @@ Object.defineProperties(TA.prototype, {
      * Not a collector! Used by the GradeBook to set a threshold for number of questions to pass in order to count the whole test as correct.
      * @return {object} TA - the TA instance for chaining.
      */
-    get: function () {
+    get: function() {
       var self = this;
-      this.queue.add(function () {
+      this.queue.add(function() {
         self.picky = 'onlyOneOf';
       });
       return this;
@@ -132,9 +132,9 @@ Object.defineProperties(TA.prototype, {
      * Not a collector! Used by the GradeBook to set a threshold for number of questions to pass in order to count the whole test as correct.
      * @return {object} TA - the TA instance for chaining.
      */
-    get: function () {
+    get: function() {
       var self = this;
-      this.queue.add(function () {
+      this.queue.add(function() {
         self.picky = 'someOf';
       });
       return this;
@@ -145,9 +145,9 @@ Object.defineProperties(TA.prototype, {
      * Not a collector! Private use only. Get an array of all target ids.
      * @return {array} ids of all targets in the bullseye.
      */
-    get: function () {
+    get: function() {
       var ids = [];
-      this._traverseTargets(function (target) {
+      this._traverseTargets(function(target) {
         ids.push(target.id);
       });
       return ids;
@@ -158,12 +158,12 @@ Object.defineProperties(TA.prototype, {
      * Get the User-Agent string of the browser.
      * @return {object} TA - the TA instance for chaining.
      */
-    get: function () {
+    get: function() {
       var self = this;
-      this.queue.add(function () {
+      this.queue.add(function() {
         self._registerOperation('gatherElements');
         self.target = new Target();
-        self._runAgainstTopTargetOnly(function (topTarget) {
+        self._runAgainstTopTargetOnly(function(topTarget) {
           var ua = '';
           try {
             ua = navigator.userAgent;
@@ -181,13 +181,13 @@ Object.defineProperties(TA.prototype, {
 /**
  * Initialized for async call later.
  */
-TA.prototype.onresult = function (testResult) {};
+TA.prototype.onresult = function(testResult) {};
 
 /**
  * Let the TA know this just happened and refresh the questions in the GradeBook.
  * @param {string} operation - the thing that just happened
  */
-TA.prototype._registerOperation = function (operation) {
+TA.prototype._registerOperation = function(operation) {
   this.operations.push(operation);
   this.gradebook.reset();
 };
@@ -196,7 +196,7 @@ TA.prototype._registerOperation = function (operation) {
  * Private method to traverse all targets in the bullseye.
  * @param  {Function} callback - method to call against each target
  */
-TA.prototype._traverseTargets = function (callback) {
+TA.prototype._traverseTargets = function(callback) {
   // http://www.timlabonne.com/2013/07/tree-traversals-with-javascript/
 
   /**
@@ -209,7 +209,7 @@ TA.prototype._traverseTargets = function (callback) {
       callback(node);
     }
 
-    node.children.forEach(function (child, index, arr) {
+    node.children.forEach(function(child, index, arr) {
       visitDfs(child, callback);
     });
   };
@@ -220,14 +220,14 @@ TA.prototype._traverseTargets = function (callback) {
  * Run a function against the top-level Target in the bullseye
  * @param  {function} callback - the function to run against specified Targets
  */
-TA.prototype._runAgainstTopTargetOnly = function (callback) {
+TA.prototype._runAgainstTopTargetOnly = function(callback) {
   var self = this;
   this.target.value = callback(this.target);
 
   if (this.target.value) {
     self.gradebook.recordQuestion(this.target);
   } else {
-    this.target.children.forEach(function (kid) {
+    this.target.children.forEach(function(kid) {
       self.gradebook.recordQuestion(kid);
     })
   }
@@ -237,19 +237,19 @@ TA.prototype._runAgainstTopTargetOnly = function (callback) {
  * Run a function against bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified Targets
  */
-TA.prototype._runAgainstBottomTargets = function (callback) {
+TA.prototype._runAgainstBottomTargets = function(callback) {
   var self = this;
 
   var allTargets = this._targetIds;
 
-  this._traverseTargets(function (target) {
+  this._traverseTargets(function(target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target);
 
       if (target.value) {
         self.gradebook.recordQuestion(target);
       } else {
-        target.children.forEach(function (kid) {
+        target.children.forEach(function(kid) {
           self.gradebook.recordQuestion(kid);
         })
       }
@@ -261,19 +261,19 @@ TA.prototype._runAgainstBottomTargets = function (callback) {
  * Run a function against the elements of the bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified elements
  */
-TA.prototype._runAgainstBottomTargetElements = function (callback) {
+TA.prototype._runAgainstBottomTargetElements = function(callback) {
   var self = this;
 
   var allTargets = this._targetIds;
 
-  this._traverseTargets(function (target) {
+  this._traverseTargets(function(target) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target.element);
 
       if (target.value) {
         self.gradebook.recordQuestion(target);
       } else {
-        target.children.forEach(function (kid) {
+        target.children.forEach(function(kid) {
           self.gradebook.recordQuestion(kid);
         })
       }
@@ -285,17 +285,17 @@ TA.prototype._runAgainstBottomTargetElements = function (callback) {
  * Run a function against the next to bottom targets in the bullseye
  * @param  {function} callback - the function to run against specified elements
  */
-TA.prototype._runAgainstNextToBottomTargets = function (callback) {
+TA.prototype._runAgainstNextToBottomTargets = function(callback) {
   var self = this;
 
-  this._traverseTargets(function (target) {
+  this._traverseTargets(function(target) {
     if (target.hasChildren && !target.hasGrandkids) {
       target.value = callback(target);
 
       if (target.value) {
         self.gradebook.recordQuestion(target);
       } else {
-        target.children.forEach(function (kid) {
+        target.children.forEach(function(kid) {
           self.gradebook.recordQuestion(kid);
         })
       }
@@ -308,20 +308,20 @@ TA.prototype._runAgainstNextToBottomTargets = function (callback) {
  * @param  {string} CSS selector - the selector of the elements you want to query
  * @return {object} TA - the TA instance for chaining.
  */
-TA.prototype.theseElements = function (selector) {
+TA.prototype.theseElements = function(selector) {
   var self = this;
-  this.queue.add(function () {
+  this.queue.add(function() {
     self._registerOperation('gatherElements');
 
     self.target = new Target();
 
-    self._runAgainstTopTargetOnly(function (topTarget) {
+    self._runAgainstTopTargetOnly(function(topTarget) {
       var elems = getDomNodeArray(selector);
 
       if (!selector) {
         self.onerror('Cannot find elements without a selector.', true);
       } else if (elems.length > 0) {
-        elems.forEach(function (elem, index, arr) {
+        elems.forEach(function(elem, index, arr) {
           var target = new Target();
           target.element = elem;
           target.index = index;
@@ -340,19 +340,19 @@ TA.prototype.nodes = TA.prototype.theseElements;
  * @param  {string} CSS selector - the selector of the children you want to query
  * @return {object} TA - the TA instance for chaining.
  */
-TA.prototype.deepChildren = function (selector) {
+TA.prototype.deepChildren = function(selector) {
   var self = this;
-  this.queue.add(function () {
+  this.queue.add(function() {
     self._registerOperation('gatherDeepChildElements');
 
-    self._runAgainstBottomTargets(function (target) {
+    self._runAgainstBottomTargets(function(target) {
       var elems = getDomNodeArray(selector, target.element);
 
       if (!selector) {
         self.onerror('Cannot find elements without a selector.', true);
         throw new Error();
       } else if (target.element) {
-        elems.forEach(function (newElem, index) {
+        elems.forEach(function(newElem, index) {
           var childTarget = new Target();
           childTarget.element = newElem;
           childTarget.index = index;
@@ -365,7 +365,7 @@ TA.prototype.deepChildren = function (selector) {
 // for alternate syntax options
 TA.prototype.children = TA.prototype.deepChildren;
 
-TA.prototype.get = function (typeOfValue) {
+TA.prototype.get = function(typeOfValue) {
   var self = this;
   switch (typeOfValue) {
     case 'count':
@@ -390,7 +390,7 @@ TA.prototype.get = function (typeOfValue) {
   }
 };
 
-TA.prototype.limit = function (byHowMuch) {
+TA.prototype.limit = function(byHowMuch) {
   var self = this;
   switch (byHowMuch) {
     case 1:
@@ -411,12 +411,12 @@ TA.prototype.limit = function (byHowMuch) {
  * @param  {string} property - the CSS property to examine. Should be camelCased.
  * @return {object} TA - the TA instance for chaining.
  */
-TA.prototype.cssProperty = function (property) {
+TA.prototype.cssProperty = function(property) {
   var self = this;
-  this.queue.add(function () {
+  this.queue.add(function() {
     self._registerOperation('cssProperty');
 
-    self._runAgainstBottomTargetElements(function (elem) {
+    self._runAgainstBottomTargetElements(function(elem) {
       var styles = {};
       var style = null;
       try {
@@ -437,12 +437,12 @@ TA.prototype.cssProperty = function (property) {
  * @param  {string} attribute - the attribute under examination.
  * @return {object} TA - the TA instance for chaining.
  */
-TA.prototype.attribute = function (attribute) {
+TA.prototype.attribute = function(attribute) {
   var self = this;
-  this.queue.add(function () {
+  this.queue.add(function() {
     self._registerOperation('attribute')
 
-    self._runAgainstBottomTargetElements(function (elem) {
+    self._runAgainstBottomTargetElements(function(elem) {
       var attrValue = null;
       try {
         attrValue = elem.getAttribute(attribute);
@@ -463,9 +463,9 @@ TA.prototype.attribute = function (attribute) {
  * @param  {string} side - the side of the element in question
  * @return {object} TA - the TA instance for chaining.
  */
-TA.prototype.absolutePosition = function (side) {
+TA.prototype.absolutePosition = function(side) {
   var self = this;
-  this.queue.add(function () {
+  this.queue.add(function() {
     self._registerOperation('absolutePosition');
     // http://stackoverflow.com/questions/2880957/detect-inline-block-type-of-a-dom-element
     function getDisplayType (element) {
@@ -473,10 +473,10 @@ TA.prototype.absolutePosition = function (side) {
       return cStyle.display;
     };
 
-    var selectorFunc = function () {};
+    var selectorFunc = function() {};
     switch (side) {
       case 'top':
-        var selectorFunc = function (elem) {
+        var selectorFunc = function(elem) {
           var displayType = getDisplayType(elem);
           var value = NaN;
           if (displayType === 'block') {
@@ -488,7 +488,7 @@ TA.prototype.absolutePosition = function (side) {
         };
         break;
       case 'left':
-        var selectorFunc = function (elem) {
+        var selectorFunc = function(elem) {
           var displayType = getDisplayType(elem);
           var value = NaN;
           if (displayType === 'block') {
@@ -500,7 +500,7 @@ TA.prototype.absolutePosition = function (side) {
         };
         break;
       case 'bottom':
-        var selectorFunc = function (elem) {
+        var selectorFunc = function(elem) {
           var displayType = getDisplayType(elem);
           var value = NaN;
           if (displayType === 'block') {
@@ -515,7 +515,7 @@ TA.prototype.absolutePosition = function (side) {
         };
         break;
       case 'right':
-        var selectorFunc = function (elem) {
+        var selectorFunc = function(elem) {
           var displayType = getDisplayType(elem);
           var value = NaN;
           if (displayType === 'block') {
@@ -530,14 +530,14 @@ TA.prototype.absolutePosition = function (side) {
         };
         break;
       default:
-        selectorFunc = function () {
+        selectorFunc = function() {
           console.log("You didn't pick a side for absolutePosition! Options are 'top', 'left', 'bottom' and 'right'.");
           return NaN;
         };
         break;
     };
 
-    self._runAgainstBottomTargetElements(function (elem) {
+    self._runAgainstBottomTargetElements(function(elem) {
       var absPos = null;
       try {
         absPos = selectorFunc(elem);
@@ -556,16 +556,16 @@ TA.prototype.absolutePosition = function (side) {
  * @param  {String} eventName - custom event to listen for
  * @return {Object} TA for chaining
  */
-TA.prototype.waitForEvent = function (eventName) {
+TA.prototype.waitForEvent = function(eventName) {
   var self = this;
   self.queue.block();
-  window.addEventListener(eventName, function (e) {
+  window.addEventListener(eventName, function(e) {
     self.queue.unblock();
-    self._runAgainstTopTargetOnly(function (topTarget) {
+    self._runAgainstTopTargetOnly(function(topTarget) {
       return e.detail;
     });
   });
-  this.queue.add(function () {
+  this.queue.add(function() {
     self._registerOperation('gatherElements');
     self.target = new Target();
   });

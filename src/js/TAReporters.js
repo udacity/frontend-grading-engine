@@ -8,20 +8,20 @@ Reporters live on the TA and are responsible for:
 /**
  * Checks that either values or elements exist on questions in GradeBook.
  */
-TA.prototype.exists = function (bool) {
+TA.prototype.exists = function(bool) {
   var self = this;
 
   if (bool === false && typeof bool === 'boolean') {
     self.not(true);
   }
 
-  this.queue.add(function () {
+  this.queue.add(function() {
     var typeOfOperation = self.operations[self.operations.length - 1];
 
-    var doesExistFunc = function () {};
+    var doesExistFunc = function() {};
     switch (typeOfOperation) {
       case 'gatherElements':
-        doesExistFunc = function (topTarget) {
+        doesExistFunc = function(topTarget) {
           var doesExist = false;
           if (topTarget.children.length > 0 || topTarget.element || topTarget.value) {
             doesExist = true;
@@ -30,7 +30,7 @@ TA.prototype.exists = function (bool) {
         };
         break;
       case 'gatherDeepChildElements':
-        doesExistFunc = function (target) {
+        doesExistFunc = function(target) {
           var hasElement = false;
           if (target.element) {
             hasElement = true;
@@ -39,7 +39,7 @@ TA.prototype.exists = function (bool) {
         };
         break;
       default:
-        doesExistFunc = function (target) {
+        doesExistFunc = function(target) {
           var doesExist = false;
           if (target.value || target.element) {
             doesExist = true;
@@ -63,14 +63,14 @@ TA.prototype.exists = function (bool) {
  * Used by the GradeBook to negate the correctness of a test.
  * @param  {Boolean} bool The gradeOpposite param gets set to this. Will default to true if it isn't present or is not specifically false.
  */
-TA.prototype.not = function (bool) {
+TA.prototype.not = function(bool) {
   var self = this;
-  
+
   if (typeof bool !== 'boolean') {
     bool = true;
   }
-  
-  this.queue.add(function () {
+
+  this.queue.add(function() {
     if (bool) {
       self.gradeOpposite = true;
     }
@@ -82,10 +82,11 @@ TA.prototype.not = function (bool) {
  * @param  {*} expected - any value to match against, but typically a string or int.
  * @param  {boolean} noStrict - check will run as === unless noStrict is true.
  */
-TA.prototype.equals = function (config) {
+TA.prototype.equals = function(config) {
   var self = this;
-  this.queue.add(function () {
-    var expected, noStrict;
+  this.queue.add(function() {
+    var expected
+    var noStrict;
     if (typeof config === 'object') {
       expected = config.expected;
       noStrict = config.noStrict || false;
@@ -99,17 +100,17 @@ TA.prototype.equals = function (config) {
     var equalityFunc = function() {};
     switch (noStrict) {
       case true:
-        equalityFunc = function (target) {
+        equalityFunc = function(target) {
           return target.value == expected;
         };
         break;
       case false:
-        equalityFunc = function (target) {
+        equalityFunc = function(target) {
           return target.value === expected;
         };
         break;
       default:
-        equalityFunc = function (target) {
+        equalityFunc = function(target) {
           return target.value === expected;
         };
         break;
@@ -129,9 +130,9 @@ TA.prototype.equals = function (config) {
  * @param  {Number} expected - the number for comparison
  * @param  {boolean} orEqualTo - if true, run as >= instead of >
  */
-TA.prototype.isGreaterThan = function (config) {
+TA.prototype.isGreaterThan = function(config) {
   var self = this;
-  this.queue.add(function () {
+  this.queue.add(function() {
     var expected = config.expected || config;
     var orEqualTo = config.orEqualTo || false;
 
@@ -143,7 +144,7 @@ TA.prototype.isGreaterThan = function (config) {
     var greaterThanFunc = function() {};
     switch (orEqualTo) {
       case true:
-        greaterThanFunc = function (target) {
+        greaterThanFunc = function(target) {
           var isGreaterThan = false;
           if (getUnitlessMeasurement(target.value) >= getUnitlessMeasurement(expected)) {
             isGreaterThan = true;
@@ -152,7 +153,7 @@ TA.prototype.isGreaterThan = function (config) {
         }
         break;
       default:
-        greaterThanFunc = function (target) {
+        greaterThanFunc = function(target) {
           var isGreaterThan = false;
           if (getUnitlessMeasurement(target.value) > getUnitlessMeasurement(expected)) {
             isGreaterThan = true;
@@ -178,7 +179,7 @@ TA.prototype.isGreaterThan = function (config) {
  */
 TA.prototype.isLessThan = function(config) {
   var self = this;
-  this.queue.add(function () {
+  this.queue.add(function() {
     var expected = config.expected || config;
     var orEqualTo = config.orEqualTo || false;
 
@@ -190,7 +191,7 @@ TA.prototype.isLessThan = function(config) {
     var lessThanFunc = function() {};
     switch (orEqualTo) {
       case true:
-        lessThanFunc = function (target) {
+        lessThanFunc = function(target) {
           var isLessThan = false;
           if (getUnitlessMeasurement(target.value) <= getUnitlessMeasurement(expected)) {
             isLessThan = true;
@@ -199,7 +200,7 @@ TA.prototype.isLessThan = function(config) {
         }
         break;
       default:
-        lessThanFunc = function (target) {
+        lessThanFunc = function(target) {
           var isLessThan = false;
           if (getUnitlessMeasurement(target.value) < getUnitlessMeasurement(expected)) {
             isLessThan = true;
@@ -228,11 +229,11 @@ TA.prototype.isLessThan = function(config) {
 TA.prototype.isInRange = function(config) {
   // TODO: would be fantastic to use isLessThan and isGreaterThan instead
   var self = this;
-  this.queue.add(function () {
-    var lower = getUnitlessMeasurement(config.lower),
-        upper = getUnitlessMeasurement(config.upper),
-        lowerInclusive = config.lowerInclusive || true,
-        upperInclusive = config.upperInclusive || true;
+  this.queue.add(function() {
+    var lower = getUnitlessMeasurement(config.lower);
+    var upper = getUnitlessMeasurement(config.upper);
+    var lowerInclusive = config.lowerInclusive || true;
+    var upperInclusive = config.upperInclusive || true;
 
     // just in case someone screws up the order
     if (lower > upper) {
@@ -246,10 +247,10 @@ TA.prototype.isInRange = function(config) {
       throw new Error();
     }
 
-    var xIsLessThan = function () {};
+    var xIsLessThan = function() {};
     switch (upperInclusive) {
       case true:
-        xIsLessThan = function (target) {
+        xIsLessThan = function(target) {
           var isInRange = false;
           if (getUnitlessMeasurement(target.value) <= getUnitlessMeasurement(upper)) {
             isInRange = true;
@@ -258,7 +259,7 @@ TA.prototype.isInRange = function(config) {
         }
         break;
       default:
-        xIsLessThan = function (target) {
+        xIsLessThan = function(target) {
           var isInRange = false;
           if (getUnitlessMeasurement(target.value) < getUnitlessMeasurement(upper)) {
             isInRange = true;
@@ -268,10 +269,10 @@ TA.prototype.isInRange = function(config) {
         break;
     }
 
-    var xIsGreaterThan = function () {};
+    var xIsGreaterThan = function() {};
     switch (lowerInclusive) {
       case true:
-        xIsGreaterThan = function (target) {
+        xIsGreaterThan = function(target) {
           var isInRange = false;
           if (getUnitlessMeasurement(target.value) >= getUnitlessMeasurement(lower)) {
             isInRange = true;
@@ -280,7 +281,7 @@ TA.prototype.isInRange = function(config) {
         }
         break;
       default:
-        xIsGreaterThan = function (target) {
+        xIsGreaterThan = function(target) {
           var isInRange = false;
           if (getUnitlessMeasurement(target.value) > getUnitlessMeasurement(lower)) {
             isInRange = true;
@@ -290,7 +291,7 @@ TA.prototype.isInRange = function(config) {
         break;
     }
 
-    var inRangeFunc = function (target) {
+    var inRangeFunc = function(target) {
       var isInRange = false;
       if (xIsLessThan(target) && xIsGreaterThan(target)) {
         isInRange = true;
@@ -313,9 +314,9 @@ TA.prototype.isInRange = function(config) {
  * @param  {Object} config - includes: nValues, minValues, maxValues. Designate the number of values in expectedValues expected to be found in the target value. Defaults to at least one value needs to be found.
  * @return {object} result - the GradeBook's list of questions and overall correctness.
  */
-TA.prototype.hasSubstring = function (config) {
+TA.prototype.hasSubstring = function(config) {
   var self = this;
-  this.queue.add(function () {
+  this.queue.add(function() {
     // TODO: why not just abort?
     config = config || {};
     var expectedValues = config.expectedValues;
@@ -330,9 +331,9 @@ TA.prototype.hasSubstring = function (config) {
       expectedValues = [expectedValues];
     };
 
-    var nValues      = config.nValues || false,
-        minValues    = config.minValues || 1,
-        maxValues    = config.maxValues || expectedValues.length;
+    var nValues      = config.nValues || false;
+    var minValues    = config.minValues || 1;
+    var maxValues    = config.maxValues || expectedValues.length;
 
     if (!expectedValues || expectedValues.length === 0) {
       self.onerror("'hasSubstring' needs at least one regex comparison.");
@@ -349,13 +350,13 @@ TA.prototype.hasSubstring = function (config) {
      * @param  {object} target - the Target in question
      * @return {boolean} - whether or not expected substring is in target.value
      */
-    var substringFunc = function (target) {
+    var substringFunc = function(target) {
       var hasNumberOfValsExpected = false;
       var hits = 0;
       expectedValues.forEach(function(val, index, arr) {
         var matches = target.value.match(new RegExp(val)) || [];
         if (matches.length > 0) {
-          hits+=1;
+          hits += 1;
         };
       });
 
@@ -377,22 +378,22 @@ TA.prototype.hasSubstring = function (config) {
 }
 
 // get all the exposed methods so that the translator knows what's acceptable
-var taAvailableMethods = Object.getOwnPropertyNames(TA.prototype).filter(function (key) {
+var taAvailableMethods = Object.getOwnPropertyNames(TA.prototype).filter(function(key) {
   return key.indexOf('_') === -1 && key !== 'constructor';
 });
 
-TA.prototype._translateConfigToMethods = function (config) {
+TA.prototype._translateConfigToMethods = function(config) {
   var self = this;
   // return an array of anonymous functions that are closed over this scope.
   var methods = [];
-  
+
   // so either nodes or elements works in config object
   config['nodes'] = config['nodes'] || config['elements'];
-  
+
   var definitions = Object.keys(config);
 
-  methods = definitions.map(function (method) {
-    return function () {
+  methods = definitions.map(function(method) {
+    return function() {
       try {
         self[method](config[method]);
       } catch (e) {
