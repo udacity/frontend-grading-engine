@@ -85,7 +85,7 @@ TA.prototype.not = function(bool) {
 TA.prototype.equals = function(config) {
   var self = this;
   this.queue.add(function() {
-    var expected
+    var expected;
     var noStrict;
     if (typeof config === 'object') {
       expected = config.expected;
