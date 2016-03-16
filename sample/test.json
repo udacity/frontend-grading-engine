@@ -1,5 +1,5 @@
 [{
-  "name": "Meta info",
+  "name": "Meta Info",
   "code": "Got the meta stuff",
   "tests": [
     {
@@ -101,6 +101,16 @@
         "waitForEvent": "ud-test",
         "exists": true
       }
+    },
+    {
+      "description": "DPR is equal to 2",
+      "definition": {
+        "get": "DPR",
+        "equals": 2
+      },
+      "flags": {
+        "optional": true
+      }
     }
   ]
 },
@@ -173,6 +183,16 @@
         "nodes": ".abs",
         "absolutePosition": "left",
         "equals": 401
+      }
+    },
+    {
+      "description": "DPR is equal to 0.5",
+      "definition": {
+        "get": "DPR",
+        "equals": 0.5
+      },
+      "flags": {
+        "optional": true
       }
     }
   ]

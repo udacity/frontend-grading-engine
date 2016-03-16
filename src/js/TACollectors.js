@@ -175,6 +175,29 @@ Object.defineProperties(TA.prototype, {
       });
       return this;
     }
+  },
+  DPR: {
+    /**
+     * Get the Device Pixel Ratio of the viewport.
+     * @return {object} TA - the TA instance for chaining.
+     */
+    get: function() {
+      var self = this;
+      this.queue.add(function() {
+        self._registerOperation('gatherElements');
+        self.target = new Target();
+        self._runAgainstTopTargetOnly(function(topTarget) {
+          var dpr = null;
+          try {
+            dpr = +window.devicePixelRatio;
+          } catch (e) {
+            self.onerror('Can\'t find device pixel ratio.', true);
+          }
+          return dpr;
+        })
+      });
+      return this;
+    }
   }
 })
 
@@ -379,6 +402,9 @@ TA.prototype.get = function(typeOfValue) {
       break;
     case 'UAString':
       self.UAString;
+      break;
+    case 'DPR':
+      self.DPR;
       break;
     case 'index':
       self.index;

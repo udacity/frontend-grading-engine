@@ -116,7 +116,7 @@ Think about this sentence as you write tests:
 
 > I want the nodes of [selector] to have [some property] that [compares to some value].
 
-#### 1) Start with `"nodes"`. Every* test against the DOM needs some nodes to examine. This is the start of a "collector".
+#### 1) Start with `"nodes"`. Most* tests against the DOM need some nodes to examine. This is the start of a "collector".
 
 ```javascript
 "definition": {
@@ -125,7 +125,7 @@ Think about this sentence as you write tests:
 }
 ```
 
-**Two exceptions: collecting a user-agent string or in conjunction with `"waitForEvent"`.*
+**Exceptions: collecting a user-agent string, device pixel ratio, or in conjunction with `"waitForEvent"`.*
 
 #### 2) Decide what value you want to collect and test.
 
@@ -168,7 +168,7 @@ Any attribute works.
 
 Side must be one of: `top`, `left`, `bottom`, or `right`. Currently, the position returned is relative to the viewport, which TBH, seems odd. Be careful because the behavior of `"absolutePosition"` may change in the future.
 
-**Count, innerHTML, ChildPosition, and UAString:**
+**Count, innerHTML, ChildPosition, UAString (user-agent string), DPR (device pixel ratio):**
 
 ```javascript
 "definition": {
@@ -178,7 +178,7 @@ Side must be one of: `top`, `left`, `bottom`, or `right`. Currently, the positio
 }
 ```
 
-These four tests (`"count"`, `"innerHTML"`, `"childPositions"` and `"UAString"`) use `"get"` and they are the only tests that use `"get"`. Each of them returns basically what you'd expect. Remember the asterix from earlier about the necessity of `"nodes"`? User-agent strings are one of the exceptions - you can `"get": "UAString"` without `"nodes"`.
+These tests (`"count"`, `"innerHTML"`, `"childPositions"`, `"UAString"`, `"DPR"`) use `"get"` and they are the only tests that use `"get"`. Each of them returns basically what you'd expect. Remember the asterix from earlier about the necessity of `"nodes"`? Device pixel ratios and user-agent strings are exceptions - you can `"get": "UAString"` or `"get": "DPR"` without `"nodes"`.
 
 "Child position? I haven't seen anything about children." - a question you might be asking yourself. Let me answer it.
 
