@@ -37,24 +37,14 @@ gulp.task('concat', function () {
     .pipe(debug({title: 'built feedback: '}))
 });
 
-gulp.task('GE-prod', function() {
-  return gulp.src(jsFiles)
-    .pipe(concat('GE.min.js'))
-    .pipe(uglify())
-    .pipe(gulp.dest('ext/src/js/libs/'))
-    .pipe(debug({title: 'built dev grading engine:'}))
-});
-
 gulp.task('GE', function() {
   return gulp.src(jsFiles)
-    .pipe(concat('GE.min.js'))
+    .pipe(concat('GE.js'))
     .pipe(gulp.dest('ext/src/js/libs/'))
     .pipe(debug({title: 'built dev grading engine:'}))
 });
 
 gulp.task('default', ['concat', 'GE']);
-
-gulp.task('prod', ['concat', 'GE-prod'])
 
 gulp.task('watch', function () {
   gulp.start('default');

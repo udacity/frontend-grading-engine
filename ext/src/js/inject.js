@@ -64,7 +64,7 @@ chrome.runtime.sendMessage({}, function(response) {
 
       function injectGradingEngine() {
         return injectIntoDocument('script', {
-          src: chrome.extension.getURL('src/js/libs/GE.min.js'),
+          src: chrome.extension.getURL('src/js/libs/GE.js'),
           id: 'udacity-front-end-feedback'
         });
       }
