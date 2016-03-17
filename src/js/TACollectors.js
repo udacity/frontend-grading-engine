@@ -446,12 +446,12 @@ TA.prototype.cssProperty = function(property) {
       var styles = {};
       var style = null;
       try {
+        // TODO: this causes a FSL that could affect framerate?
         styles = window.getComputedStyle(elem);
         style = styles[property];
       } catch (e) {
         self.onerror("Cannot get CSS property: '" + property + "'.", true);
       }
-      // TODO: this is causing a FSL that could affect framerate?
       return style;
     });
   });
@@ -479,6 +479,32 @@ TA.prototype.attribute = function(attribute) {
         attrValue = true;
       }
       return attrValue;
+    });
+  });
+  return this;
+}
+
+/**
+ * Get any property of an object.
+ * @param  {string} attribute - the attribute under examination.
+ * @return {object} TA - the TA instance for chaining.
+ */
+TA.prototype.property = function(key) {
+  var self = this;
+  this.queue.add(function() {
+    self._registerOperation('property')
+
+    self._runAgainstBottomTargetElements(function(obj) {
+      var propertyValue = null;
+      try {
+        propertyValue = obj[key];
+      } catch (e) {
+        self.onerror("Cannot get attribute '" + attribute + "'.", true);
+      }
+      if (propertyValue === '') {
+        propertyValue = true;
+      }
+      return propertyValue;
     });
   });
   return this;

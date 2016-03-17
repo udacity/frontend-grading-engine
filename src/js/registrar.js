@@ -73,10 +73,8 @@ function registerSuite(rawSuite) {
 }
 
 var userData = [];
-var currentState = {
-  on: false
-};
-exports.currentState = currentState;
+var isOn = false;
+
 /**
  * For use only when loading a new JSON with user data about the tests they want to run
  * @param  {JSON} suitesJSON Everything the GE needs to know about your tests
@@ -92,7 +90,7 @@ function registerSuites(suitesJSON) {
   if (userData instanceof Array !== true) {
     throw new TypeError('Invalid test format. Tests must be wrapped in an array.');
   }
-  if (currentState.on) {
+  if (isOn) {
     startTests();
   }
 };
@@ -114,16 +112,11 @@ function startTests() {
   });
 };
 
-Object.observe(currentState, function (changes) {
-  if (changes[0].object.on && changes[0].oldValue === false) {
-    startTests();
-  }
-});
-
 function turnOn() {
-  if (!currentState.on) {
+  if (!isOn) {
     testWidget.buildWidget();
-    currentState.on = true;
+    isOn = true;
+    startTests();
   }
 };
 
@@ -135,7 +128,7 @@ function turnOff () {
   });
   hotel.occupiedSuites = [];
   testWidget.killWidget();
-  currentState.on = false;
+  isOn = false;
 };
 
 function debug() {
