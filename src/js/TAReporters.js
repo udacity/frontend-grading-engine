@@ -89,16 +89,13 @@ TA.prototype.not = function(bool) {
 /**
  * Check that question values match an expected value.
  * @param  {*} expected - any value to match against, but typically a string or int.
- * @param  {boolean} noStrict - check will run as === unless noStrict is true.
  */
 TA.prototype.equals = function(config) {
   var self = this;
   this.queue.add(function() {
     var expected;
-    var noStrict;
     if (typeof config === 'object') {
       expected = config.expected;
-      noStrict = config.noStrict || false;
     } else {
       expected = config;
     }
@@ -106,24 +103,16 @@ TA.prototype.equals = function(config) {
       self.onerror('"equals" needs a string or number value.');
       throw new Error();
     }
-    var equalityFunc = function() {};
-    switch (noStrict) {
-      case true:
-        equalityFunc = function(target) {
-          return target.value == expected;
-        };
-        break;
-      case false:
-        equalityFunc = function(target) {
-          return target.value === expected;
-        };
-        break;
-      default:
-        equalityFunc = function(target) {
-          return target.value === expected;
-        };
-        break;
-    }
+
+    var equalityFunc = function(target) {
+      var isCorrect = false;
+      if (target.value === expected) {
+        isCorrect = true;
+      } else {
+        self.onincorrect(target.value.toString() + ' does not equal ' + expected.toString());
+      }
+      return isCorrect;
+    };
 
     var testResult = self.gradebook.grade({
       callback: equalityFunc,
