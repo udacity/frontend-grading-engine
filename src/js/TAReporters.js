@@ -26,6 +26,9 @@ TA.prototype.exists = function(bool) {
           if (topTarget.children.length > 0 || topTarget.element || topTarget.value) {
             doesExist = true;
           }
+          if (!doesExist) {
+            self.onincorrect('does not exist');
+          }
           return doesExist;
         };
         break;
@@ -35,6 +38,9 @@ TA.prototype.exists = function(bool) {
           if (target.element) {
             hasElement = true;
           }
+          if (!doesExist) {
+            self.onincorrect('does not exist');
+          }
           return hasElement;
         };
         break;
@@ -43,6 +49,9 @@ TA.prototype.exists = function(bool) {
           var doesExist = false;
           if (target.value || target.element) {
             doesExist = true;
+          }
+          if (!doesExist) {
+            self.onincorrect('does not exist');
           }
           return doesExist
         }
@@ -137,7 +146,7 @@ TA.prototype.isGreaterThan = function(config) {
     var orEqualTo = config.orEqualTo || false;
 
     if (!expected || typeof expected !== 'number') {
-      self.onerror("'isGreaterThan' needs a number.");
+      self.onerror('\'isGreaterThan\' needs a number.');
       throw new Error();
     }
 
@@ -149,6 +158,9 @@ TA.prototype.isGreaterThan = function(config) {
           if (getUnitlessMeasurement(target.value) >= getUnitlessMeasurement(expected)) {
             isGreaterThan = true;
           }
+          if (!isGreaterThan) {
+            self.onincorrect(target.value + ' is not greater than ' + expected);
+          }
           return isGreaterThan;
         }
         break;
@@ -157,6 +169,9 @@ TA.prototype.isGreaterThan = function(config) {
           var isGreaterThan = false;
           if (getUnitlessMeasurement(target.value) > getUnitlessMeasurement(expected)) {
             isGreaterThan = true;
+          }
+          if (!isGreaterThan) {
+            self.onincorrect(target.value + ' is not greater than ' + expected);
           }
           return isGreaterThan;
         }
@@ -184,7 +199,7 @@ TA.prototype.isLessThan = function(config) {
     var orEqualTo = config.orEqualTo || false;
 
     if (!expected || typeof expected !== 'number') {
-      self.onerror("'isLessThan' needs a value.");
+      self.onerror('\'isLessThan\' needs a value.');
       throw new Error();
     }
 
@@ -196,6 +211,9 @@ TA.prototype.isLessThan = function(config) {
           if (getUnitlessMeasurement(target.value) <= getUnitlessMeasurement(expected)) {
             isLessThan = true;
           }
+          if (!isLessThan) {
+            self.onincorrect(target.value + ' is not less than ' + expected);
+          }
           return isLessThan;
         }
         break;
@@ -204,6 +222,9 @@ TA.prototype.isLessThan = function(config) {
           var isLessThan = false;
           if (getUnitlessMeasurement(target.value) < getUnitlessMeasurement(expected)) {
             isLessThan = true;
+          }
+          if (!isLessThan) {
+            self.onincorrect(target.value + ' is not less than ' + expected);
           }
           return isLessThan;
         }
@@ -255,6 +276,9 @@ TA.prototype.isInRange = function(config) {
           if (getUnitlessMeasurement(target.value) <= getUnitlessMeasurement(upper)) {
             isInRange = true;
           }
+          if (!isInRange) {
+            self.onincorrect(target.value + ' is not less than ' + upper);
+          }
           return isInRange;
         }
         break;
@@ -263,6 +287,9 @@ TA.prototype.isInRange = function(config) {
           var isInRange = false;
           if (getUnitlessMeasurement(target.value) < getUnitlessMeasurement(upper)) {
             isInRange = true;
+          }
+          if (!isInRange) {
+            self.onincorrect(target.value + ' is not less than ' + upper);
           }
           return isInRange;
         }
@@ -277,6 +304,9 @@ TA.prototype.isInRange = function(config) {
           if (getUnitlessMeasurement(target.value) >= getUnitlessMeasurement(lower)) {
             isInRange = true;
           }
+          if (!isInRange) {
+            self.onincorrect(target.value + ' is not greater than ' + lower);
+          }
           return isInRange;
         }
         break;
@@ -285,6 +315,9 @@ TA.prototype.isInRange = function(config) {
           var isInRange = false;
           if (getUnitlessMeasurement(target.value) > getUnitlessMeasurement(lower)) {
             isInRange = true;
+          }
+          if (!isInRange) {
+            self.onincorrect(target.value + ' is not greater than ' + lower);
           }
           return isInRange;
         }
@@ -352,11 +385,13 @@ TA.prototype.hasSubstring = function(config) {
     var substringFunc = function(target) {
       var hasNumberOfValsExpected = false;
       var hits = 0;
-      expectedValues.forEach(function(val, index, arr) {
+      expectedValues.forEach(function(val) {
         var matches = target.value.match(new RegExp(val)) || [];
         if (matches.length > 0) {
           hits += 1;
-        };
+        } else {
+          self.onincorrect(val + ' did not hit against ' + target.value.slice(0, 20));
+        }
       });
 
       if (nValues) {
@@ -364,6 +399,7 @@ TA.prototype.hasSubstring = function(config) {
       } else if (hits >= minValues && hits <= maxValues) {
         hasNumberOfValsExpected = true;
       };
+
       return hasNumberOfValsExpected;
     };
 

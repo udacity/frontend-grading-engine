@@ -78,6 +78,14 @@ Suite.prototype.getDebugData = function() {
   });
 }
 
+Suite.prototype.getIncorrectInfo = function() {
+  this.activeTests.forEach(function(at) {
+    if (at.incorrectInfo.length > 0) {
+      console.log(at.description + ' : ' + at.incorrectInfo.join('\n'));
+    }
+  });
+}
+
 Suite.prototype.createTest = function(rawTest) {
   var activeTest = new ActiveTest(rawTest);
   activeTest.suite = this;

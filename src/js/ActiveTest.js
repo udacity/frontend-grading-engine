@@ -5,6 +5,7 @@ function ActiveTest(rawTest) {
   this.id = parseInt(Math.random() * 1000000);
   this.testPassed = false;
   this.debugData = [];
+  this.incorrectInfo = [];
 
   this.gradeRunner = function() {};
 
@@ -84,6 +85,7 @@ ActiveTest.prototype.runTest = function() {
     var promise = new Promise(function(resolve, reject) {
       // clear for every run
       self.debugData = [];
+      self.incorrectInfo = [];
       // resolve when the test finishes
       self.ta.onresult = function(result) {
         resolve(result);
@@ -95,6 +97,10 @@ ActiveTest.prototype.runTest = function() {
           self.hasErred();
         }
       };
+
+      self.ta.onincorrect = function(reason) {
+        self.incorrectInfo.push(reason);
+      }
 
       // clean out the queue from the last run
       self.ta.queue.clear();
