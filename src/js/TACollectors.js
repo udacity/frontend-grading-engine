@@ -70,28 +70,6 @@ Object.defineProperties(TA.prototype, {
       return this;
     }
   },
-  index: {
-    /**
-     * To find the index of a target from when it was created.
-     * @return {object} TA - the TA instance for chaining.
-     */
-    get: function() {
-      var self = this;
-      this.queue.add(function() {
-        self._registerOperation('index');
-        self._runAgainstBottomTargets(function(target) {
-          var index = null;
-          try {
-            index = target.index;
-          } catch (e) {
-            self.onerror('Cannot get index. Elements probably don\'t exist.');
-          }
-          return index;
-        });
-      });
-      return this;
-    }
-  },
   innerHTML: {
     /**
      * To pull the innerHTML of a DOM node.
@@ -355,7 +333,7 @@ TA.prototype.theseElements = function(selector) {
   });
   return this;
 }
-// for legacy quizzes
+// more common syntax
 TA.prototype.nodes = TA.prototype.theseElements;
 
 /**
@@ -406,11 +384,8 @@ TA.prototype.get = function(typeOfValue) {
     case 'DPR':
       self.DPR;
       break;
-    case 'index':
-      self.index;
-      break;
     default:
-      self.onerror("Cannot 'get': '" + typeOfValue + "'. Options include: 'count', 'childPosition', innerHTML', and 'UAString'.")
+      self.onerror('Cannot \'get\': \'' + typeOfValue + '\'. Options include: \'count\', \'childPosition\', \'DPR\', \'innerHTML\', and \'UAString\'.');
       throw new Error();
       break;
   }
