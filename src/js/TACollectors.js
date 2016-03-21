@@ -92,7 +92,7 @@ Object.defineProperties(TA.prototype, {
       return this;
     }
   },
-  onlyOneOf: {
+  one: {
     /**
      * Not a collector! Used by the GradeBook to set a threshold for number of questions to pass in order to count the whole test as correct.
      * @return {object} TA - the TA instance for chaining.
@@ -100,12 +100,12 @@ Object.defineProperties(TA.prototype, {
     get: function() {
       var self = this;
       this.queue.add(function() {
-        self.picky = 'onlyOneOf';
+        self.strictness = 'one';
       });
       return this;
     }
   },
-  someOf: {
+  some: {
     /**
      * Not a collector! Used by the GradeBook to set a threshold for number of questions to pass in order to count the whole test as correct.
      * @return {object} TA - the TA instance for chaining.
@@ -113,7 +113,7 @@ Object.defineProperties(TA.prototype, {
     get: function() {
       var self = this;
       this.queue.add(function() {
-        self.picky = 'someOf';
+        self.strictness = 'some';
       });
       return this;
     }
@@ -395,13 +395,13 @@ TA.prototype.limit = function(byHowMuch) {
   var self = this;
   switch (byHowMuch) {
     case 1:
-      self.onlyOneOf;
+      self.one;
       break;
     case 'some':
-      self.someOf;
+      self.some;
       break;
     default:
-      self.onerror("Illegal 'limit'. Options include: 1 or 'some'.");
+      self.onerror('Illegal \'limit\'. Options include: 1 or \'some\'.');
       throw new Error();
       break;
   }
@@ -425,7 +425,7 @@ TA.prototype.cssProperty = function(property) {
         styles = window.getComputedStyle(elem);
         style = styles[property];
       } catch (e) {
-        self.onerror("Cannot get CSS property: '" + property + "'.", true);
+        self.onerror('Cannot get CSS property: \'' + property + '\'.', true);
       }
       return style;
     });

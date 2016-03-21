@@ -52,7 +52,7 @@ TA.prototype.exists = function(bool) {
     var testResult = self.gradebook.grade({
       callback: doesExistFunc,
       not: self.gradeOpposite,
-      strictness: self.picky
+      strictness: self.strictness
     });
     self.onresult(testResult);
   });
@@ -119,7 +119,7 @@ TA.prototype.equals = function(config) {
     var testResult = self.gradebook.grade({
       callback: equalityFunc,
       not: self.gradeOpposite,
-      strictness: self.picky
+      strictness: self.strictness
     });
     self.onresult(testResult);
   });
@@ -166,7 +166,7 @@ TA.prototype.isGreaterThan = function(config) {
     var testResult = self.gradebook.grade({
       callback: greaterThanFunc,
       not: self.gradeOpposite,
-      strictness: self.picky
+      strictness: self.strictness
     });
     self.onresult(testResult);
   });
@@ -213,7 +213,7 @@ TA.prototype.isLessThan = function(config) {
     var testResult = self.gradebook.grade({
       callback: lessThanFunc,
       not: self.gradeOpposite,
-      strictness: self.picky
+      strictness: self.strictness
     });
     self.onresult(testResult);
   });
@@ -302,7 +302,7 @@ TA.prototype.isInRange = function(config) {
     var testResult = self.gradebook.grade({
       callback: inRangeFunc,
       not: self.gradeOpposite,
-      strictness: self.picky
+      strictness: self.strictness
     });
     self.onresult(testResult);
   });
@@ -370,7 +370,7 @@ TA.prototype.hasSubstring = function(config) {
     var testResult = self.gradebook.grade({
       callback: substringFunc,
       not: self.gradeOpposite,
-      strictness: self.picky
+      strictness: self.strictness
     });
     self.onresult(testResult);
   });

@@ -112,12 +112,12 @@ GradeBook.prototype.grade = function(config) {
   });
 
   switch (strictness) {
-    case 'someOf':
+    case 'some':
       if (this.numberCorrectQuestions < this.numberOfQuestions && this.numberCorrectQuestions > 0) {
         this.passed = true;
       };
       break;
-    case 'onlyOneOf':
+    case 'one':
       if (this.numberCorrectQuestions === 1) {
         this.passed = true;
       };
