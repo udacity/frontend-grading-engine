@@ -111,21 +111,17 @@ GradeBook.prototype.grade = function(config) {
     }
   });
 
-  switch (strictness) {
-    case 'some':
-      if (this.numberCorrectQuestions < this.numberOfQuestions && this.numberCorrectQuestions > 0) {
-        this.passed = true;
-      };
-      break;
-    case 'one':
-      if (this.numberCorrectQuestions === 1) {
-        this.passed = true;
-      };
-      break;
-    default:
-      this.passed = this.allCorrect;
-      break;
-  };
+  if (strictness === 'some') {
+    if (this.numberCorrectQuestions <= this.numberOfQuestions && this.numberCorrectQuestions > 0) {
+      this.passed = true;
+    };
+  } else if (typeof strictness === 'number' && strictness > 0) {
+    if (this.numberCorrectQuestions <= strictness && this.numberCorrectQuestions > 0) {
+      this.passed = true;
+    }
+  } else {
+    this.passed = this.allCorrect;
+  }
 
   // one last check to make sure there actually were questions
   if (this.numberOfQuestions === 0 && not) {

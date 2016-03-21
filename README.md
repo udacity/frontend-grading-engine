@@ -323,9 +323,9 @@ Switch behavior with `"not"`. A failing test will now pass and vice versa.
 }
 ```
 
-Currently, the values supported by `"limit"` are `1` and `"some"`.
+Currently, the values supported by `"limit"` are any number >= 1, `"all"` (default), and `"some"`.
 
-Remember, by default every node collected by `"nodes"` or `"children"` must pass the test specified. To change that, use `"limit"`. If `1`, only one of the values collected should pass. If more than one value passes, the test fails. In the case of `"some"`, `1 < number < all` values should pass in order for the test to pass. If all, one, or 0 values pass, then the test fails.
+Remember, by default every node collected by `"nodes"` or `"children"` must pass the test specified. To change that, use `"limit"`. If it is any number, `0 < numberCorrect <= limit` values must pass in order for the test to pass. If more than one value passes, the test fails. In the case of `"some"`, one or more values must pass in order for the test to pass.
 
 **Flags**
 

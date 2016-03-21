@@ -121,6 +121,15 @@
           "expected": [".*flex.*", ".*box.*"]
         }
       }
+    },
+    {
+      "description": "Some divs have class box",
+      "definition": {
+        "nodes": "div",
+        "limit": "some",
+        "attribute": "class",
+        "hasSubstring": ".*box.*"
+      }
     }
   ]
 },

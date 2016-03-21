@@ -92,32 +92,6 @@ Object.defineProperties(TA.prototype, {
       return this;
     }
   },
-  one: {
-    /**
-     * Not a collector! Used by the GradeBook to set a threshold for number of questions to pass in order to count the whole test as correct.
-     * @return {object} TA - the TA instance for chaining.
-     */
-    get: function() {
-      var self = this;
-      this.queue.add(function() {
-        self.strictness = 'one';
-      });
-      return this;
-    }
-  },
-  some: {
-    /**
-     * Not a collector! Used by the GradeBook to set a threshold for number of questions to pass in order to count the whole test as correct.
-     * @return {object} TA - the TA instance for chaining.
-     */
-    get: function() {
-      var self = this;
-      this.queue.add(function() {
-        self.strictness = 'some';
-      });
-      return this;
-    }
-  },
   _targetIds: {
     /**
      * Not a collector! Private use only. Get an array of all target ids.
@@ -391,20 +365,19 @@ TA.prototype.get = function(typeOfValue) {
   }
 };
 
-TA.prototype.limit = function(byHowMuch) {
+TA.prototype.limit = function(limit) {
   var self = this;
-  switch (byHowMuch) {
-    case 1:
-      self.one;
-      break;
-    case 'some':
-      self.some;
-      break;
-    default:
-      self.onerror('Illegal \'limit\'. Options include: 1 or \'some\'.');
-      throw new Error();
-      break;
+
+  if (!limit || limit < 1) {
+    self.onerror('Illegal \'limit\'. Options include: any positive number, \'all\' or \'some\'. Defaults to \'all\'');
+    throw new Error();
   }
+
+  this.queue.add(function() {
+    self.strictness = limit;
+  });
+
+  return this;
 };
 
 /**
