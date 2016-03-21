@@ -266,7 +266,21 @@ Set an `"upper"` and a `"lower"` value for `"isInRange"`.
 }
 ```
 
-Run regex tests against strings with `"hasSubstring"`. If one or more match groups are returned, the test passes. There are also some optional configs for `"hasSubstring"`. NOTE: you must escape `\`s! eg. `\wHello` will break, but `\\wHello` will work.
+Run regex tests against strings with `"hasSubstring"`. If one or more match groups are returned, the test passes.
+
+**NOTE**: you must escape `\`s! eg. `\wHello` will break, but `\\wHello` will work.
+
+You can pass an array to `"hasSubstring"` if you want to match one regex out of many.
+
+```javascript
+"definition": {
+  "nodes": ".text",
+  "get": "innerHTML",
+  "hasSubstring": ["([A-Z])\w+", "([a-z])\w+"]
+}
+```
+
+There is an alternate syntax with optional configs for `"hasSubstring"`.
 
 ```javascript
 "definition": {
@@ -285,7 +299,7 @@ Run regex tests against strings with `"hasSubstring"`. If one or more match grou
 
 This test checks that either one or both of the expected values are found.
 
-Feel free to mix and match these. If there is an array of `"expected"` regexes, you can use `"minValues"` and `"maxValues"` to determine how many of the expected values need to match in order for the test to pass. Without `"minValues"` and `"maxValues"`, all regexes will need to be matched in order for the test to pass.
+If you set `"hasSubstring"` to an object with an array of `"expected"` regexes, you can optionally use `"minValues"` and `"maxValues"` to determine how many of the expected values need to match in order for the test to pass. Unless otherwise specified, only one value from the `"expected"` array will need to be matched in order for the test to pass.
 
 **Utility Properties - `not`, `limit`**
 

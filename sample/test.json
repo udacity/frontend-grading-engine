@@ -103,13 +103,23 @@
       }
     },
     {
-      "description": "DPR is equal to 2",
+      "description": "DPR is equal to 2 (optional)",
       "definition": {
         "get": "DPR",
         "equals": 2
       },
       "flags": {
         "optional": true
+      }
+    },
+    {
+      "description": "All divs have class box OR flex",
+      "definition": {
+        "nodes": "div",
+        "attribute": "class",
+        "hasSubstring": {
+          "expected": [".*flex.*", ".*box.*"]
+        }
       }
     }
   ]
@@ -193,6 +203,17 @@
       },
       "flags": {
         "optional": true
+      }
+    },
+    {
+      "description": "All divs have class box AND flex",
+      "definition": {
+        "nodes": "div",
+        "attribute": "class",
+        "hasSubstring": {
+          "expected": [".*flex.*", ".*box.*"],
+          "minValues": 2
+        }
       }
     }
   ]

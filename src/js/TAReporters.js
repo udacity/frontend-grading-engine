@@ -317,12 +317,11 @@ TA.prototype.isInRange = function(config) {
 TA.prototype.hasSubstring = function(config) {
   var self = this;
   this.queue.add(function() {
-    // TODO: why not just abort?
-    config = config || {};
-    var expectedValues = config.expectedValues;
+    config = config || '';
+    var expectedValues = config.expected;
 
     // this simplifies JSON syntax
-    if (typeof config === 'string' || expectedValues instanceof Array) {
+    if (typeof config === 'string' || config instanceof Array) {
       expectedValues = config;
     }
 
@@ -336,12 +335,12 @@ TA.prototype.hasSubstring = function(config) {
     var maxValues    = config.maxValues || expectedValues.length;
 
     if (!expectedValues || expectedValues.length === 0) {
-      self.onerror("'hasSubstring' needs at least one regex comparison.");
+      self.onerror('\'hasSubstring\' needs at least one regex comparison.');
       throw new Error();
     };
 
     if (typeof minValues !== 'number' || typeof maxValues !== 'number') {
-      self.onerror("'hasSubstring' 'minValue' and 'maxValue' need to be numbers.");
+      self.onerror('\'hasSubstring\' \'minValue\' and \'maxValue\' need to be numbers.');
       throw new Error();
     };
 
@@ -397,7 +396,7 @@ TA.prototype._translateConfigToMethods = function(config) {
       try {
         self[method](config[method]);
       } catch (e) {
-        throw new Error("Method '" + method + "' did not execute. " + e);
+        throw new Error('Method \'' + method + '\' did not execute. ' + e);
       }
     }
   });
