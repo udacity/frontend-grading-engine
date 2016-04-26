@@ -3,7 +3,7 @@
 Immediate, visual feedback about any website's HTML, CSS and JavaScript.
 
 * Not sure what this is? Try the [walkthrough](http://labs.udacity.com/udacity-feedback-extension/).
-* Just want to install? Visit the [Chrome Web Store](https://chrome.google.com/webstore/detail/fcglckhmjjmhkfkkngemmhmcolefiljf).
+* Just want to install? Visit the [Chrome Web Store](https://chrome.google.com/webstore/detail/udacity-front-end-feedbac/melpgahbngpgnbhhccnopmlmpbmdaeoi).
 
 ## Installing from Source
 
