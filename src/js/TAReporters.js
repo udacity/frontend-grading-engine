@@ -87,29 +87,39 @@ TA.prototype.not = function(bool) {
 };
 
 /**
- * Check that question values match an expected value.
- * @param  {*} expected - any value to match against, but typically a string or int.
+ * Check that question values match an expected value. Always uses strict equality.
+ * @param  {*} expected - string, number or array of string and numbers.
  */
 TA.prototype.equals = function(config) {
   var self = this;
   this.queue.add(function() {
     var expected;
-    if (typeof config === 'object') {
+    if (typeof config === 'object' && !(config instanceof Array)) {
       expected = config.expected;
     } else {
       expected = config;
     }
-    if (typeof expected !== 'string' && typeof expected !== 'number') {
-      self.onerror('"equals" needs a string or number value.');
+
+    if (typeof expected !== 'string' && typeof expected !== 'number' && !(expected instanceof Array)) {
+      self.onerror('"equals" needs a string, a number, or an array of string and number values.');
       throw new Error();
+    }
+
+    if (!(expected instanceof Array)) {
+      expected = [expected];
     }
 
     var equalityFunc = function(target) {
       var isCorrect = false;
-      if (target.value === expected) {
-        isCorrect = true;
-      } else {
-        self.onincorrect(target.value.toString() + ' does not equal ' + expected.toString());
+
+      expected.forEach(function(e) {
+        if (target.value === e) {
+          isCorrect = true;
+        }
+      });
+
+      if (!isCorrect) {
+        self.onincorrect(target.value.toString() + ' is not one of: [' + expected.join(', ') + '].');
       }
       return isCorrect;
     };

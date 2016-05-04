@@ -112,6 +112,14 @@
       }
     },
     {
+      "description": "the box with just a b in it has a b in it",
+      "definition": {
+        "nodes": ".box2",
+        "get": "innerHTML",
+        "equals": ["b", "d"]
+      }
+    },
+    {
       "description": "listening to events",
       "definition": {
         "waitForEvent": "ud-test",
@@ -218,6 +226,14 @@
         "nodes": ".abs",
         "absolutePosition": "left",
         "equals": 401
+      }
+    },
+    {
+      "description": "the box with just a b in it doesn't have a c or a p in it",
+      "definition": {
+        "nodes": ".box2",
+        "get": "innerHTML",
+        "equals": ["c", "p"]
       }
     },
     {
