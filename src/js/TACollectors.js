@@ -113,7 +113,7 @@ Object.defineProperties(TA.prototype, {
     get: function() {
       var self = this;
       this.queue.add(function() {
-        self._registerOperation('gatherElements');
+        self._registerOperation('UAString');
         self.target = new Target();
         self._runAgainstTopTargetOnly(function(topTarget) {
           var ua = '';
@@ -136,7 +136,7 @@ Object.defineProperties(TA.prototype, {
     get: function() {
       var self = this;
       this.queue.add(function() {
-        self._registerOperation('gatherElements');
+        self._registerOperation('DPR');
         self.target = new Target();
         self._runAgainstTopTargetOnly(function(topTarget) {
           var dpr = null;
@@ -543,6 +543,7 @@ TA.prototype.absolutePosition = function(side) {
         absPos = selectorFunc(elem);
       } catch (e) {
         self.onerror("Cannot get absolute position of '" + side + "'.", true);
+        throw new Error();
       }
       return absPos;
     });

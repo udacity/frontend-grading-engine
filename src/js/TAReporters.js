@@ -421,7 +421,8 @@ TA.prototype._translateConfigToMethods = function(config) {
       try {
         self[method](config[method]);
       } catch (e) {
-        throw new Error('Method \'' + method + '\' did not execute. ' + e);
+        self.onerror('Method \'' + method + '\' did not execute. ' + e);
+        throw new Error();
       }
     }
   });
