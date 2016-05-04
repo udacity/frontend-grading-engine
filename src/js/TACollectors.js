@@ -199,7 +199,7 @@ TA.prototype._runAgainstTopTargetOnly = function(callback) {
   var self = this;
   this.target.value = callback(this.target);
 
-  if (this.target.value) {
+  if (this.target.value != undefined) {
     self.gradebook.recordQuestion(this.target);
   } else {
     this.target.children.forEach(function(kid) {
@@ -221,7 +221,7 @@ TA.prototype._runAgainstBottomTargets = function(callback) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target);
 
-      if (target.value) {
+      if (target.value != undefined) {
         self.gradebook.recordQuestion(target);
       } else {
         target.children.forEach(function(kid) {
@@ -245,7 +245,7 @@ TA.prototype._runAgainstBottomTargetElements = function(callback) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target.element);
 
-      if (target.value) {
+      if (target.value != undefined) {
         self.gradebook.recordQuestion(target);
       } else {
         target.children.forEach(function(kid) {
@@ -267,7 +267,7 @@ TA.prototype._runAgainstNextToBottomTargets = function(callback) {
     if (target.hasChildren && !target.hasGrandkids) {
       target.value = callback(target);
 
-      if (target.value) {
+      if (target.value != undefined) {
         self.gradebook.recordQuestion(target);
       } else {
         target.children.forEach(function(kid) {
@@ -414,7 +414,7 @@ TA.prototype.cssProperty = function(property) {
 TA.prototype.attribute = function(attribute) {
   var self = this;
   this.queue.add(function() {
-    self._registerOperation('attribute')
+    self._registerOperation('attribute');
 
     self._runAgainstBottomTargetElements(function(elem) {
       var attrValue = null;
@@ -440,7 +440,7 @@ TA.prototype.attribute = function(attribute) {
 TA.prototype.property = function(key) {
   var self = this;
   this.queue.add(function() {
-    self._registerOperation('property')
+    self._registerOperation('property');
 
     self._runAgainstBottomTargetElements(function(obj) {
       var propertyValue = null;

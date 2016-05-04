@@ -99,7 +99,7 @@ TA.prototype.equals = function(config) {
     } else {
       expected = config;
     }
-    if (!expected || (typeof expected !== 'string' && typeof expected !== 'number')) {
+    if (typeof expected !== 'string' && typeof expected !== 'number') {
       self.onerror('"equals" needs a string or number value.');
       throw new Error();
     }
@@ -134,7 +134,7 @@ TA.prototype.isGreaterThan = function(config) {
     var expected = config.expected || config;
     var orEqualTo = config.orEqualTo || false;
 
-    if (!expected || typeof expected !== 'number') {
+    if (typeof expected !== 'number') {
       self.onerror('\'isGreaterThan\' needs a number.');
       throw new Error();
     }
@@ -187,7 +187,7 @@ TA.prototype.isLessThan = function(config) {
     var expected = config.expected || config;
     var orEqualTo = config.orEqualTo || false;
 
-    if (!expected || typeof expected !== 'number') {
+    if (typeof expected !== 'number') {
       self.onerror('\'isLessThan\' needs a value.');
       throw new Error();
     }
