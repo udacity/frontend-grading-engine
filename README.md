@@ -180,7 +180,7 @@ Side must be one of: `top`, `left`, `bottom`, or `right`. Currently, the positio
 }
 ```
 
-These tests (`"count"`, `"innerHTML"`, `"childPositions"`, `"UAString"`, `"DPR"`) use `"get"` and they are the only tests that use `"get"`. Each of them returns basically what you'd expect. Remember the asterix from earlier about the necessity of `"nodes"`? Device pixel ratios and user-agent strings are exceptions - you can `"get": "UAString"` or `"get": "DPR"` without `"nodes"`.
+These tests (`"count"`, `"innerHTML"`, `"childPositions"`, `"UAString"`, `"DPR"`) use `"get"` and they are the only tests that use `"get"`. Remember the asterix from earlier about the necessity of `"nodes"`? Device pixel ratios and user-agent strings are exceptions - you can `"get": "UAString"` or `"get": "DPR"` without `"nodes"`.
 
 "Child position? I haven't seen anything about children." - a question you might be asking yourself. Let me answer it.
 
@@ -195,7 +195,9 @@ These tests (`"count"`, `"innerHTML"`, `"childPositions"`, `"UAString"`, `"DPR"`
 }
 ```
 
-`"children"` is a deep children selector. In this example, it was used to select all the divs inside a flex container. Now, reporters will run tests against all of the child divs, not the parent flex container.
+`"children"` is a deep children selector.
+
+In this example, it was used to select all the divs inside a flex container. Now, reporters will run tests against all of the child divs, not the parent flex container.
 
 #### 3) Decide how you want to grade the values you just collected. This is a "reporter".
 
@@ -219,7 +221,25 @@ or
 }
 ```
 
-Set `"equals"` to either strings or numbers. It looks for an exact match. In the first example, the test passes when the count of nodes returned by the selector equals four. In the second, the `for` attribute of `<input class="billing-address">` must be set to `"billing-address"`. If you want to compare strings and would prefer to use regex, try `"hasSubstring"`.
+or
+
+```javascript
+"definition": {
+  "nodes": ".inline",
+  "cssProperty": "display",
+  "equals": [
+    "inline",
+    "inline-block"
+  ]
+}
+
+```
+
+Set the `"equals"` value to a string, a number, or an array of strings and numbers.
+
+This test looks for a strict equality match of either the value or one of the values in the array. In the first example, the test passes when the count of nodes returned by the selector equals four. In the second, the `for` attribute of `<input class="billing-address">` must be set to `"billing-address"`. In the third example, the test passes if `display` is either `inline` or `inline-block`.
+
+If you want to compare strings and would prefer to use regex, try `"hasSubstring"`.
 
 **Exists**
 
@@ -391,7 +411,9 @@ At the core of Udacity Feedback is the grading engine. The grading engine perfor
 1. Run `gulp watch` from `/`
 2. Make changes.
 3. Open `/sample/index.html` to run regression testing.
-4. If you're adding a new feature, add new passing and failing tests to `/sample/tests.json` (and modify `/sample/index.html` if necessary).
+4. If you're adding a new feature:
+  * Add new passing and failing tests to `/sample/tests.json` (and modify `/sample/index.html` if necessary).
+  * Update this README to reflect changes (include examples!).
 5. Submit a pull request!
 
 Did you read this far? You're awesome :)
