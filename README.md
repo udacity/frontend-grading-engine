@@ -11,7 +11,7 @@ Immediate, visual feedback about any website's HTML, CSS and JavaScript.
 2. `npm install` - install dependencies
 3. `gulp watch` or just `gulp` - build the grading engine
 4. [Load in Chrome](https://developer.chrome.com/extensions/getstarted#unpacked)
-  * Open the Extensions window
+  * Open the Extensions window (`chrome://extensions`)
   * Check 'Developer Mode'
   * Click 'Load unpacked extension...'
   * Select `ext/`
