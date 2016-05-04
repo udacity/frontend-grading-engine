@@ -30,7 +30,6 @@ function ActiveTest(rawTest) {
   // translates json definitions to method calls
   self.queueUp = (function(config) {
     var methodsToQueue = self.ta._translateConfigToMethods(config);
-
     return function() {
       methodsToQueue.forEach(function(method) {
         try {
@@ -85,6 +84,7 @@ ActiveTest.prototype.runTest = function() {
     var promise = new Promise(function(resolve, reject) {
       // clear for every run
       self.debugData = [];
+      self.values = [];
       self.incorrectInfo = [];
       // resolve when the test finishes
       self.ta.onresult = function(result) {
@@ -108,12 +108,13 @@ ActiveTest.prototype.runTest = function() {
       // this call actually runs the test
       self.queueUp();
 
-    }).then(function(resolve) {
-      var testCorrect = resolve.isCorrect;
+    }).then(function(gradedTest) {
+      var testCorrect = gradedTest.isCorrect;
       // TODO: nothing is done with the values. Do something?
       var testValues = '';
-      resolve.questions.forEach(function(val) {
+      gradedTest.questions.forEach(function(val) {
         testValues = testValues + ' ' + val.value;
+        self.values.push(testValues);
       });
 
       self.hasPassed(testCorrect);

@@ -73,7 +73,7 @@ Object.defineProperties(Suite.prototype, {
 Suite.prototype.getDebugData = function() {
   this.activeTests.forEach(function(at) {
     if (at.debugData.length > 0) {
-      console.log('%c' + at.description + ' : ' + at.debugData.join(' '), 'color: red;');
+      console.log('%c' + 'ERROR: ' + at.description + ': ' + at.debugData.join(' '), 'color: red;');
     }
   });
 }
@@ -81,7 +81,15 @@ Suite.prototype.getDebugData = function() {
 Suite.prototype.getIncorrectInfo = function() {
   this.activeTests.forEach(function(at) {
     if (at.incorrectInfo.length > 0) {
-      console.log(at.description + ' : ' + at.incorrectInfo.join('\n'));
+      console.log('Incorrect: ' + at.description + ': ' + at.incorrectInfo.join('\n'));
+    }
+  });
+}
+
+Suite.prototype.getValues = function() {
+  this.activeTests.forEach(function(at) {
+    if (at.values.length > 0) {
+      console.log('Collected Values: ' + at.description + ': ' + at.values.join('\n'));
     }
   });
 }

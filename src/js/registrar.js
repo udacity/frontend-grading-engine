@@ -135,6 +135,7 @@ function debug() {
   hotel.occupiedSuites.forEach(function (suite) {
     suite.getDebugData();
     suite.getIncorrectInfo();
+    suite.getValues();
   });
 };
 
