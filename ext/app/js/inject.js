@@ -54,7 +54,7 @@ chrome.runtime.sendMessage({}, function(response) {
         if (!twLink) {
           return injectIntoDocument('link', {
             rel: 'import',
-            href: chrome.extension.getURL('src/templates/feedback.html'),
+            href: chrome.extension.getURL('app/templates/feedback.html'),
             id: 'udacity-test-widget'
           }, 'head');
         } else {
@@ -64,7 +64,7 @@ chrome.runtime.sendMessage({}, function(response) {
 
       function injectGradingEngine() {
         return injectIntoDocument('script', {
-          src: chrome.extension.getURL('src/js/libs/GE.js'),
+          src: chrome.extension.getURL('app/js/libs/GE.js'),
           id: 'udacity-front-end-feedback'
         });
       }
@@ -83,7 +83,7 @@ chrome.runtime.sendMessage({}, function(response) {
         var loadedLibs = 0;
         return Promise.all(
           libraries.map(function(lib) {
-            return injectIntoDocument('script', {src: chrome.extension.getURL('src/js/libs/' + lib + '.js')});
+            return injectIntoDocument('script', {src: chrome.extension.getURL('app/js/libs/' + lib + '.js')});
           })
         );
       }

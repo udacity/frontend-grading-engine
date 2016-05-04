@@ -11,11 +11,11 @@
     "128": "icons/udacity-official128.png"
   },
   "default_locale": "en",
-  "options_page": "src/options/index.html",
+  "options_page": "app/options/index.html",
   "browser_action": {
     "default_icon": "icons/udacity-official48.png",
     "default_title": "Udacity Feedback",
-    "default_popup": "src/browser_action/browser_action.html"
+    "default_popup": "app/browser_action/browser_action.html"
   },
   "permissions": [
     "tabs",
@@ -29,13 +29,13 @@
         "file://*/*"
       ],
       "js": [
-        "src/js/inject.js"
+        "app/js/inject.js"
       ]
     }
   ],
   "web_accessible_resources": [
-    "src/js/*.js",
-    "src/js/libs/*.js",
-    "src/templates/*.html"
+    "app/js/*.js",
+    "app/js/libs/*.js",
+    "app/templates/*.html"
   ]
 }
