@@ -16,6 +16,8 @@ Immediate, visual feedback about any website's HTML, CSS and JavaScript.
   * Click 'Load unpacked extension...'
   * Select `ext/`
 
+[**More on development**](#how-udacity-feedback-works)
+
 ## Loading Tests
 
 ### On sites you own
@@ -367,7 +369,7 @@ I like to use the [jsgrader library](https://github.com/udacity/js-grader) for w
 
 ![wrong answer, right answer, error](images/wrong-right-error.png)
 
-Green tests with ✓ have passed, red tests with ✗ have failed and yellow tests with ?? have some kind of error. If there is an error, run `UdacityFEGradingEngine.debug()` from the console to see why the yellow tests are erring.
+Green tests with ✓ have passed, red tests with ✗ have failed and yellow tests with ?? have some kind of error. If there is an error, run `UdacityFEGradingEngine.debug();` from the console to see why the yellow tests are erring.
 
 You can find an options page in chrome://extensions. Use the options page to see and modify the list of domains on which the extension will run.
 
@@ -383,5 +385,13 @@ At the core of Udacity Feedback is the grading engine. The grading engine perfor
 * **Suite** and **ActiveTest**. An individual test (ie. one line in the widget) is an instance of an ActiveTest. ActiveTests are organized into Suites. Each Suite comes with its own name, which is displayed above its set of tests in the widget.
 * **Registrar**. This file contains the logic for creating new tests when the Feedback is turned on and removing tests when the Feedback is turned off.
 * The `<test-widget>` and everything inside of it were built as custom elements with HTML imports.
+
+### Development Workflow
+
+1. Run `gulp watch` from `/`
+2. Make changes.
+3. Open `/sample/index.html` to run regression testing.
+4. If you're adding a new feature, add new passing and failing tests to `/sample/tests.json` (and modify `/sample/index.html` if necessary).
+5. Submit a pull request!
 
 Did you read this far? You're awesome :)
