@@ -96,6 +96,22 @@
       }
     },
     {
+      "description": "the random div has absolute position left of 0",
+      "definition": {
+        "nodes": ".abs",
+        "absolutePosition": "left",
+        "equals": 0
+      }
+    },
+    {
+      "description": "the right div is on the far right",
+      "definition": {
+        "nodes": ".box4",
+        "absolutePosition": "right",
+        "equals": "max"
+      }
+    },
+    {
       "description": "listening to events",
       "definition": {
         "waitForEvent": "ud-test",
@@ -202,6 +218,14 @@
         "nodes": ".abs",
         "absolutePosition": "left",
         "equals": 401
+      }
+    },
+    {
+      "description": "the random div has absolute position left greater than 1",
+      "definition": {
+        "nodes": ".abs",
+        "absolutePosition": "left",
+        "isGreaterThan": 1
       }
     },
     {
