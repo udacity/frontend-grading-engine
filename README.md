@@ -166,7 +166,7 @@ Any attribute works.
 }
 ```
 
-Side must be one of: `top`, `left`, `bottom`, or `right`. Currently, the position returned is relative to the viewport, which TBH, seems odd. Be careful because the behavior of `"absolutePosition"` may change in the future.
+Side must be one of: `top`, `left`, `bottom`, or `right`. Currently, the position returned is relative to the **viewport**.
 
 **Count, innerHTML, ChildPosition, UAString (user-agent string), DPR (device pixel ratio):**
 
