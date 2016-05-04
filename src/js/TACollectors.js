@@ -204,7 +204,7 @@ TA.prototype._runAgainstTopTargetOnly = function(callback) {
   } else {
     this.target.children.forEach(function(kid) {
       self.gradebook.recordQuestion(kid);
-    })
+    });
   }
 };
 
@@ -226,7 +226,7 @@ TA.prototype._runAgainstBottomTargets = function(callback) {
       } else {
         target.children.forEach(function(kid) {
           self.gradebook.recordQuestion(kid);
-        })
+        });
       }
     };
   });
@@ -250,7 +250,7 @@ TA.prototype._runAgainstBottomTargetElements = function(callback) {
       } else {
         target.children.forEach(function(kid) {
           self.gradebook.recordQuestion(kid);
-        })
+        });
       }
     };
   })
@@ -272,7 +272,7 @@ TA.prototype._runAgainstNextToBottomTargets = function(callback) {
       } else {
         target.children.forEach(function(kid) {
           self.gradebook.recordQuestion(kid);
-        })
+        });
       }
     };
   });
