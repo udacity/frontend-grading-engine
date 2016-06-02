@@ -184,7 +184,7 @@ chrome.runtime.sendMessage({}, function(response) {
             }, function(e) {
               console.log(e);
               throw new Error('Something went wrong loading Udacity Feedback. Please reload.');
-            })
+            });
           } else {
             return Promise.resolve();
           }
@@ -316,7 +316,7 @@ chrome.runtime.sendMessage({}, function(response) {
             sendResponse(stateManager.getIsAllowed());
             break;
           default:
-            console.log('invalid message type for: %s from %s', message, sender)
+            console.log('invalid message type for: %s from %s', message, sender);
             break;
         }
       });
@@ -326,7 +326,7 @@ chrome.runtime.sendMessage({}, function(response) {
         if (stateManager.isAllowed) {
           stateManager.turnOn();
         }
-      })
+      });
     }
   }, 100);
 });

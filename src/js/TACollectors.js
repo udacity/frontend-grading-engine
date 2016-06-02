@@ -123,7 +123,7 @@ Object.defineProperties(TA.prototype, {
             self.onerror('Can\'t find a user agent string.', true);
           }
           return ua;
-        })
+        });
       });
       return this;
     }
@@ -146,12 +146,12 @@ Object.defineProperties(TA.prototype, {
             self.onerror('Can\'t find device pixel ratio.', true);
           }
           return dpr;
-        })
+        });
       });
       return this;
     }
   }
-})
+});
 
 /**
  * Initialized for async call later.
@@ -253,7 +253,7 @@ TA.prototype._runAgainstBottomTargetElements = function(callback) {
         });
       }
     };
-  })
+  });
 };
 
 /**
@@ -306,7 +306,7 @@ TA.prototype.theseElements = function(selector) {
     });
   });
   return this;
-}
+};
 // more common syntax
 TA.prototype.nodes = TA.prototype.theseElements;
 

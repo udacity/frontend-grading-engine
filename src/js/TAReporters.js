@@ -53,8 +53,8 @@ TA.prototype.exists = function(bool) {
           if (!doesExist) {
             self.onincorrect('does not exist');
           }
-          return doesExist
-        }
+          return doesExist;
+        };
         break;
     }
 
@@ -65,7 +65,7 @@ TA.prototype.exists = function(bool) {
     });
     self.onresult(testResult);
   });
-}
+};
 
 
 /**
