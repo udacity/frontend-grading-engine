@@ -17,7 +17,7 @@ This component holds a single test.
     .correct::before {
       content: "✓ ";
     }
-    
+
     @keyframes popin {
       from {
         font-size: 1em;
@@ -151,13 +151,13 @@ This component (<test-results>) describes the suite editor view.
       color: white;
 
       box-sizing: border-box;
-      
+
       border-radius: 2px;
       border-color: #777;
       border: 1px solid transparent;
-      
+
       background-color: #777;
-      
+
       cursor: pointer;
     }
 
@@ -244,7 +244,7 @@ This component (<test-results>) describes the suite editor view.
       }
       exports.buildSuiteElement = buildSuiteElement;
 
-      hideShowButton.onclick = function () {        
+      hideShowButton.onclick = function () {
         testSuites.classList.toggle('hide');
 
         this.classList.toggle('shown');
@@ -314,7 +314,7 @@ This component holds a suite of tests.
 
     proto.attachedCallback = function() {
       var suite = this.suite;
-      
+
       updateView();
     };
 
@@ -381,11 +381,11 @@ when all suites pass.
       max-width: 500px;
       max-height: 100%;
       overflow-y: scroll;
-      
+
       background-color: rgba(230, 230, 230, 0.9);
       opacity: 0.5;
       transition: opacity 0.3s, max-height 0.3s;
-      
+
       top: 0px;
       right: 0px;
       padding: 0.5em;
@@ -442,7 +442,7 @@ when all suites pass.
     };
 
     document.registerElement('test-widget', {prototype: proto});
-    
+
     exports.buildWidget = function () {
       var tw = document.createElement('test-widget');
       document.body.appendChild(tw);
@@ -455,6 +455,6 @@ when all suites pass.
 
     return exports;
   })();
-  
+
 </script>
 </head></html>

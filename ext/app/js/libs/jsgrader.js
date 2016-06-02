@@ -13,7 +13,7 @@ var Grader = (function() {
         return true;
       }
 
-      // Compare primitives and functions.     
+      // Compare primitives and functions.
       // Check if both arguments link to the same object.
       // Especially useful on step when comparing prototypes
       if (x === y) {
@@ -141,7 +141,7 @@ var Grader = (function() {
       });
     },
 
-    _flush: function () {    
+    _flush: function () {
       if (!this.flushing) {
         this.flushing = true;
       }
@@ -176,7 +176,7 @@ var Grader = (function() {
 
       function takeNextStep (test, result) {
         test.isCorrect = result;
-          
+
         self.registerResults(test);
 
         if (test.isCorrect || test.keepGoing || self.alwaysGo) {
@@ -188,7 +188,7 @@ var Grader = (function() {
 
       if (this.flushing) {
         var test = this.gradingSteps.shift();
-        
+
         if (this.grader.async) {
           executeInPromise(test.callback).then(function (resolve) {
             takeNextStep(test, resolve);
@@ -265,7 +265,7 @@ var Grader = (function() {
       }
     },
 
-    registerResults: function (test) { 
+    registerResults: function (test) {
       this.generateSpecificFeedback(test);
       this.generateGeneralFeedback(test);
       this.setCorrect(test);
@@ -283,7 +283,7 @@ var Grader = (function() {
       if (!test.isCorrect && test.category) {
         if (this.generalFeedback.indexOf(this.categoryMessages[test.category]) === -1) {
           this.generalFeedback.push(this.categoryMessages[test.category]);
-        }  
+        }
       }
     },
 
@@ -315,7 +315,7 @@ var Grader = (function() {
 
     getFormattedWrongMessages: function (separator) {
       var allMessages, message;
-      
+
       allMessages = this.specificFeedback.concat(this.generalFeedback);
       message = allMessages.join(separator);
 
@@ -330,7 +330,7 @@ var Grader = (function() {
       var isCorrect = false;
 
       if (typeof value !== expectedType) {
-        
+
         if (typeof value === 'function') {
           value = value.name;
         };
@@ -599,7 +599,7 @@ var Grader = (function() {
             } else {
               output.test_feedback = thisTestFeedback;
             }
-            
+
             if (output.test_comments !== "") {
               output.test_comments = [output.test_comments, thisTestFeedback].join('\n');
             } else {
