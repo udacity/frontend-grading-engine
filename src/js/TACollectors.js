@@ -404,7 +404,7 @@ TA.prototype.cssProperty = function(property) {
     });
   });
   return this;
-}
+};
 
 /**
  * Get any attribute of any element.
@@ -430,7 +430,7 @@ TA.prototype.attribute = function(attribute) {
     });
   });
   return this;
-}
+};
 
 /**
  * Get any property of an object.
@@ -456,7 +456,7 @@ TA.prototype.property = function(key) {
     });
   });
   return this;
-}
+};
 
 /**
  * Get the position of one side of an element relative to the viewport

@@ -275,7 +275,7 @@ var Grader = (function() {
       if (!test.isCorrect && test.wrongMessage) {
         this.addSpecificFeedback(test.wrongMessage);
       } else if (test.isCorrect && test.comment) {
-        this.addComment(test.comment)
+        this.addComment(test.comment);
       }
     },
 
@@ -310,7 +310,7 @@ var Grader = (function() {
         isCorrect: self.isCorrect,
         testFeedback: self.specificFeedback.concat(self.generalFeedback),
         testComments: self.comments
-      }
+      };
     },
 
     getFormattedWrongMessages: function (separator) {
@@ -369,7 +369,7 @@ var Grader = (function() {
       var isCorrect = false;
 
       if (typeof value !== 'number' || isNaN(value)) {
-        isCorrect = false
+        isCorrect = false;
       } else if (value > upper || value < lower) {
         isCorrect = false;
 
@@ -574,7 +574,8 @@ var Grader = (function() {
         test_feedback: "",
         test_comments: "",
         congrats: ""
-      }
+      };
+
       for (arg in arguments) {
         var thisIsCorrect = arguments[arg].isCorrect;
         var thisTestFeedback = arguments[arg].getFormattedWrongMessages();
@@ -610,6 +611,6 @@ var Grader = (function() {
       output = JSON.stringify(output);
       console.info("UDACITY_RESULT:" + output);
     }
-  }
+  };
   return Grader;
 })();

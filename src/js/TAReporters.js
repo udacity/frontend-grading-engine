@@ -131,7 +131,7 @@ TA.prototype.equals = function(config) {
     });
     self.onresult(testResult);
   });
-}
+};
 
 /**
  * Check that the target value is greater than the given value.
@@ -161,7 +161,7 @@ TA.prototype.isGreaterThan = function(config) {
             self.onincorrect(target.value + ' is not greater than ' + expected);
           }
           return isGreaterThan;
-        }
+        };
         break;
       default:
         greaterThanFunc = function(target) {
@@ -173,7 +173,7 @@ TA.prototype.isGreaterThan = function(config) {
             self.onincorrect(target.value + ' is not greater than ' + expected);
           }
           return isGreaterThan;
-        }
+        };
         break;
     }
 
@@ -184,7 +184,7 @@ TA.prototype.isGreaterThan = function(config) {
     });
     self.onresult(testResult);
   });
-}
+};
 
 /**
  * Check that the target value is less than the given value.
@@ -214,7 +214,7 @@ TA.prototype.isLessThan = function(config) {
             self.onincorrect(target.value + ' is not less than ' + expected);
           }
           return isLessThan;
-        }
+        };
         break;
       default:
         lessThanFunc = function(target) {
@@ -226,7 +226,7 @@ TA.prototype.isLessThan = function(config) {
             self.onincorrect(target.value + ' is not less than ' + expected);
           }
           return isLessThan;
-        }
+        };
         break;
     }
 
@@ -279,7 +279,7 @@ TA.prototype.isInRange = function(config) {
             self.onincorrect(target.value + ' is not less than ' + upper);
           }
           return isInRange;
-        }
+        };
         break;
       default:
         xIsLessThan = function(target) {
@@ -291,7 +291,7 @@ TA.prototype.isInRange = function(config) {
             self.onincorrect(target.value + ' is not less than ' + upper);
           }
           return isInRange;
-        }
+        };
         break;
     }
 
@@ -307,7 +307,7 @@ TA.prototype.isInRange = function(config) {
             self.onincorrect(target.value + ' is not greater than ' + lower);
           }
           return isInRange;
-        }
+        };
         break;
       default:
         xIsGreaterThan = function(target) {
@@ -319,7 +319,7 @@ TA.prototype.isInRange = function(config) {
             self.onincorrect(target.value + ' is not greater than ' + lower);
           }
           return isInRange;
-        }
+        };
         break;
     }
 
@@ -329,7 +329,7 @@ TA.prototype.isInRange = function(config) {
         isInRange = true;
       }
       return isInRange;
-    }
+    };
 
     var testResult = self.gradebook.grade({
       callback: inRangeFunc,
@@ -409,7 +409,7 @@ TA.prototype.hasSubstring = function(config) {
     });
     self.onresult(testResult);
   });
-}
+};
 
 // get all the exposed methods so that the translator knows what's acceptable
 var taAvailableMethods = Object.getOwnPropertyNames(TA.prototype).filter(function(key) {
@@ -434,7 +434,7 @@ TA.prototype._translateConfigToMethods = function(config) {
         self.onerror('Method \'' + method + '\' did not execute. ' + e);
         throw new Error();
       }
-    }
+    };
   });
 
   return methods;

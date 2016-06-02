@@ -244,7 +244,7 @@ chrome.runtime.sendMessage({}, function(response) {
 
         this.turnOn = function() {
           var self = this;
-          var g = document.querySelector('#ud-grader-options')
+          var g = document.querySelector('#ud-grader-options');
           if (g) {
             document.head.removeChild(g);
           }
@@ -258,7 +258,7 @@ chrome.runtime.sendMessage({}, function(response) {
         };
 
         this.turnOff = function() {
-          var g = document.querySelector('#ud-grader-options')
+          var g = document.querySelector('#ud-grader-options');
           if (g) {
             document.head.removeChild(g);
           }

@@ -36,7 +36,7 @@ function ActiveTest(rawTest) {
           method();
         } catch (e) {
           self.hasErred();
-          throw new Error(self.description + ' has an invalid definition.')
+          throw new Error(self.description + ' has an invalid definition.');
         }
       });
     };
@@ -67,7 +67,7 @@ ActiveTest.prototype.hasPassed = function(didPass) {
 
 ActiveTest.prototype.hasErred = function() {
   this.stopTest();
-  this.element.setAttribute('test-passed', 'error')
+  this.element.setAttribute('test-passed', 'error');
 };
 
 /**
@@ -100,7 +100,7 @@ ActiveTest.prototype.runTest = function() {
 
       self.ta.onincorrect = function(reason) {
         self.incorrectInfo.push(reason);
-      }
+      };
 
       // clean out the queue from the last run
       self.ta.queue.clear();

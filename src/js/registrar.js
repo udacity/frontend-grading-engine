@@ -25,7 +25,7 @@ Object.defineProperties(hotel, {
         if (suite.suitePassed) {
           numberPassed += 1;
         }
-      })
+      });
       return numberPassed;
     }
   },
@@ -42,7 +42,7 @@ Object.defineProperties(hotel, {
       return allCorrect;
     }
   }
-})
+});
 
 /**
  * Register a suite of tests with the grading engine.
@@ -64,12 +64,12 @@ function registerSuite(rawSuite) {
       description: _test.description,
       definition: _test.definition,
       flags: _test.flags
-    })
+    });
     return self;
   }
   return {
     registerTest: registerTest
-  }
+  };
 }
 
 var userData = [];

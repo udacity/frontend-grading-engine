@@ -31,7 +31,7 @@ Object.defineProperties(GradeBook.prototype, {
         if (question.correct) {
           numberCorrect += 1;
         }
-      })
+      });
       return numberCorrect;
     }
   },

@@ -44,7 +44,7 @@ Queue.prototype = {
         if (self._methods.length > 0) {
           self.step();
         }
-      })
+      });
     }
   },
 

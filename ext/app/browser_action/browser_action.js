@@ -60,7 +60,7 @@ function checkSiteStatus () {
     if (response) {
       allowFeedback.checked = true;
     }
-  })
+  });
 };
 
 checkSiteStatus();
