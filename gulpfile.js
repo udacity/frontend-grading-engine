@@ -56,7 +56,13 @@ gulp.task('GE', function() {
     .pipe(debug({title: 'built dev grading engine:'}));
 });
 
-gulp.task('default', ['ui', 'icons', 'GE']);
+gulp.task('chromium', function() {
+  return gulp.src('chromium/manifest.json')
+    .pipe(gulp.dest(build + 'ext/app/'))
+    .pipe(debug({title: 'copied Chromium’s manifest:'}));
+});
+
+gulp.task('default', ['chromium', 'ui', 'icons', 'GE']);
 
 gulp.task('watch', function() {
   gulp.start('default');
