@@ -30,15 +30,24 @@ var webComponents = [
   'src/webcomponents/outro.html',
 ];
 
+var iconFiles = 'src/icons/*.png';
+
 var allFiles = jsFiles.concat(webComponents);
 
-gulp.task('concat', function () {
+gulp.task('concat', function() {
   return gulp.src(webComponents)
     .pipe(concat('feedback.html'))
     .pipe(gulp.dest(build + 'ext/app/templates/'))
     .pipe(debug({title: 'built feedback: '}));
 });
 
+gulp.task('icons', function() {
+  return gulp.src(iconFiles)
+    .pipe(gulp.dest(build + 'ext/icons/'))
+    .pipe(debug({title: 'copied icons: '}));
+});
+
+// Browser independent procedures
 gulp.task('GE', function() {
   return gulp.src(jsFiles)
     .pipe(concat('GE.js'))
@@ -46,11 +55,11 @@ gulp.task('GE', function() {
     .pipe(debug({title: 'built dev grading engine:'}));
 });
 
-gulp.task('default', ['concat', 'GE']);
+gulp.task('default', ['concat', 'icons', 'GE']);
 
-gulp.task('watch', function () {
+gulp.task('watch', function() {
   gulp.start('default');
-  watch(allFiles, batch(function (events, done) {
+  watch(allFiles, batch(function(events, done) {
     gulp.start('default', done);
   }));
 });
