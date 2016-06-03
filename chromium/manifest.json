@@ -10,7 +10,6 @@
     "48": "icons/udacity-official48.png",
     "128": "icons/udacity-official128.png"
   },
-  "default_locale": "en",
   "options_page": "app/options/index.html",
   "browser_action": {
     "default_icon": "icons/udacity-official48.png",

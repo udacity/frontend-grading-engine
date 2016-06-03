@@ -45,7 +45,7 @@ gulp.task('ui', function() {
 gulp.task('icons', function() {
   return gulp.src(iconFiles)
     .pipe(gulp.dest(build + 'ext/icons/'))
-    .pipe(debug({title: 'copied icons: '}));
+    .pipe(debug({title: 'copied icons:'}));
 });
 
 // Browser independent procedures
@@ -56,7 +56,20 @@ gulp.task('GE', function() {
     .pipe(debug({title: 'built dev grading engine:'}));
 });
 
-gulp.task('default', ['ui', 'icons', 'GE']);
+// Temporary solution. App should be refactored with ui.
+gulp.task('app', function() {
+  return gulp.src('app/**/*')
+    .pipe(gulp.dest(build + 'ext/app/'))
+    .pipe(debug({title: 'copied app files:'}));
+});
+
+gulp.task('chromium', ['app'], function() {
+  return gulp.src('chromium/manifest.json')
+    .pipe(gulp.dest(build + 'ext/'))
+    .pipe(debug({title: 'copied Chromium’s manifest:'}));
+});
+
+gulp.task('default', ['chromium', 'ui', 'icons', 'GE']);
 
 gulp.task('watch', function() {
   gulp.start('default');
