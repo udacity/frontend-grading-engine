@@ -8,7 +8,7 @@ chrome.runtime.sendMessage({}, function(response) {
        * Adds elements to main page with a promise.
        * @param  {String} tag       Type of element
        * @param  {Object} data      Key/value pairs you want to be assigned to as newTag[key] = value
-       * @param  {Object} location  Set to 'head' if you want the element to end up there. Default is body
+       * @param  {Object} location  Set to “head” if you want the element to end up there. Default is body
        * @return {Promise}
        */
       function injectIntoDocument(tag, data, location) {
@@ -108,7 +108,7 @@ chrome.runtime.sendMessage({}, function(response) {
         }
       }
 
-      // You don't have access to the GE here, but you can inject a script into the document that does.
+      // You don’t have access to the GE here, but you can inject a script into the document that does.
       function registerTestSuites(json) {
         if (!json) {
           return Promise.resolve();
@@ -121,7 +121,7 @@ chrome.runtime.sendMessage({}, function(response) {
           }
         } catch (e) {
           if (json.indexOf('\\') > -1) {
-            errorMsg = 'Are you trying to use \'\\\' in a RegEx? Try using \\\\ instead.';
+            errorMsg = 'Are you trying to use “\\” in a RegEx? Try using \\\\ instead.';
           } else {
             errorMsg = 'Invalid JSON file format.';
           }
@@ -274,12 +274,12 @@ chrome.runtime.sendMessage({}, function(response) {
                   document.body.removeChild(e);
                   document.head.removeChild(e);
                 } catch (e) {
-                  // it's cool. do nothing
+                  // it’s cool. do nothing
                 }
               }
             });
             injectedElementsOnPage = [];
-            // wish I could unregister <test-widget>, but it doesn't look like it's possible at the moment
+            // wish I could unregister <test-widget>, but it doesn’t look like it’s possible at the moment
             self.geInjected = false;
           })
           .catch(function(e) {

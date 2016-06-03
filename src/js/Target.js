@@ -48,7 +48,7 @@ Object.defineProperties(Target.prototype, {
   },
   hasGrandkids: {
     /**
-     * Public method for determining if a Target's children have children.
+     * Public method for determining if a Target’s children have children.
      * @return {Boolean} hasGrandKids - true if there are grandchildren, false otherwise.
      */
     get: function() {

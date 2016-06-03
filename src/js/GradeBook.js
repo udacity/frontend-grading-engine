@@ -83,7 +83,7 @@ GradeBook.prototype.recordQuestion = function(target) {
 };
 
 /**
- * Empties the questions array and ensures that the test hasn't passed prematurely. Called each time a new question is registered.
+ * Empties the questions array and ensures that the test hasn’t passed prematurely. Called each time a new question is registered.
  */
 GradeBook.prototype.reset = function() {
   this.questions = [];

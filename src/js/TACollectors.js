@@ -22,7 +22,7 @@ function TA(description) {
 Object.defineProperties(TA.prototype, {
   childPosition: {
     /**
-     * To find a child node's index in relation to its immediate siblings
+     * To find a child node’s index in relation to its immediate siblings
      * @return {object} TA - the TA instance for chaining.
      */
     get: function() {
@@ -84,7 +84,7 @@ Object.defineProperties(TA.prototype, {
           try {
             html = element.innerHTML;
           } catch (e) {
-            self.onerror('Cannot get innerHTML. Element probably doesn\'t exist.', true);
+            self.onerror('Cannot get innerHTML. Element probably doesn’t exist.', true);
           }
           return html;
         });
@@ -120,7 +120,7 @@ Object.defineProperties(TA.prototype, {
           try {
             ua = navigator.userAgent;
           } catch (e) {
-            self.onerror('Can\'t find a user agent string.', true);
+            self.onerror('Can’t find a user agent string.', true);
           }
           return ua;
         });
@@ -143,7 +143,7 @@ Object.defineProperties(TA.prototype, {
           try {
             dpr = +window.devicePixelRatio;
           } catch (e) {
-            self.onerror('Can\'t find device pixel ratio.', true);
+            self.onerror('Can’t find device pixel ratio.', true);
           }
           return dpr;
         });
@@ -359,7 +359,7 @@ TA.prototype.get = function(typeOfValue) {
       self.DPR;
       break;
     default:
-      self.onerror('Cannot \'get\': \'' + typeOfValue + '\'. Options include: \'count\', \'childPosition\', \'DPR\', \'innerHTML\', and \'UAString\'.');
+      self.onerror('Cannot “get”: “' + typeOfValue + '”. Options include: “count”, “childPosition”, “DPR”, “innerHTML”, and “UAString”.');
       throw new Error();
       break;
   }
@@ -369,7 +369,7 @@ TA.prototype.limit = function(limit) {
   var self = this;
 
   if (!limit || limit < 1) {
-    self.onerror('Illegal \'limit\'. Options include: any positive number, \'all\' or \'some\'. Defaults to \'all\'');
+    self.onerror('Illegal “limit”. Options include: any positive number, “all” or “some”. Defaults to “all”');
     throw new Error();
   }
 
@@ -398,7 +398,7 @@ TA.prototype.cssProperty = function(property) {
         styles = window.getComputedStyle(elem);
         style = styles[property];
       } catch (e) {
-        self.onerror('Cannot get CSS property: \'' + property + '\'.', true);
+        self.onerror('Cannot get CSS property: “' + property + '”.', true);
       }
       return style;
     });
@@ -421,7 +421,7 @@ TA.prototype.attribute = function(attribute) {
       try {
         attrValue = elem.getAttribute(attribute);
       } catch (e) {
-        self.onerror("Cannot get attribute '" + attribute + "'.", true);
+        self.onerror("Cannot get attribute “" + attribute + "”.", true);
       }
       if (attrValue === '') {
         attrValue = true;
@@ -447,7 +447,7 @@ TA.prototype.property = function(key) {
       try {
         propertyValue = obj[key];
       } catch (e) {
-        self.onerror("Cannot get attribute '" + attribute + "'.", true);
+        self.onerror("Cannot get attribute “" + attribute + "”.", true);
       }
       if (propertyValue === '') {
         propertyValue = true;
@@ -531,7 +531,7 @@ TA.prototype.absolutePosition = function(side) {
         break;
       default:
         selectorFunc = function() {
-          console.log("You didn't pick a side for absolutePosition! Options are 'top', 'left', 'bottom' and 'right'.");
+          console.log("You didn’t pick a side for absolutePosition! Options are “top”, “left”, “bottom” and “right”.");
           return NaN;
         };
         break;
@@ -542,7 +542,7 @@ TA.prototype.absolutePosition = function(side) {
       try {
         absPos = selectorFunc(elem);
       } catch (e) {
-        self.onerror("Cannot get absolute position of '" + side + "'.", true);
+        self.onerror("Cannot get absolute position of “" + side + "”.", true);
         throw new Error();
       }
       return absPos;
