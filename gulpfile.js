@@ -45,7 +45,7 @@ gulp.task('ui', function() {
 gulp.task('icons', function() {
   return gulp.src(iconFiles)
     .pipe(gulp.dest(build + 'ext/icons/'))
-    .pipe(debug({title: 'copied icons: '}));
+    .pipe(debug({title: 'copied icons:'}));
 });
 
 // Browser independent procedures
@@ -54,6 +54,13 @@ gulp.task('GE', function() {
     .pipe(concat('GE.js'))
     .pipe(gulp.dest(build + 'ext/app/js/libs/'))
     .pipe(debug({title: 'built dev grading engine:'}));
+});
+
+// Temporary solution. App should be refactored with ui.
+gulp.task('app', function() {
+  return gulp.src('app/**/*')
+    .pipe(gulp.dest(build + 'ext/app/'))
+    .pipe(debug({title: 'copied app files:'}));
 });
 
 gulp.task('chromium', function() {
