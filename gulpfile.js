@@ -26,7 +26,7 @@ var webComponents = [
   'src/webcomponents/test-suite.html',
   'src/webcomponents/test-widget.html',
   'src/webcomponents/outro.html',
-]
+];
 
 var allFiles = jsFiles.concat(webComponents);
 
@@ -34,14 +34,14 @@ gulp.task('concat', function () {
   return gulp.src(webComponents)
     .pipe(concat('feedback.html'))
     .pipe(gulp.dest('ext/app/templates/'))
-    .pipe(debug({title: 'built feedback: '}))
+    .pipe(debug({title: 'built feedback: '}));
 });
 
 gulp.task('GE', function() {
   return gulp.src(jsFiles)
     .pipe(concat('GE.js'))
     .pipe(gulp.dest('ext/app/js/libs/'))
-    .pipe(debug({title: 'built dev grading engine:'}))
+    .pipe(debug({title: 'built dev grading engine:'}));
 });
 
 gulp.task('default', ['concat', 'GE']);
