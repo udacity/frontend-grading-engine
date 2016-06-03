@@ -1,40 +1,46 @@
 <!doctype html>
-<style type="text/css">
-	#main {
-		padding: 1em;
-		height: 100%;
-    width: 800px;
-		font-family: Helvetica, Ubuntu, Arial, sans-serif;
-	}
-  .alert {
-    color: #78F;
-    display: none;
-  }
-  .loader {
-    margin-bottom: 1em;
-  }
-  .loader-description {
-    margin-bottom: 1em;
-  }
-</style>
-
-<div id="main">
-  <h3>Udacity Feedback Settings</h3>
-  <div class="loader">
-    <div class="loader-description">
-      Want to write tests? Here’s the <a href="https://github.com/udacity/frontend-grading-engine" target="_blank">API</a>.
+<html>
+  <head>
+    <style type="text/css">
+     #main {
+         padding: 1em;
+         height: 100%;
+         width: 800px;
+         font-family: Helvetica, Ubuntu, Arial, sans-serif;
+     }
+     .alert {
+         color: #78F;
+         display: none;
+     }
+     .loader {
+         margin-bottom: 1em;
+     }
+     .loader-description {
+         margin-bottom: 1em;
+     }
+    </style>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <div id="main">
+      <h3>Udacity Feedback Settings</h3>
+      <div class="loader">
+        <div class="loader-description">
+          Want to write tests? Here’s the <a href="https://github.com/udacity/frontend-grading-engine" target="_blank">API</a>.
+        </div>
+        <label for="ud-file-loader"><strong>Load tests from file</strong>
+          <input id="ud-file-loader" type="file" accept=".json">
+        </label>
+        <div class="alert"></div>
+      </div>
+      <div class="autorun">
+        <form>
+          <label for="allow-feedback">Allow feedback on this domain
+            <input id="allow-feedback" type="checkbox" value="yes">
+          </label>
+        </form>
+      </div>
     </div>
-    <label for="ud-file-loader"><strong>Load tests from file</strong>
-      <input id="ud-file-loader" type="file" accept=".json">
-    </label>
-    <div class="alert"></div>
-  </div>
-  <div class="autorun">
-    <form>
-      <label for="allow-feedback">Allow feedback on this domain
-        <input id="allow-feedback" type="checkbox" value="yes">
-      </label>
-    </form>
-  </div>
-</div>
-<script src="browser_action.js"></script>
+    <script src="browser_action.js"></script>
+  </body>
+</html>
