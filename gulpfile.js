@@ -34,7 +34,8 @@ var iconFiles = 'src/icons/*.png';
 
 var allFiles = jsFiles.concat(webComponents);
 
-gulp.task('concat', function() {
+// User interface for Chrome. It should be refactored to work on all browsers.
+gulp.task('ui', function() {
   return gulp.src(webComponents)
     .pipe(concat('feedback.html'))
     .pipe(gulp.dest(build + 'ext/app/templates/'))
@@ -55,7 +56,7 @@ gulp.task('GE', function() {
     .pipe(debug({title: 'built dev grading engine:'}));
 });
 
-gulp.task('default', ['concat', 'icons', 'GE']);
+gulp.task('default', ['ui', 'icons', 'GE']);
 
 gulp.task('watch', function() {
   gulp.start('default');
