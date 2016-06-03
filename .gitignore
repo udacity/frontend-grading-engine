@@ -1,3 +1,4 @@
+build/
 .DS_STORE
 node_modules/
 ext.zip
