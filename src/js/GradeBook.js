@@ -129,3 +129,5 @@ GradeBook.prototype.grade = function(config) {
   };
   return this.report;
 };
+
+// GradeBook.js ends here

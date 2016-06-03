@@ -60,3 +60,5 @@ Object.defineProperties(Target.prototype, {
     }
   }
 });
+
+// Target.js ends here

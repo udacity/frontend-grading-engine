@@ -76,3 +76,5 @@ function getUnitlessMeasurement(measurement) {
     return NaN;
   }
 }
+
+// helper.js ends here

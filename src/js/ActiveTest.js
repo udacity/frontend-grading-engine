@@ -133,3 +133,5 @@ ActiveTest.prototype.stopTest = function() {
   var self = this;
   clearInterval(self.gradeRunner);
 };
+
+// ActiveTest.js ends here

@@ -572,3 +572,5 @@ TA.prototype.waitForEvent = function(eventName) {
   });
   return this;
 };
+
+// TACollectors.js ends here

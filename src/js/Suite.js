@@ -131,3 +131,5 @@ Suite.prototype.checkTests = function() {
   this.element.setAttribute('suite-passed', passed);
   this.element.setAttribute('number-of-tests', this.activeTests.length);
 };
+
+// Suite.js ends here

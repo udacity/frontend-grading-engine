@@ -143,3 +143,5 @@ exports.debug = debug;
 exports.turnOn = turnOn;
 exports.turnOff = turnOff;
 exports.registerSuites = registerSuites;
+
+// registrar.js ends here

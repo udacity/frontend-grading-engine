@@ -439,3 +439,5 @@ TA.prototype._translateConfigToMethods = function(config) {
 
   return methods;
 };
+
+// TAReporters.js ends here
