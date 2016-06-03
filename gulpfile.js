@@ -63,7 +63,7 @@ gulp.task('app', function() {
     .pipe(debug({title: 'copied app files:'}));
 });
 
-gulp.task('chromium', function() {
+gulp.task('chromium', ['app'], function() {
   return gulp.src('chromium/manifest.json')
     .pipe(gulp.dest(build + 'ext/'))
     .pipe(debug({title: 'copied Chromium’s manifest:'}));
