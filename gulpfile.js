@@ -33,14 +33,14 @@ var allFiles = jsFiles.concat(webComponents);
 gulp.task('concat', function () {
   return gulp.src(webComponents)
     .pipe(concat('feedback.html'))
-    .pipe(gulp.dest('ext/src/templates/'))
+    .pipe(gulp.dest('ext/app/templates/'))
     .pipe(debug({title: 'built feedback: '}))
 });
 
 gulp.task('GE', function() {
   return gulp.src(jsFiles)
     .pipe(concat('GE.js'))
-    .pipe(gulp.dest('ext/src/js/libs/'))
+    .pipe(gulp.dest('ext/app/js/libs/'))
     .pipe(debug({title: 'built dev grading engine:'}))
 });
 
