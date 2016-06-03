@@ -58,7 +58,7 @@ gulp.task('GE', function() {
 
 gulp.task('chromium', function() {
   return gulp.src('chromium/manifest.json')
-    .pipe(gulp.dest(build + 'ext/app/'))
+    .pipe(gulp.dest(build + 'ext/'))
     .pipe(debug({title: 'copied Chromium’s manifest:'}));
 });
 
