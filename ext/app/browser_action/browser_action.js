@@ -21,7 +21,7 @@ function handleFileSelect(evt) {
     reader.readAsText(file);
   } else {
     alert.innerHTML = "File found";
-    alert.style.color = "#A48700";
+    alert.style.color = "#a48700";
     reader.readAsText(file);
   }
 };
