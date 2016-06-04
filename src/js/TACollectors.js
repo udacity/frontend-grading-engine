@@ -473,68 +473,62 @@ TA.prototype.absolutePosition = function(side) {
       return cStyle.display;
     };
 
-    var selectorFunc = function() {};
-    switch (side) {
+    function isValidSide(side) {
+      if(side === 'top' || side === 'left' || 'bottom' || 'right')
+        return true;
+      console.log("You didn’t pick a side for absolutePosition! Options are “top”, “left”, “bottom” and “right”.");
+      return false;
+    }
+
+    function getOffsetBySide(element, sideName) {
+      var offset = NaN;
+
+      switch (sideName) {
       case 'top':
-        var selectorFunc = function(elem) {
-          var displayType = getDisplayType(elem);
-          var value = NaN;
-          if (displayType === 'block') {
-            value = elem.offsetTop;
-          } else if (displayType === 'inline') {
-            value = elem.getBoundingClientRect()[side];
-          };
-          return value;
-        };
+        offset = element.offsetTop;
         break;
       case 'left':
-        var selectorFunc = function(elem) {
-          var displayType = getDisplayType(elem);
-          var value = NaN;
-          if (displayType === 'block') {
-            value = elem.offsetLeft;
-          } else if (displayType === 'inline') {
-            value = elem.getBoundingClientRect()[side];
-          };
-          return value;
-        };
+        offset = element.offsetLeft;
         break;
       case 'bottom':
-        var selectorFunc = function(elem) {
-          var displayType = getDisplayType(elem);
-          var value = NaN;
-          if (displayType === 'block') {
-            value = elem.offsetTop + elem.offsetHeight;
-          } else if (displayType === 'inline') {
-            value = elem.getBoundingClientRect()[side];
-          };
-          if (value === Math.max(document.documentElement.clientHeight, window.innerHeight || 0)) {
-            value = 'max';
-          };
-          return value;
-        };
+        offset = element.offsetTop + element.offsetHeight;
         break;
       case 'right':
-        var selectorFunc = function(elem) {
-          var displayType = getDisplayType(elem);
-          var value = NaN;
-          if (displayType === 'block') {
-            value = elem.offsetLeft + elem.offsetWidth;
-          } else if (displayType === 'inline') {
-            value = elem.getBoundingClientRect()[side];
-          };
-          if (value === Math.max(document.documentElement.clientWidth, window.innerWidth || 0)) {
-            value = 'max';
-          };
-          return value;
-        };
+        offset = element.offsetLeft + element.offsetWidth;
         break;
-      default:
-        selectorFunc = function() {
-          console.log("You didn’t pick a side for absolutePosition! Options are “top”, “left”, “bottom” and “right”.");
-          return NaN;
-        };
-        break;
+      }
+
+      return offset;
+    }
+
+    var selectorFunc = function(elem) {
+      var displayType = getDisplayType(elem);
+      var value = NaN;
+      var maxSize;
+
+      if(!isValidSide(side)) {
+        return value;
+      }
+
+
+      if (displayType === 'block') {
+        value = getOffsetBySide(elem, side);
+      } else if (displayType === 'inline') {
+        value = elem.getBoundingClientRect()[side];
+      };
+
+      // To get the widest size of the window, we need to get the biggest value of client<Size> and inner<Size>.
+      if(side === 'bottom') {
+        // Get the widest window height
+        maxSize = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+        value = value === maxSize ? 'max' : value ;
+      } else if(side === 'right') {
+        // Get the widest window width
+        maxSize = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+        value = value === maxSize ? 'max' : value;
+      }
+
+      return value;
     };
 
     self._runAgainstBottomTargetElements(function(elem) {
