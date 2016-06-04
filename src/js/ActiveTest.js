@@ -23,6 +23,11 @@ function ActiveTest(rawTest) {
     throw new TypeError('Every test needs a definition');
   }
 
+  // alwaysRun and noRepeat flags are mutually exclusive
+  if (this.flags.alwaysRun && this.flags.noRepeat) {
+    throw new TypeError('“alwaysRun” and “noRepeat” flags are mutually exclusive. Only one of them can be set.');
+  }
+
   this.ta = new TA(this.description);
 
   var self = this;
