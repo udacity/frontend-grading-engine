@@ -58,7 +58,7 @@ gulp.task('GE', function() {
 
 // Temporary solution. App should be refactored with ui.
 gulp.task('app', function() {
-  return gulp.src('app/**/*')
+  return gulp.src('src/app/**/*')
     .pipe(gulp.dest(build + 'ext/app/'))
     .pipe(debug({title: 'copied app files:'}));
 });
