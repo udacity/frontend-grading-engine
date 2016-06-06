@@ -1,3 +1,33 @@
+/**
+ * @fileoverview This file contain the prototype of a single running test.
+ */
+
+// Custom types documentation
+/**
+ * An object with collector and reporter properties.
+ * @typedef {Object} definition
+ * @property {string} nodes - String containing a CSS selector (i.e. jQuery style).
+ * @property {string} cssProperty - A CSS property written as camelCase (backgroundColor) that will be collected from {@link nodes}.
+ * @property {string} attribute - An HTML attribute will be collected from {@link node}.
+ * @property {AbsolutePosition} absolutePosition -
+ */
+
+/**
+ * An object containing boolean properties.
+ * @typedef {Object} flags
+ * @property {boolean} alwaysRun - The test continues to run even after it passes.
+ * @property {boolean} noRepeat  - The test runs only once rather than repeatedly.
+ */
+
+// Implementation
+/**
+ * Construct a single test that will be run once or repeatedly.
+ * @param {string} rawTest.description - Title that shows up in the test widget list.
+ * @param {flags} rawTest.flags - Flags controlling the test behaviour.
+ * @param {definition} rawTest.definition -
+ * @returns {}
+ * @throws {}
+ */
 function ActiveTest(rawTest) {
   // TODO: will need to validate all of these
   this.description = rawTest.description;
