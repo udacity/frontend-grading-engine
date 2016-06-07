@@ -1,5 +1,42 @@
+* {
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
+img {
+    height: 2.25em;
+    margin-bottom: -0.75em;
+}
+
+.test-widget-display {
+    position: fixed;
+    min-width: 325px;
+    max-width: 500px;
+    max-height: 100%;
+    overflow-y: scroll;
+
+    background-color: rgba(230, 230, 230, 0.9);
+    opacity: 0.5;
+    transition: opacity 0.3s, max-height 0.3s;
+
+    top: 0px;
+    right: 0px;
+    padding: 0.5em;
+
+    text-align: left;
+
+    z-index: 99999 !important;
+}
+
+.test-widget-display:hover {
+    opacity: 1;
+}
+
+.udacity-header {
+    font-size: 2em;
+}
+
 .test-desc {
-    width: 100%;
+     width: 100%;
 }
 
 .correct {
@@ -7,33 +44,23 @@
     -webkit-animation-duration: 0.5s;
     -webkit-animation-name: popin;
 }
+
 .correct::before {
     content: "✓ ";
-}
-
-@keyframes popin {
-    from {
-        font-size: 1em;
-    }
-
-    25% {
-        font-size: 1.5em;
-    }
-
-    to {
-        font-size: 1em;
-    }
 }
 
 .incorrect {
     color: #900;
 }
+
 .incorrect::before {
     content: "✗ ";
 }
+
 .error {
     color: #a48700;
 }
+
 .error::before {
     content: "?? ";
 }
@@ -42,9 +69,7 @@
     display: flex;
     justify-content: space-between;
 }
-* {
-    font-family: 'Source Sans Pro', sans-serif;
-}
+
 .toggle-display {
     display: inline-block;
     float: right;
@@ -86,54 +111,16 @@
     content: "Show";
 }
 
-.suite {
-    width: 100%;
-    margin-bottom: 10px;
-}
-.suite-title {
-    font-size: 1.25em;
-}
-.suite-code {
-    background: rgba(0,0,0,0.6);
-    color: #eee;
-    margin: 6px -0.5em;
-}
-.suite-code > div {
-    padding: 6px 0.5em;
-    text-align: center;
-}
-img {
-    height: 2.25em;
-    margin-bottom: -0.75em;
-}
-* {
-    font-family: 'Source Sans Pro', sans-serif;
-}
+@keyframes popin {
+    from {
+        font-size: 1em;
+    }
 
-.test-widget-display {
-    position: fixed;
-    min-width: 325px;
-    max-width: 500px;
-    max-height: 100%;
-    overflow-y: scroll;
+    25% {
+        font-size: 1.5em;
+    }
 
-    background-color: rgba(230, 230, 230, 0.9);
-    opacity: 0.5;
-    transition: opacity 0.3s, max-height 0.3s;
-
-    top: 0px;
-    right: 0px;
-    padding: 0.5em;
-
-    text-align: left;
-
-    z-index: 99999 !important;
-}
-
-.test-widget-display:hover {
-    opacity: 1;
-}
-
-.udacity-header {
-    font-size: 2em;
+    to {
+        font-size: 1em;
+    }
 }
