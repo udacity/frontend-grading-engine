@@ -30,11 +30,11 @@
   "code": "you should see this",
   "tests": [
     {
-      "description": "There are 16 divs",
+      "description": "There are 17 divs",
       "definition": {
         "nodes": "div",
         "get": "count",
-        "equals": 16
+        "equals": 17
       }
     },
     {
@@ -154,6 +154,14 @@
         "attribute": "class",
         "hasSubstring": ".*box.*"
       }
+    },
+    {
+      "description": "The output box is showing events resulting from tests passing",
+      "definition": {
+        "nodes": ".output",
+        "get": "innerHTML",
+        "exists": true
+      }
     }
   ]
 },
@@ -263,6 +271,14 @@
           "expected": [".*flex.*", ".*box.*"],
           "minValues": 2
         }
+      }
+    },
+    {
+      "description": "The output box is not showing events resulting from tests passing",
+      "definition": {
+        "nodes": ".output",
+        "get": "innerHTML",
+        "hasSubstring": "$^"
       }
     }
   ]
