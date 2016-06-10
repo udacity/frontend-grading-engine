@@ -1,7 +1,7 @@
 {
   "name": "Udacity Front End Feedback",
   "short_name": "Udacity Feedback",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "manifest_version": 2,
   "description": "Immediate, visual feedback about any website's HTML, CSS and JavaScript",
   "homepage_url": "http://github.com/udacity/frontend-grading-engine",
