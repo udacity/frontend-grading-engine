@@ -96,13 +96,13 @@ ActiveTest.prototype.hasPassed = function(didPass) {
       this.stopTest();
     };
   }
-  this.element.setAttribute('test-passed', attribute);
+  this.element.dataset.testPassed = attribute;
   this.suite.checkTests();
 };
 
 ActiveTest.prototype.hasErred = function() {
   this.stopTest();
-  this.element.setAttribute('test-passed', 'error');
+  this.element.dataset.testPassed = 'error';
 };
 
 /**

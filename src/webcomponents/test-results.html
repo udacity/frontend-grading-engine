@@ -97,8 +97,8 @@ This component (<test-results>) describes the suite editor view.
         // actually create the suite
         var _testSuite = document.createElement('test-suite');
 
-        _testSuite.setAttribute('name', newSuite.name);
-        _testSuite.setAttribute('suite-passed', false);
+        _testSuite.dataset.name = newSuite.name;
+        _testSuite.dataset.suitePassed = false;
         _testSuite.code = newSuite.code;  // to avoid leaving the code as an easy-to-spot attribute
         _testSuite.suite = newSuite;
 

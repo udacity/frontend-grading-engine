@@ -104,8 +104,8 @@ Suite.prototype.createTest = function(rawTest) {
     // find the suite element to which the test belongs
     var activeTestsContainer = activeTest.suite.element.shadowRoot.querySelector('.active-tests');
     // attributes get applied to the view
-    activeTestElement.setAttribute('description', newTest.description);
-    activeTestElement.setAttribute('test-passed', newTest.testPassed);
+    activeTestElement.dataset.description = newTest.description;
+    activeTestElement.dataset.testPassed = newTest.testPassed;
 
     // let the Test know which element belongs to it
     activeTest.element = activeTestElement;
@@ -127,9 +127,9 @@ Suite.prototype.createTest = function(rawTest) {
 Suite.prototype.checkTests = function() {
   var passed = this.allCorrect;
   this.suitePassed = passed;
-  this.element.suitePassed = passed;
-  this.element.setAttribute('suite-passed', passed);
-  this.element.setAttribute('number-of-tests', this.activeTests.length);
+  this.element.suitePassed = passed; // What’s that?
+  this.element.dataset.suitePassed = passed;
+  this.element.dataset.numberOfTests = this.activeTests.length;
 };
 
 // Suite.js ends here
