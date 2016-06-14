@@ -94,7 +94,9 @@ ActiveTest.prototype.hasPassed = function(didPass) {
 
     if (!this.flags.alwaysRun || this.flags.noRepeat) {
       this.stopTest();
-    };
+    }
+
+    window.dispatchEvent(new CustomEvent('ud-test-pass', {'detail': this.description}));
   }
   this.element.dataset.testPassed = attribute;
   this.suite.checkTests();

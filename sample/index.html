@@ -67,6 +67,18 @@
       left: calc(100% - 8px);
       /*bottom: 0;*/
     }
+    .output {
+      background: #ddd;
+      border: 1px solid black;
+      height: 5em;
+      overflow-y: scroll;
+      font-family: monospace;
+      padding: 0px 8px;
+    }
+    .flex-container {
+      display: flex;
+      justify-content: space-between;
+    }
   </style>
 <head>
 <body>
@@ -90,4 +102,51 @@
     <div class="flex flex4"></div>
     <div class="flex flex5"></div>
   </div>
+  <div class="box output">INIT</div>
+  <script>
+    function getDateTime() {
+      var d = new Date();
+      var date = '';
+
+      var year = d.getFullYear().toString();
+      var month = (+d.getMonth() + 1).toString();
+      var day = d.getDate().toString();
+      var hours = d.getHours().toString();
+      var minutes = d.getMinutes().toString();
+      var seconds = d.getSeconds().toString();
+
+      if (month.length < 2) {
+        month = '0' + month;
+      }
+      if (day.length < 2) {
+        month = '0' + month;
+      }
+      if (hours.length < 2) {
+        month = '0' + month;
+      }
+      if (minutes.length < 2) {
+        month = '0' + month;
+      }
+      if (seconds.length < 2) {
+        month = '0' + month;
+      }
+      date = year + month + day + hours + minutes + seconds;
+      return date;
+    }
+    function log(string) {
+      let div = document.createElement('div');
+      div.classList.add('flex-container');
+      let textSpan = document.createElement('span');
+      textSpan.innerText = string;
+
+      let dateSpan = document.createElement('span');
+      dateSpan.innerText = getDateTime();
+      div.appendChild(textSpan);
+      div.appendChild(dateSpan);
+
+      output.insertBefore(div, output.firstChild);
+    }
+    const output = document.querySelector('.output');
+    window.addEventListener('ud-test-pass', e => log(e.detail));
+  </script>
 </body>
