@@ -14,6 +14,8 @@ img {
     max-height: 100%;
     overflow-y: scroll;
 
+    border: none;
+
     background-color: rgba(230, 230, 230, 0.9);
     opacity: 0.5;
     transition: opacity 0.3s, max-height 0.3s;
