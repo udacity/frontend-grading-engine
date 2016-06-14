@@ -43,13 +43,15 @@ img {
 }
 
 .test-desc {
-     width: 100%;
+    width: 100%;
 }
 
 .correct {
     color: #060;
     -webkit-animation-duration: 0.5s;
     -webkit-animation-name: popin;
+    animation-duration: 0.5s;
+    animation-name: popin;
 }
 
 .correct::before {
