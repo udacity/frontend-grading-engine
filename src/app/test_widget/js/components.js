@@ -79,7 +79,7 @@ var components = (function() {
       observerAttached = new MutationObserver(function(mutations) {
         for(var i=0, len=mutations.length; i<len; i++) {
           // When a DocumentFragment is appended, it becomes void
-          if(mutations[i].type === 'childList' && fragment.childNodes.length > 0) {
+          if(mutations[i].type === 'childList' && fragment.childNodes.length === 0) {
             attachedCb.call(topNode);
           }
         }
@@ -104,7 +104,7 @@ var components = (function() {
 
     // proto.detachedCallback isn’t implemented
 
-    return topNode;
+    return fragment;
   };
 
   return {
