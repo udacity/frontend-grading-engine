@@ -1,3 +1,12 @@
+/**
+ * @fileoverview This file provides the test widget module. It injects an iFrame inside the current document to display a list of tests.
+ */
+
+/**
+ * Module to handle the test widget.
+ * @returns {Object} Methods to build the widget ({@link buildWidget}) and kill it ({@link killWidget}).
+ * @throws {Error} Initialization errors.
+ */
 var testWidget = (function() {
   'use strict';
   var exports = {};
@@ -40,7 +49,6 @@ var testWidget = (function() {
    * Calls {@link _buildFrame} and initialize {@link testResults}.
    */
   var buildWidget = function() {
-    debugger;
     // Wait for the iFrame to load since it would return null
     _buildFrame().then(function() {
       return frameDocument();
@@ -95,6 +103,10 @@ var testWidget = (function() {
   return {
     buildWidget: buildWidget,
     killWidget: killWidget,
+
+    // TODO: Doesn’t seem to be used outside
     frameDocument: frameDocument
   };
 })();
+
+// test-widget.js ends here

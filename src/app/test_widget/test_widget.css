@@ -1,3 +1,7 @@
+/* This file contains the style applied to the `test-widget`.
+ * Commentary:
+ */
+
 * {
     font-family: 'Source Sans Pro', sans-serif;
 }
@@ -7,6 +11,7 @@ img {
     margin-bottom: -0.75em;
 }
 
+/* The iFrame class. Note that an iFrame acts like a normal element */
 .test-widget-display {
     position: fixed;
     min-width: 325px;
@@ -113,6 +118,7 @@ img {
     content: "Show";
 }
 
+/* Custom animation for the iFrame */
 @keyframes popin {
     from {
         font-size: 1em;
@@ -126,3 +132,5 @@ img {
         font-size: 1em;
     }
 }
+
+/* test-widget.css ends here */

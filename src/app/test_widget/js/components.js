@@ -2,6 +2,11 @@
  * @fileoverview This file contains a custom function for emulating Web Components callbacks.
  */
 
+/**
+ * Module to construct custom components (i.e. Element tree). It tries to emulate the behavior of Web Components while being native HTML.
+ * @returns {Object} Methods to register a component ({@link registerElement}) and to create an instance of that component ({@link createElement}).
+ * @throws {Error} Errors about component initialization.
+ */
 var components = (function() {
 
   var customElements = {};
@@ -44,9 +49,9 @@ var components = (function() {
 
   /**
    * Create an instance of a specified element by returning a {@linkcode DocumentFragment}. The responsability to inject the fragment is left to the user. This element must be present in {@link customElements}.
-   * @param {} _name - The unique name of the element.
+   * @param {string} _name - The unique name of the element.
    * @returns {DocumentFragment} - A document fragment containing the element template and its attached callbacks.
-   * @throws {}
+   * @throws {Error} Component instantiation error.
    */
   var createElement = function(_name) {
     if(!customElements.hasOwnProperty(_name)) {
@@ -74,6 +79,7 @@ var components = (function() {
     // Note: using proto.createdCallback is useless here (as far as I know) since it’s handled by the user.
 
     // proto.attachedCallback
+    // This callback is called when the element is attached to the DOM (i.e. appendChild). It does so because when a DocumentFragment is attached to the DOM, its content is emptied (thus removing its childNodes).
     var attachedCb = customElement.proto.attachedCallback;
     if(attachedCb instanceof Function) {
       observerAttached = new MutationObserver(function(mutations) {
@@ -88,6 +94,7 @@ var components = (function() {
     }
 
     // proto.attributeChangedCallback
+    // This callback is called when an attribute of the container (top most) element changed. It doesn’t include children elements.
     attributeChangedCb = customElement.proto.attributeChangedCallback;
     if(attributeChangedCb instanceof Function) {
       var observerAttr = new MutationObserver(function(mutations) {

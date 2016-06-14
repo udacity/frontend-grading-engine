@@ -2,6 +2,9 @@
  * @fileoverview This file registers the `active-test` component. This file doesn’t depend on other components.
  */
 
+/**
+ * Registers the `active-test` component.
+ */
 (function() {
   'use strict';
   var self = null;
@@ -15,8 +18,8 @@
         '</div>' +
         '<!-- active-test ends here -->';
 
-  /*
-   Called when the element gets attached to the document
+  /**
+   * Called when the element gets attached to the document
    */
   proto.attachedCallback = function() {
     self = this;
@@ -24,8 +27,8 @@
     updateView();
   };
 
-  /*
-   Called when any attribute on the element changes
+  /**
+   * Called when any attribute on the element changes
    */
   proto.attributeChangedCallback = function () {
     self = this;
@@ -91,3 +94,5 @@
 
   components.registerElement('active-test', template, proto);
 })();
+
+// active_test.js ends here
