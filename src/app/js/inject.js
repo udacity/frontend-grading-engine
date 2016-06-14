@@ -5,7 +5,7 @@ chrome.runtime.sendMessage({}, function(response) {
 
       var injectedElementsOnPage = [];
       /**
-       * Adds elements to main page with a promise.
+       * Adds elements to the main page.
        * @param  {String} tag       Type of element
        * @param  {Object} data      Key/value pairs you want to be assigned to as newTag[key] = value
        * @param  {Object} location  Set to “head” if you want the element to end up there. Default is body
@@ -48,6 +48,10 @@ chrome.runtime.sendMessage({}, function(response) {
       var metaTag = document.querySelector('meta[name="udacity-grader"]');
       metaTag ? metaTag = metaTag : metaTag = false;
 
+      /**
+       * Finds Web Components templates.
+       * @returns {Promise}
+       */
       function importFeedbackWidget() {
         var twLink = document.querySelector('link#udacity-test-widget');
 
@@ -62,6 +66,10 @@ chrome.runtime.sendMessage({}, function(response) {
         }
       }
 
+      /**
+       * Inject the Grading Engine inside the current Document.
+       * @returns {Promise}
+       */
       function injectGradingEngine() {
         return injectIntoDocument('script', {
           src: chrome.extension.getURL('app/js/libs/GE.js'),
@@ -69,6 +77,10 @@ chrome.runtime.sendMessage({}, function(response) {
         });
       }
 
+      /**
+       * Load custom libraries for the Grading Engine (i.e. jsgrader.js).
+       * @returns {Promise}
+       */
       function loadLibraries() {
         if (metaTag) {
           var libraries = metaTag.getAttribute('libraries');
@@ -88,6 +100,10 @@ chrome.runtime.sendMessage({}, function(response) {
         );
       }
 
+      /**
+       * Loads asynchronously the JSON file containing the tests.
+       * @returns {Promise}
+       */
       function loadJSONTestsFromFile() {
         if (metaTag) {
           return new Promise(function(resolve, reject) {
@@ -109,6 +125,12 @@ chrome.runtime.sendMessage({}, function(response) {
       }
 
       // You don’t have access to the GE here, but you can inject a script into the document that does.
+      /**
+       * Register test suites from the JSON data.
+       * @param {string} json - JSON containing tests for the Grading Engine.
+       * @returns {Promise}
+       * @throws {Error} Errors about the JSON file.
+       */
       function registerTestSuites(json) {
         if (!json) {
           return Promise.resolve();
@@ -140,6 +162,10 @@ chrome.runtime.sendMessage({}, function(response) {
         }
       }
 
+      /**
+       * Checks and injects custom Unit Tests.
+       * @returns {Promise}
+       */
       function loadUnitTests() {
         var unitTests = null;
         if (metaTag) {
@@ -152,6 +178,10 @@ chrome.runtime.sendMessage({}, function(response) {
         return injectIntoDocument('script', {src: unitTests});
       }
 
+      /**
+       * Activates the Grading Engine by injecting itself in the Document.
+       * @returns {Promise}
+       */
       function turnOn() {
         return injectIntoDocument('script', {
           id: 'ud-grader-options',
@@ -159,6 +189,11 @@ chrome.runtime.sendMessage({}, function(response) {
         }, 'head');
       }
 
+      /**
+       * State of the current Document.
+       * @returns {Promise}
+       * @throws {Error} An error coming from a Promise.
+       */
       function StateManager() {
         this.whitelist = [];
         this.hostIsAllowed = false;
@@ -166,6 +201,12 @@ chrome.runtime.sendMessage({}, function(response) {
         this.geInjected = false;
 
         var currentlyInjecting = false;
+
+        /**
+         * Run a sequence of Promises to activate the Grading Engine.
+         * @returns {Promise}
+         * @throws {Error} An error coming from a Promise.
+         */
         function runLoadSequence() {
           var self = this;
           if (!currentlyInjecting || self.geInjected) {
@@ -190,6 +231,10 @@ chrome.runtime.sendMessage({}, function(response) {
           }
         }
 
+        /**
+         * Checks if the host is allowed to execute the Grading Engine (and arbitrary tests).
+         * @returns {Promise}
+         */
         this.isSiteOnWhitelist = function() {
           var self = this;
           return new Promise(function(resolve, reject) {
@@ -208,6 +253,11 @@ chrome.runtime.sendMessage({}, function(response) {
           });
         };
 
+        /**
+         * Adds the current Document host to the whitelist (local storage).
+         * @param {string} site - unused
+         * @returns {Promise}
+         */
         this.addSiteToWhitelist = function(site) {
           var self = this;
           return new Promise(function(resolve, reject) {
@@ -223,6 +273,11 @@ chrome.runtime.sendMessage({}, function(response) {
           });
         };
 
+        /**
+         * Remove the current document host from the whitelist (local storage).
+         * @param {string} site - unused
+         * @returns {Promise}
+         */
         this.removeSiteFromWhitelist = function(site) {
           var self = this;
           return new Promise(function(resolve, reject) {
@@ -238,10 +293,19 @@ chrome.runtime.sendMessage({}, function(response) {
           });
         };
 
+        /**
+         * Getter for {@link isAllowed} property. This property shows if the website is on the whitelist.
+         * @returns {boolean} The {@link isAllowed} property.
+         }
+         */
         this.getIsAllowed = function() {
           return this.isAllowed;
         };
 
+        /**
+         * Method that activates the {@link runLoadSequence}.
+         * @returns {Promise}
+         */
         this.turnOn = function() {
           var self = this;
           var g = document.querySelector('#ud-grader-options');
@@ -257,6 +321,11 @@ chrome.runtime.sendMessage({}, function(response) {
           }
         };
 
+        /**
+         * Method that desactivates the `test-widget`.
+         * @returns {Promise}
+         * @throws {it’s cool} do nothing
+         */
         this.turnOff = function() {
           var g = document.querySelector('#ud-grader-options');
           if (g) {
@@ -297,7 +366,12 @@ chrome.runtime.sendMessage({}, function(response) {
         }
       });
 
-      // wait for messages from browser action
+      /**
+       * Wait for messages from browser action.
+       * @param {Object} message - Object containing a `data` and a `type` property.
+       * @param {MessageSender} sender - Information about the Script context.
+       * @param {function} sendResponse - Function to call when a response is received.
+       */
       chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         switch (message.type) {
           case 'json':
@@ -321,7 +395,9 @@ chrome.runtime.sendMessage({}, function(response) {
         }
       });
 
-      // for first load
+      /**
+       * for first load
+       */
       window.addEventListener('GE-on', function() {
         if (stateManager.isAllowed) {
           stateManager.turnOn();
