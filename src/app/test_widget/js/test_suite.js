@@ -1,8 +1,15 @@
+/**
+ * @fileoverview This file registers the `test-suite` component. `test-results` and `test-widget` should have executed already.
+ */
+
+
+/**
+ * Registers the `test-suite` component.
+ */
 (function() {
   'use strict';
   var self = null;
   var proto = {};
-  var root = testWidget.frameDocument();
 
   var template = '<!-- test-suite component ends here -->' +
         '<div class="suite">' +
@@ -12,12 +19,19 @@
         '</div>' +
         '<!-- test-suite component ends here -->';
 
+  /**
+   * Called when the component is attached to the DOM.
+   */
   proto.attachedCallback = function() {
-    var suite = this.suite;
+    var suite = this.suite;     // Is it ever used?
     self = this;
     updateView();
   };
 
+
+  /**
+   * Called when the main container changed its attributes.
+   */
   proto.attributeChangedCallback = function() {
     self = this;
     updateView();
@@ -39,6 +53,11 @@
 
     self.querySelector('.suite-title').innerHTML = suiteName + titleEnd;
 
+    // Redefinition at each update?
+    /**
+     * Displays the secret code.
+     * @param {boolean} show - Whether the code should be shown.
+     */
     function displayCode (show) {
       if (show) {
         sc.innerHTML = "<div>" + suiteName + " Code:<br>" + suiteCode + "</div>";
