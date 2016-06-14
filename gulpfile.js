@@ -10,6 +10,7 @@ var build = 'build/';
 var jsFiles = [
   'src/js/intro.js',
   'src/js/helpers.js',
+  'src/js/components.js',
   'src/js/Queue.js',
   'src/js/Target.js',
   'src/js/GradeBook.js',
