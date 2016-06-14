@@ -1,3 +1,11 @@
+/**
+ * @fileoverview This file registers the `test-results` component. This component is the main container and contains procedures for creating new `suites`. `test-results.js`, `test-widget.js`, `test-suite.js` should have executed already.
+ */
+
+/**
+ * Main test container module.
+ * @returns {Object} Method to build a new `suite` of tests.
+ */
 var testResults = (function() {
   'use strict';
   var exports = {};
@@ -25,6 +33,12 @@ var testResults = (function() {
 
     // Unused
     var maxHeight = null;
+
+    /**
+     * Builds a new suite of tests.
+     * @param {suite} newSuite - The suite to build
+     * @returns {HTMLElement} The newly created suite.
+     */
     var buildSuiteElement = function (newSuite) {
       // toggle button and placeholder views
       if (hideShowButton.disabled === true) {
@@ -46,7 +60,9 @@ var testResults = (function() {
     };
     exports.buildSuiteElement = buildSuiteElement;
 
-    // Toggle visibility of tests
+    /**
+     * Toggle visibility of tests
+     */
     hideShowButton.onclick = function () {
       testSuites.classList.toggle('hide');
 
@@ -68,3 +84,5 @@ var testResults = (function() {
   // exports.buildSuiteElement(newSuite)
   return exports;
 })();
+
+// test-results.js ends here
