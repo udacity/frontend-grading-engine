@@ -31,6 +31,19 @@ var webComponents = [
   'src/webcomponents/outro.html',
 ];
 
+var components = [
+  'src/app/test_widget/js/components.js',
+  'src/app/test_widget/js/test_results.js',
+  'src/app/test_widget/js/test_widget.js',
+  'src/app/test_widget/js/test_suite.js',
+  'src/app/test_widget/js/active_test.js'
+];
+
+var ui_v2 = [
+  'src/app/test_widget/test_widget.html',
+  'src/app/test_widget/test_widget.html'
+];
+
 var iconFiles = 'src/icons/*.png';
 
 var allFiles = jsFiles.concat(webComponents);
@@ -41,6 +54,21 @@ gulp.task('ui', function() {
     .pipe(concat('feedback.html'))
     .pipe(gulp.dest(build + 'ext/app/templates/'))
     .pipe(debug({title: 'built feedback: '}));
+});
+
+// Native components (see components.js)
+gulp.task('components', function() {
+  return gulp.src(components)
+    .pipe(concat('components.js'))
+    .pipe(gulp.dest(build + 'ext/app/'))
+    .pipe(debug({title: 'built components: '}));
+});
+
+// This is the iFrame document
+gulp.task('ui_v2', function() {
+  return gulp.src(ui_v2)
+  .pipe(gulp.dest(build + 'ext/app/'))
+  .pipe(debug({title: 'built user interface v2: '}));
 });
 
 gulp.task('icons', function() {
