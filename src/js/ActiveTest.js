@@ -1,5 +1,5 @@
 /**
- * @fileoverview This file contain the prototype of a single running test.
+ * @fileoverview This file contains the prototype of a single running test.
  */
 
 // Custom types documentation
