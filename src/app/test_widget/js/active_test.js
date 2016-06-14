@@ -33,6 +33,39 @@
   };
 
   /**
+   * Function to mark a test as `Passed`.
+   * @param {HTMLElement} markRightOrWrong - The element containing the mark.
+   * @private
+   */
+  function _testHasPassed(markRightOrWrong) {
+    markRightOrWrong.classList.remove('incorrect');
+    markRightOrWrong.classList.remove('error');
+    markRightOrWrong.classList.add('correct');
+  };
+
+  /**
+   * Function to mark a test as `Failed`.
+   * @param {HTMLElement} markRightOrWrong - The element containing the mark.
+   * @private
+   */
+  function _testHasFailed(markRightOrWrong) {
+    markRightOrWrong.classList.add('incorrect');
+    markRightOrWrong.classList.remove('correct');
+    markRightOrWrong.classList.remove('error');
+  };
+
+  /**
+   * Function to mark a test as `Erred` (is not valid).
+   * @param {HTMLElement} markRightOrWrong - The element containing the mark.
+   * @private
+   */
+  function _testHasErred(markRightOrWrong) {
+    markRightOrWrong.classList.remove('correct');
+    markRightOrWrong.classList.remove('incorrect');
+    markRightOrWrong.classList.add('error');
+  };
+
+  /**
    * Main function for updating member elements.
    */
   function updateView() {
@@ -47,30 +80,12 @@
     var descriptionDisplay = self.querySelector('.test-desc');
     descriptionDisplay.innerHTML = testDescription;
 
-    function testHasPassed() {
-      markRightOrWrong.classList.remove('incorrect');
-      markRightOrWrong.classList.remove('error');
-      markRightOrWrong.classList.add('correct');
-    };
-
-    function testHasFailed() {
-      markRightOrWrong.classList.add('incorrect');
-      markRightOrWrong.classList.remove('correct');
-      markRightOrWrong.classList.remove('error');
-    };
-
-    function testHasErred() {
-      markRightOrWrong.classList.remove('correct');
-      markRightOrWrong.classList.remove('incorrect');
-      markRightOrWrong.classList.add('error');
-    };
-
     if (testPassed === 'true') {
-      testHasPassed();
+      _testHasPassed(markRightOrWrong);
     } else if (testPassed === 'false') {
-      testHasFailed();
+      _testHasFailed(markRightOrWrong);
     } else if (testPassed === 'error') {
-      testHasErred();
+      _testHasErred(markRightOrWrong);
     }
   };
 
