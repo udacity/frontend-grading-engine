@@ -89,5 +89,5 @@
     }
   };
 
-  components.registerElement('active-test', template, {prototype: proto});
+  components.registerElement('active-test', template, proto);
 })();
