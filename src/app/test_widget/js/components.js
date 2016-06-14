@@ -50,16 +50,28 @@ var components = (function() {
    */
   var createElement = function(_name) {
     if(!customElements.hasOwnProperty(_name)) {
-      throw new Error(_name + ' is not a registered component');
+      throw new Error('“' + _name + '” is not a registered component');
     }
 
     var customElement = customElements[_name];
 
     // For compatibility reasons, it is the best way to write a String to an Element.
     var fragment = range.createContextualFragment(customElement.template);
-    var topNode = fragment.childNodes[0];
 
-    // Note: using proto.createdCallback is useless here.
+    var topNode = null;
+
+    // Take the first Node (not a comment)
+    for(var i=0, len=fragment.childNodes.length; i<len; i++) {
+      if(fragment.childNodes[i].nodeType !== 8) {
+        topNode = fragment.childNodes[i];
+      }
+    }
+    // Verifies that there’s at least one node
+    if(topNode === null) {
+      throw new Error('The “' + _name + '” component doesn’t contain a valid node.');
+    }
+
+    // Note: using proto.createdCallback is useless here (as far as I know) since it’s handled by the user.
 
     // proto.attachedCallback
     var attachedCb = customElement.proto.attachedCallback;
