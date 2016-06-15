@@ -1,3 +1,7 @@
+/**
+ * @fileoverview This file contains the constructor for a `Suite` of tests.
+ */
+
 function Suite(rawSuite) {
   var name = rawSuite.name;
   var code = rawSuite.code;

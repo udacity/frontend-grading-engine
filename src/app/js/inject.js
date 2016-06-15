@@ -1,3 +1,7 @@
+/**
+ * @fileoverview This file contains the procedures to bootstrap the extension (inject and activate the Grading Engine).
+ */
+
 chrome.runtime.sendMessage({}, function(response) {
   var readyStateCheckInterval = setInterval(function() {
     if (document.readyState === 'complete') {
@@ -406,3 +410,5 @@ chrome.runtime.sendMessage({}, function(response) {
     }
   }, 100);
 });
+
+// inject.js ends here
