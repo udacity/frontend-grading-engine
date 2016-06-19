@@ -1,6 +1,6 @@
 var injectedElementsOnPage = [];
 
-// start of load sequence
+// start load sequence
 var metaTag = document.querySelector('meta[name="udacity-grader"]');
 
 /**
@@ -134,7 +134,7 @@ function loadUnitTests() {
 }
 
 /**
- * Activates the Grading Engine by injecting itself in the Document.
+ * Activates the Grading Engine by injecting itself in the Document. Note to be confused with {@link StateManager.turnOn}. This method is called from {@link StateManager~runLoadSequence}.
  * @returns {Promise}
  */
 function turnOn() {
