@@ -33,15 +33,15 @@ var webComponents = [
 
 var components = [
   'src/app/test_widget/js/components.js',
-  'src/app/test_widget/js/test_results.js',
   'src/app/test_widget/js/test_widget.js',
+  'src/app/test_widget/js/test_results.js',
   'src/app/test_widget/js/test_suite.js',
   'src/app/test_widget/js/active_test.js'
 ];
 
 var ui_v2 = [
   'src/app/test_widget/test_widget.html',
-  'src/app/test_widget/test_widget.html'
+  'src/app/test_widget/test_widget.css'
 ];
 
 var iconFiles = 'src/icons/*.png';
@@ -60,14 +60,14 @@ gulp.task('ui', function() {
 gulp.task('components', function() {
   return gulp.src(components)
     .pipe(concat('components.js'))
-    .pipe(gulp.dest(build + 'ext/app/'))
+    .pipe(gulp.dest(build + 'ext/app/templates/'))
     .pipe(debug({title: 'built components: '}));
 });
 
 // This is the iFrame document
 gulp.task('ui_v2', function() {
   return gulp.src(ui_v2)
-  .pipe(gulp.dest(build + 'ext/app/'))
+  .pipe(gulp.dest(build + 'ext/app/templates/'))
   .pipe(debug({title: 'built user interface v2: '}));
 });
 
@@ -98,7 +98,7 @@ gulp.task('chromium', ['app'], function() {
     .pipe(debug({title: 'copied Chromium’s manifest:'}));
 });
 
-gulp.task('default', ['chromium', 'ui', 'icons', 'GE']);
+gulp.task('default', ['chromium', 'ui', 'ui_v2', 'components', 'icons', 'GE']);
 
 gulp.task('watch', function() {
   gulp.start('default');
