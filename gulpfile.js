@@ -22,6 +22,12 @@ var jsFiles = [
   'src/js/outro.js'
 ];
 
+var injectJsFiles = [
+  'src/app/js/inject/intro.js',
+  'src/app/js/inject/inject.js',
+  'src/app/js/inject/outro.js'
+];
+
 var webComponents = [
   'src/webcomponents/intro.html',
   'src/webcomponents/active-test.html',
@@ -86,7 +92,7 @@ gulp.task('GE', function() {
 });
 
 gulp.task('inject', function() {
-  return gulp.src('src/app/js/inject/*')
+  return gulp.src(injectJsFiles)
     .pipe(concat('inject.js'))
     .pipe(gulp.dest(build + 'ext/app/js/'))
     .pipe(debug({title: 'build inject.js:'}));
