@@ -85,6 +85,13 @@ gulp.task('GE', function() {
     .pipe(debug({title: 'built dev grading engine:'}));
 });
 
+gulp.task('inject', function() {
+  return gulp.src('src/app/js/inject/*')
+    .pipe(concat('inject.js'))
+    .pipe(gulp.dest(build + 'ext/app/js/'))
+    .pipe(debug({title: 'build inject.js:'}));
+});
+
 // Temporary solution. App should be refactored with ui.
 gulp.task('app', function() {
   return gulp.src('src/app/**/*')
@@ -98,7 +105,7 @@ gulp.task('chromium', ['app'], function() {
     .pipe(debug({title: 'copied Chromium’s manifest:'}));
 });
 
-gulp.task('default', ['chromium', 'ui', 'ui_v2', 'components', 'icons', 'GE']);
+gulp.task('default', ['chromium', 'ui', 'inject', 'ui_v2', 'components', 'icons', 'GE']);
 
 gulp.task('watch', function() {
   gulp.start('default');
