@@ -15,8 +15,9 @@ var testWidget = (function() {
   /**
    * Initializes the widget with its random ID (Not really useful) and append the widget to the current Document. The widget is an iFrame
    * @returns {Document} The iFrame document.
+   * @throws {Error} The test widget can’t be loaded.
    */
-  var _buildFrame = function () {
+  var _buildFrame = function() {
     frameId = 'tw-' + Math.floor(Math.random() * 100000000000).toString();
 
     // Since the iFrame loading is asynchronous

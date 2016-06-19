@@ -39,7 +39,7 @@ var testResults = (function() {
      * @param {suite} newSuite - The suite to build
      * @returns {HTMLElement} The newly created suite.
      */
-    var buildSuiteElement = function (newSuite) {
+    buildSuiteElement = function (newSuite) {
       // toggle button and placeholder views
       if (hideShowButton.disabled === true) {
         hideShowButton.removeAttribute('disabled');

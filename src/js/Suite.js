@@ -103,7 +103,7 @@ Suite.prototype.createTest = function(rawTest) {
   activeTest.suite = this;
 
   function createTestElement(newTest) {
-    var activeTestElement = document.createElement('active-test');
+    var activeTestElement = components.createElement('active-test');
 
     // find the suite element to which the test belongs
     var activeTestsContainer = activeTest.suite.element.shadowRoot.querySelector('.active-tests');
