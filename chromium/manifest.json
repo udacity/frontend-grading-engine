@@ -35,6 +35,7 @@
   "web_accessible_resources": [
     "app/js/*.js",
     "app/js/libs/*.js",
-    "app/templates/*.html"
+    "app/test_widget/**",
+    "app/templates/*.js"
   ]
 }

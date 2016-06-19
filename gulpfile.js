@@ -10,7 +10,6 @@ var build = 'build/';
 var jsFiles = [
   'src/js/intro.js',
   'src/js/helpers.js',
-  'src/js/components.js',
   'src/js/Queue.js',
   'src/js/Target.js',
   'src/js/GradeBook.js',
@@ -41,10 +40,10 @@ var webComponents = [
 
 var components = [
   'src/app/test_widget/js/components.js',
-  'src/app/test_widget/js/test_widget.js',
-  'src/app/test_widget/js/test_results.js',
   'src/app/test_widget/js/test_suite.js',
-  'src/app/test_widget/js/active_test.js'
+  'src/app/test_widget/js/test_results.js',
+  'src/app/test_widget/js/active_test.js',
+  'src/app/test_widget/js/test_widget.js'
 ];
 
 var ui_v2 = [
