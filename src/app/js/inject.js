@@ -50,7 +50,6 @@ chrome.runtime.sendMessage({}, function(response) {
 
       // start of load sequence
       var metaTag = document.querySelector('meta[name="udacity-grader"]');
-      metaTag ? metaTag = metaTag : metaTag = false;
 
       /**
        * Finds Web Components templates.
