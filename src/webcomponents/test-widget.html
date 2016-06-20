@@ -4,7 +4,7 @@ This component (<test-widget>) describes the grader as a whole.
 It creates suites of tests (<test-suite>) as defined in the
 grader.js file.
 
-Listens for 'suite-passed' events. Emits a 'grader-passed' event
+Listens for “suite-passed” events. Emits a “grader-passed” event
 when all suites pass.
 -->
 
@@ -22,11 +22,11 @@ when all suites pass.
       max-width: 500px;
       max-height: 100%;
       overflow-y: scroll;
-      
+
       background-color: rgba(230, 230, 230, 0.9);
       opacity: 0.5;
       transition: opacity 0.3s, max-height 0.3s;
-      
+
       top: 0px;
       right: 0px;
       padding: 0.5em;
@@ -83,7 +83,7 @@ when all suites pass.
     };
 
     document.registerElement('test-widget', {prototype: proto});
-    
+
     exports.buildWidget = function () {
       var tw = document.createElement('test-widget');
       document.body.appendChild(tw);
@@ -96,5 +96,7 @@ when all suites pass.
 
     return exports;
   })();
-  
+
 </script>
+
+<!-- test-widget.html ends here -->

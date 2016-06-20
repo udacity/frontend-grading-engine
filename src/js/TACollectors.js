@@ -22,7 +22,7 @@ function TA(description) {
 Object.defineProperties(TA.prototype, {
   childPosition: {
     /**
-     * To find a child node's index in relation to its immediate siblings
+     * To find a child node’s index in relation to its immediate siblings
      * @return {object} TA - the TA instance for chaining.
      */
     get: function() {
@@ -84,7 +84,7 @@ Object.defineProperties(TA.prototype, {
           try {
             html = element.innerHTML;
           } catch (e) {
-            self.onerror('Cannot get innerHTML. Element probably doesn\'t exist.', true);
+            self.onerror('Cannot get innerHTML. Element probably doesn’t exist.', true);
           }
           return html;
         });
@@ -120,10 +120,10 @@ Object.defineProperties(TA.prototype, {
           try {
             ua = navigator.userAgent;
           } catch (e) {
-            self.onerror('Can\'t find a user agent string.', true);
+            self.onerror('Can’t find a user agent string.', true);
           }
           return ua;
-        })
+        });
       });
       return this;
     }
@@ -143,15 +143,15 @@ Object.defineProperties(TA.prototype, {
           try {
             dpr = +window.devicePixelRatio;
           } catch (e) {
-            self.onerror('Can\'t find device pixel ratio.', true);
+            self.onerror('Can’t find device pixel ratio.', true);
           }
           return dpr;
-        })
+        });
       });
       return this;
     }
   }
-})
+});
 
 /**
  * Initialized for async call later.
@@ -253,7 +253,7 @@ TA.prototype._runAgainstBottomTargetElements = function(callback) {
         });
       }
     };
-  })
+  });
 };
 
 /**
@@ -306,7 +306,7 @@ TA.prototype.theseElements = function(selector) {
     });
   });
   return this;
-}
+};
 // more common syntax
 TA.prototype.nodes = TA.prototype.theseElements;
 
@@ -359,7 +359,7 @@ TA.prototype.get = function(typeOfValue) {
       self.DPR;
       break;
     default:
-      self.onerror('Cannot \'get\': \'' + typeOfValue + '\'. Options include: \'count\', \'childPosition\', \'DPR\', \'innerHTML\', and \'UAString\'.');
+      self.onerror('Cannot “get”: “' + typeOfValue + '”. Options include: “count”, “childPosition”, “DPR”, “innerHTML”, and “UAString”.');
       throw new Error();
       break;
   }
@@ -369,7 +369,7 @@ TA.prototype.limit = function(limit) {
   var self = this;
 
   if (!limit || limit < 1) {
-    self.onerror('Illegal \'limit\'. Options include: any positive number, \'all\' or \'some\'. Defaults to \'all\'');
+    self.onerror('Illegal “limit”. Options include: any positive number, “all” or “some”. Defaults to “all”');
     throw new Error();
   }
 
@@ -398,13 +398,13 @@ TA.prototype.cssProperty = function(property) {
         styles = window.getComputedStyle(elem);
         style = styles[property];
       } catch (e) {
-        self.onerror('Cannot get CSS property: \'' + property + '\'.', true);
+        self.onerror('Cannot get CSS property: “' + property + '”.', true);
       }
       return style;
     });
   });
   return this;
-}
+};
 
 /**
  * Get any attribute of any element.
@@ -421,7 +421,7 @@ TA.prototype.attribute = function(attribute) {
       try {
         attrValue = elem.getAttribute(attribute);
       } catch (e) {
-        self.onerror("Cannot get attribute '" + attribute + "'.", true);
+        self.onerror("Cannot get attribute “" + attribute + "”.", true);
       }
       if (attrValue === '') {
         attrValue = true;
@@ -430,7 +430,7 @@ TA.prototype.attribute = function(attribute) {
     });
   });
   return this;
-}
+};
 
 /**
  * Get any property of an object.
@@ -447,7 +447,7 @@ TA.prototype.property = function(key) {
       try {
         propertyValue = obj[key];
       } catch (e) {
-        self.onerror("Cannot get attribute '" + attribute + "'.", true);
+        self.onerror("Cannot get attribute “" + attribute + "”.", true);
       }
       if (propertyValue === '') {
         propertyValue = true;
@@ -456,7 +456,7 @@ TA.prototype.property = function(key) {
     });
   });
   return this;
-}
+};
 
 /**
  * Get the position of one side of an element relative to the viewport
@@ -473,68 +473,62 @@ TA.prototype.absolutePosition = function(side) {
       return cStyle.display;
     };
 
-    var selectorFunc = function() {};
-    switch (side) {
+    function isValidSide(side) {
+      if(side === 'top' || side === 'left' || 'bottom' || 'right')
+        return true;
+      console.log("You didn’t pick a side for absolutePosition! Options are “top”, “left”, “bottom” and “right”.");
+      return false;
+    }
+
+    function getOffsetBySide(element, sideName) {
+      var offset = NaN;
+
+      switch (sideName) {
       case 'top':
-        var selectorFunc = function(elem) {
-          var displayType = getDisplayType(elem);
-          var value = NaN;
-          if (displayType === 'block') {
-            value = elem.offsetTop;
-          } else if (displayType === 'inline') {
-            value = elem.getBoundingClientRect()[side];
-          };
-          return value;
-        };
+        offset = element.offsetTop;
         break;
       case 'left':
-        var selectorFunc = function(elem) {
-          var displayType = getDisplayType(elem);
-          var value = NaN;
-          if (displayType === 'block') {
-            value = elem.offsetLeft;
-          } else if (displayType === 'inline') {
-            value = elem.getBoundingClientRect()[side];
-          };
-          return value;
-        };
+        offset = element.offsetLeft;
         break;
       case 'bottom':
-        var selectorFunc = function(elem) {
-          var displayType = getDisplayType(elem);
-          var value = NaN;
-          if (displayType === 'block') {
-            value = elem.offsetTop + elem.offsetHeight;
-          } else if (displayType === 'inline') {
-            value = elem.getBoundingClientRect()[side];
-          };
-          if (value === Math.max(document.documentElement.clientHeight, window.innerHeight || 0)) {
-            value = 'max';
-          };
-          return value;
-        };
+        offset = element.offsetTop + element.offsetHeight;
         break;
       case 'right':
-        var selectorFunc = function(elem) {
-          var displayType = getDisplayType(elem);
-          var value = NaN;
-          if (displayType === 'block') {
-            value = elem.offsetLeft + elem.offsetWidth;
-          } else if (displayType === 'inline') {
-            value = elem.getBoundingClientRect()[side];
-          };
-          if (value === Math.max(document.documentElement.clientWidth, window.innerWidth || 0)) {
-            value = 'max';
-          };
-          return value;
-        };
+        offset = element.offsetLeft + element.offsetWidth;
         break;
-      default:
-        selectorFunc = function() {
-          console.log("You didn't pick a side for absolutePosition! Options are 'top', 'left', 'bottom' and 'right'.");
-          return NaN;
-        };
-        break;
+      }
+
+      return offset;
+    }
+
+    var selectorFunc = function(elem) {
+      var displayType = getDisplayType(elem);
+      var value = NaN;
+      var maxSize;
+
+      if(!isValidSide(side)) {
+        return value;
+      }
+
+
+      if (displayType === 'block') {
+        value = getOffsetBySide(elem, side);
+      } else if (displayType === 'inline') {
+        value = elem.getBoundingClientRect()[side];
+      };
+
+      // To get the widest size of the window, we need to get the biggest value of client<Size> and inner<Size>.
+      if(side === 'bottom') {
+        // Get the widest window height
+        maxSize = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+        value = value === maxSize ? 'max' : value ;
+      } else if(side === 'right') {
+        // Get the widest window width
+        maxSize = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+        value = value === maxSize ? 'max' : value;
+      }
+
+      return value;
     };
 
     self._runAgainstBottomTargetElements(function(elem) {
@@ -542,7 +536,7 @@ TA.prototype.absolutePosition = function(side) {
       try {
         absPos = selectorFunc(elem);
       } catch (e) {
-        self.onerror("Cannot get absolute position of '" + side + "'.", true);
+        self.onerror("Cannot get absolute position of “" + side + "”.", true);
         throw new Error();
       }
       return absPos;
@@ -572,3 +566,5 @@ TA.prototype.waitForEvent = function(eventName) {
   });
   return this;
 };
+
+// TACollectors.js ends here

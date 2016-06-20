@@ -25,7 +25,7 @@ Object.defineProperties(hotel, {
         if (suite.suitePassed) {
           numberPassed += 1;
         }
-      })
+      });
       return numberPassed;
     }
   },
@@ -42,11 +42,11 @@ Object.defineProperties(hotel, {
       return allCorrect;
     }
   }
-})
+});
 
 /**
  * Register a suite of tests with the grading engine.
- * @param  {Object} _suite - contains a test's name and code to display upon completion.
+ * @param  {Object} _suite - contains a test’s name and code to display upon completion.
  * @return {Function} registerTest - a method to register a single test with the grading engine.
  */
 function registerSuite(rawSuite) {
@@ -57,19 +57,19 @@ function registerSuite(rawSuite) {
   /**
    * Register a new test on a specific suite. The test will contain an activeTest. Each active test much return a boolean called isCorrect and an array of the targets in question.
    * @param  {Object} _test - contains a description, activeTest and flags.
-   * @return {Object} self - for chaining tests registrations together (if you're into that sort of syntax.)
+   * @return {Object} self - for chaining tests registrations together (if you’re into that sort of syntax.)
    */
   function registerTest(_test) {
     newSuite.createTest({
       description: _test.description,
       definition: _test.definition,
       flags: _test.flags
-    })
+    });
     return self;
   }
   return {
     registerTest: registerTest
-  }
+  };
 }
 
 var userData = [];
@@ -143,3 +143,5 @@ exports.debug = debug;
 exports.turnOn = turnOn;
 exports.turnOff = turnOff;
 exports.registerSuites = registerSuites;
+
+// registrar.js ends here

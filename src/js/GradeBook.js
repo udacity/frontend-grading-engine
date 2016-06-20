@@ -31,7 +31,7 @@ Object.defineProperties(GradeBook.prototype, {
         if (question.correct) {
           numberCorrect += 1;
         }
-      })
+      });
       return numberCorrect;
     }
   },
@@ -83,7 +83,7 @@ GradeBook.prototype.recordQuestion = function(target) {
 };
 
 /**
- * Empties the questions array and ensures that the test hasn't passed prematurely. Called each time a new question is registered.
+ * Empties the questions array and ensures that the test hasn’t passed prematurely. Called each time a new question is registered.
  */
 GradeBook.prototype.reset = function() {
   this.questions = [];
@@ -129,3 +129,5 @@ GradeBook.prototype.grade = function(config) {
   };
   return this.report;
 };
+
+// GradeBook.js ends here

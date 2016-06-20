@@ -167,7 +167,7 @@
 },
 {
   "name": "These should fail",
-  "code": "it's bad if you see this",
+  "code": "it’s bad if you see this",
   "tests": [
     {
       "description": "There are 15 divs (just delete one)",
@@ -237,7 +237,7 @@
       }
     },
     {
-      "description": "the box with just a b in it doesn't have a c or a p in it",
+      "description": "the box with just a b in it doesn’t have a c or a p in it",
       "definition": {
         "nodes": ".box2",
         "get": "innerHTML",

@@ -16,7 +16,7 @@ This component holds a single test.
     .correct::before {
       content: "✓ ";
     }
-    
+
     @keyframes popin {
       from {
         font-size: 1em;
@@ -38,7 +38,7 @@ This component holds a single test.
       content: "✗ ";
     }
     .error {
-      color: #A48700;
+      color: #a48700;
     }
     .error::before {
       content: "?? ";
@@ -79,7 +79,7 @@ This component holds a single test.
     */
     proto.attachedCallback = function() {
       self = this;
-      self.setAttribute('test-passed', false);
+      self.dataset.testPassed = false;
       updateView();
     };
 
@@ -93,8 +93,8 @@ This component holds a single test.
 
     function updateView() {
       try {
-        var testDescription = self.getAttribute('description');
-        var testPassed = self.getAttribute('test-passed');
+        var testDescription = self.dataset.description;
+        var testPassed = self.dataset.testPassed;
       } catch (e) {
         console.log(e);
       }
@@ -133,3 +133,5 @@ This component holds a single test.
     document.registerElement('active-test', {prototype: proto});
   })();
 </script>
+
+<!-- active-test.html ends here -->

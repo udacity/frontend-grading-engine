@@ -13,7 +13,7 @@ var Grader = (function() {
         return true;
       }
 
-      // Compare primitives and functions.     
+      // Compare primitives and functions.
       // Check if both arguments link to the same object.
       // Especially useful on step when comparing prototypes
       if (x === y) {
@@ -98,7 +98,7 @@ var Grader = (function() {
     }
 
     if (arguments.length < 1) {
-      return true; //Die silently? Don't know how to handle such case, please help...
+      return true; //Die silently? Don’t know how to handle such case, please help...
       // throw "Need two or more arguments to compare";
     }
 
@@ -141,7 +141,7 @@ var Grader = (function() {
       });
     },
 
-    _flush: function () {    
+    _flush: function () {
       if (!this.flushing) {
         this.flushing = true;
       }
@@ -176,7 +176,7 @@ var Grader = (function() {
 
       function takeNextStep (test, result) {
         test.isCorrect = result;
-          
+
         self.registerResults(test);
 
         if (test.isCorrect || test.keepGoing || self.alwaysGo) {
@@ -188,7 +188,7 @@ var Grader = (function() {
 
       if (this.flushing) {
         var test = this.gradingSteps.shift();
-        
+
         if (this.grader.async) {
           executeInPromise(test.callback).then(function (resolve) {
             takeNextStep(test, resolve);
@@ -265,7 +265,7 @@ var Grader = (function() {
       }
     },
 
-    registerResults: function (test) { 
+    registerResults: function (test) {
       this.generateSpecificFeedback(test);
       this.generateGeneralFeedback(test);
       this.setCorrect(test);
@@ -275,7 +275,7 @@ var Grader = (function() {
       if (!test.isCorrect && test.wrongMessage) {
         this.addSpecificFeedback(test.wrongMessage);
       } else if (test.isCorrect && test.comment) {
-        this.addComment(test.comment)
+        this.addComment(test.comment);
       }
     },
 
@@ -283,7 +283,7 @@ var Grader = (function() {
       if (!test.isCorrect && test.category) {
         if (this.generalFeedback.indexOf(this.categoryMessages[test.category]) === -1) {
           this.generalFeedback.push(this.categoryMessages[test.category]);
-        }  
+        }
       }
     },
 
@@ -310,12 +310,12 @@ var Grader = (function() {
         isCorrect: self.isCorrect,
         testFeedback: self.specificFeedback.concat(self.generalFeedback),
         testComments: self.comments
-      }
+      };
     },
 
     getFormattedWrongMessages: function (separator) {
       var allMessages, message;
-      
+
       allMessages = this.specificFeedback.concat(this.generalFeedback);
       message = allMessages.join(separator);
 
@@ -330,7 +330,7 @@ var Grader = (function() {
       var isCorrect = false;
 
       if (typeof value !== expectedType) {
-        
+
         if (typeof value === 'function') {
           value = value.name;
         };
@@ -369,7 +369,7 @@ var Grader = (function() {
       var isCorrect = false;
 
       if (typeof value !== 'number' || isNaN(value)) {
-        isCorrect = false
+        isCorrect = false;
       } else if (value > upper || value < lower) {
         isCorrect = false;
 
@@ -574,7 +574,8 @@ var Grader = (function() {
         test_feedback: "",
         test_comments: "",
         congrats: ""
-      }
+      };
+
       for (arg in arguments) {
         var thisIsCorrect = arguments[arg].isCorrect;
         var thisTestFeedback = arguments[arg].getFormattedWrongMessages();
@@ -598,7 +599,7 @@ var Grader = (function() {
             } else {
               output.test_feedback = thisTestFeedback;
             }
-            
+
             if (output.test_comments !== "") {
               output.test_comments = [output.test_comments, thisTestFeedback].join('\n');
             } else {
@@ -610,6 +611,6 @@ var Grader = (function() {
       output = JSON.stringify(output);
       console.info("UDACITY_RESULT:" + output);
     }
-  }
+  };
   return Grader;
 })();

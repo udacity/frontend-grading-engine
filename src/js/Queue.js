@@ -44,7 +44,7 @@ Queue.prototype = {
         if (self._methods.length > 0) {
           self.step();
         }
-      })
+      });
     }
   },
 
@@ -57,3 +57,5 @@ Queue.prototype = {
     this.step();
   }
 };
+
+// Queue.js ends here

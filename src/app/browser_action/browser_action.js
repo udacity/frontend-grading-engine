@@ -5,7 +5,7 @@ function handleFileSelect(evt) {
   var reader = new FileReader();
   var alert = document.querySelector('.alert');
   alert.style.display = 'block';
-  
+
   reader.onload = function (file) {
     sendDataToTab(file.target.result, 'json');
   };
@@ -21,7 +21,7 @@ function handleFileSelect(evt) {
     reader.readAsText(file);
   } else {
     alert.innerHTML = "File found";
-    alert.style.color = "#A48700";
+    alert.style.color = "#a48700";
     reader.readAsText(file);
   }
 };
@@ -29,7 +29,7 @@ function handleFileSelect(evt) {
 function sendDataToTab(data, type, callback) {
   // get the current tab then send data to it
   chrome.tabs.query({active: true, currentWindow: true}, fireOffData);
-  
+
   // actually post data to a tab
   function fireOffData (arrayOfTabs) {
     var activeTab = arrayOfTabs[0];
@@ -60,7 +60,7 @@ function checkSiteStatus () {
     if (response) {
       allowFeedback.checked = true;
     }
-  })
+  });
 };
 
 checkSiteStatus();

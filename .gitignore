@@ -1,7 +1,12 @@
+build/
 .DS_STORE
 node_modules/
 ext.zip
 TODO
 GE.min.js
 GE.js
-
+.dir-locals.el
+\#*\#
+GTAGS
+GRTAGS
+GPATH

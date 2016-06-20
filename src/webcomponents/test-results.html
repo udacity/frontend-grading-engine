@@ -15,13 +15,13 @@ This component (<test-results>) describes the suite editor view.
       color: white;
 
       box-sizing: border-box;
-      
+
       border-radius: 2px;
       border-color: #777;
       border: 1px solid transparent;
-      
+
       background-color: #777;
-      
+
       cursor: pointer;
     }
 
@@ -97,8 +97,8 @@ This component (<test-results>) describes the suite editor view.
         // actually create the suite
         var _testSuite = document.createElement('test-suite');
 
-        _testSuite.setAttribute('name', newSuite.name);
-        _testSuite.setAttribute('suite-passed', false);
+        _testSuite.dataset.name = newSuite.name;
+        _testSuite.dataset.suitePassed = false;
         _testSuite.code = newSuite.code;  // to avoid leaving the code as an easy-to-spot attribute
         _testSuite.suite = newSuite;
 
@@ -108,7 +108,7 @@ This component (<test-results>) describes the suite editor view.
       }
       exports.buildSuiteElement = buildSuiteElement;
 
-      hideShowButton.onclick = function () {        
+      hideShowButton.onclick = function () {
         testSuites.classList.toggle('hide');
 
         this.classList.toggle('shown');
@@ -128,3 +128,5 @@ This component (<test-results>) describes the suite editor view.
     return exports;
   })();
 </script>
+
+<!-- test-results.html ends here -->
