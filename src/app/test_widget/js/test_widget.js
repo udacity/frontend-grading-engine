@@ -16,6 +16,8 @@ var testWidget = (function() {
 
   var outerStyles = '/* The iFrame class. Note that an iFrame acts like a normal element */' +
         '.test-widget-display {' +
+        'resize: both;' +
+        'direction: rtl;' +
         'position: fixed;' +
         'min-width: 325px;' +
         'max-width: 500px;' +
