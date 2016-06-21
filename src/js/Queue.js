@@ -1,6 +1,12 @@
-// Inspired by http://www.dustindiaz.com/async-method-queues
-// also helpful http://www.mattgreer.org/articles/promises-in-wicked-detail/
+/**
+ * @fileoverview This file contains a `queue` Data Structure implementation for chaining promises.
+ * @see http://www.dustindiaz.com/async-method-queues
+ * @see http://www.mattgreer.org/articles/promises-in-wicked-detail/
+ */
 
+/**
+ * Queue Data Structure implementation to chain promises.
+ */
 function Queue() {
   this._methods = [];
   this._flushing = false;

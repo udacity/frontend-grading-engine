@@ -10,7 +10,6 @@ var build = 'build/';
 var jsFiles = [
   'src/js/intro.js',
   'src/js/helpers.js',
-  'src/js/components.js',
   'src/js/Queue.js',
   'src/js/Target.js',
   'src/js/GradeBook.js',
@@ -20,6 +19,14 @@ var jsFiles = [
   'src/js/Suite.js',
   'src/js/registrar.js',
   'src/js/outro.js'
+];
+
+var injectJsFiles = [
+  'src/app/js/inject/intro.js',
+  'src/app/js/inject/helpers.js',
+  'src/app/js/inject/StateManager.js',
+  'src/app/js/inject/inject.js',
+  'src/app/js/inject/outro.js'
 ];
 
 var webComponents = [
@@ -33,15 +40,15 @@ var webComponents = [
 
 var components = [
   'src/app/test_widget/js/components.js',
-  'src/app/test_widget/js/test_results.js',
-  'src/app/test_widget/js/test_widget.js',
   'src/app/test_widget/js/test_suite.js',
-  'src/app/test_widget/js/active_test.js'
+  'src/app/test_widget/js/test_results.js',
+  'src/app/test_widget/js/active_test.js',
+  'src/app/test_widget/js/test_widget.js'
 ];
 
 var ui_v2 = [
   'src/app/test_widget/test_widget.html',
-  'src/app/test_widget/test_widget.html'
+  'src/app/test_widget/test_widget.css'
 ];
 
 var iconFiles = 'src/icons/*.png';
@@ -60,14 +67,14 @@ gulp.task('ui', function() {
 gulp.task('components', function() {
   return gulp.src(components)
     .pipe(concat('components.js'))
-    .pipe(gulp.dest(build + 'ext/app/'))
+    .pipe(gulp.dest(build + 'ext/app/templates/'))
     .pipe(debug({title: 'built components: '}));
 });
 
 // This is the iFrame document
 gulp.task('ui_v2', function() {
   return gulp.src(ui_v2)
-  .pipe(gulp.dest(build + 'ext/app/'))
+  .pipe(gulp.dest(build + 'ext/app/templates/'))
   .pipe(debug({title: 'built user interface v2: '}));
 });
 
@@ -85,6 +92,13 @@ gulp.task('GE', function() {
     .pipe(debug({title: 'built dev grading engine:'}));
 });
 
+gulp.task('inject', function() {
+  return gulp.src(injectJsFiles)
+    .pipe(concat('inject.js'))
+    .pipe(gulp.dest(build + 'ext/app/js/'))
+    .pipe(debug({title: 'build inject.js:'}));
+});
+
 // Temporary solution. App should be refactored with ui.
 gulp.task('app', function() {
   return gulp.src('src/app/**/*')
@@ -98,7 +112,7 @@ gulp.task('chromium', ['app'], function() {
     .pipe(debug({title: 'copied Chromium’s manifest:'}));
 });
 
-gulp.task('default', ['chromium', 'ui', 'icons', 'GE']);
+gulp.task('default', ['chromium', 'ui', 'inject', 'ui_v2', 'components', 'icons', 'GE']);
 
 gulp.task('watch', function() {
   gulp.start('default');

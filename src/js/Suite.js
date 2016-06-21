@@ -1,3 +1,7 @@
+/**
+ * @fileoverview This file contains the constructor for a `Suite` of tests.
+ */
+
 function Suite(rawSuite) {
   var name = rawSuite.name;
   var code = rawSuite.code;
@@ -99,10 +103,19 @@ Suite.prototype.createTest = function(rawTest) {
   activeTest.suite = this;
 
   function createTestElement(newTest) {
-    var activeTestElement = document.createElement('active-test');
+    var activeTestFragment = components.createElement('active-test');
+    var activeTestElement = '';
+
+    // When appending a fragment, it becomes void
+    for(var i=0, len=activeTestFragment.childNodes.length; i<len; i++) {
+      if(activeTestFragment.childNodes[i].nodeType !== 8) {
+        activeTestElement = activeTestFragment.childNodes[i];
+        break;
+      }
+    }
 
     // find the suite element to which the test belongs
-    var activeTestsContainer = activeTest.suite.element.shadowRoot.querySelector('.active-tests');
+    var activeTestsContainer = activeTest.suite.element.querySelector('.active-tests');
     // attributes get applied to the view
     activeTestElement.dataset.description = newTest.description;
     activeTestElement.dataset.testPassed = newTest.testPassed;
@@ -110,7 +123,7 @@ Suite.prototype.createTest = function(rawTest) {
     // let the Test know which element belongs to it
     activeTest.element = activeTestElement;
 
-    activeTestsContainer.appendChild(activeTestElement);
+    activeTestsContainer.appendChild(activeTestFragment);
     return activeTestElement;
   }
 

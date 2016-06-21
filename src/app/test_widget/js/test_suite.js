@@ -43,7 +43,7 @@
     var suiteCode = self.code;
     var numberOfTests = self.dataset.numberOfTests;
 
-    var suite = self.querySelector('.suite');
+    var suite = self;
     var sc = self.querySelector('.suite-code');
 
     var titleEnd = " Test";

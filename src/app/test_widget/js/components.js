@@ -69,6 +69,7 @@ var components = (function() {
     for(var i=0, len=fragment.childNodes.length; i<len; i++) {
       if(fragment.childNodes[i].nodeType !== 8) {
         topNode = fragment.childNodes[i];
+        break;
       }
     }
     // Verifies that there’s at least one node
@@ -95,7 +96,7 @@ var components = (function() {
 
     // proto.attributeChangedCallback
     // This callback is called when an attribute of the container (top most) element changed. It doesn’t include children elements.
-    attributeChangedCb = customElement.proto.attributeChangedCallback;
+    var attributeChangedCb = customElement.proto.attributeChangedCallback;
     if(attributeChangedCb instanceof Function) {
       var observerAttr = new MutationObserver(function(mutations) {
         for(var i = 0, len=mutations.length; i<len; i++) {

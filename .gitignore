@@ -10,3 +10,8 @@ GE.js
 GTAGS
 GRTAGS
 GPATH
+experiments/
+.tern-port
+.tern-project
+log.md
+firefox/

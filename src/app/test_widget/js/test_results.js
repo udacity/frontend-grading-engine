@@ -39,7 +39,7 @@ var testResults = (function() {
      * @param {suite} newSuite - The suite to build
      * @returns {HTMLElement} The newly created suite.
      */
-    var buildSuiteElement = function (newSuite) {
+    buildSuiteElement = function (newSuite) {
       // toggle button and placeholder views
       if (hideShowButton.disabled === true) {
         hideShowButton.removeAttribute('disabled');
@@ -47,14 +47,23 @@ var testResults = (function() {
       placeholder.innerHTML = '';
 
       // actually create the suite
-      var _testSuite = components.createElement('test-suite');
+      var _testSuiteFragment = components.createElement('test-suite');
+      var _testSuite = '';
+
+      // Take the first Node (not a comment)
+      for(var i=0, len=_testSuiteFragment.childNodes.length; i<len; i++) {
+        if(_testSuiteFragment.childNodes[i].nodeType !== 8) {
+          _testSuite = _testSuiteFragment.childNodes[i];
+          break;
+        }
+      }
 
       _testSuite.dataset.name = newSuite.name;
       _testSuite.dataset.suitePassed = false;
       _testSuite.code = newSuite.code;  // to avoid leaving the code as an easy-to-spot attribute
       _testSuite.suite = newSuite;
 
-      testSuites.appendChild(_testSuite);
+      testSuites.appendChild(_testSuiteFragment);
 
       return _testSuite;
     };
