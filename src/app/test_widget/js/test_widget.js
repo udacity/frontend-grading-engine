@@ -11,6 +11,45 @@ var testWidget = (function() {
   'use strict';
   var exports = {};
   var frameId = null;
+  var frameElement = null;
+  var lastWindowHeight = null;
+
+
+  var template = '<!doctype html>'+
+        '<html>' +
+        '  <!-- This is the iFrame base document -->' +
+        '  <head>' +
+        '    <title>Udacity Feedback</title>' +
+        '    <meta charset="UTF-8">' +
+        '    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">' +
+        '    <style>' + innerStyles + '</style>' +
+        '  </head>' +
+        '  <body>' +
+        '    <!-- test-widget component starts here -->' +
+        '    <div class="udacity-header">Udacity Feedback</div>' +
+        '    <div class="view-container">' +
+        '    </div>' +
+        '    <!-- test-widget component ends here -->' +
+        '  </body>' +
+        '</html>' +
+        '<!-- test-widget.html ends here -->';
+
+  /**
+   * Calculate the height of the test-widget could have. It can’t be bigger than the window since it has position of fixed.
+   * @returns {}
+   */
+  var _calculateFrameHeight = function() {
+    var frameHeight = frameDocument().body.scrollHeight;
+    var windowHeight = window.innerHeight;
+    return frameHeight < windowHeight ? frameHeight : windowHeight;
+  };
+
+  var _setFrameHeight = function() {
+    if(window.innerHeight !== lastWindowHeight) {
+      lastWindowHeight = window.innerHeight;
+      frameElement.style.height = _calculateFrameHeight() + 'px';
+    }
+  };
 
   /**
    * Initializes the widget with its random ID (Not really useful) and append the widget to the current Document. The widget is an iFrame
@@ -27,11 +66,20 @@ var testWidget = (function() {
 
         tw.id = frameId;
         tw.className = 'test-widget-display';
-        tw.src = 'test_widget.html';
+        tw.srcdoc = template;
 
         document.body.appendChild(tw);
 
         tw.onload = function() {
+          frameElement = tw;
+
+          // window.addEventListener('resize', function() {
+          //   _setFrameHeight();
+          // });
+
+          // window.setInterval(function() {
+          //   _setFrameHeight();
+          // }, 100);
           resolve(tw);
         };
 
@@ -51,15 +99,20 @@ var testWidget = (function() {
    */
   var buildWidget = function() {
     // Wait for the iFrame to load since it would return null
-    _buildFrame().then(function() {
-      return frameDocument();
-    }).then(function(testWidgetDisplay) {
+    return _buildFrame().then(function() {
+      var testWidgetDisplay = frameDocument();
+
+      var outerCSS = document.createElement('style');
+      outerCSS.innerHTML = outerStyles;
+      document.head.appendChild(outerCSS);
+
       console.log("testWidgetDisplay = ", testWidgetDisplay);
       var viewContainer = testWidgetDisplay.querySelector('.view-container');
       console.log("viewContainer = ", viewContainer);
       // initialize the view options
       var testResultsElem = components.createElement('test-results');
       viewContainer.appendChild(testResultsElem);
+      Promise.resolve();
     });
   };
 

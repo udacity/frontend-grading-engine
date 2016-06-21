@@ -1,9 +1,9 @@
 /*
-  Expose functions that create and monitor tests.
-*/
+ Expose functions that create and monitor tests.
+ */
 
 /*
-The hotel simply changes the attributes on each web component
+ The hotel simply changes the attributes on each web component
  */
 var hotel = {
   occupiedSuites: [],
@@ -114,9 +114,10 @@ function startTests() {
 
 function turnOn() {
   if (!isOn) {
-    testWidget.buildWidget();
-    isOn = true;
-    startTests();
+    testWidget.buildWidget().then(function() {
+      isOn = true;
+      startTests();
+    });
   }
 };
 

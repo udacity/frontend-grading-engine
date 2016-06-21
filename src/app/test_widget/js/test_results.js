@@ -63,7 +63,7 @@ var testResults = (function() {
       _testSuite.code = newSuite.code;  // to avoid leaving the code as an easy-to-spot attribute
       _testSuite.suite = newSuite;
 
-      testSuites.appendChild(_testSuite);
+      testSuites.appendChild(_testSuiteFragment);
 
       return _testSuite;
     };

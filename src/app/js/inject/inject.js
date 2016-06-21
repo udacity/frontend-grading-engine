@@ -11,10 +11,10 @@ function importFeedbackWidget() {
   var twLink = document.querySelector('link#udacity-test-widget');
 
   if (!twLink) {
-    return injectIntoDocument('link', {
-      rel: 'import',
-      href: chrome.extension.getURL('app/templates/feedback.html'),
-      id: 'udacity-test-widget'
+    return injectIntoDocument('script', {
+      src: chrome.extension.getURL('app/templates/components.js'),
+      id: 'udacity-test-widget',
+      defer: 'defer'
     }, 'head');
   } else {
     return Promise.resolve();
@@ -28,6 +28,7 @@ function importFeedbackWidget() {
 function injectGradingEngine() {
   return injectIntoDocument('script', {
     src: chrome.extension.getURL('app/js/libs/GE.js'),
+    defer: 'defer',
     id: 'udacity-front-end-feedback'
   });
 }
@@ -50,7 +51,7 @@ function loadLibraries() {
   var loadedLibs = 0;
   return Promise.all(
     libraries.map(function(lib) {
-      return injectIntoDocument('script', {src: chrome.extension.getURL('app/js/libs/' + lib + '.js')});
+      return injectIntoDocument('script', {src: chrome.extension.getURL('app/js/libs/' + lib + '.js'), defer: 'defer'});
     })
   );
 }
@@ -113,7 +114,7 @@ function registerTestSuites(json) {
     alert(errorMsg);
     throw new Error(errorMsg);
   } else {
-    return injectIntoDocument('script', {text: 'UdacityFEGradingEngine.registerSuites(' + json + ');'});
+    return injectIntoDocument('script', {text: 'UdacityFEGradingEngine.registerSuites(' + json + ');', defer: 'defer'});
   }
 }
 
@@ -130,7 +131,7 @@ function loadUnitTests() {
     return Promise.resolve();
   }
 
-  return injectIntoDocument('script', {src: unitTests});
+  return injectIntoDocument('script', {src: unitTests, defer: 'defer'});
 }
 
 /**
