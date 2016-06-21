@@ -14,6 +14,146 @@ var testWidget = (function() {
   var frameElement = null;
   var lastWindowHeight = null;
 
+  var outerStyles = '/* The iFrame class. Note that an iFrame acts like a normal element */' +
+        '.test-widget-display {' +
+        'position: fixed;' +
+        'min-width: 325px;' +
+        'max-width: 500px;' +
+        'max-height: 100%;' +
+        'overflow-y: auto;' +
+
+        'border: none;' +
+
+        'background-color: rgba(230, 230, 230, 0.9);' +
+        'opacity: 0.5;' +
+        'transition: opacity 0.3s, max-height 0.3s;' +
+        '' +
+        'top: 0px;' +
+        'right: 0px;' +
+        'padding: 0.5em;' +
+        'text-align: left;' +
+        'z-index: 99999 !important;' +
+        '}' +
+
+        '.test-widget-display:hover {' +
+        'opacity: 1;' +
+        '}';
+
+  var innerStyles = '* {' +
+        'font-family: "Source Sans Pro", sans-serif;' +
+        '}' +
+
+        'img {' +
+        'height: 2.25em;' +
+        'margin-bottom: -0.75em;' +
+        '}' +
+
+        '.udacity-header {' +
+        'font-size: 2em;' +
+        '}' +
+
+        '.test-desc {' +
+        'width: 100%;' +
+        '}' +
+
+        '.correct {' +
+        'color: #060;' +
+        '-webkit-animation-duration: 0.5s;' +
+        '-webkit-animation-name: popin;' +
+        'animation-duration: 0.5s;' +
+        'animation-name: popin;' +
+        '}' +
+
+        '.correct::before {' +
+        'content: "✓ ";' +
+        '}' +
+
+        '.incorrect {' +
+        'color: #900;' +
+        '}' +
+
+        '.incorrect::before {' +
+        'content: "✗ ";' +
+        '}' +
+
+        '.error {' +
+        'color: #a48700;' +
+        '}' +
+
+        '.error::before {' +
+        'content: "?? ";' +
+        '}' +
+
+        '.flex-container {' +
+        'display: flex;' +
+        'justify-content: space-between;' +
+        '}' +
+
+        '.toggle-display {' +
+        'display: inline-block;' +
+        'float: right;' +
+        'height: 2em;' +
+
+        'color: white;' +
+
+        'box-sizing: border-box;' +
+
+        'border-radius: 2px;' +
+        'border-color: #777;' +
+        'border: 1px solid transparent;' +
+
+        'background-color: #777;' +
+
+        'cursor: pointer;' +
+        '}' +
+
+        '.toggle-display:hover:not(:disabled) {' +
+        'border-color: #555;' +
+        'background-color: #555;' +
+        '}' +
+
+        '.toggle-display:disabled {' +
+        'background-color: #888;' +
+        'color: #ddd;' +
+        '}' +
+
+        '.hide {' +
+        'max-height: 0px;' +
+        'overflow: hidden;' +
+        '}' +
+
+        '.shown::before {' +
+        'content: "Hide";' +
+        '}' +
+
+        '.hidden::before {' +
+        'content: "Show";' +
+        '}' +
+
+        '.suite-code {' +
+        'background: rgba(0,0,0,0.6);' +
+        'color: #eee;' +
+        'margin: 6px -0.5em;' +
+        '}' +
+        '.suite-code > div {' +
+        'padding: 6px 0.5em;' +
+        'text-align: center;' +
+        '}' +
+
+        '/* Custom animation for the iFrame */' +
+        '@keyframes popin {' +
+        'from {' +
+        'font-size: 1em;' +
+        '}' +
+
+        '25% {' +
+        'font-size: 1.5em;' +
+        '}' +
+
+        'to {' +
+        'font-size: 1em;' +
+        '}' +
+        '}';
 
   var template = '<!doctype html>'+
         '<html>' +
