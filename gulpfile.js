@@ -112,7 +112,13 @@ gulp.task('chromium', ['app'], function() {
     .pipe(debug({title: 'copied Chromium’s manifest:'}));
 });
 
-gulp.task('default', ['chromium', 'ui', 'inject', 'ui_v2', 'components', 'icons', 'GE']);
+gulp.task('firefox', ['app'], function() {
+  return gulp.src('firefox/manifest.json')
+    .pipe(gulp.dest(build + 'ext/'))
+    .pipe(debug({title: 'copied Firefox’s manifest:'}));
+});
+
+gulp.task('default', ['firefox', 'ui', 'inject', 'ui_v2', 'components', 'icons', 'GE']);
 
 gulp.task('watch', function() {
   gulp.start('default');
