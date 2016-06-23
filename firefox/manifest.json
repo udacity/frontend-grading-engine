@@ -1,6 +1,5 @@
 {
   "name": "Udacity Front End Feedback",
-  "short_name": "Udacity Feedback",
   "version": "0.2.2",
   "applications": {
     "gecko": {
@@ -18,11 +17,13 @@
     "64": "icons/udacity-official64.png",
     "128": "icons/udacity-official128.png"
   },
-  "options_ui": "app/options/index.html",
   "browser_action": {
     "default_icon": "icons/udacity-official48.png",
     "default_title": "Udacity Feedback",
     "default_popup": "app/browser_action/browser_action.html"
+  },
+  "background": {
+    "scripts": ["app/js/background.js"]
   },
   "permissions": [
     "tabs",
@@ -43,6 +44,6 @@
   "web_accessible_resources": [
     "app/js/*.js",
     "app/js/libs/*.js",
-    "app/templates/*.html"
+    "app/templates/*.js"
   ]
 }
