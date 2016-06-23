@@ -94,9 +94,11 @@ function StateManager() {
    */
   this.isSiteOnWhitelist = function() {
     var self = this;
+    self.isAllowed = false;
     return new Promise(function(resolve, reject) {
       chrome.storage.sync.get('whitelist', function(response) {
         self.whitelist = response.whitelist;
+        console.log(self.whitelist);
         if (!(self.whitelist instanceof Array)) {
           self.whitelist = [self.whitelist];
         }
@@ -125,6 +127,7 @@ function StateManager() {
       self.isAllowed = true;
       var data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
+        debugger;
         resolve();
       });
     });
@@ -145,6 +148,7 @@ function StateManager() {
       self.isAllowed = false;
       var data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
+        debugger;
         resolve();
       });
     });
