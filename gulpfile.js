@@ -29,15 +29,6 @@ var injectJsFiles = [
   'src/app/js/inject/outro.js'
 ];
 
-var webComponents = [
-  'src/webcomponents/intro.html',
-  'src/webcomponents/active-test.html',
-  'src/webcomponents/test-results.html',
-  'src/webcomponents/test-suite.html',
-  'src/webcomponents/test-widget.html',
-  'src/webcomponents/outro.html',
-];
-
 var components = [
   'src/app/test_widget/js/components.js',
   'src/app/test_widget/js/test_suite.js',
@@ -53,15 +44,7 @@ var ui_v2 = [
 
 var iconFiles = 'src/icons/*.png';
 
-var allFiles = jsFiles.concat(webComponents);
-
-// User interface for Chrome. It should be refactored to work on all browsers.
-gulp.task('ui', function() {
-  return gulp.src(webComponents)
-    .pipe(concat('feedback.html'))
-    .pipe(gulp.dest(build + 'ext/app/templates/'))
-    .pipe(debug({title: 'built feedback: '}));
-});
+var allFiles = jsFiles.concat(injectJsFiles, components, ui_v2);
 
 // Native components (see components.js)
 gulp.task('components', function() {
@@ -118,7 +101,7 @@ gulp.task('firefox', ['app'], function() {
     .pipe(debug({title: 'copied Firefox’s manifest:'}));
 });
 
-gulp.task('default', ['firefox', 'ui', 'inject', 'ui_v2', 'components', 'icons', 'GE']);
+gulp.task('default', ['firefox', 'inject', 'ui_v2', 'components', 'icons', 'GE']);
 
 gulp.task('watch', function() {
   gulp.start('default');
