@@ -65,6 +65,7 @@ function loadJSONTestsFromFile() {
     return new Promise(function(resolve, reject) {
       // http://stackoverflow.com/a/14274828
       var xmlhttp = new XMLHttpRequest();
+      var url = document.URL.substr(0, document.URL.lastIndexOf('/') + 1) + metaTag.content;
       xmlhttp.onreadystatechange = function() {
         if (xmlhttp.status == 200 && xmlhttp.readyState == 4) {
           resolve(xmlhttp.responseText);
@@ -72,7 +73,7 @@ function loadJSONTestsFromFile() {
           reject(false);
         }
       };
-      xmlhttp.open('GET', metaTag.content, true);
+      xmlhttp.open('GET', url, true);
       xmlhttp.send();
     });
   } else {
@@ -139,6 +140,7 @@ function loadUnitTests() {
  * @returns {Promise}
  */
 function turnOn() {
+  console.log('Turned on from turnOn()');
   return injectIntoDocument('script', {
     id: 'ud-grader-options',
     innerHTML: 'UdacityFEGradingEngine.turnOn();'
