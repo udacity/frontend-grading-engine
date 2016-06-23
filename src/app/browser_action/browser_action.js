@@ -35,7 +35,7 @@ function sendDataToTab(data, type, callback) {
     var activeTab = arrayOfTabs[0];
     var activeTabId = activeTab.id;
     var message = {'data': data, 'type': type};
-    chrome.tabs.sendMessage(activeTabId, message, function (response) {
+    chrome.tabs.sendMessage(activeTabId, message, {}, function (response) {
       if (callback) {
         callback(response);
       }
