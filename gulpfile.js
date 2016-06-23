@@ -22,11 +22,11 @@ var jsFiles = [
 ];
 
 var injectJsFiles = [
-  'src/app/js/inject/intro.js',
+  'firefox/inject/intro.js',
   'src/app/js/inject/helpers.js',
   'src/app/js/inject/StateManager.js',
   'src/app/js/inject/inject.js',
-  'src/app/js/inject/outro.js'
+  'firefox/inject/outro.js'
 ];
 
 var components = [
