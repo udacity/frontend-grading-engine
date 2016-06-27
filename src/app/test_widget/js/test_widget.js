@@ -12,6 +12,7 @@ var testWidget = (function() {
   var exports = {};
   var frameId = null;
   var frameElement = null;
+  var lastFrameHeight = 0;
   var lastWindowHeight = null;
 
   var outerStyles = '/* The iFrame class. Note that an iFrame acts like a normal element */' +
@@ -32,7 +33,6 @@ var testWidget = (function() {
         '' +
         'top: 0px;' +
         'right: 0px;' +
-        'padding: 0.5em;' +
         'text-align: left;' +
         'z-index: 99999 !important;' +
         '}' +
@@ -43,6 +43,10 @@ var testWidget = (function() {
 
   var innerStyles = '* {' +
         'font-family: "Source Sans Pro", sans-serif;' +
+        '}' +
+        'body {' +
+        'padding: 0.5em;' +
+        'margin: 0;' +
         '}' +
 
         'img {' +
@@ -97,7 +101,6 @@ var testWidget = (function() {
         'height: 2em;' +
 
         'color: white;' +
-
         'box-sizing: border-box;' +
 
         'border-radius: 2px;' +
@@ -135,7 +138,7 @@ var testWidget = (function() {
         '.suite-code {' +
         'background: rgba(0,0,0,0.6);' +
         'color: #eee;' +
-        'margin: 6px -0.5em;' +
+        'margin: 0.5em -0.5em;' +
         '}' +
         '.suite-code > div {' +
         'padding: 6px 0.5em;' +
@@ -181,16 +184,42 @@ var testWidget = (function() {
    * @returns {}
    */
   var _calculateFrameHeight = function() {
-    var frameHeight = _frameDocument().body.scrollHeight;
+    var frameHeight = _frameDocument().body.offsetHeight;
     var windowHeight = window.innerHeight;
     return frameHeight < windowHeight ? frameHeight : windowHeight;
   };
 
   var _setFrameHeight = function() {
-    if(window.innerHeight !== lastWindowHeight) {
+    var frameHeight = _calculateFrameHeight();
+    console.log("frameHeight = ", frameHeight);
+
+    if(window.innerHeight !== lastWindowHeight || frameHeight !== lastFrameHeight) {
       lastWindowHeight = window.innerHeight;
-      frameElement.style.height = _calculateFrameHeight() + 'px';
+      lastFrameHeight = frameHeight;
+      frameElement.style.height =  frameHeight + 'px';
+      console.log("frameElement.style.height = ", frameElement.style.height);
     }
+    console.log("lastFrameHeight = ", lastFrameHeight);
+    console.log("lastWindowHeight = ", lastWindowHeight);
+  };
+
+  var _getVerticalMargins = function(el) {
+    return parseFloat(el.style.marginTop) +
+      parseFloat(el.style.marginBottom);
+  };
+  /**
+   * Execute a callback function when the iFrame document changes.
+   * @param {function} callback - The callback to call when the iFrame document changes.
+   */
+  var _onFrameChange = function(callback) {
+    var frameDocument = _frameDocument();
+    var observer = new MutationObserver(function(mutations) {
+      debugger;
+      // console.log('Inside _onFrameChange MutationObserver. Mutation: ', mutations[i]);
+      // console.log('Callback: ', callback.toString());
+      callback();
+    });
+    observer.observe(frameDocument, {childList: true, attributes: true, characterData: true, subtree: true});
   };
 
   /**
@@ -215,13 +244,11 @@ var testWidget = (function() {
         tw.onload = function() {
           frameElement = tw;
 
-          // window.addEventListener('resize', function() {
-          //   _setFrameHeight();
-          // });
+          window.addEventListener('resize', function() {
+            _setFrameHeight();
+          });
 
-          // window.setInterval(function() {
-          //   _setFrameHeight();
-          // }, 100);
+          _onFrameChange(_setFrameHeight);
           resolve(tw);
         };
 
