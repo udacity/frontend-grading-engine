@@ -181,7 +181,7 @@ var testWidget = (function() {
    * @returns {}
    */
   var _calculateFrameHeight = function() {
-    var frameHeight = frameDocument().body.scrollHeight;
+    var frameHeight = _frameDocument().body.scrollHeight;
     var windowHeight = window.innerHeight;
     return frameHeight < windowHeight ? frameHeight : windowHeight;
   };
@@ -239,10 +239,10 @@ var testWidget = (function() {
   /**
    * Calls {@link _buildFrame} and initialize {@link testResults}.
    */
-  var buildWidget = function() {
+  var _buildWidget = function() {
     // Wait for the iFrame to load since it would return null
     return _buildFrame().then(function() {
-      var testWidgetDisplay = frameDocument();
+      var testWidgetDisplay = _frameDocument();
 
       var outerCSS = document.createElement('style');
       outerCSS.innerHTML = outerStyles;
@@ -261,7 +261,7 @@ var testWidget = (function() {
   /**
    * Removes the widget from the current Document.
    */
-  var killWidget = function() {
+  var _killWidget = function() {
     var tw = document.getElementById(frameId);
 
     document.body.removeChild(tw);
@@ -272,7 +272,7 @@ var testWidget = (function() {
    * Get the widget document. It prevents direct access to the iFrame.
    * @returns {Document}
    */
-  var frameDocument = function() {
+  var _frameDocument = function() {
     return _frameContext().document;
   };
 
@@ -297,11 +297,11 @@ var testWidget = (function() {
   };
 
   return {
-    buildWidget: buildWidget,
-    killWidget: killWidget,
+    buildWidget: _buildWidget,
+    killWidget: _killWidget,
 
     // TODO: Doesn’t seem to be used outside
-    frameDocument: frameDocument
+    frameDocument: _frameDocument
   };
 })();
 
