@@ -36,6 +36,7 @@ function StateManager() {
           currentlyInjecting = false;
           return Promise.resolve();
         }, function(e) {
+          debugger;
           console.log(e);
           throw new Error('Something went wrong loading Udacity Feedback. Please reload.');
         });

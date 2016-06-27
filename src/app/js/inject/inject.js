@@ -8,9 +8,9 @@ var metaTag = document.querySelector('meta[name="udacity-grader"]');
  * @returns {Promise}
  */
 function importFeedbackWidget() {
-  var twLink = document.querySelector('link#udacity-test-widget');
+  var twScript = document.querySelector('script#udacity-test-widget');
 
-  if (!twLink) {
+  if (!twScript) {
     return injectIntoDocument('script', {
       src: chrome.extension.getURL('app/templates/components.js'),
       id: 'udacity-test-widget',
