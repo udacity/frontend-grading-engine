@@ -189,6 +189,9 @@ var testWidget = (function() {
     return frameHeight < windowHeight ? frameHeight : windowHeight;
   };
 
+  /**
+   * Set the `testWidget` frame element height to its inner height (height of child document).
+   */
   var _setFrameHeight = function() {
     var frameHeight = _calculateFrameHeight();
     console.log("frameHeight = ", frameHeight);
@@ -203,10 +206,6 @@ var testWidget = (function() {
     console.log("lastWindowHeight = ", lastWindowHeight);
   };
 
-  var _getVerticalMargins = function(el) {
-    return parseFloat(el.style.marginTop) +
-      parseFloat(el.style.marginBottom);
-  };
   /**
    * Execute a callback function when the iFrame document changes.
    * @param {function} callback - The callback to call when the iFrame document changes.
