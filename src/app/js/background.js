@@ -3,7 +3,7 @@
  */
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  debugger;
+  // debugger;
   console.group();
   console.log("sendResponse = ", sendResponse.toString());
   console.log("sender = ", sender);
@@ -17,14 +17,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   switch(message.type) {
   case 'chrome.storage.local.get':
     chrome.storage.local.get(message.data, function(response) {
-      debugger;
+      // debugger;
       sendResponse(response);
     });
     break;
 
   case 'chrome.storage.local.set':
     chrome.storage.local.set(message.data, function(response) {
-      debugger;
+      // debugger;
       response = chrome.runtime.lastError ? {status: 1, error: chrome.runtime.lastError.message} : {status: 0};
       sendResponse(response);
     });

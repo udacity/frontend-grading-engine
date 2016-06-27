@@ -27,7 +27,7 @@ function handleFileSelect(evt) {
 };
 
 function sendDataToTab(data, type, callback) {
-  debugger;
+  // debugger;
   // get the current tab then send data to it
   chrome.tabs.query({active: true, currentWindow: true}, fireOffData);
 

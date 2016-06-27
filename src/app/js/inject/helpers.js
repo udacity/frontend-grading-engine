@@ -10,7 +10,7 @@
  * @return {Promise}
  */
 function injectIntoDocument(tag, data, location) {
-  debugger;
+  // debugger;
   location = location || 'body';
   return new Promise(function(resolve, reject) {
     var newTag = document.createElement(tag);

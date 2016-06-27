@@ -36,7 +36,7 @@ function StateManager() {
           currentlyInjecting = false;
           return Promise.resolve();
         }, function(e) {
-          debugger;
+          // debugger;
           console.log(e);
           throw new Error('Something went wrong loading Udacity Feedback. Please reload.');
         });
@@ -84,7 +84,7 @@ function StateManager() {
       self.isAllowed = true;
       var data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
-        debugger;
+        // debugger;
         resolve();
       });
     });
@@ -105,7 +105,7 @@ function StateManager() {
       self.isAllowed = false;
       var data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
-        debugger;
+        // debugger;
         resolve();
       });
     });
