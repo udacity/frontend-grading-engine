@@ -140,7 +140,7 @@ function loadUnitTests() {
  * @returns {Promise}
  */
 function turnOn() {
-  console.log('Turned on from turnOn()');
+  // console.log('Turned on from turnOn()');
   return injectIntoDocument('script', {
     id: 'ud-grader-options',
     innerHTML: 'UdacityFEGradingEngine.turnOn();'

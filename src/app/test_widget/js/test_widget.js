@@ -191,16 +191,16 @@ var testWidget = (function() {
    */
   var _setFrameHeight = function() {
     var frameHeight = _calculateFrameHeight();
-    console.log("frameHeight = ", frameHeight);
+    // console.log("frameHeight = ", frameHeight);
 
     if(window.innerHeight !== lastWindowHeight || frameHeight !== lastFrameHeight) {
       lastWindowHeight = window.innerHeight;
       lastFrameHeight = frameHeight;
       frameElement.style.height =  frameHeight + 'px';
-      console.log("frameElement.style.height = ", frameElement.style.height);
+      // console.log("frameElement.style.height = ", frameElement.style.height);
     }
-    console.log("lastFrameHeight = ", lastFrameHeight);
-    console.log("lastWindowHeight = ", lastWindowHeight);
+    // console.log("lastFrameHeight = ", lastFrameHeight);
+    // console.log("lastWindowHeight = ", lastWindowHeight);
   };
 
   /**
@@ -210,7 +210,7 @@ var testWidget = (function() {
   var _onFrameChange = function(callback) {
     var frameDocument = _frameDocument();
     var observer = new MutationObserver(function(mutations) {
-      debugger;
+      // debugger;
       // console.log('Inside _onFrameChange MutationObserver. Mutation: ', mutations[i]);
       // console.log('Callback: ', callback.toString());
       callback();
@@ -274,9 +274,9 @@ var testWidget = (function() {
       outerCSS.innerHTML = outerStyles;
       document.head.appendChild(outerCSS);
 
-      console.log("testWidgetDisplay = ", testWidgetDisplay);
+      // console.log("testWidgetDisplay = ", testWidgetDisplay);
       var viewContainer = testWidgetDisplay.querySelector('.view-container');
-      console.log("viewContainer = ", viewContainer);
+      // console.log("viewContainer = ", viewContainer);
       // initialize the view options
       var testResultsElem = components.createElement('test-results');
       viewContainer.appendChild(testResultsElem);

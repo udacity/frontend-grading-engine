@@ -4,11 +4,11 @@
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   // debugger;
-  console.group();
-  console.log("sendResponse = ", sendResponse.toString());
-  console.log("sender = ", sender);
-  console.log("message = ", message);
-  console.groupEnd();
+  // console.group();
+  // console.log("sendResponse = ", sendResponse.toString());
+  // console.log("sender = ", sender);
+  // console.log("message = ", message);
+  // console.groupEnd();
 
   if(!message)  {
     Promise.reject();

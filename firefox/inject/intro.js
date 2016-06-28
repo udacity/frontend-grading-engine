@@ -12,8 +12,8 @@ chrome.storage = {
      */
     get: function(keys, callback) {
       // debugger;
-      console.log(callback);
-      console.log(callback.toString());
+      // console.log(callback);
+      // console.log(callback.toString());
       var message = {};
       message.data = keys;
       message.type = 'chrome.storage.local.get';
@@ -22,13 +22,13 @@ chrome.storage = {
 
       function localHandleGet(response) {
         // debugger;
-        console.log('localHandleGet');
+        // console.log('localHandleGet');
         callback(response);
       }
     },
     set: function(object, callback) {
       // debugger;
-      console.log("chrome.storage.sync.set object = ", object);
+      // console.log("chrome.storage.sync.set object = ", object);
       var message = {};
 
       message.type = 'chrome.storage.local.set';
@@ -36,7 +36,7 @@ chrome.storage = {
       chrome.runtime.sendMessage(null, message, {}, localHandleSet);
       function localHandleSet(response) {
         // debugger;
-        console.log('localHandleSet');
+        // console.log('localHandleSet');
         if(response.status) {
           throw new Error('Error: ' + response.message);
         }

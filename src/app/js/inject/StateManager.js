@@ -55,7 +55,7 @@ function StateManager() {
     return new Promise(function(resolve, reject) {
       chrome.storage.sync.get('whitelist', function(response) {
         self.whitelist = response.whitelist;
-        console.log(self.whitelist);
+        // console.log(self.whitelist);
         if (!(self.whitelist instanceof Array)) {
           self.whitelist = [self.whitelist];
         }
