@@ -160,24 +160,21 @@ var testWidget = (function() {
         '}' +
         '}';
 
-  var template = '<!doctype html>'+
-        '<html>' +
-        '  <!-- This is the iFrame base document -->' +
-        '  <head>' +
-        '    <title>Udacity Feedback</title>' +
-        '    <meta charset="UTF-8">' +
-        '    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">' +
-        '    <style>' + innerStyles + '</style>' +
-        '  </head>' +
-        '  <body>' +
-        '    <!-- test-widget component starts here -->' +
-        '    <div class="udacity-header">Udacity Feedback</div>' +
-        '    <div class="view-container">' +
-        '    </div>' +
-        '    <!-- test-widget component ends here -->' +
-        '  </body>' +
-        '</html>' +
-        '<!-- test-widget.html ends here -->';
+  var template = {
+    head: '    <title>Udacity Feedback</title>' +
+      '    <meta charset="UTF-8">' +
+      '    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">' +
+      '    <style>' + innerStyles + '</style>' +
+      '  </head>',
+    body: '  <body>' +
+      '    <!-- test-widget component starts here -->' +
+      '    <div class="udacity-header">Udacity Feedback</div>' +
+      '    <div class="view-container">' +
+      '    </div>' +
+      '    <!-- test-widget component ends here -->' +
+      '  </body>' +
+      '<!-- test-widget.html ends here -->'
+  };
 
   /**
    * Calculate the height of the test-widget could have. It can’t be bigger than the window since it has position of fixed.
@@ -236,7 +233,7 @@ var testWidget = (function() {
 
         tw.id = frameId;
         tw.className = 'test-widget-display';
-        tw.srcdoc = template;
+        tw.srcdoc = '';
 
         document.body.appendChild(tw);
 
@@ -269,6 +266,9 @@ var testWidget = (function() {
     // Wait for the iFrame to load since it would return null
     return _buildFrame().then(function() {
       var testWidgetDisplay = _frameDocument();
+
+      testWidgetDisplay.head.innerHTML = template.head;
+      testWidgetDisplay.body.innerHTML = template.body;
 
       var outerCSS = document.createElement('style');
       outerCSS.innerHTML = outerStyles;
