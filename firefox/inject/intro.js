@@ -1,5 +1,8 @@
 /**
- * @fileoverview This file contains the opening statements of `inject.js` for Firefox.
+ * @fileOverview This file contains the opening statements of `inject.js` for Firefox.
+ * @name intro.js<firefox>
+ * @author Etienne Prud’homme
+ * @license MIT
  */
 
 // chrome = browser;
@@ -46,4 +49,4 @@ chrome.storage = {
   }
 };
 
-// intro.js ends here
+// intro.js<firefox> ends here

@@ -1,5 +1,8 @@
 /**
- * @fileoverview This file registers the `test-results` component. This component is the main container and contains procedures for creating new `suites`. `test-results.js`, `test-widget.js`, `test-suite.js` should have executed already.
+ * @fileOverview This file registers the `test-results` component. This component is the main container and contains procedures for creating new `suites`. {@link test-results.js}, {@link test-widget.js}, {@link test-suite.js} should have executed already.
+ * @name test_results.js
+ * @author Etienne Prud’homme
+ * @license MIT
  */
 
 /**

@@ -1,5 +1,8 @@
 /**
- * @fileoverview This file contains a custom function for emulating Web Components callbacks.
+ * @fileOverview This file contains a custom function for emulating Web Components callbacks.
+ * @name components.js
+ * @author Etienne Prud’homme
+ * @license MIT
  */
 
 /**

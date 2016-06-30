@@ -1,3 +1,10 @@
+/**
+ * @fileOverview This file contains procedures to inject and import the Grading Engine and its widgets.
+ * @name inject.js<inject>
+ * @author Cameron Pittman
+ * @license MIT
+ */
+
 var injectedElementsOnPage = [];
 
 // start load sequence
@@ -196,4 +203,4 @@ window.addEventListener('GE-on', function() {
   }
 });
 
-// inject.js ends here
+// inject.js<inject> ends here

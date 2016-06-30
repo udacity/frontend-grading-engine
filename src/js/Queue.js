@@ -1,7 +1,10 @@
 /**
- * @fileoverview This file contains a `queue` Data Structure implementation for chaining promises.
+ * @fileOverview This file contains a `queue` Data Structure implementation for chaining promises.
  * @see http://www.dustindiaz.com/async-method-queues
  * @see http://www.mattgreer.org/articles/promises-in-wicked-detail/
+ * @name Queue.js<GE>
+ * @author Cameron Pittman
+ * @license MIT
  */
 
 /**
@@ -64,4 +67,4 @@ Queue.prototype = {
   }
 };
 
-// Queue.js ends here
+// Queue.js<GE> ends here

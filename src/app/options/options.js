@@ -1,3 +1,10 @@
+/**
+ * @fileOverview Functions to manage the extension options from an option page.
+ * @name options.js
+ * @author Cameron Pittman
+ * @license MIT
+ */
+
 var wlSites = document.querySelector('#wl-sites');
 var removeSitesDatalist = document.querySelector('#remove-site');
 
@@ -87,3 +94,5 @@ siteToRemove.onkeyup = function(e) {
 		.then(refreshDisplay);
 	}
 };
+
+// options.js ends here

@@ -1,5 +1,8 @@
 /**
- * @fileoverview This file contains various functions that aren’t specific to the current extension.
+ * @fileOverview This file contains various functions that aren’t specific to the current extension.
+ * @name helpers.js<inject>
+ * @author Cameron Pittman
+ * @license MIT
  */
 
 /**
@@ -43,4 +46,4 @@ function injectIntoDocument(tag, data, location) {
   });
 }
 
-// helpers.js ends here
+// helpers.js<inject> ends here
