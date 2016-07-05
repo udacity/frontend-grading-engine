@@ -5,6 +5,7 @@ var concat = require('gulp-concat');
 var debug = require('gulp-debug');
 var batch = require('gulp-batch');
 var uglify = require('gulp-uglify');
+var clean = require('gulp-clean');
 var mv = require('mv');
 
 var currentBrowser;
@@ -201,7 +202,14 @@ gulp.task('firefox', gulpsync.sync(['_firefox', ['manifest', 'background-script'
   return log('Firefox files to: ' + browserBuild);
 });
 
-gulp.task('default', gulpsync.sync(['firefox', 'chromium']));
+// "clean" = Clean the build directory. Otherwise `mv` would throw an error.
+gulp.task('clean', function() {
+  return gulp.src('./build/', {read: false})
+    .pipe(clean())
+    .pipe(debug({title: 'cleaned ' + build}));
+});
+
+gulp.task('default', gulpsync.sync(['clean', 'firefox', 'chromium']));
 
 gulp.task('watch', function() {
   gulp.start('default');
