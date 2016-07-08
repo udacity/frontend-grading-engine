@@ -1,13 +1,21 @@
 /**
- * @fileOverview This file contains procedures to inject and import the Grading Engine and its widgets.
+ * @fileoverview This file manages the injection of several JavaScript files. It contains most procedure for injecting those files, but doesn’t handle the conditional injection part.
  * @name inject.js<inject>
  * @author Cameron Pittman
+ *         Etienne Prud’homme
  * @license MIT
  */
 
+/**
+ * List of items id that were injected in the page. It is used to later remove them.
+ * @type {string[]}
+ */
 var injectedElementsOnPage = [];
 
-// start load sequence
+/**
+ * The meta tag that is used to load and activate a file of tests.
+ * @type {Element}
+ */
 var metaTag = document.querySelector('meta[name="udacity-grader"]');
 
 /**
@@ -20,8 +28,7 @@ function importFeedbackWidget() {
   if (!twScript) {
     return injectIntoDocument('script', {
       src: chrome.extension.getURL('app/templates/components.js'),
-      id: 'udacity-test-widget',
-      defer: 'defer'
+      id: 'udacity-test-widget'
     }, 'head');
   } else {
     return Promise.resolve();
@@ -35,9 +42,8 @@ function importFeedbackWidget() {
 function injectGradingEngine() {
   return injectIntoDocument('script', {
     src: chrome.extension.getURL('app/js/libs/GE.js'),
-    defer: 'defer',
     id: 'udacity-front-end-feedback'
-  });
+  }, 'head');
 }
 
 /**
@@ -58,7 +64,7 @@ function loadLibraries() {
   var loadedLibs = 0;
   return Promise.all(
     libraries.map(function(lib) {
-      return injectIntoDocument('script', {src: chrome.extension.getURL('app/js/libs/' + lib + '.js'), defer: 'defer'});
+      return injectIntoDocument('script', {src: chrome.extension.getURL('app/js/libs/' + lib + '.js')}, 'head');
     })
   );
 }
@@ -122,7 +128,7 @@ function registerTestSuites(json) {
     alert(errorMsg);
     throw new Error(errorMsg);
   } else {
-    return injectIntoDocument('script', {text: 'UdacityFEGradingEngine.registerSuites(' + json + ');', defer: 'defer'});
+    return injectIntoDocument('script', {text: 'UdacityFEGradingEngine.registerSuites(' + json + ');'}, 'head');
   }
 }
 
@@ -143,7 +149,7 @@ function loadUnitTests() {
 }
 
 /**
- * Activates the Grading Engine by injecting itself in the Document. Note to be confused with {@link StateManager.turnOn}. This method is called from {@link StateManager~runLoadSequence}.
+ * Activates the Grading Engine by injecting itself in the Document. Not to be confused with {@link StateManager.turnOn}. This method is called from {@link StateManager~runLoadSequence}.
  * @returns {Promise}
  */
 function turnOn() {
@@ -154,10 +160,25 @@ function turnOn() {
   }, 'head');
 }
 
+/**
+ * Stops {@link StateManager~runLoadSequence} until all tests are loaded. This is necessary because the Grading Engine is activated thought the page context. It isn’t a content script like this file.
+ * @todo Add a timeout. If (for some reason) the event is never fired, it would probably block the widget.
+ * @returns {Promise} A `Promise` that fulfills when all tests are loaded
+ */
+function waitForTestRegistrations() {
+  return new Promise(function(resolve, reject) {
+    window.addEventListener('tests-registered', function(data) {
+      // console.log('tests-registered received');
+      return resolve();
+    });
+  });
+}
+
 // StateManager() was here
 
 var stateManager = new StateManager();
 
+// Check if the site is on the Whitelist on page load
 stateManager.isSiteOnWhitelist()
   .then(function(isAllowed) {
     if (isAllowed) {

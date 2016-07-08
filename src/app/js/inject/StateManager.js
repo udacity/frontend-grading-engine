@@ -3,6 +3,7 @@
  * @name StateManager.js<inject>
  * @author Cameron Pittman
  * @license MIT
+ * @todo Add a warning if the widget fails to initialize.
  */
 
 /**
@@ -33,6 +34,8 @@ function StateManager() {
         .then(loadJSONTestsFromFile)
         .then(registerTestSuites)
         .then(turnOn)
+      // This is to prevent UnitTests and other things in the page to execute before all tests are registered
+        .then(waitForTestRegistrations)
         .then(loadUnitTests)
         .then(function() {
           self.geInjected = true;

@@ -86,7 +86,7 @@ var components = (function() {
     // This callback is called when the element is attached to the DOM (i.e. appendChild). It does so because when a DocumentFragment is attached to the DOM, its content is emptied (thus removing its childNodes).
     var attachedCb = customElement.proto.attachedCallback;
     if(attachedCb instanceof Function) {
-      observerAttached = new MutationObserver(function(mutations) {
+      var observerAttached = new MutationObserver(function(mutations) {
         for(var i=0, len=mutations.length; i<len; i++) {
           // When a DocumentFragment is appended, it becomes void
           if(mutations[i].type === 'childList' && fragment.childNodes.length === 0) {

@@ -124,6 +124,8 @@
       "definition": {
         "waitForEvent": "ud-test",
         "exists": true
+      }, "flags": {
+        "noRepeat": true
       }
     },
     {

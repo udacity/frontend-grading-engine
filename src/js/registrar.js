@@ -4,7 +4,8 @@
  * @author Cameron Pittman
  * @license MIT
  */
-
+var numberOfTests = 0,
+    registeredTests = 0;
 /*
  The hotel simply changes the attributes on each web component
  */
@@ -95,21 +96,35 @@ function registerSuites(suitesJSON) {
   }
   if (isOn) {
     startTests();
+    console.log('startTests');
   }
 };
 
 function startTests() {
-  userData.forEach(function (_suite) {
-    var newSuite = registerSuite({
-      name: _suite.name,
-      code: _suite.code
-    });
 
-    _suite.tests.forEach(function (test) {
-      newSuite.registerTest({
-        description: test.description,
-        definition: test.definition,
-        flags: test.flags
+  userData.forEach(function(_suite) {
+    numberOfTests += _suite.tests.length;
+  });
+
+  return new Promise(function(resolve, reject) {
+    userData.forEach(function (_suite) {
+      var newSuite = registerSuite({
+        name: _suite.name,
+        code: _suite.code
+      });
+      _suite.tests.forEach(function (test) {
+        registeredTests++;
+
+        console.log('test number: ', registeredTests);
+        try {
+          newSuite.registerTest({
+            description: test.description,
+            definition: test.definition,
+            flags: test.flags
+          });
+        } catch(e) {
+          console.error(e.message);
+        }
       });
     });
   });
@@ -119,7 +134,17 @@ function turnOn() {
   if (!isOn) {
     testWidget.buildWidget().then(function() {
       isOn = true;
+      console.log('enters startTests');
       startTests();
+
+      if(registeredTests === numberOfTests) {
+        window.dispatchEvent(new CustomEvent('tests-registered', {
+          numberOfTests: numberOfTests
+        }));
+      }
+      console.log('registeredTests = ', registeredTests);
+      console.log('numberOfTests = ', numberOfTests);
+      console.log('leaves startTests');
     });
   }
 };
