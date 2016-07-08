@@ -120,7 +120,7 @@ function startTests() {
             flags: test.flags
           });
         } catch(e) {
-          console.log(e);
+          console.error(e.message);
         }
       });
     });

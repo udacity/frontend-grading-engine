@@ -71,7 +71,7 @@ function ActiveTest(rawTest) {
           method();
         } catch (e) {
           self.hasErred();
-          throw new Error(self.description + ' has an invalid definition.');
+          console.error(self.description + ' has an invalid definition.');
         }
       });
     };
