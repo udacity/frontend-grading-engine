@@ -1,5 +1,8 @@
 /**
- * @fileoverview This file contains the StateManager Class.
+ * @fileOverview This file contains the StateManager Class.
+ * @name StateManager.js<inject>
+ * @author Cameron Pittman
+ * @license MIT
  * @todo Add a warning if the widget fails to initialize.
  */
 
@@ -178,4 +181,4 @@ function StateManager() {
   };
 }
 
-// StateManager.js ends here
+// StateManager.js<inject> ends here

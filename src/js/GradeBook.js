@@ -1,6 +1,9 @@
 /**
-The GradeBook maintains and reports on the state of a set of questions registered by the TA. The GradeBook reports out on the final state of each active_test.
-*/
+ * @fileOverview The GradeBook maintains and reports on the state of a set of questions registered by the TA. The GradeBook reports out on the final state of each active_test.
+ * @name GradeBook.js<GE>
+ * @author Cameron Pittman
+ * @license MIT
+ */
 
 /**
  * The GradeBook constructor sets questions and passed to default values.
@@ -130,4 +133,4 @@ GradeBook.prototype.grade = function(config) {
   return this.report;
 };
 
-// GradeBook.js ends here
+// GradeBook.js<GE> ends here

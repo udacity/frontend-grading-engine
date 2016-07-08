@@ -1,6 +1,6 @@
 /**
  * @fileoverview This file manages the injection of several JavaScript files. It contains most procedure for injecting those files, but doesn’t handle the conditional injection part.
- * @name inject.js
+ * @name inject.js<inject>
  * @author Cameron Pittman
  *         Etienne Prud’homme
  * @license MIT
@@ -224,4 +224,4 @@ window.addEventListener('GE-on', function() {
   }
 });
 
-// inject.js ends here
+// inject.js<inject> ends here

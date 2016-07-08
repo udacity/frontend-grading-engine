@@ -1,5 +1,8 @@
 /**
- * @fileoverview This file contains the prototype of a single running test.
+ * @fileOverview This file contains the prototype of a single running test.
+ * @name ActiveTest.js<GE>
+ * @author Cameron Pittman
+ * @license MIT
  */
 
 // Custom types documentation
@@ -171,4 +174,4 @@ ActiveTest.prototype.stopTest = function() {
   clearInterval(self.gradeRunner);
 };
 
-// ActiveTest.js ends here
+// ActiveTest.js<GE> ends here

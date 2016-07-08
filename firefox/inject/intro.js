@@ -1,6 +1,10 @@
 /**
- * @fileoverview This file contains the opening statements of `inject.js`.
+ * @fileOverview This file contains the opening statements of `inject.js` for Firefox.
+ * @name intro.js<firefox>
+ * @author Etienne Prud’homme
+ * @license MIT
  */
+
 // chrome = browser;
 chrome.storage = {
   sync: {
@@ -8,7 +12,6 @@ chrome.storage = {
      * Gets one or more items from storage.
      * @param {string|string[]|object} [keys] - A single key to get, list of keys to get, or a dictionary specifying default values (see description of the object). An empty list or object will return an empty result object. Pass in null to get the entire contents of storage
      * @param {function} callback - Callback with storage items, or on failure (in which case runtime.lastError will be set).
-     * @returns {}
      */
     get: function(keys, callback) {
       // debugger;
@@ -46,4 +49,4 @@ chrome.storage = {
   }
 };
 
-// intro.js ends here
+// intro.js<firefox> ends here
