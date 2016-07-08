@@ -1,5 +1,6 @@
 /**
  * @fileoverview This file contains the StateManager Class.
+ * @todo Add a warning if the widget fails to initialize.
  */
 
 /**

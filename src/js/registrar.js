@@ -109,9 +109,7 @@ function startTests() {
       });
       _suite.tests.forEach(function (test) {
         registeredTests++;
-        if(registeredTests === 34) {
-          debugger;
-        }
+
         console.log('test number: ', registeredTests);
         try {
           newSuite.registerTest({

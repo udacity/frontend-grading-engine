@@ -1,6 +1,21 @@
+/**
+ * @fileoverview This file manages the injection of several JavaScript files. It contains most procedure for injecting those files, but doesn’t handle the conditional injection part.
+ * @name inject.js
+ * @author Cameron Pittman
+ *         Etienne Prud’homme
+ * @license MIT
+ */
+
+/**
+ * List of items id that were injected in the page. It is used to later remove them.
+ * @type {string[]}
+ */
 var injectedElementsOnPage = [];
 
-// start load sequence
+/**
+ * The meta tag that is used to load and activate a file of tests.
+ * @type {Element}
+ */
 var metaTag = document.querySelector('meta[name="udacity-grader"]');
 
 /**
@@ -136,7 +151,7 @@ function loadUnitTests() {
 }
 
 /**
- * Activates the Grading Engine by injecting itself in the Document. Note to be confused with {@link StateManager.turnOn}. This method is called from {@link StateManager~runLoadSequence}.
+ * Activates the Grading Engine by injecting itself in the Document. Not to be confused with {@link StateManager.turnOn}. This method is called from {@link StateManager~runLoadSequence}.
  * @returns {Promise}
  */
 function turnOn() {
@@ -147,10 +162,16 @@ function turnOn() {
   }, 'head');
 }
 
+/**
+ * Stops {@link StateManager~runLoadSequence} until all tests are loaded. This is necessary because the Grading Engine is activated thought the page context. It isn’t a content script like this file.
+ * @todo Add a timeout. If (for some reason) the event is never fired, it would probably block the widget.
+ * @returns {Promise} A `Promise` that fulfills when all tests are loaded
+ */
 // StateManager() was here
 
 var stateManager = new StateManager();
 
+// Check if the site is on the Whitelist on page load
 stateManager.isSiteOnWhitelist()
   .then(function(isAllowed) {
     if (isAllowed) {
