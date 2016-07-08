@@ -14,6 +14,11 @@ function injectIntoDocument(tag, data, location) {
   location = location || 'body';
   return new Promise(function(resolve, reject) {
     var newTag = document.createElement(tag);
+    // Firefox fix because it considers dynamically injected scripts as async
+    if(tag === 'script') {
+      newTag.async = false;
+    }
+
     if (data) {
       for (a in data) {
         newTag[a] = data[a];

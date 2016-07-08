@@ -28,8 +28,7 @@ function importFeedbackWidget() {
   if (!twScript) {
     return injectIntoDocument('script', {
       src: chrome.extension.getURL('app/templates/components.js'),
-      id: 'udacity-test-widget',
-      defer: 'defer'
+      id: 'udacity-test-widget'
     }, 'head');
   } else {
     return Promise.resolve();
@@ -43,9 +42,8 @@ function importFeedbackWidget() {
 function injectGradingEngine() {
   return injectIntoDocument('script', {
     src: chrome.extension.getURL('app/js/libs/GE.js'),
-    defer: 'defer',
     id: 'udacity-front-end-feedback'
-  });
+  }, 'head');
 }
 
 /**
@@ -66,7 +64,7 @@ function loadLibraries() {
   var loadedLibs = 0;
   return Promise.all(
     libraries.map(function(lib) {
-      return injectIntoDocument('script', {src: chrome.extension.getURL('app/js/libs/' + lib + '.js'), defer: 'defer'});
+      return injectIntoDocument('script', {src: chrome.extension.getURL('app/js/libs/' + lib + '.js')}, 'head');
     })
   );
 }
@@ -130,7 +128,7 @@ function registerTestSuites(json) {
     alert(errorMsg);
     throw new Error(errorMsg);
   } else {
-    return injectIntoDocument('script', {text: 'UdacityFEGradingEngine.registerSuites(' + json + ');', defer: 'defer'});
+    return injectIntoDocument('script', {text: 'UdacityFEGradingEngine.registerSuites(' + json + ');'}, 'head');
   }
 }
 
