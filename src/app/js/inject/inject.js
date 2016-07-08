@@ -165,6 +165,15 @@ function turnOn() {
  * @todo Add a timeout. If (for some reason) the event is never fired, it would probably block the widget.
  * @returns {Promise} A `Promise` that fulfills when all tests are loaded
  */
+function waitForTestRegistrations() {
+  return new Promise(function(resolve, reject) {
+    window.addEventListener('tests-registered', function(data) {
+      // console.log('tests-registered received');
+      return resolve();
+    });
+  });
+}
+
 // StateManager() was here
 
 var stateManager = new StateManager();

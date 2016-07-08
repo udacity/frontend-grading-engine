@@ -1,7 +1,8 @@
 /*
  Expose functions that create and monitor tests.
  */
-
+var numberOfTests = 0,
+    registeredTests = 0;
 /*
  The hotel simply changes the attributes on each web component
  */
@@ -92,6 +93,7 @@ function registerSuites(suitesJSON) {
   }
   if (isOn) {
     startTests();
+    console.log('startTests');
   }
 };
 
@@ -129,7 +131,17 @@ function turnOn() {
   if (!isOn) {
     testWidget.buildWidget().then(function() {
       isOn = true;
+      console.log('enters startTests');
       startTests();
+
+      if(registeredTests === numberOfTests) {
+        window.dispatchEvent(new CustomEvent('tests-registered', {
+          numberOfTests: numberOfTests
+        }));
+      }
+      console.log('registeredTests = ', registeredTests);
+      console.log('numberOfTests = ', numberOfTests);
+      console.log('leaves startTests');
     });
   }
 };
