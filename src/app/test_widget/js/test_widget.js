@@ -280,7 +280,6 @@ var testWidget = (function() {
       // initialize the view options
       var testResultsElem = components.createElement('test-results');
       viewContainer.appendChild(testResultsElem);
-      Promise.resolve();
     });
   };
 
