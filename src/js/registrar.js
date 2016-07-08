@@ -96,17 +96,32 @@ function registerSuites(suitesJSON) {
 };
 
 function startTests() {
-  userData.forEach(function (_suite) {
-    var newSuite = registerSuite({
-      name: _suite.name,
-      code: _suite.code
-    });
 
-    _suite.tests.forEach(function (test) {
-      newSuite.registerTest({
-        description: test.description,
-        definition: test.definition,
-        flags: test.flags
+  userData.forEach(function(_suite) {
+    numberOfTests += _suite.tests.length;
+  });
+
+  return new Promise(function(resolve, reject) {
+    userData.forEach(function (_suite) {
+      var newSuite = registerSuite({
+        name: _suite.name,
+        code: _suite.code
+      });
+      _suite.tests.forEach(function (test) {
+        registeredTests++;
+        if(registeredTests === 34) {
+          debugger;
+        }
+        console.log('test number: ', registeredTests);
+        try {
+          newSuite.registerTest({
+            description: test.description,
+            definition: test.definition,
+            flags: test.flags
+          });
+        } catch(e) {
+          console.log(e);
+        }
       });
     });
   });

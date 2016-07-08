@@ -173,13 +173,13 @@ gulp.task('manifest', function() {
 // "_chromium" = Sets currentBrowser to chromium.
 gulp.task('_chromium', function() {
   currentBrowser = 'chromium';
-  return log('Moved ' + currentBrowser + ' files to: ' + currentBrowser);
+  return log('Set ' + currentBrowser + ' as the current browser');
 });
 
 // "_firefox" = Sets currentBrowser to firefox
 gulp.task('_firefox', function() {
   currentBrowser = 'firefox';
-  return log('Moved ' + currentBrowser + ' files to: ' + currentBrowser);
+  return log('Set ' + currentBrowser + ' as the current browser');
 });
 
 // "chromium" = First run dependencies to build the extension and then
@@ -199,11 +199,12 @@ gulp.task('firefox', gulpsync.sync(['_firefox', ['manifest', 'background-script'
   mv(build.replace('ext/', ''), browserBuild, {mkdirp: true}, function(err) {
     console.log(err);
   });
-  return log('Firefox files to: ' + browserBuild);
+  return log('Moved ' + currentBrowser + ' files to: ' + browserBuild);
 });
 
 // "clean" = Clean the build directory. Otherwise `mv` would throw an error.
 gulp.task('clean', function() {
+log('Cleaned the build directory');
   return gulp.src('./build/', {read: false})
     .pipe(clean())
     .pipe(debug({title: 'cleaned ' + build}));
