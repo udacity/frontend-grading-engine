@@ -118,4 +118,43 @@ function registerTabs() {
     return id;
   }
 }
+
+// Listens to the adapter
+safari.application.addEventListener('chrome.safari.adapter', function(event) {
+  var status;
+  switch(event.name) {
+  case 'chrome.storage.sync.get':
+    status = wrapper.storage.sync.get(event.message.keys);
+
+    if(status === -1) {
+      status = wrapper.runtime.lastError;
+      event.target.page.dispatchMessage('chrome.storage.sync.get', status);
+    }
+    break;
+  case 'chrome.storage.sync.set':
+    status = wrapper.storage.sync.set(event.message.keys);
+
+    if(status === -1) {
+      status = wrapper.runtime.lastError;
+      event.target.page.dispatchMessage('chrome.storage.sync.set', status);
+    }
+    break;
+  case 'chrome.runtime.sendMessage':
+
+    break;
+  case 'chrome.tabs.query':
+    status = wrapper.tabs.query(event.message.query);
+
+    // Note: The docs don’t officially specify throwing lastError
+    if(status === -1) {
+      status = wrapper.runtime.lastError;
+      event.target.page.dispatchEvent('chrome.tabs.query', status);
+    }
+    break;
+  }
+
+  // Since its lifetime is for a callback
+  wrapper.runtime.lastError = undefined;
+}, false);
+
 // background.js<safari>
