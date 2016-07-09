@@ -85,6 +85,27 @@ if (window.top === window) {
       sendMessage: function(tabId, message, options, responseCallback) {
       },
       /**
+       * Whether the tabs have completed loading.
+       * @readonly
+       * @enum {string}
+       */
+      tabStatus: {
+        loading: 'loading',
+        complete: 'complete'
+      },
+      /**
+       * The type of window.
+       * @readonly
+       * @enum {string}
+       */
+      windowType: {
+        normal: 'normal',
+        popup: 'popup',
+        panel: 'panel',
+        app: 'app',
+        devtool: 'devtool'
+      },
+      /**
        * Gets all tabs that have the specified properties, or all tabs if no properties are specified.
        * @param {object} queryInfo
        * @param {bool} [queryInfo.active] - Whether the tabs are active in their windows.
