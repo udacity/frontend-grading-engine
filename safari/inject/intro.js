@@ -71,6 +71,32 @@ if (window.top === window) {
          * @param {chrome.storage.sync.set~callback} [callback] - Callback on success, or on failure (in which case {@link chrome.runtime.lastError} will be set).
          */
         set: function(keys, callback) {
+          /**
+           * Serialize an Object to be supported by Safari when sent as JSON.
+           * @param {object} obj - Any object that will be converted to JSON. It supports RegExp and Date.
+           * @returns {string} The JSON string.
+           */
+          function serialize(obj) {
+            // var topObject = true;
+
+            return JSON.stringify(obj, function(key, value) {
+              // if(topObject) {
+              //   topObject = false;
+              //   return value;
+              // }
+
+              if (value instanceof String || value instanceof RegExp || value instanceof Date) {
+                return value.toString();
+              } else if(value instanceof Array) {
+                return value;
+              }
+              //  else if(value instanceof Object && !topObject) {
+              //   return {};
+              // }
+
+              return value;
+            });
+          }
         }
       }
     },
