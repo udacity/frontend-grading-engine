@@ -47,7 +47,7 @@ var wrapper = {
      * @param {object} queryInfo
      * @param {bool} [queryInfo.active] - TODO Whether the tabs are active in their windows. (Does not necessarily mean the window is focused.)
      * @param {bool} [queryInfo.currentWindow] - TODO Whether the tabs are in the /current window/.
-     * @param {string} tabId - The tab to return
+     * @todo param {string} tabId - The tab to return
      */
   }
 };
@@ -90,15 +90,16 @@ function registerTabs() {
   var tabs = [];
   var status = 0;
 
+  var i, len;
   // Concat tabs from different windows
-  for(var i=0, len=windows.length; i<len; i++) {
+  for(i=0, len=windows.length; i<len; i++) {
     // This way we get a reference of the tab instead of a copy (such as when using concat)
     tabs.push.apply(windows[i].tabs);
   }
 
-  for(var i=0, len=windows[i].length; i<len; i++) {
+  for(i=0, len=windows[i].length; i<len; i++) {
     if(tabs[i].id === undefined) {
-      tabs[id].id = getUniqueTabId(tabs);
+      tabs[i].id = getUniqueTabId(tabs);
       status++;
     }
   }
