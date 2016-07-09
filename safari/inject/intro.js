@@ -51,6 +51,7 @@ if (window.top === window) {
        * @returns {string} The fully-qualified URL.
        */
       getURL: function(url) {
+        return safari.extension.baseURI + url;
       }
     },
     storage: {
