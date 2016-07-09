@@ -29,6 +29,52 @@ var wrapper = {
        * @returns {object} Object with items in their key-value mappings.
        * @throws {error} Error in the {@link keys} argument and sets {@link wrapper.runtime.lastError}.
        */
+      get: function(keys) {
+        var items = {};
+        try {
+          if(!keys) {
+            if(keys === null) {
+              items = safari.extension.settings;
+            } else {
+              // Only `null` can return values, otherwise it’s an empty Object
+              items = {};
+            }
+          } else if(keys instanceof String) {
+            items[keys] = safari.extension[keys];
+          } else if(keys instanceof Array && keys.length > 0) {
+            items = {};
+
+            for(var i=0, len=keys.length; i<len; i++) {
+              if(!(keys instanceof String)) {
+                throw Error('An item of the `keys` array wasn’t a String');
+              }
+              items[keys[i]] = safari.extension.settings[keys[i]];
+            }
+          } else {
+            // Otherwise it can be any Objects.
+            items = {};
+            // Only a coincidence if they got the same names.
+            var keysArray = Object.keys(keys),
+                key = '',
+                value = '';
+
+            if(keysArray.length === 0) {
+              throw new Error('The `keys` object does not contain any property on its own');
+            }
+
+            for(i=0, len=keysArray.length; i<len; i++) {
+              key = keysArrays[i];
+              value = safari.extension.settings[key];
+              // Return the default value if the key isn’t present in settings
+              items[key] = value !== undefined ? value : keys[key];
+            }
+          }
+        } catch(e) {
+          this.runtime.lastError = e;
+          items = -1;
+        }
+        return items;
+      },
       /**
        * Emulates the chrome storage behavior (setter) by using the {@link safari.extension.settings} mechanism.
        * @param {} keys - An object which gives each key/value pair to update storage with. Any other key/value pairs in storage will not be affected.
@@ -36,6 +82,29 @@ var wrapper = {
        * @returns {int} 0 on success and -1 on error.
        * @throws {error} Error in the {@link keys} argument and sets {@link wrapper.runtime.lastError}.
        */
+      set: function(keys) {
+        try {
+          if(!keys || keys instanceof String || keys instanceof Array) {
+            throw new Error('The `keys` argument is not a valid Object with keys/properties');
+          }
+
+          var keysArray = Object.keys(keys),
+              key = '',
+              value = '';
+
+          if(keysArray.length === 0) {
+            throw new Error('The `keys` object does not contain any property on its own');
+          }
+
+          for(i=0, len=keys.length; i<len; i++) {
+            safari.extension.settings[key] = keys[key];
+          }
+        } catch (e) {
+          this.runtime.lastError = e;
+          return -1;
+        }
+        return 0;
+      }
     }
   },
   runtime: {
