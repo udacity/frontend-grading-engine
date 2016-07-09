@@ -153,4 +153,41 @@ if (window.top === window) {
     }
   };
 
+  /**
+   * Callback when there’s a message sent to the extension channel (can be both the extension or a /content-script/).
+   * @callback chrome.runtime.onMessage.addListener~callback
+   * @param {*} message - The message sent by the calling script.
+   * @param {MessageSender} sender - The sender.
+   * @param {function} sendResponse - Function to call (at most once) when there’s a response. The argument should be any JSON-ifiable object. If there’s more than one {@link chrome.runtime.onMessage} listener in the same document, then only one may send a response.
+   */
+
+  /**
+   * Callback to pass the received a response when executing {@link chrome.runtime.senMessage}.
+   * @callback chrome.runtime.sendMessage~responseCallback
+   * @param {*} response - The JSON response object sent by the handler of the message. If an error occurs while connecting to the extension, the callback will be called with no arguments and {@link chrome.runtime.lastError} will be set to the error message.
+   */
+
+  /**
+   * Callback when getting storage items, or on failure (in which case {@link chrome.runtime.lastError} will be set).
+   * @callback chrome.storage.sync.get~callback
+   * @param {object} items - Object with items in their key-value mappings.
+   */
+
+  /**
+   * Callback when setting storage items, or on failure (in which case {@link chrome.runtime.lastError} will be set).
+   * @callback chrome.storage.sync.set~callback
+   */
+
+  /**
+   * Callback to process tabs returned by {@link chrome.tabs.query}.
+   * @callback chrome.tabs.query~callback
+   * @param {Tab[]} results - The results of the tabs query.
+   */
+
+  /**
+   * Callback to pass the received a response when executing {@link chrome.tabs.senMessage}.
+   * @callback chrome.tabs.sendMessage~responseCallback
+   * @param {*} response - The JSON response object sent by the handler of the message. If an error occurs while connecting to the extension, the callback will be called with no arguments and {@link chrome.runtime.lastError} will be set to the error message.
+   */
+
   // intro.js<safari> ends here
