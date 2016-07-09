@@ -52,4 +52,69 @@ var wrapper = {
   }
 };
 
+/**
+ * Search for {@link SafariBrowserTab} without an id and set a new random unique id.
+ * @returns {SafariBrowserWindow[]} Current available windows.
+ */
+function registerWindows() {
+  var windows = safari.application.browserWindows;
+
+  for(var i=0, len=windows.length; i<len; i++) {
+    if(windows[i].id === undefined) {
+      windows[i].id = uniqueWindowId(windows);
+    }
+  }
+
+  return windows;
+
+  /**
+   * Returns a random window ID that isn’t found in the windows array.
+   * @param {SafariBrowserWindow[]} windows - An array of windows.
+   * @returns {string} Unique identifier with `window-` prefix.
+   */
+  function getUniqueWindowId(windows) {
+    var id;
+    do {
+      id = 'window-' + Math.random() * 100000000;
+    } while(windows.indexOf(id) !== -1);
+    return id;
+  }
+}
+
+/**
+ * Search for {@link SafariBrowserTab} without an id and set a new random unique id.
+ * @returns {SafariBrowserTab[]} The number of newly registred tabs.
+ */
+function registerTabs() {
+  var windows = registerWindows();
+  var tabs = [];
+  var status = 0;
+
+  // Concat tabs from different windows
+  for(var i=0, len=windows.length; i<len; i++) {
+    // This way we get a reference of the tab instead of a copy (such as when using concat)
+    tabs.push.apply(windows[i].tabs);
+  }
+
+  for(var i=0, len=windows[i].length; i<len; i++) {
+    if(tabs[i].id === undefined) {
+      tabs[id].id = getUniqueTabId(tabs);
+      status++;
+    }
+  }
+  return tabs;
+
+  /**
+   * Returns a random tab ID that isn’t dounf in the tabs array.
+   * @param {SafariBrowserTab[]} tabs - An array of tabs.
+   * @returns {string} Unique Identifier with `tab-` prefix.
+   */
+  function getUniqueTabId(tabs) {
+    var id;
+    do {
+      id = 'tab-' + Math.random() * 100000000;
+    } while(tabs.indexOf(id) !== -1);
+    return id;
+  }
+}
 // background.js<safari>
