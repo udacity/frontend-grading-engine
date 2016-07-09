@@ -63,6 +63,31 @@ if (window.top === window) {
          * @returns {object} Object with items in their key-value mappings.
          */
         get: function(keys, callback) {
+          var promise = new Promise(function(resolve, reject) {
+            safari.self.tab.dispatchMessage('chrome.safari.adapter', {
+              name: 'chrome.storage.sync.get',
+              message: {
+                keys: keys
+              }
+            }, false);
+
+            safari.self.addEventListener('chrome.storage.sync.get', function(ev) {
+              if(ev.name === 'ok') {
+                resolve(ev.message);
+              } else if(ev.name === 'error') {
+                // runtime.lastError
+                resolve(ev.message.message);
+              }
+              reject('The Global Page sent an invalid response');
+            }, false);
+          }).then(function(values) {
+            if(callback instanceof Function) {
+              console.log('In `chrome.storage.sync.get` returning: ' + values.toString());
+              callback(values);
+            }
+          }).catch(function(error) {
+            throw new Error(error);
+          });
         },
         /**
          * Sets multiple items.
