@@ -118,6 +118,45 @@ var wrapper = {
      * @param {bool} [queryInfo.currentWindow] - TODO Whether the tabs are in the /current window/.
      * @todo param {string} tabId - The tab to return
      */
+    query: function(queryInfo) {
+      try {
+        var validQuery = false;
+        var windows = safari.application.browserWindows;
+
+        // queryInfo.currentWindow
+        if(queryInfo.currentWindow) {
+          windows = currentWindow();
+          validQuery = true;
+        }
+
+        // queryInfo.active
+        if(queryInfo.active === true) {
+          windows = activeTabs(windows);
+          validQuery = true;
+        }
+
+        if(!validQuery) {
+          throw new Error('No valid query is specified');
+        }
+
+        return windows;
+        function currentWindow() {
+          return safari.application.activeBrowserWindow;
+        }
+
+        function activeTabs(windows) {
+          var resultTabs = [];
+
+          for(var i=0, len=windows.length; i<len; i++) {
+            resultTabs.push(windows[i].activeTab);
+          }
+        }
+      } catch(e) {
+        this.runtime.lastError = e;
+        return -1;
+      }
+      return resultTabs;
+    }
   }
 };
 
@@ -188,7 +227,7 @@ function registerTabs() {
   }
 }
 
-// Listens to the adapter
+// Listens to the client adapter
 safari.application.addEventListener('chrome.safari.adapter', function(event) {
   var status;
   switch(event.name) {
