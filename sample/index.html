@@ -1,6 +1,12 @@
+<!doctype html>
 <head>
   <title>Sample Tests</title>
+  <meta name="udacity-grader" content="test.json" libraries="jsgrader" unit-tests="unit-tests.js">
+  <meta charset="UTF-8">
   <style>
+    body {
+      width: 100%;
+    }
     .box {
       background-color: #fcc;
     }
@@ -42,21 +48,56 @@
       min-height: 30px;
       min-width: calc( (100% - 10px) / 4);
     }
+    .three-quarters {
+      width: 75%;
+    }
+    #udacity {
+      height: 100px;
+      width: auto;
+    }
+    .box:nth-child(even) {
+      background-color: #cfc;
+    }
+    .abs {
+      position: absolute;
+      top: 30px;
+      left: 0px;
+    }
+    .box4 {
+      position: absolute;
+      /* Not all user-agents will make it 8px wide (font) */
+      width: 8px;
+      left: calc(100% - 8px);
+      /*bottom: 0;*/
+    }
+    .output {
+      background: #ddd;
+      border: 1px solid black;
+      height: 5em;
+      overflow-y: scroll;
+      font-family: monospace;
+      padding: 0px 8px;
+    }
+    .flex-container {
+      display: flex;
+      justify-content: space-between;
+    }
   </style>
 <head>
 <body>
   <h1>Grading Engine Test!</h1>
-  <div class="box box1">a</div>
+  <img id="udacity" src="udacity.jpg" alt="udacity">
+  <div class="box box1 three-quarters">75% width</div>
   <div class="box box2">b</div>
-  <div class="box box3">c</div>
+  <div class="box box3 innerHTML">this is the correct innerHTML</div>
   <div class="box box4">d</div>
-  <div class="box box5" test>e</div>
+  <div class="box box5" test>has test attr</div>
   <div class="box box6">f</div>
-  <div class="box box7">g</div>
+  <div class="box box7 abs">looking at this one’s abs pos</div>
   <div class="box box8">h</div>
   <div class="box box9">i</div>
   <div class="box box10">j</div>
-  <p>Hello, I'm a <code>p</code> tag.</p>
+  <p>Hello, I’m a <code>p</code> tag.</p>
   <div class="flex-container">
     <div class="flex flex1"></div>
     <div class="flex flex2"></div>
@@ -64,6 +105,51 @@
     <div class="flex flex4"></div>
     <div class="flex flex5"></div>
   </div>
-  <script src='../dist/udgrader-003.js'></script>
-  <script src='sample_tests.js'></script>
+  <div class="box output">INIT</div>
+  <script>
+    function getDateTime() {
+      var d = new Date();
+      var date = '';
+
+      var year = d.getFullYear().toString();
+      var month = (+d.getMonth() + 1).toString();
+      var day = d.getDate().toString();
+      var hours = d.getHours().toString();
+      var minutes = d.getMinutes().toString();
+      var seconds = d.getSeconds().toString();
+
+      if (month.length < 2) {
+        month = '0' + month;
+      }
+      if (day.length < 2) {
+        month = '0' + month;
+      }
+      if (hours.length < 2) {
+        month = '0' + month;
+      }
+      if (minutes.length < 2) {
+        month = '0' + month;
+      }
+      if (seconds.length < 2) {
+        month = '0' + month;
+      }
+      date = year + month + day + hours + minutes + seconds;
+      return date;
+    }
+    function log(string) {
+      let div = document.createElement('div');
+      div.classList.add('flex-container');
+      let textSpan = document.createElement('span');
+      textSpan.innerText = string;
+
+      let dateSpan = document.createElement('span');
+      dateSpan.innerText = getDateTime();
+      div.appendChild(textSpan);
+      div.appendChild(dateSpan);
+
+      output.insertBefore(div, output.firstChild);
+    }
+    const output = document.querySelector('.output');
+    window.addEventListener('ud-test-pass', e => log(e.detail));
+  </script>
 </body>

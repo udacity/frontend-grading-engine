@@ -1,0 +1,337 @@
+[{
+  "name": "Meta Info",
+  "code": "Got the meta stuff",
+  "tests": [
+    {
+      "description": "&lt;meta&gt; has name set to udacity-grader",
+      "definition": {
+        "nodes": "meta",
+        "limit": 1,
+        "attribute": "name",
+        "equals": "udacity-grader"
+      }
+    },
+    {
+      "description": "&lt;meta&gt; has a content tag with a link to json",
+      "definition": {
+        "nodes": "meta",
+        "limit": 1,
+        "attribute": "content",
+        "hasSubstring": ".json"
+      },
+      "flags": {
+        "optional": true
+      }
+    }
+  ]
+},
+{
+  "name": "These should pass",
+  "code": "you should see this",
+  "tests": [
+    {
+      "description": "There are 17 divs",
+      "definition": {
+        "nodes": "div",
+        "get": "count",
+        "equals": 17
+      }
+    },
+    {
+      "description": "Width check - 75% of page width is between 1 and 10000 px",
+      "definition": {
+        "nodes": ".three-quarters",
+        "cssProperty": "width",
+        "isInRange": {
+          "lower": 1,
+          "upper": 10000
+        }
+      }
+    },
+    {
+      "description": "There is a Udacity logo",
+      "definition": {
+        "nodes": "img#udacity",
+        "exists": true
+      }
+    },
+    {
+      "description": "One div has test attr",
+      "definition": {
+        "nodes": "div",
+        "limit": 1,
+        "attribute": "test",
+        "exists": true
+      }
+    },
+    {
+      "description": "The innerHTML div has correct innerHTML",
+      "definition": {
+        "nodes": "div.innerHTML",
+        "get": "innerHTML",
+        "equals": "this is the correct innerHTML"
+      }
+    },
+    {
+      "description": "The UA string has Mozilla in it",
+      "definition": {
+        "get": "UAString",
+        "hasSubstring": "Mozilla"
+      }
+    },
+    {
+      "description": "page body is bigger than 400px",
+      "definition": {
+        "nodes": "body",
+        "cssProperty": "width",
+        "isGreaterThan": 400
+      }
+    },
+    {
+      "description": "the random div is in the right spot",
+      "definition": {
+        "nodes": ".abs",
+        "absolutePosition": "top",
+        "equals": 30
+      }
+    },
+    {
+      "description": "the random div has absolute position left of 0",
+      "definition": {
+        "nodes": ".abs",
+        "absolutePosition": "left",
+        "equals": 0
+      }
+    },
+    {
+      "description": "the right div is on the far right",
+      "definition": {
+        "nodes": ".box4",
+        "absolutePosition": "right",
+        "equals": "max"
+      }
+    },
+    {
+      "description": "the box with just a b in it has a b in it",
+      "definition": {
+        "nodes": ".box2",
+        "get": "innerHTML",
+        "equals": ["b", "d"]
+      }
+    },
+    {
+      "description": "listening to events",
+      "definition": {
+        "waitForEvent": "ud-test",
+        "exists": true
+      }, "flags": {
+        "noRepeat": true
+      }
+    },
+    {
+      "description": "DPR is equal to 2 (optional)",
+      "definition": {
+        "get": "DPR",
+        "equals": 2
+      },
+      "flags": {
+        "optional": true
+      }
+    },
+    {
+      "description": "All divs have class box OR flex",
+      "definition": {
+        "nodes": "div",
+        "attribute": "class",
+        "hasSubstring": {
+          "expected": [".*flex.*", ".*box.*"]
+        }
+      }
+    },
+    {
+      "description": "Some divs have class box",
+      "definition": {
+        "nodes": "div",
+        "limit": "some",
+        "attribute": "class",
+        "hasSubstring": ".*box.*"
+      }
+    },
+    {
+      "description": "The output box is showing events resulting from tests passing",
+      "definition": {
+        "nodes": ".output",
+        "get": "innerHTML",
+        "exists": true
+      }
+    }
+  ]
+},
+{
+  "name": "These should fail",
+  "code": "it’s bad if you see this",
+  "tests": [
+    {
+      "description": "There are 15 divs (just delete one)",
+      "definition": {
+        "nodes": "div",
+        "get": "count",
+        "equals": 15
+      }
+    },
+    {
+      "description": "Width check - 75% of page width is between 900 and 1000 px (just resize)",
+      "definition": {
+        "nodes": ".three-quarters",
+        "cssProperty": "width",
+        "isInRange": {
+          "lower": 800,
+          "upper": 900
+        }
+      }
+    },
+    {
+      "description": "No Udacity logo (delete the Udacity logo)",
+      "definition": {
+        "nodes": "img#udacity",
+        "exists": false
+      }
+    },
+    {
+      "description": "No divs have test attr",
+      "definition": {
+        "nodes": "div",
+        "limit": 1,
+        "attribute": "test",
+        "exists": false
+      }
+    },
+    {
+      "description": "The innerHTML div has incorrect innerHTML",
+      "definition": {
+        "nodes": "div.innerHTML",
+        "get": "innerHTML",
+        "not": true,
+        "equals": "this is the correct innerHTML"
+      }
+    },
+    {
+      "description": "The UA string has iPad in it",
+      "definition": {
+        "get": "UAString",
+        "hasSubstring": "iPad"
+      }
+    },
+    {
+      "description": "page body is less than 400px",
+      "definition": {
+        "nodes": "body",
+        "cssProperty": "width",
+        "isLessThan": 400
+      }
+    },
+    {
+      "description": "the random div is in the wrong spot",
+      "definition": {
+        "nodes": ".abs",
+        "absolutePosition": "left",
+        "equals": 401
+      }
+    },
+    {
+      "description": "the box with just a b in it doesn’t have a c or a p in it",
+      "definition": {
+        "nodes": ".box2",
+        "get": "innerHTML",
+        "equals": ["c", "p"]
+      }
+    },
+    {
+      "description": "the random div has absolute position left greater than 1",
+      "definition": {
+        "nodes": ".abs",
+        "absolutePosition": "left",
+        "isGreaterThan": 1
+      }
+    },
+    {
+      "description": "DPR is equal to 0.5",
+      "definition": {
+        "get": "DPR",
+        "equals": 0.5
+      },
+      "flags": {
+        "optional": true
+      }
+    },
+    {
+      "description": "All divs have class box AND flex",
+      "definition": {
+        "nodes": "div",
+        "attribute": "class",
+        "hasSubstring": {
+          "expected": [".*flex.*", ".*box.*"],
+          "minValues": 2
+        }
+      }
+    },
+    {
+      "description": "The output box is not showing events resulting from tests passing",
+      "definition": {
+        "nodes": ".output",
+        "get": "innerHTML",
+        "hasSubstring": "$^"
+      }
+    }
+  ]
+},
+{
+  "name": "These tests should err",
+  "code": "ERROR ERROR",
+  "tests": [
+    {
+      "description": "absolute positions",
+      "definition": {
+        "nodes": "body",
+        "absolutePositions": "left",
+        "equals": 1
+      }
+    },
+    {
+      "description": "bad counts",
+      "definition": {
+        "nodes": "body",
+        "get": "counts",
+        "equals": 1
+      }
+    }
+  ]
+},
+{
+  "name": "This should err",
+  "code": "ERROR ERROR",
+  "tests": [
+    {
+      "description": "absolute positionsss",
+      "definitions": {
+        "nodes": "body",
+        "absolutePositions": "left",
+        "equals": 1
+      }
+    }
+  ]
+},
+{
+  "name": "Just one",
+  "code": "thing",
+  "tests": [
+    {
+      "description": "There is a body?",
+      "definition": {
+        "nodes": "body",
+        "get": "count",
+        "equals": 1
+      }
+    }
+  ]
+}]
