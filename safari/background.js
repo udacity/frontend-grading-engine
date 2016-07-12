@@ -199,20 +199,27 @@ var registry = (function() {
     return _tabs;
   };
 
-  // Windows
   /**
-   * Returns a random window ID that isn’t found in the windows array.
-   * @param {SafariBrowserWindow[]} windows - An array of windows.
-   * @returns {string} Unique identifier with `window-` prefix.
+   * Returns a random property that isn’t found in an Object.
+   * @param {object} obj - Object to find uniqueness of a property name.
+   * @param {object} [options] - Options for generating the property.
+   * @param {int} [options.precision=100000000] - Number that will be multiplied to a random number between 0 and 1.
+   * @param {int|string} [options.prefix=0] - Number or string that will add the property to itself. It may add the number vlaue or concatenate the String.
+   * @returns {int} Unique Identifier.
    */
-  function getUniqueWindowId(_windows) {
-    var id;
+  function getUniqueProperty(obj, options) {
+    var prop,
+        _options = options || {};
+        precision = _options.precision || 100000000,
+        prefix = _options.prefix || 0;
+
     do {
-      id = 'window-' + Math.random() * 100000000;
-    } while(_windows.hasOwnProperty(id) === true);
-    return id;
+      prop = prefix + Math.floor(Math.random() * precision);
+    } while(obj.hasOwnProperty(prop) === true);
+    return prop;
   }
 
+  // Windows
   /**
    * Register a given window by assigning a new random id. When the window is closed, it removes the id from available windows.
    * @todo Check if tabs from the registry are also removed when the window is closed.
@@ -221,7 +228,7 @@ var registry = (function() {
   function registerWindow(_window) {
     var id = '';
     if(_window.id === undefined) {
-      id = getUniqueWindowId(_windows);
+      id = getUniqueProperty(_windows);
       // Registered windows
       _windows[id] = _window;
 
@@ -246,18 +253,6 @@ var registry = (function() {
   // Windows ends here
 
   // Tabs
-  /**
-   * Returns a random tab ID that isn’t found in the tabs registry.
-   * @param {SafariBrowserTab[]} tabs - An array of tabs.
-   * @returns {string} Unique Identifier with `tab-` prefix.
-   */
-  function getUniqueTabId(_tabs) {
-    var id;
-    do {
-      id = 'tab-' + Math.random() * 100000000;
-    } while(_tabs.hasOwnProperty(id) === true);
-    return id;
-  }
 
   /**
    * Register a given tab by assigning a new random id in the tabs registry. When the tab is closed, it removes the id from the tabs registry.
@@ -266,7 +261,7 @@ var registry = (function() {
   function registerTab(_tab) {
     var id;
     if(_tab.id === undefined) {
-      id = getUniqueTabId(_tabs);
+      id = getUniqueProperty(_tabs);
       // Registered tabs
       _tabs[id] = _tab;
 
