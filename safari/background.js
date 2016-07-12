@@ -112,6 +112,15 @@ var wrapper = {
   },
   tabs: {
     /**
+     * @param {int} tabId - The tab to send the message to.
+     * @param {*} message - Any object that can be serialized.
+     * @todo @param {object} [options]
+     * @todo @param {int} [options.frameId] - Send a message to a specific frame identified by {@link frameId} instead of all frames in the tab.
+     */
+    sendMessage: function(tabId, message, options) {
+
+    },
+    /**
      * Gets all tabs that have the specified properties, or all tabs if no properties are specified.
      * @param {object} queryInfo
      * @param {bool} [queryInfo.active] - TODO Whether the tabs are active in their windows. (Does not necessarily mean the window is focused.)
