@@ -175,91 +175,78 @@ function registerWindows() {
 
   return windows;
 
+var registry = (function() {
+  var _windows = {};
+  var exports = {};
+
+  exports.getWindows = function() {
+    return _windows;
+  };
+
+  // Windows
   /**
    * Returns a random window ID that isn’t found in the windows array.
    * @param {SafariBrowserWindow[]} windows - An array of windows.
    * @returns {string} Unique identifier with `window-` prefix.
    */
-  function getUniqueWindowId(windows) {
+  function getUniqueWindowId(_windows) {
     var id;
     do {
       id = 'window-' + Math.random() * 100000000;
-    } while(windows.indexOf(id) !== -1);
+    } while(_windows.hasOwnProperty(id) === true);
     return id;
   }
-}
-
-/**
- * Search for {@link SafariBrowserTab} without an id and set a new random unique id.
- * @returns {SafariBrowserTab[]} The number of newly registred tabs.
- */
-function registerTabs() {
-  var windows = registerWindows();
-  var tabs = [];
-  var status = 0;
-
-  var i, len;
-  // Concat tabs from different windows
-  for(i=0, len=windows.length; i<len; i++) {
-    // This way we get a reference of the tab instead of a copy (such as when using concat)
-    tabs.push.apply(windows[i].tabs);
-  }
-
-  for(i=0, len=windows[i].length; i<len; i++) {
-    if(tabs[i].id === undefined) {
-      tabs[i].id = getUniqueTabId(tabs);
-      status++;
-    }
-  }
-  return tabs;
 
   /**
-   * Returns a random tab ID that isn’t dounf in the tabs array.
-   * @param {SafariBrowserTab[]} tabs - An array of tabs.
-   * @returns {string} Unique Identifier with `tab-` prefix.
+   * Register a given window by assigning a new random id. When the window is closed, it removes the id from available windows.
+   * @todo Check if tabs from the registry are also removed when the window is closed.
+   * @param {SafariBrowserWindow} _window - The new window to register.
    */
-  function getUniqueTabId(tabs) {
+  function registerWindow(_window) {
+    var id = '';
+    if(_window.id === undefined) {
+      id = getUniqueWindowId(_windows);
+      // Registered windows
+      _windows[id] = _window;
+
+      _window.addEventListener('close', function handler() {
+        _window.removeEventListener('close', handler, false);
+        delete _windows[id];
+      }, false);
+    }
+  }
+
+  /**
+   * Register all available windows with a new random unique id. Its purpose is to be called on the extension startup.
+   * @returns {SafariBrowserWindow[]} Current available windows.
+   */
+  function registerWindows() {
+    var browserWindows = safari.application.browserWindows;
     var id;
-    do {
-      id = 'tab-' + Math.random() * 100000000;
-    } while(tabs.indexOf(id) !== -1);
-    return id;
+
+    for(var i=0, len=browserWindows.length; i<len; i++) {
+      registerWindow(browserWindows[i]);
+    }
+    return _windows;
   }
-}
+  // Windows ends here
 
-// Listens to the client adapter
-safari.application.addEventListener('chrome.safari.adapter', function(event) {
-  var status;
-  switch(event.name) {
-  case 'chrome.storage.sync.get':
-    status = wrapper.storage.sync.get(event.message.keys);
+  // There’s no way to specify for windows or tabs (it must be guessed). It seems that when a window is created it first fires the event for the tab and then the window.
+  safari.application.addEventListener('open', function(ev) {
+    // If a new window was created
+    if(ev.target instanceof SafariBrowserWindow) {
+      registerWindow(ev.target);
+    } // else if (ev.target instanceof SafariBrowserTab) {
+    //   registerTab(ev.target);
+    // } else {
+    //   console.log('Reaching else');
+    // }
+  }, true);
 
-    if(status === -1) {
-      status = wrapper.runtime.lastError;
-      event.target.page.dispatchMessage('chrome.storage.sync.get', status);
-    }
-    break;
-  case 'chrome.storage.sync.set':
-    status = wrapper.storage.sync.set(event.message.keys);
-
-    if(status === -1) {
-      status = wrapper.runtime.lastError;
-      event.target.page.dispatchMessage('chrome.storage.sync.set', status);
-    }
-    break;
-  case 'chrome.runtime.sendMessage':
-
-    break;
-  case 'chrome.tabs.query':
-    status = wrapper.tabs.query(event.message.query);
-
-    // Note: The docs don’t officially specify throwing lastError
-    if(status === -1) {
-      status = wrapper.runtime.lastError;
-      event.target.page.dispatchEvent('chrome.tabs.query', status);
-    }
-    break;
-  }
+  // registerTabs();
+  registerWindows();
+  return exports;
+})();
 
   // Since its lifetime is for a callback
   wrapper.runtime.lastError = undefined;
