@@ -15,6 +15,26 @@
  * This is wĥy this background script is created.
  */
 
+// Initializes the logs if not created
+safari.extension.settings.log = safari.extension.settings.log || [];
+
+/**
+ * Store logging informations in the extension settings.
+ * @param {string} message - The message to log.
+ */
+function extensionLog(message) {
+  var log = safari.extension.settings.log;
+  var stack = new Error().stack;
+  log.push({
+    message: message,
+    stack: stack,
+    timestamp: Date.now() / 1000
+  });
+
+  safari.extension.settings.log = log;
+  console.warn(message);
+}
+
 /**
  * Adaptee that translates chrome method behavior to safari.
  * @namespace
@@ -341,7 +361,7 @@ var registry = (function() {
     } else if (ev.target instanceof SafariBrowserTab) {
       registerTab(ev.target);
     } else {
-      console.log('Reaching else');
+      extensionLog('Got something else than a Tab or Window');
     }
   }, true);
 
