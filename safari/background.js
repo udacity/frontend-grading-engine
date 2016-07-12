@@ -144,7 +144,7 @@ var wrapper = {
      * Gets all tabs that have the specified properties, or all tabs if no properties are specified.
      * @param {object} queryInfo
      * @param {bool} [queryInfo.active] - TODO Whether the tabs are active in their windows. (Does not necessarily mean the window is focused.)
-     * @param {bool} [queryInfo.currentWindow] - TODO Whether the tabs are in the /current window/.
+     * @param {bool} [queryInfo.currentWindow] - TODO Whether the tabs are in the /current window/. Note: the current window doesn’t mean it’s the active one. It means that the window is currently executing.
      * @todo param {string} tabId - The tab to return
      */
     query: function(queryInfo) {
@@ -290,12 +290,18 @@ var registry = (function() {
       id = getUniqueProperty(_windows);
       // Registered windows
       _windows[id] = _window;
+      _window.id = id;
 
-      _window.addEventListener('close', function handler() {
-        _window.removeEventListener('close', handler, false);
-        delete _windows[id];
-      }, false);
+      // _window.addEventListener('close', function handler() {
+      //   _window.removeEventListener('close', handler, false);
+      //   delete _windows[id];
+      // }, false);
     }
+  }
+
+  function removeWindow(_window) {
+    var id = _window.id;
+    delete _windows[id];
   }
 
   /**
@@ -323,13 +329,19 @@ var registry = (function() {
       id = getUniqueProperty(_tabs);
       // Registered tabs
       _tabs[id] = _tab;
+      _tab.id = id;
 
-      // Removes the id from {@link _tabs}
-      _tab.addEventListener('close', function handler() {
-        _tab.removeEventListener('close', handler, false);
-        delete _tabs[id];
-      }, false);
+      // // Removes the id from {@link _tabs}
+      // _tab.addEventListener('close', function handler() {
+      //   _tab.removeEventListener('close', handler, false);
+      //   delete _tabs[id];
+      // }, false);
     }
+  }
+
+  function removeTab(tab) {
+    var id = tab.id;
+    delete _tabs[id];
   }
 
   /**
@@ -363,6 +375,25 @@ var registry = (function() {
     } else {
       extensionLog('Got something else than a Tab or Window');
     }
+  }, true);
+
+  safari.application.addEventListener('close', function(ev) {
+    // If a window is about to close
+    if(ev.target instanceof SafariBrowserWindow) {
+      removeWindow(ev.target);
+    } else if (ev.target instanceof SafariBrowserTab) {
+      // If a tab is about to close
+      removeTab(ev.target);
+    } else {
+      extensionLog('Got something else than a Tab or Window');
+    }
+  }, true);
+
+  safari.application.addEventListener('activate', function(ev) {
+    console.log(ev);
+  }, true);
+  safari.application.addEventListener('deactivate', function(ev) {
+    console.log(ev);
   }, true);
 
   registerTabs();
