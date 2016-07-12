@@ -169,17 +169,56 @@ var wrapper = {
   }
 };
 
-/**
- * Search for {@link SafariBrowserTab} without an id and set a new random unique id.
- * @returns {SafariBrowserWindow[]} Current available windows.
- */
-function registerWindows() {
-  var windows = safari.application.browserWindows;
+// Listens to the client adapter
+safari.application.addEventListener('message', function(event) {
+  var status = -1,
+      response = '';
 
-  for(var i=0, len=windows.length; i<len; i++) {
-    if(windows[i].id === undefined) {
-      windows[i].id = uniqueWindowId(windows);
+  // Safari uses ev.name for the name of the event while using /message/ for communication between scripts.
+  switch(event.name) {
+  case 'wrapper.storage.sync.get':
+    // Returns -1 on error otherwise the response
+    status = wrapper.storage.sync.get(event.message.keys);
+
+    if(status === -1) {
+      response = {status: 'error', message: wrapper.runtime.lastError.message};
+    } else {
+      response = {status: 'ok', response: status};
     }
+    event.target.page.dispatchMessage('chrome.storage.sync.get', response);
+    break;
+  case 'wrapper.storage.sync.set':
+    // Returns -1 on error otherwise the response
+    status = wrapper.storage.sync.set(event.message.keys);
+
+    if(status === -1) {
+      response = {status: 'error', response: wrapper.runtime.lastError.message};
+    } else {
+      response = {status: 'ok', response: status};
+    }
+    event.target.page.dispatchMessage('chrome.storage.sync.set', status);
+    break;
+  case 'wrapper.runtime.sendMessage':
+    // TODO
+    // Returns -1 on error otherwise the response
+    status = wrapper.runtime.sendMessage();
+    if(status === -1) {
+      response = {status: 'error', response:wrapper.runtime.lastError};
+      event.target.page.dispatchEvent('chrome.runtime.sendMessage', status);
+    }
+    break;
+  case 'wrapper.tabs.query':
+    // Returns -1 on error otherwise the response
+    status = wrapper.tabs.query(event.message.query);
+
+    // Note: The docs don’t officially specify throwing lastError
+    if(status === -1) {
+      response = {name: 'error', response: wrapper.runtime.lastError.message};
+    } else {
+      response = {name: 'ok', response: status};
+    }
+    event.target.page.dispatchEvent('chrome.tabs.query', response);
+    break;
   }
 
   // Since its lifetime is for a callback
