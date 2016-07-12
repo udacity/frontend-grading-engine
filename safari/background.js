@@ -173,14 +173,21 @@ function registerWindows() {
     }
   }
 
-  return windows;
+  // Since its lifetime is for a callback
+  wrapper.runtime.lastError = undefined;
+}, false);
 
 var registry = (function() {
   var _windows = {};
+  var _tabs = {};
   var exports = {};
 
   exports.getWindows = function() {
     return _windows;
+  };
+
+  exports.getTabs = function() {
+    return _tabs;
   };
 
   // Windows
@@ -218,7 +225,6 @@ var registry = (function() {
 
   /**
    * Register all available windows with a new random unique id. Its purpose is to be called on the extension startup.
-   * @returns {SafariBrowserWindow[]} Current available windows.
    */
   function registerWindows() {
     var browserWindows = safari.application.browserWindows;
@@ -227,29 +233,78 @@ var registry = (function() {
     for(var i=0, len=browserWindows.length; i<len; i++) {
       registerWindow(browserWindows[i]);
     }
-    return _windows;
   }
   // Windows ends here
+
+  // Tabs
+  /**
+   * Returns a random tab ID that isn’t found in the tabs registry.
+   * @param {SafariBrowserTab[]} tabs - An array of tabs.
+   * @returns {string} Unique Identifier with `tab-` prefix.
+   */
+  function getUniqueTabId(_tabs) {
+    var id;
+    do {
+      id = 'tab-' + Math.random() * 100000000;
+    } while(_tabs.hasOwnProperty(id) === true);
+    return id;
+  }
+
+  /**
+   * Register a given tab by assigning a new random id in the tabs registry. When the tab is closed, it removes the id from the tabs registry.
+   * @param {SafariBrowserTab} _tab
+   */
+  function registerTab(_tab) {
+    var id = '';
+    if(_tab.id === undefined) {
+      id = getUniqueTabId(_tabs);
+      // Registered tabs
+      _tabs[id] = _tab;
+
+      // Removes the id from {@link _tabs}
+      _tab.addEventListener('close', function handler() {
+        _tab.removeEventListener('close', handler, false);
+        delete _tabs[id];
+      }, false);
+    }
+  }
+
+  /**
+   * Search for {@link SafariBrowserTab} without an id and set a new random unique id.
+   */
+  function registerTabs() {
+    var status = 0,
+        windows = safari.application.browserWindows;
+
+    var i, u, tabsLen, windowsLen, windowTabs;
+    // Concat tabs from different windows
+
+    // For each window
+    for(i=0, windowsLen=windows.length; i<windowsLen; i++) {
+      windowTabs = windows[i].tabs;
+      // For each tabs in the window
+      for(u=0; tabsLen=windowTabs.lenth; u++) {
+        registerTab(windowTabs[u]);
+      }
+    }
+  }
+  // Tabs ends here
 
   // There’s no way to specify for windows or tabs (it must be guessed). It seems that when a window is created it first fires the event for the tab and then the window.
   safari.application.addEventListener('open', function(ev) {
     // If a new window was created
     if(ev.target instanceof SafariBrowserWindow) {
       registerWindow(ev.target);
-    } // else if (ev.target instanceof SafariBrowserTab) {
-    //   registerTab(ev.target);
-    // } else {
-    //   console.log('Reaching else');
-    // }
+    } else if (ev.target instanceof SafariBrowserTab) {
+      registerTab(ev.target);
+    } else {
+      console.log('Reaching else');
+    }
   }, true);
 
-  // registerTabs();
+  registerTabs();
   registerWindows();
   return exports;
 })();
-
-  // Since its lifetime is for a callback
-  wrapper.runtime.lastError = undefined;
-}, false);
 
 // background.js<safari>
