@@ -16,23 +16,46 @@
  */
 
 // Initializes the logs if not created
-safari.extension.settings.log = safari.extension.settings.log || [];
+safari.extension.settings.logs = safari.extension.settings.logs || [];
 
 /**
  * Store logging informations in the extension settings.
- * @param {string} message - The message to log.
+ * @param {string|error} message - The message to log as a String or an Error.
+ * @throws {Error} Error in the arguments of the function (not a String nor an Error).
  */
-function extensionLog(message) {
-  var log = safari.extension.settings.log;
-  var stack = new Error().stack;
-  log.push({
-    message: message,
+function extensionLog(log) {
+  // Cache logs to append a single log
+  var logs = safari.extension.settings.logs;
+  var stack, logMessage;
+
+  if(log instanceof Error) {
+    logMessage = log.message;
+    stack = log.stack;
+  } else if (logMessage instanceof String){
+    logMessage = log;
+    stack = new Error().stack;
+  } else {
+    // Log error of itself
+    extensionLog('Invalid log type: ' + log.toString());
+    throw new Error('Extension logging error');
+  }
+
+  // Adding the new log
+  logs.push({
+    message: logMessage,
     stack: stack,
     timestamp: Date.now() / 1000
   });
 
-  safari.extension.settings.log = log;
-  console.warn(message);
+  // Record the new logs
+  safari.extension.settings.logs = logs;
+  // This should be in the Background script and shouldn’t conflict with page scripts
+  console.warn(log);
+
+  // Actually throw that error
+  if(log instanceof Error) {
+    throw log;
+  }
 }
 
 /**
@@ -66,7 +89,7 @@ var wrapper = {
 
             for(var i=0, len=keys.length; i<len; i++) {
               if(!(keys instanceof String)) {
-                throw Error('An item of the `keys` array wasn’t a String');
+                extensionLog(new Error('An item of the `keys` array wasn’t a String'));
               }
               items[keys[i]] = safari.extension.settings[keys[i]];
             }
@@ -79,7 +102,7 @@ var wrapper = {
                 value = '';
 
             if(keysArray.length === 0) {
-              throw new Error('The `keys` object does not contain any property on its own');
+              extensionLog(new Error('The `keys` object does not contain any property on its own'));
             }
 
             for(i=0, len=keysArray.length; i<len; i++) {
@@ -105,7 +128,7 @@ var wrapper = {
       set: function(keys) {
         try {
           if(!keys || keys instanceof String || keys instanceof Array) {
-            throw new Error('The `keys` argument is not a valid Object with keys/properties');
+            extensionLog(new Error('The `keys` argument is not a valid Object with keys/properties'));
           }
 
           var keysArray = Object.keys(keys),
@@ -113,7 +136,7 @@ var wrapper = {
               value = '';
 
           if(keysArray.length === 0) {
-            throw new Error('The `keys` object does not contain any property on its own');
+            extensionLog(new Error('The `keys` object does not contain any property on its own'));
           }
 
           for(i=0, len=keys.length; i<len; i++) {
@@ -165,7 +188,7 @@ var wrapper = {
         }
 
         if(!validQuery) {
-          throw new Error('No valid query is specified');
+          extensionLog(new Error('No valid query is specified'));
         }
 
         return windows;
