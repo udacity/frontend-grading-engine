@@ -34,6 +34,22 @@ if (window.top === window) {
 
         },
         lastError: null,
+        /**
+         * An object containing information about the script context that sent a message or request.
+         * @namespace
+         * @property {chrome.tabs.Tab} [tab] - The {@link chrome.tabs.Tab} which opened the connection, if any. This property will only be present when the connection was opened from a tab (including content scripts), and only if the receiver is an extension, not an app.
+         * @todo @property {int} [frameId] - The frame that opened the connection. 0 for top-level frames, positive for child frames. This will only be set when tab is set.
+         * @todo @property {string} [id] - The ID of the extension or app that opened the connection, if any.
+         * @todo @property {string} [url] - The URL of the page or frame that opened the connection. If the sender is in an iframe, it will be iframe’s URL not the URL of the page which hosts it.
+         * @todo @property {string} [tlsChannelId] - The TLS channel ID of the page or frame that opened the connection, if requested by the extension or app, and if available.
+         */
+        MessageSender: {
+          tab: null,
+          frameId: null
+          // id: null,
+          // url: null,
+          // tlsChannelId: null
+        },
         onMessage: {
           /**
            * Fired when a message is sent from either an extension process or a
@@ -104,6 +120,41 @@ if (window.top === window) {
          */
         sendMessage: function(tabId, message, options, responseCallback) {
 
+        },
+        /**
+         * @namespace
+         * @property {int} [id] - The ID of the tab. Tab IDs are unique within a browser session. Under some circumstances a Tab may not be assigned an ID, for example when querying foreign tabs using the sessions API, in which case a session ID may be present.
+         * @property {int} index - The zero-based index of the tab within its window.
+         * @property {int} windowId - The ID of the window the tab is contained within.
+         * @property {int} [openerTabId] - The ID of the tab that opened this tab, if any. This property is only present if the opener tab still exists.
+         * @property {bool} highlighted - Whether the tab is highlighted.
+         * @property {bool} active - Whether the tab is active in its window. (Does not necessarily mean the window is focused.)
+         * @property {bool} pinned - Whether the tab is pinned.
+         * @property {string} [url] - The URL the tab is displaying. This property is only present if the extension’s manifest includes the “tabs” permission.
+         * @property {string} [title] - The title of the tab. This property is only present if the extension’s manifest includes the “tabs” permission.
+         * @property {string} [favIconUrl] - The URL of the tab's favicon. This property is only present if the extension's manifest includes the "tabs" permission. It may also be an empty string if the tab is loading.
+         * @property {string} [status] - Either loading or complete.
+         * @property {bool} incognito - Whether the tab is in an incognito window.
+         * @property {int} width - The width of the tab in pixels.
+         * @property {int} height - The height of the tab in pixels.
+         * @property {string} sessionId - The session ID used to uniquely identify a Tab obtained from the sessions API.
+         */
+        Tab: {
+          id: null,
+          index: null,
+          windowId: null,
+          openerTabId: null,
+          highlighted: null,
+          active: null,
+          pinned: null,
+          url: null,
+          title: null,
+          favIconUrl: null,
+          status: null,
+          incognito: null,
+          width: null,
+          height: null,
+          sessionId: null
         },
         /**
          * Whether the tabs have completed loading.
