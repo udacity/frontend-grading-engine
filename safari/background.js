@@ -255,7 +255,7 @@ var registry = (function() {
    * @param {SafariBrowserTab} _tab
    */
   function registerTab(_tab) {
-    var id = '';
+    var id;
     if(_tab.id === undefined) {
       id = getUniqueTabId(_tabs);
       // Registered tabs
@@ -283,7 +283,7 @@ var registry = (function() {
     for(i=0, windowsLen=windows.length; i<windowsLen; i++) {
       windowTabs = windows[i].tabs;
       // For each tabs in the window
-      for(u=0; tabsLen=windowTabs.lenth; u++) {
+      for(u=0, tabsLen=windowTabs.length; u<tabsLen; u++) {
         registerTab(windowTabs[u]);
       }
     }
