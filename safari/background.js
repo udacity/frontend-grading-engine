@@ -113,7 +113,7 @@ var wrapper = {
             }
           }
         } catch(e) {
-          this.runtime.lastError = e;
+          wrapper.runtime.lastError = e;
           items = -1;
         }
         return items;
@@ -143,7 +143,7 @@ var wrapper = {
             safari.extension.settings[key] = keys[key];
           }
         } catch (e) {
-          this.runtime.lastError = e;
+          wrapper.runtime.lastError = e;
           return -1;
         }
         return 0;
@@ -151,7 +151,7 @@ var wrapper = {
     }
   },
   runtime: {
-    lastError: undefined
+    lastError: null
   },
   tabs: {
     /**
@@ -204,7 +204,7 @@ var wrapper = {
           }
         }
       } catch(e) {
-        this.runtime.lastError = e;
+        wrapper.runtime.lastError = e;
         return -1;
       }
       return resultTabs;
