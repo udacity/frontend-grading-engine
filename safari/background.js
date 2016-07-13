@@ -1,4 +1,4 @@
-/*global safari */
+/*global safari, SafariBrowserTab, SafariBrowserWindow */
 
 /**
  * @fileOverview This file adds Safari support for those APIs:
@@ -169,6 +169,7 @@ var wrapper = {
      * @param {bool} [queryInfo.active] - TODO Whether the tabs are active in their windows. (Does not necessarily mean the window is focused.)
      * @param {bool} [queryInfo.currentWindow] - TODO Whether the tabs are in the /current window/. Note: the current window doesn’t mean it’s the active one. It means that the window is currently executing.
      * @todo param {string} tabId - The tab to return
+     * @returns {int|Object[]} Result of the query of -1 on error.
      */
     query: function(queryInfo) {
       try {
@@ -196,12 +197,27 @@ var wrapper = {
           return safari.application.activeBrowserWindow;
         }
 
+        /**
+         * Gets all active {@link SafariBrowserTab} from given an array {@link SafariBrowserWindow},
+         * @param {SafariBrowserWindow[]} windows - Windows to get all active tabs.
+         * @returns {SafariBrowserTabs[]} Array of active tabs.
+         */
         function activeTabs(windows) {
           var resultTabs = [];
 
           for(var i=0, len=windows.length; i<len; i++) {
             resultTabs.push(windows[i].activeTab);
           }
+        /**
+         * Gets all tabs from given windows.
+         * @param {SafariBrowserWindow[]} windows - An array of {@link SafariBrowserWindow}.
+         * @returns {SafariBrowserTab[]} List of tabs from {@link windows}.
+         */
+        /**
+         * Makes a Tab type.
+         * @param {SafariBrowserTab[]} tabs - Array of SafariBowserTab.
+         * @returns {Tab[]} Chrome formatted Tab type.
+         */
         }
       } catch(e) {
         wrapper.runtime.lastError = e;
@@ -243,6 +259,11 @@ safari.application.addEventListener('message', function(event) {
     break;
   }
 
+  /**
+   * Function that sends back the result of the request and also take cares of status codes.
+   * @param {string} channel - The name of the request receiver.
+   * @param {int|Object} status - The response of a query. On error, it should be `-1`.
+   */
   function respondBack(channel, status) {
     var response;
     if(status === -1) {
@@ -256,19 +277,44 @@ safari.application.addEventListener('message', function(event) {
   wrapper.runtime.lastError = undefined;
 }, false);
 
+/**
+ * Registers Tabs and Windows.
+ */
 var registry = (function() {
   var _windows = {};
   var _tabs = {};
   var exports = {};
 
+  /**
+   * Returns registered windows from {@link _windows}.
+   * @returns {SafariBrowserWindow[]} Registered windows.
+   */
   exports.getWindows = function() {
     return _windows;
   };
 
+  /**
+   * Returns registered tabs from {@link _tabs}.
+   * @returns {SafariBrowserTab[]} Registered tabs.
+   */
   exports.getTabs = function() {
     return _tabs;
   };
 
+  /**
+   * Returns the window registered as `active`. It may not conform to the Chrome specs.
+   * @returns {SafariBrowserWindow} The active window.
+   */
+
+  /**
+   * Returns the last window that had focus (activated from Safari specifications).
+   * @returns {SafariBrowserWindow} The last window that had focus.
+   */
+  /**
+   * Returns the {@link SafariBrowserTab} corresponding to a given ID.
+   * @param {string|int} id - The ID of the registered tab.
+   * @returns {SafariBrowserTab} The tab that has the given ID or -1 on error.
+   */
   /**
    * Returns a random property that isn’t found in an Object.
    * @param {object} obj - Object to find uniqueness of a property name.
@@ -310,6 +356,10 @@ var registry = (function() {
     }
   }
 
+  /**
+   * Removes the given {@link SafariBrowserWindow} from the registered windows in {@link _windows}.
+   * @param {SafariBrowserWindow} _window - The window to remove.
+   */
   function removeWindow(_window) {
     var id = _window.id;
     delete _windows[id];
@@ -332,7 +382,7 @@ var registry = (function() {
 
   /**
    * Register a given tab by assigning a new random id in the tabs registry. When the tab is closed, it removes the id from the tabs registry.
-   * @param {SafariBrowserTab} _tab
+   * @param {SafariBrowserTab} _tab - The new tab to register.
    */
   function registerTab(_tab) {
     var id;
@@ -350,6 +400,10 @@ var registry = (function() {
     }
   }
 
+  /**
+   * Removes the given {@link SafariBrowserTab} from the registered windows in {@link _tabs}.
+   * @param {SafariBrowserTab} tab - The Tab to remove.
+   */
   function removeTab(tab) {
     var id = tab.id;
     delete _tabs[id];

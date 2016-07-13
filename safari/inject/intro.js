@@ -18,12 +18,7 @@ if (window.top === window) {
     var chrome = {
       runtime: {
         /**
-         * Sends a single message to event listeners within the extension or a
-         * different extension. If sending to the current extension, the
-         * {@link chrome.runtime.onMessage} event will be fired in each page, or
-         * {@link chrome.runtime.onMessageExternal}, if a different extension. Note that
-         * extensions cannot send messages to content scripts using this method. To
-         * send messages to content scripts, use {@link chrome.tabs.sendMessage}.
+         * Sends a single message to event listeners within the extension/app or a different extension/app. Similar to {@link chrome.runtime.onMessage} but only sends a single message, with an optional response. If sending to your extension, the runtime.onMessage event will be fired in each page, or {@link chrome.runtime.onMessageExternal}, if a different extension. Note that extensions cannot send messages to content scripts using this method. To send messages to content scripts, use {@link tabs.sendMessage.}
          * @param {string} [extensionId] - The ID of the extension to send the message to. If `undefined` or `null`, the current extension is used.
          * @param {*} message - The message to sent.
          * @param {object} [options]
@@ -119,7 +114,6 @@ if (window.top === window) {
          * @param {chrome.tabs.sendMessage~responseCallback} [responseCallback] - Function called when there’s a response. Note: The response can be any object.
          */
         sendMessage: function(tabId, message, options, responseCallback) {
-
         },
         /**
          * @namespace
