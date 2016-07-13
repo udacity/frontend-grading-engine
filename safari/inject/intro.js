@@ -9,7 +9,7 @@
 // Injected scripts in Safari get also injected in iFrames
 if (window.top === window) {
   /* jshint ignore: end*/
-  (function(){
+  chrome = (function(){
     /**
      * @namespace
      * @property {object} chrome.runtime.lastError - This will be defined during an API method callback if there was an error

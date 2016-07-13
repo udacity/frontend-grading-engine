@@ -264,17 +264,18 @@ var wrapper = {
 // Listens to the client adapter
 safari.application.addEventListener('message', function(event) {
   var status = -1;
+  var message = JSON.parse(event.message);
 
   // Safari uses ev.name for the name of the event while using /message/ for communication between scripts.
   switch(event.name) {
   case 'wrapper.storage.sync.get':
     // Returns -1 on error otherwise the response
-    status = wrapper.storage.sync.get(event.message.keys);
+    status = wrapper.storage.sync.get(message.keys);
     respondBack('chrome.storage.sync.get', status);
     break;
   case 'wrapper.storage.sync.set':
     // Returns -1 on error otherwise the response
-    status = wrapper.storage.sync.set(event.message.keys);
+    status = wrapper.storage.sync.set(message.keys);
     respondBack('chrome.storage.sync.set', status);
     break;
   case 'wrapper.runtime.sendMessage':
@@ -285,7 +286,7 @@ safari.application.addEventListener('message', function(event) {
     break;
   case 'wrapper.tabs.query':
     // Returns -1 on error otherwise the response
-    status = wrapper.tabs.query(event.message.query);
+    status = wrapper.tabs.query(message.query);
 
     // Note: The docs don’t officially specify throwing lastError
     respondBack('chrome.tabs.query', status);
@@ -304,7 +305,7 @@ safari.application.addEventListener('message', function(event) {
     } else {
       response = {name: 'ok', response: status};
     }
-    event.target.page.dispatchEvent(channel, response);
+    event.target.page.dispatchMessage(channel, response);
   }
   // Since its lifetime is for a callback
   wrapper.runtime.lastError = undefined;
