@@ -249,7 +249,7 @@ if (window.top === window) {
 
     function sendMessageToAdapter(channel, message) {
       var JSONmessage = serialize(message);
-      safari.self.tab.dispatchMessage(channel, JSONmessage, false);
+      safari.self.tab.dispatchMessage(channel, JSONmessage);
     }
     /**
      * Callback when there’s a message sent to the extension channel (can be both the extension or a /content-script/).
