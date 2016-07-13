@@ -73,7 +73,7 @@ var wrapper = {
        * @throws {error} Error in the {@link keys} argument and sets {@link wrapper.runtime.lastError}.
        */
       get: function(keys) {
-        var items = {};
+        var i, len, items = {};
         try {
           if(!keys) {
             if(keys === null) {
@@ -87,7 +87,7 @@ var wrapper = {
           } else if(keys instanceof Array && keys.length > 0) {
             items = {};
 
-            for(var i=0, len=keys.length; i<len; i++) {
+            for(i=0, len=keys.length; i<len; i++) {
               if(!(keys instanceof String)) {
                 extensionLog(new Error('An item of the `keys` array wasn’t a String'));
               }
@@ -97,16 +97,14 @@ var wrapper = {
             // Otherwise it can be any Objects.
             items = {};
             // Only a coincidence if they got the same names.
-            var keysArray = Object.keys(keys),
-                key = '',
-                value = '';
+            var key, value, keysArray = Object.keys(keys);
 
             if(keysArray.length === 0) {
               extensionLog(new Error('The `keys` object does not contain any property on its own'));
             }
 
             for(i=0, len=keysArray.length; i<len; i++) {
-              key = keysArrays[i];
+              key = keysArray[i];
               value = safari.extension.settings[key];
               // Return the default value if the key isn’t present in settings
               items[key] = value !== undefined ? value : keys[key];
@@ -131,15 +129,14 @@ var wrapper = {
             extensionLog(new Error('The `keys` argument is not a valid Object with keys/properties'));
           }
 
-          var keysArray = Object.keys(keys),
-              key = '',
-              value = '';
+          var key, i, len, keysArray = Object.keys(keys);
 
           if(keysArray.length === 0) {
             extensionLog(new Error('The `keys` object does not contain any property on its own'));
           }
 
           for(i=0, len=keys.length; i<len; i++) {
+            key = keysArray[i];
             safari.extension.settings[key] = keys[key];
           }
         } catch (e) {
