@@ -172,29 +172,38 @@ var wrapper = {
      * @returns {int|Object[]} Result of the query of -1 on error.
      */
     query: function(queryInfo) {
+      var validQuery, windows, tabs;
       try {
-        var validQuery = false;
-        var windows = safari.application.browserWindows;
+        validQuery = false;
+        windows = safari.application.browserWindows;
+        tabs = [];
 
-        // queryInfo.currentWindow
-        if(queryInfo.currentWindow) {
-          windows = currentWindow();
-          validQuery = true;
+        if(queryInfo instanceof Object) {
+          // queryInfo.currentWindow
+          if(queryInfo.currentWindow) {
+            // Because there’s no way I know to select the window currently running in Safari, the active window (or `lastFocusedWindow` one if null) will be used instead. If someone successfully thriggers an action page that isn’t focused, it’s an undefined behavior.
+            windows = registry.getActiveWindow();
+            if(windows === null) {
+              windows = registry.getLastFocused();
+            }
+            // Put it in an array
+            windows = [windows];
+            validQuery = true;
+          }
+
+          // queryInfo.active
+          if(queryInfo.active === true) {
+            tabs = makeTabType(activeTabs(windows));
+            validQuery = true;
+          } else {
+            tabs = makeTabType(getTabs(windows));
+            validQuery = true;
+          }
         }
 
-        // queryInfo.active
-        if(queryInfo.active === true) {
-          windows = activeTabs(windows);
-          validQuery = true;
-        }
-
+        // TODO: Validate queries
         if(!validQuery) {
           extensionLog(new Error('No valid query is specified'));
-        }
-
-        return windows;
-        function currentWindow() {
-          return safari.application.activeBrowserWindow;
         }
 
         /**
@@ -203,27 +212,54 @@ var wrapper = {
          * @returns {SafariBrowserTabs[]} Array of active tabs.
          */
         function activeTabs(windows) {
-          var resultTabs = [];
+          var resultTabs = [], index, i, len;
 
-          for(var i=0, len=windows.length; i<len; i++) {
+          for(i=0, len=windows.length; i<len; i++) {
+            // It makes a copy of the object
             resultTabs.push(windows[i].activeTab);
           }
+          return resultTabs;
+        }
+
         /**
          * Gets all tabs from given windows.
          * @param {SafariBrowserWindow[]} windows - An array of {@link SafariBrowserWindow}.
          * @returns {SafariBrowserTab[]} List of tabs from {@link windows}.
          */
+        function getTabs(windows) {
+          var i, len, u, u_len, windowTabs, index, resultTabs = [];
+          for(i=0, len=windows.length; i<len; i++) {
+            windowTabs = windows[i].tabs;
+            for(u=0, u_len=windowTabs.length; u<u_len ;) {
+              resultTabs.push(windowTabs[u]);
+            }
+          }
+          return resultTabs;
+        }
+
         /**
          * Makes a Tab type.
          * @param {SafariBrowserTab[]} tabs - Array of SafariBowserTab.
          * @returns {Tab[]} Chrome formatted Tab type.
          */
+        function makeTabType(tabs){
+          var resultTabs = [], i, len, currentTab, tab;
+
+          for(i=0, len=tabs.length; i<len; i++) {
+            tab = tabs[i];
+            currentTab = {
+              id: tab.id
+              // All other parts may change
+            };
+            resultTabs.push(currentTab);
+          }
+          return resultTabs;
         }
       } catch(e) {
         wrapper.runtime.lastError = e;
         return -1;
       }
-      return resultTabs;
+      return tabs;
     }
   }
 };
@@ -281,7 +317,10 @@ safari.application.addEventListener('message', function(event) {
  * Registers Tabs and Windows.
  */
 var registry = (function() {
-  var _windows = {};
+  var _windows = {
+    activeWindow: null,
+    lastFocusedWindow: null
+  };
   var _tabs = {};
   var exports = {};
 
@@ -305,16 +344,36 @@ var registry = (function() {
    * Returns the window registered as `active`. It may not conform to the Chrome specs.
    * @returns {SafariBrowserWindow} The active window.
    */
+  exports.getActiveWindow = function() {
+    return _windows.activeWindow;
+  };
 
   /**
    * Returns the last window that had focus (activated from Safari specifications).
    * @returns {SafariBrowserWindow} The last window that had focus.
    */
+  exports.getLastFocused = function() {
+    return _windows.lastFocusedWindow;
+  };
+
   /**
    * Returns the {@link SafariBrowserTab} corresponding to a given ID.
    * @param {string|int} id - The ID of the registered tab.
    * @returns {SafariBrowserTab} The tab that has the given ID or -1 on error.
    */
+  exports.getTabById = function(id) {
+    var tab;
+    try {
+      if(_tabs.hasOwnProperty(id)) {
+        tab = _tabs[id];
+      } else {
+        extensionLog('Invalid tab id: ' + id);
+      }
+    } catch(e) {
+      return -1;
+    }
+    return tab;
+  };
   /**
    * Returns a random property that isn’t found in an Object.
    * @param {object} obj - Object to find uniqueness of a property name.
@@ -325,7 +384,7 @@ var registry = (function() {
    */
   function getUniqueProperty(obj, options) {
     var prop,
-        _options = options || {};
+        _options = options || {},
         precision = _options.precision || 100000000,
         prefix = _options.prefix || 0;
 
@@ -370,11 +429,14 @@ var registry = (function() {
    */
   function registerWindows() {
     var browserWindows = safari.application.browserWindows;
-    var id;
+    var id, activeWindow;
 
     for(var i=0, len=browserWindows.length; i<len; i++) {
       registerWindow(browserWindows[i]);
     }
+    activeWindow = safari.application.activeBrowserWindow;
+    _windows.activeWindow = activeWindow;
+    _windows.lastFocusedWindow = activeWindow;
   }
   // Windows ends here
 
@@ -455,9 +517,17 @@ var registry = (function() {
   }, true);
 
   safari.application.addEventListener('activate', function(ev) {
-    console.log(ev);
+    if(ev.target instanceof SafariBrowserWindow) {
+      _windows.activeWindow = ev.target;
+      // TODO: What about when it’s closed?
+      _windows.lastFocusedWindow = ev.target;
+    }
   }, true);
+
   safari.application.addEventListener('deactivate', function(ev) {
+    if(ev.target instanceof SafariBrowserWindow) {
+      _windows.activeWindow = null;
+    }
     console.log(ev);
   }, true);
 
