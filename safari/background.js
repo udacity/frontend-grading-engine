@@ -31,7 +31,7 @@ function extensionLog(log) {
   if(log instanceof Error) {
     logMessage = log.message;
     stack = log.stack;
-  } else if (logMessage instanceof String){
+  } else if (logMessage instanceof String || typeof logMessage === 'string'){
     logMessage = log;
     stack = new Error().stack;
   } else {
@@ -73,7 +73,7 @@ var wrapper = {
        * @throws {error} Error in the {@link keys} argument and sets {@link wrapper.runtime.lastError}.
        */
       get: function(keys) {
-        var i, len, items = {};
+        var i, len, key, items = {};
         try {
           if(!keys) {
             if(keys === null) {
@@ -82,22 +82,23 @@ var wrapper = {
               // Only `null` can return values, otherwise it’s an empty Object
               items = {};
             }
-          } else if(keys instanceof String) {
-            items[keys] = safari.extension[keys];
+          } else if(keys instanceof String || typeof keys === 'string') {
+            items[keys] = safari.extension.settings[keys];
           } else if(keys instanceof Array && keys.length > 0) {
             items = {};
 
             for(i=0, len=keys.length; i<len; i++) {
-              if(!(keys instanceof String)) {
+              key = keys[i];
+              if(!(key instanceof String || typeof key === 'string')) {
                 extensionLog(new Error('An item of the `keys` array wasn’t a String'));
               }
-              items[keys[i]] = safari.extension.settings[keys[i]];
+              items[key] = safari.extension.settings[key];
             }
           } else {
-            // Otherwise it can be any Objects.
+            // Otherwise it can be any Objects with properties as keys.
             items = {};
             // Only a coincidence if they got the same names.
-            var key, value, keysArray = Object.keys(keys);
+            var value, keysArray = Object.keys(keys);
 
             if(keysArray.length === 0) {
               extensionLog(new Error('The `keys` object does not contain any property on its own'));
@@ -125,7 +126,7 @@ var wrapper = {
        */
       set: function(keys) {
         try {
-          if(!keys || keys instanceof String || keys instanceof Array) {
+          if(!keys || keys instanceof String || typeof keys === 'string' || keys instanceof Array) {
             extensionLog(new Error('The `keys` argument is not a valid Object with keys/properties'));
           }
 
@@ -135,7 +136,7 @@ var wrapper = {
             extensionLog(new Error('The `keys` object does not contain any property on its own'));
           }
 
-          for(i=0, len=keys.length; i<len; i++) {
+          for(i=0, len=keysArray.length; i<len; i++) {
             key = keysArray[i];
             safari.extension.settings[key] = keys[key];
           }
@@ -305,7 +306,7 @@ safari.application.addEventListener('message', function(event) {
     } else {
       response = {name: 'ok', response: status};
     }
-    event.target.page.dispatchMessage(channel, response);
+    event.target.page.dispatchMessage(channel, JSON.stringify(response));
   }
   // Since its lifetime is for a callback
   wrapper.runtime.lastError = undefined;
