@@ -141,22 +141,24 @@ if (window.top === window) {
      */
     function askAdapter(channel, message) {
       return new Promise(function(resolve, reject) {
-        sendMessageToAdapter(channel, message);
-
-        // Receive the response
+        // Register the response receiver before sending the message (else it won’t be fired)
         safari.self.addEventListener('message', function responseHandler(ev) {
+          var data = JSON.parse(ev.message);
+          channel = channel.replace('wrapper.', 'chrome.');
           // Remove self since just ask --> response
           safari.self.removeEventListener('message', responseHandler);
-          if(ev.name === channel)
-            if(ev.message.status === 'ok') {
-              resolve(ev.message.response);
-            } else if(ev.message.status === 'error') {
+          if(ev.name === channel) {
+            if(data.name === 'ok') {
+              return resolve(data.response);
+            } else if(data.name === 'error') {
               // runtime.lastError
-              reject(ev.message.message);
+              return reject(data.response);
+            } else {
+              return reject('The Global Page sent an invalid response');
             }
-          reject('The Global Page sent an invalid response');
+          }
         }, false);
-
+        sendMessageToAdapter(channel, message);
       });
     }
 
