@@ -14,5 +14,10 @@ The extension allows to have an execution context with full access to the safari
 Safari has UI components that are similar to what WebExtension provides (e.g. _browser action_), but outside of the _browser action_ component, they differ significantly in their behaviour.
 Popovers have the same behaviour as _browser action_ page would. The global page _global executing context_ can be accessed with the `safari.extension.globalPage.contentWindow` namespace. To avoid making two adapters, the _global page_ adapter will be used.
 
+### Safari Incompatibilities
+#### Storage
+Safari doesn’t support extension storage. Instead, we need to use the `safari.extension.settings` property to set an inner object representing the storage object to use.
+#### Tabs and Windows
+Safari doesn’t provide a method to uniquely identify a window or a tab. The adapter adds a module called `registry` that assign an ID to each window or tab. It also provides several functions to retrieve a list of tabs or windows.
 ## License
 This directory and the whole project is subject to the [GPLv3 License](../license).
