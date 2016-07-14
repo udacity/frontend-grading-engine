@@ -1,4 +1,4 @@
-# Safari interface
+# Safari Interface
 ## Description
 This directory contains files needed to build the extension for Safari. The goal is to make a WebExtension [adapter](https://en.wikipedia.org/wiki/Adapter_pattern) to reduce modification of the current code base.
 
