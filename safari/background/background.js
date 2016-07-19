@@ -1,4 +1,4 @@
-/*global safari, SafariBrowserTab, SafariBrowserWindow */
+/*global safari, SafariBrowserTab, SafariBrowserWindow, wrapper */
 
 /**
  * @fileOverview This file adds Safari support for those APIs:

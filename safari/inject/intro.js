@@ -1,3 +1,5 @@
+/*global safari */
+
 /**
  * @fileOverview This file contains the opening statements of `inject.js` for Safari.
  * @name intro.js<safari>

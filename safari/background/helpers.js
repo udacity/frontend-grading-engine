@@ -1,3 +1,5 @@
+/*global safari */
+
 /**
  * @fileOverview This file adds utility functions for the Safari global page.
  * @name helpers.js<background>

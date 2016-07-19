@@ -1,3 +1,5 @@
+/*global registry, safari, extensionLog */
+
 /**
  * @fileOverview This file contains the adaptee (Adapter inner working) for emulating the WebExtension API. Only methods available to content scripts are implemented.
  * @name adapter.js<background>
@@ -100,10 +102,10 @@ var wrapper = {
   },
   tabs: {
     /**
+     * Sends a single message to the content script(s) in the specified tab, with an optional callback to run when a response is sent back. The {@link chrome.runtime.onMessage} event is fired in each content script running in the specified tab for the current extension.
      * @param {int} tabId - The tab to send the message to.
      * @param {*} message - Any object that can be serialized.
-     * @todo @param {object} [options]
-     * @todo @param {int} [options.frameId] - Send a message to a specific frame identified by {@link frameId} instead of all frames in the tab.
+     * @returns {Promise} A promise to be fulfilled when it has been received.
      */
     sendMessage: function(tabId, message, options, sender) {
       var tab;

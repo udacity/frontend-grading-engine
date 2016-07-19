@@ -1,3 +1,5 @@
+/*global wrapper, safari */
+
 /**
  * @fileOverview This file contains the adapter listener (i.e. message passing part) for injected scripts since most of the adaptee methods need higher priviledge (but allowed from a global page).
  * @name adapterListener.js<background>
