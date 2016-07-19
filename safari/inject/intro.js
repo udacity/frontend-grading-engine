@@ -50,7 +50,9 @@ if (window.top === window) {
            * @param {chrome.runtime.onMessage.addListener~callback} callback -
            */
           addListener: function(callback) {
+            safari.self.addEventListener('message', function handler(ev) {
 
+            }, false);
           }
         }
       },
@@ -164,6 +166,11 @@ if (window.top === window) {
       var JSONmessage = serialize(message);
       safari.self.tab.dispatchMessage(channel, JSONmessage);
     }
+
+    safari.self.addEventListener('message', function handler(event) {
+
+    }, false);
+
     /**
      * Callback when there’s a message sent to the extension channel (can be both the extension or a /content-script/).
      * @callback chrome.runtime.onMessage.addListener~callback
