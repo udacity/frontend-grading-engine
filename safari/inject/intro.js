@@ -17,7 +17,7 @@ if (window.top === window) {
      * @property {object} chrome.runtime.lastError - This will be defined during an API method callback if there was an error
      * @property {string} [chrome.runtime.lastError.message] - Details about the error which occurred.
      */
-    var chrome = {
+    return {
       runtime: {
         /**
          * Sends a single message to event listeners within the extension/app or a different extension/app. Similar to {@link chrome.runtime.onMessage} but only sends a single message, with an optional response. If sending to your extension, the runtime.onMessage event will be fired in each page, or {@link chrome.runtime.onMessageExternal}, if a different extension. Note that extensions cannot send messages to content scripts using this method. To send messages to content scripts, use {@link tabs.sendMessage.}
@@ -204,7 +204,6 @@ if (window.top === window) {
      * @callback chrome.tabs.sendMessage~responseCallback
      * @param {*} response - The JSON response object sent by the handler of the message. If an error occurs while connecting to the extension, the callback will be called with no arguments and {@link chrome.runtime.lastError} will be set to the error message.
      */
-    return chrome;
   })();
 
   // intro.js<safari> ends here

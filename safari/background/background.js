@@ -109,14 +109,15 @@ var chrome = {
      * @param {chrome.tabs.query~callback} callback - Threats returned tabs.
      */
     query: function(queryInfo, callback) {
-      askAdapter('wrapper.tabs.query', {query: queryInfo})
-        .then(function(values) {
-          if(callback instanceof Function) {
-            callback(values);
-          }
-        }).catch(function(error) {
-          throw new Error(error);
-        });
+      try {
+        var values = wrapper.tabs.query(queryInfo);
+        if(typeof(callback) === typeof(Function)) {
+          callback(values);
+        }
+      }
+      catch(e) {
+        throw e;
+      }
     }
   }
 };
