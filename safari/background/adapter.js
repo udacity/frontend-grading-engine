@@ -125,7 +125,6 @@ var wrapper = {
      * @param {object} queryInfo
      * @param {bool} [queryInfo.active] - TODO Whether the tabs are active in their windows. (Does not necessarily mean the window is focused.)
      * @param {bool} [queryInfo.currentWindow] - TODO Whether the tabs are in the /current window/. Note: the current window doesn’t mean it’s the active one. It means that the window is currently executing.
-     * @todo param {string} tabId - The tab to return
      * @returns {int|Object[]} Result of the query of -1 on error.
      */
     query: function(queryInfo) {
