@@ -129,13 +129,12 @@ var wrapper = {
      * @returns {int|Object[]} Result of the query of -1 on error.
      */
     query: function(queryInfo) {
-      var validQuery, windows, tabs;
+      var windows, tabs;
       try {
-        validQuery = false;
         windows = safari.application.browserWindows;
         tabs = [];
 
-        if(queryInfo instanceof Object) {
+        if(Object.prototype.toString.call(queryInfo) === '[object Object]') {
           // queryInfo.currentWindow
           if(queryInfo.currentWindow) {
             // Because there’s no way I know to select the window currently running in Safari, the active window (or `lastFocusedWindow` one if null) will be used instead. If someone successfully thriggers an action page that isn’t focused, it’s an undefined behavior.
@@ -156,6 +155,7 @@ var wrapper = {
         } else {
           extensionLog(new Error('No valid query is specified'));
         }
+
         /**
          * Gets all active {@link SafariBrowserTab} from given an array {@link SafariBrowserWindow},
          * @param {SafariBrowserWindow[]} windows - Windows to get all active tabs.

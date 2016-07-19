@@ -37,11 +37,6 @@ safari.application.addEventListener('message', function(event) {
     // Note: The docs don’t officially specify throwing lastError
     respondBack('chrome.tabs.query', status);
     break;
-  case 'wrapper.tabs.sendMessage':
-    // Returns -1 on error otherwise the response
-    status = wrapper.tabs.sendMessage(message.tabId, message.message, message.options, );
-
-    respondBack('chrome.tabs.sendMessage', status);
   }
 
   /**

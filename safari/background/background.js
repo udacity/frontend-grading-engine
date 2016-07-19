@@ -29,10 +29,10 @@ var chrome = {
      * @param {chrome.tabs.sendMessage~responseCallback} [responseCallback] - Function called when there’s a response. Note: The response can be any object.
      */
     sendMessage: function(tabId, message, options, responseCallback) {
-      askAdapter('wrapper.tabs.sendMessage', {tabId: tabId, message: message, options: options})
-        .then(function(values) {
-          if(responseCallback instanceof Function) {
-            responseCallback(values);
+      wrapper.tabs.sendMessage(tabId, message, options)
+        .then(function(response) {
+          if(typeof(responseCallback) === typeof(Function)) {
+            responseCallback(response);
           }
         });
     },
