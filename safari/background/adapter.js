@@ -108,14 +108,16 @@ var wrapper = {
      * @returns {Promise} A promise to be fulfilled when it has been received.
      */
     sendMessage: function(tabId, message, options, sender) {
-      var tab;
-      try {
-        tab = registry.getTabById(tabId);
-        tab.page.dispatchMessage('chrome.runtime.onMessage', {message: message, MessageSender: null});
-      } catch(e) {
-        return -1;
-      }
-      return 0;
+      return new Promise(function(resolve, reject) {
+        var tab = registry.getTabById(tabId);
+
+        safari.application.addEventListener('message', function handler(event) {
+          if(event.name === '_chrome.tabs.sendMessage~response') {
+            resolve(event.message);
+          }
+        }, false);
+        tab.page.dispatchMessage('_chrome.runtime.onMessage', {message: message, MessageSender: null});
+      });
     },
 
     /**
