@@ -78,9 +78,33 @@ function loadJSONTestsFromFile() {
     return new Promise(function(resolve, reject) {
       // http://stackoverflow.com/a/14274828
       var xmlhttp = new XMLHttpRequest();
-      var url = document.URL.substr(0, document.URL.lastIndexOf('/') + 1) + metaTag.content;
+      var currentBase = document.URL.substr(0, document.URL.lastIndexOf('/') + 1);
+      var url = metaTag.content,
+          fileBase = '';
+
+      // If it’s a relative URL
+      if(url.search(/^(?:https?:|file:)\/\//) === -1) {
+        if(url.search(/^\/\/:/) === -1) {
+          url = currentBase + url;
+        } else {
+          // If it’s protocol relative URL (i.e. //example.com)
+          // May be useless, but I don’t want to take chances
+          url = window.location.protocol + ':' + url;
+        }
+      }
+      fileBase = url.substr(0, document.URL.lastIndexOf('/') + 1);
+
+      if(fileBase !== currentBase) {
+        throw new Error('Invalid JSON file origin');
+      }
+
       xmlhttp.onreadystatechange = function() {
         if (xmlhttp.status == 200 && xmlhttp.readyState == 4) {
+          // DANGER! Checks if that it wasn’t a redirection
+          if(xmlhttp.responseURL !== url) {
+            console.warn('The JSON request received a redirection. Possible cross-origin request attempt');
+            reject(false);
+          }
           resolve(xmlhttp.responseText);
         } else if (xmlhttp.status >= 400) {
           reject(false);
