@@ -1,3 +1,5 @@
+/*global removeFileNameFromPath */
+
 /**
  * @fileoverview This file manages the injection of several JavaScript files. It contains most procedure for injecting those files, but doesn’t handle the conditional injection part.
  * @name inject.js
@@ -78,12 +80,13 @@ function loadJSONTestsFromFile() {
     return new Promise(function(resolve, reject) {
       // http://stackoverflow.com/a/14274828
       var xmlhttp = new XMLHttpRequest();
-      var currentBase = document.URL.substr(0, document.URL.lastIndexOf('/') + 1);
+      var currentBase = removeFileNameFromPath(document.URL);
       var url = metaTag.content,
           fileBase = '';
 
       // If it’s a relative URL
       if(url.search(/^(?:https?:|file:)\/\//) === -1) {
+        // If it’s protocol relative URL (i.e. //example.com)
         if(url.search(/^\/\/:/) === -1) {
           url = currentBase + url;
         } else {

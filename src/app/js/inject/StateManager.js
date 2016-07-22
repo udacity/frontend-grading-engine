@@ -1,3 +1,5 @@
+/*global removeFileNameFromPath */
+
 /**
  * @fileoverview This file contains the StateManager Class.
  * @todo Add a warning if the widget fails to initialize.
@@ -11,7 +13,19 @@
 function StateManager() {
   this.whitelist = [];
   this.hostIsAllowed = false;
-  this.host = location.hostname;
+  // Site is on file://*
+  this.isFileProtocol = false;
+  this.host = window.location.origin;
+
+  if(this.host === 'null') {
+    if(window.location.protocol === 'file:') {
+      this.host = removeFileNameFromPath(window.location.pathname);
+      this.isFileProtocol = true;
+    } else {
+      throw new Error('Unknown URL formatting error');
+    }
+  }
+
   this.geInjected = false;
 
   var currentlyInjecting = false;
@@ -74,10 +88,9 @@ function StateManager() {
 
   /**
    * Adds the current Document host to the whitelist (local storage).
-   * @param {string} site - unused
    * @returns {Promise}
    */
-  this.addSiteToWhitelist = function(site) {
+  this.addSiteToWhitelist = function() {
     var self = this;
     return new Promise(function(resolve, reject) {
       var index = self.whitelist.indexOf(self.host);
@@ -85,6 +98,7 @@ function StateManager() {
         self.whitelist.push(self.host);
       }
       self.isAllowed = true;
+
       var data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
         // debugger;
