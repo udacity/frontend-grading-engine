@@ -1,3 +1,5 @@
+/*global components */
+
 /**
  * @fileoverview This file registers the `test-suite` component. `test-results` and `test-widget` should have executed already.
  */

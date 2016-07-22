@@ -1,3 +1,5 @@
+/*global MutationObserver */
+
 /**
  * @fileoverview This file contains a custom function for emulating Web Components callbacks.
  */

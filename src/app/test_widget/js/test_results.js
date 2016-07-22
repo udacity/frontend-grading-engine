@@ -1,3 +1,5 @@
+/*global components */
+
 /**
  * @fileoverview This file registers the `test-results` component. This component is the main container and contains procedures for creating new `suites`. `test-results.js`, `test-widget.js`, `test-suite.js` should have executed already.
  */

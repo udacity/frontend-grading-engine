@@ -1,3 +1,12 @@
+/*global chrome */
+
+/**
+ * @fileOverview This file contains the option page for adding/removing websites from the whitelist.
+ * @name options.js<options>
+ * @author Cameron Pittman
+ * @license GPLv3
+ */
+
 var wlSites = document.querySelector('#wl-sites');
 var removeSitesDatalist = document.querySelector('#remove-site');
 
@@ -87,3 +96,5 @@ siteToRemove.onkeyup = function(e) {
 		.then(refreshDisplay);
 	}
 };
+
+// options.js<options> ends here

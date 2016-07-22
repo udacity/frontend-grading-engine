@@ -1,3 +1,5 @@
+/*global components */
+
 /**
  * @fileoverview This file registers the `active-test` component. This file doesn’t depend on other components.
  */

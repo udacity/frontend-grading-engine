@@ -1,4 +1,17 @@
+/*global FileReader, chrome */
+
+/**
+ * @fileOverview This file contains the browser_action logic.
+ * @name browser_action.js<browser_action>
+ * @author Cameron Pittman
+ * @license GPLv3
+ */
+
 // http://html5rocks.com/en/tutorials/file/dndfiles/
+/**
+ * This function DOESN’T WORK because the browser action closes when the window looses focus. Handle the Drag-and-drop of custom JSON files.
+ * @param {DragEvent} evt - The Drag-and-drop event.
+ */
 function handleFileSelect(evt) {
   var files = evt.target.files;
   var file = files[0];
@@ -26,12 +39,22 @@ function handleFileSelect(evt) {
   }
 };
 
+/**
+ * Custom function for sending messages to the current tab.
+ * @param {*} data - Any message or data that can be serialized
+ * @param {string} type - The type of the message.
+ * @param {function} [callback] - The function that will receive the response.
+ */
 function sendDataToTab(data, type, callback) {
   // debugger;
   // get the current tab then send data to it
   chrome.tabs.query({active: true, currentWindow: true}, fireOffData);
 
   // actually post data to a tab
+  /**
+   * Sends the message to the current tab.
+   * @param {chrome.tabs.Tab[]} arrayOfTabs - An array of tabs.
+   */
   function fireOffData (arrayOfTabs) {
     var activeTab = arrayOfTabs[0];
     var activeTabId = activeTab.id;
@@ -55,6 +78,9 @@ allowFeedback.onchange = function () {
 
 document.querySelector('#ud-file-loader').addEventListener('change', handleFileSelect, false);
 
+/**
+ * Make checkbox `checked` if the website is allowed.
+ */
 function checkSiteStatus () {
   // talk to background script
   sendDataToTab(true, 'background-wake', function (response) {
@@ -65,3 +91,5 @@ function checkSiteStatus () {
 };
 
 checkSiteStatus();
+
+// browser_action.js<browser_action> ends here

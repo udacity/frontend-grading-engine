@@ -1,4 +1,4 @@
-/*global removeFileNameFromPath */
+/*global removeFileNameFromPath, injectIntoDocument, chrome, StateManager */
 
 /**
  * @fileoverview This file manages the injection of several JavaScript files. It contains most procedure for injecting those files, but doesn’t handle the conditional injection part.

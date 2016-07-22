@@ -1,4 +1,4 @@
-/*global removeFileNameFromPath */
+/*global removeFileNameFromPath, importFeedbackWidget, injectGradingEngine, loadLibraries, loadJSONTestsFromFile, registerTestSuites, turnOn, waitForTestRegistrations, loadUnitTests, chrome, injectedElementsOnPage, injectIntoDocument */
 
 /**
  * @fileoverview This file contains the StateManager Class.

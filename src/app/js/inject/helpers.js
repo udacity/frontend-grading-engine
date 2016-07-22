@@ -1,3 +1,5 @@
+/*global injectedElementsOnPage */
+
 /**
  * @fileoverview This file contains various functions that aren’t specific to the current extension.
  */

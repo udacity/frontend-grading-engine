@@ -1,3 +1,5 @@
+/*global MutationObserver, components */
+
 /**
  * @fileoverview This file provides the test widget module. It injects an iFrame inside the current document to display a list of tests.
  */
