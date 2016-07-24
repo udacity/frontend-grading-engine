@@ -98,16 +98,52 @@ function initDisplay() {
   }
 }
 
-  for(var i=0, len=whitelist.length; i<len; i++) {
-    if(whitelist[i]) {
-      newOriginEntry(whitelist[i]);
-      isEmpty = false;
+/**
+ * Removes entries from the whitelist table.
+ */
+function cleanDisplay() {
+  var entryCollection = document.getElementsByClassName('whitelist-row');
+  var entries = [], i, len;
+
+  // An HTMLCollection would remove its item if we used
+  // `entryCollection[i].remove()` thus decreasing the lenght. That’s why we
+  // convert the collection to an Array
+  for(i=0, len=entryCollection.length; i<len; i++) {
+    if(entryCollection[i].id !== 'whitelist-entry-template') {
+      entries.push(entryCollection[i]);
     }
   }
 
-  if(!isEmpty) {
-    whitelistElem = document.getElementById('origin-whitelist');
-    whitelistElem.removeChild(whitelistElem.getElementsByClassName('whitelist-placeholder')[0]);
+  for(i=0, len=entries.length; i<len; i++) {
+    entries[i].remove();
+  }
+}
+
+/**
+ * Updates the whitelist table.
+ */
+function refreshDisplay() {
+  cleanDisplay();
+
+  refreshSection('remote');
+  refreshSection('local');
+
+  function refreshSection(type) {
+    var whitelist = stateManager.whitelist[type];
+    var isEmpty = true,
+        newTypeEntry = type === 'remote' ? newRemoteEntry : newLocalEntry,
+    whitelistElem;
+
+    for(var i=0, len=whitelist.length; i<len; i++) {
+      if(whitelist[i]) {
+        newTypeEntry(whitelist[i]);
+        isEmpty = false;
+      }
+    }
+
+    var placeholderDisplay = isEmpty ? 'table-row' : 'none';
+    whitelistElem = document.getElementById(type + '-whitelist');
+    whitelistElem.getElementsByClassName('whitelist-placeholder')[0].style.display = placeholderDisplay;
   }
 }
 
@@ -138,27 +174,12 @@ function chromiumInit() {
 var stateManager = new StateManager();
 stateManager.getWhitelist()
   .then(refreshDisplay)
-  .then(_refreshDisplay)
+  .then(initDisplay)
   .then(chromiumInit);
 
-siteToAdd.onkeyup = function(e) {
-  if (e.keyCode === 13) {
-    var site = siteToAdd.value;
-    stateManager.addSiteToWhitelist(site)
-      .then(refreshDisplay);
-  }
-};
-
-siteToRemove.onkeyup = function(e) {
-  if (e.keyCode === 13) {
-    var site = siteToRemove.value;
-    stateManager.removeSiteFromWhitelist(site)
-      .then(refreshDisplay);
-  }
-};
-
 window.addEventListener('remove', function handler(event) {
-  stateManager.removeSiteFromWhitelist(event.detail.data);
+  stateManager.removeSiteFromWhitelist(event.detail.data, event.detail.type);
+  refreshDisplay();
 }, false);
 
 // options.js<options> ends here
