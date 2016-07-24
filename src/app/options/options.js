@@ -6,20 +6,15 @@
  * @author Cameron Pittman
  * @author Etienne Prud’homme
  * @license GPLv3
+ * @todo remove trailing / from URLs
  */
 
-var wlSites = document.querySelector('#wl-sites');
-var removeSitesDatalist = document.querySelector('#remove-site');
-var siteToAdd = document.querySelector('input#add-site');
-var siteToRemove = document.querySelector('#site-to-remove');
-
-var originWhitelist = document.querySelector('#origin-whitelist');
+var remoteWhitelist = document.querySelector('#remote-whitelist');
 var localWhitelist = document.querySelector('#local-whitelist');
-
 var isChromium = window.navigator.vendor.toLocaleLowerCase().indexOf('google') !== -1;
 
 function StateManager() {
-  this.whitelist = [];
+  this.whitelist = {remote: [], local: []};
 };
 
 StateManager.prototype = {
@@ -31,9 +26,13 @@ StateManager.prototype = {
     var self = this;
     return new Promise(function (resolve, reject) {
       chrome.storage.sync.get('whitelist', function (response) {
-        self.whitelist = response.whitelist;
-        if (!(self.whitelist instanceof Array)) {
-          self.whitelist = [self.whitelist];
+        self.whitelist = response.whitelist || {remote: [], local: []};
+
+        if (!(self.whitelist.remote instanceof Array)) {
+          self.whitelist.remote = [self.whitelist.remote];
+        }
+        if (!(self.whitelist.local instanceof Array)) {
+          self.whitelist.local = [self.whitelist.local];
         }
         resolve(self.whitelist);
       });
@@ -48,12 +47,24 @@ StateManager.prototype = {
   addSiteToWhitelist: function(site, type) {
     var self = this;
     return new Promise(function (resolve, reject) {
-      var index = self.whitelist.indexOf(site);
+      if(type === 'remote') {
+        if(site.search(/^(?:https?:)\/\/[^\s\.]/) === -1) {
+          reject('The site is not a valid URL. The URL must at least contains the http:// or https:// scheme');
+        }
+      } else if(type === 'local') {
+        if(site.search(/^file:\/\/\/?[^\s\.]/) === -1) {
+          reject('The site is not a valid local URL. The URL must at least contains the file:// scheme');
+        }
+      } else {
+        reject('type');
+      }
+
+      var index = self.whitelist[type].indexOf(site);
       if (index === -1) {
-        self.whitelist.push(site);
+        self.whitelist[type].push(site);
       }
       self.isAllowed = true;
-      var data = {whitelist: self.whitelist};
+      var data = {whitelist: {remote: self.whitelist.remote, local: self.whitelist.local}};
       chrome.storage.sync.set(data, function () {
         resolve();
       });
@@ -68,12 +79,16 @@ StateManager.prototype = {
   removeSiteFromWhitelist: function(site, type) {
     var self = this;
     return new Promise(function (resolve, reject) {
-      var index = self.whitelist.indexOf(site);
+      if(type !== 'remote' && type !== 'local') {
+        reject('type');
+      }
+
+      var index = self.whitelist[type].indexOf(site);
       if (index > -1) {
-        self.whitelist.splice(index, 1);
+        self.whitelist[type].splice(index, 1);
       }
       self.isAllowed = false;
-      var data = {whitelist: self.whitelist};
+      var data = {whitelist: {remote: self.whitelist.remote, local: self.whitelist.local}};
       chrome.storage.sync.set(data, function () {
         resolve();
       });
@@ -147,27 +162,112 @@ function refreshDisplay() {
   }
 }
 
+/**
+ * Return a new entry for the whitelist created from a template. The entry should isn’t attached to the document.
+ * @param {string} data - The text node of the entry (`.entry`).
+ * @param {string} type - The type of entry. It either be: `add-entry`, `remote` or `local`.
+ * @returns {HTMLElement} The newly created entry.
+ */
 function newEntry(data, type) {
   var template = document.getElementById('whitelist-entry-template');
   var entry = template.cloneNode(true);
   entry.removeAttribute('id');
+
+  if(type === 'add-entry') {
+    entry.id = 'add-entry';
+  }
+
   entry.getElementsByClassName('entry')[0].textContent = data;
   entry.getElementsByClassName('remove-entry')[0].addEventListener('click', function handler(event) {
     event.preventDefault();
-    entry.parentElement.removeChild(entry);
+    entry.remove();
     window.dispatchEvent(new CustomEvent('remove', {detail: {type: type, data: data}}));
   });
   return entry;
 }
 
-function newOriginEntry(url) {
-  originWhitelist.appendChild(newEntry(url, 'origin'));
+/**
+ * Adds and attach a new entry in the **remote** section of the whitelist table.
+ * @param {string} url - The URL (text) of the entry.
+ * @returns {HTMLElement} A reference to the newly attached element.
+ */
+function newRemoteEntry(url) {
+  return remoteWhitelist.appendChild(newEntry(url, 'remote'));
 }
 
+/**
+ * Adds and attach a new entry in the **local** section of the whitelist table.
+ * @param {string} url - The URL (text) of the entry.
+ * @returns {HTMLElement} A reference to the newly attached element.
+ */
+function newLocalEntry(url) {
+  return localWhitelist.appendChild(newEntry(url, 'local'));
+}
+
+/**
+ * Creates an new empty entry with a text input to fill and remove an existing one if already present.
+ * @param {string} type - The type of entry for the whitelist. It can either be: `local` or `remote`
+ * @todo
+ */
+function newInputEntry(type) {
+  var emptyEntry = document.getElementById('add-entry');
+
+  if(emptyEntry !== null) {
+    emptyEntry.remove();
+  }
+
+  var input = document.createElement('input');
+  emptyEntry = newEntry('', 'add-entry');
+
+  if(type === 'local') {
+    // TODO: How to handle directories?
+    input.className = 'local-add-input';
+    emptyEntry = localWhitelist.appendChild(emptyEntry);
+  } else if(type === 'remote') {
+    emptyEntry = remoteWhitelist.appendChild(emptyEntry);
+    input.className = 'remote-add-input';
+  } else {
+    throw new TypeError('The type argument isn’t valid');
+  }
+
+  // Actually attach the input
+  emptyEntry.getElementsByClassName('entry')[0].appendChild(input);
+
+  // TODO: Check correct values
+  input.onkeyup = function(event) {
+    if (event.keyCode === 13) {
+      if(event.target.value) {
+        var site = event.target.value;
+        stateManager.addSiteToWhitelist(site, type)
+          .then(refreshDisplay)
+          .then(function() {
+            emptyEntry.remove();
+          })
+          .catch(function(message) {
+            if(message === 'type') {
+              message = 'Unknown error';
+            }
+            // TODO: Implement something less annoying
+            window.alert(message);
+          });
+        // TODO: Catch
+      }
+    }
+  };
+  input.focus();
+  console.log(emptyEntry);
+}
+
+/**
+ * Adds a warning to Chromium/Chrome users that loading a local file can’t work without doing it manually.
+ */
 function chromiumInit() {
   if(isChromium) {
     var localPlaceholder = document.querySelector('#local-whitelist td .whitelist-message');
     localPlaceholder.textContent = 'Chrome doesn’t support loading local files asynchronously. You must manually load the test file. Sorry for the inconvenience ';
+    localPlaceholder.parentElement.classList = localPlaceholder.parentElement.classList + ' chromium-message';
+    // Removes the plus sign
+    document.getElementById('local-add').remove();
   }
 }
 

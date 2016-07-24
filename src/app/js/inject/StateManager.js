@@ -11,7 +11,7 @@
  * @throws {Error} An error coming from a Promise.
  */
 function StateManager() {
-  this.whitelist = [];
+  this.whitelist = {remote: [], local: []};
   this.hostIsAllowed = false;
   this.host = window.location.origin;
 
@@ -75,12 +75,12 @@ function StateManager() {
     return new Promise(function(resolve, reject) {
       var type = self.type;
       chrome.storage.sync.get('whitelist', function(response) {
-        self.whitelist = response.whitelist;
+        self.whitelist = response.whitelist || {remote: [], local: []};
         // console.log(self.whitelist);
-        if (!(self.whitelist instanceof Array)) {
-          self.whitelist = [self.whitelist];
+        if (!(self.whitelist[type] instanceof Array)) {
+          self.whitelist[type] = [self.whitelist[type]];
         }
-        if (self.whitelist.indexOf(self.host) > -1) {
+        if (self.whitelist[type].indexOf(self.host) > -1) {
           self.isAllowed = true;
         } else {
           self.isAllowed = false;
@@ -98,9 +98,12 @@ function StateManager() {
     var self = this;
     return new Promise(function(resolve, reject) {
       var type = self.type;
+      if(!type) {
+        reject();
+      }
       var index = self.whitelist[type].indexOf(self.host);
       if (index === -1) {
-        self.whitelist.push(self.host);
+        self.whitelist[type].push(self.host);
       }
       self.isAllowed = true;
 
@@ -120,10 +123,10 @@ function StateManager() {
   this.removeSiteFromWhitelist = function(site) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var index = self.whitelist.indexOf(self.host);
       var type = self.type;
+      var index = self.whitelist[type].indexOf(self.host);
       if (index > -1) {
-        self.whitelist.splice(index, 1);
+        self.whitelist[type].splice(index, 1);
       }
       self.isAllowed = false;
       var data = {whitelist: self.whitelist};
