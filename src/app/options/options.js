@@ -57,7 +57,7 @@ StateManager.prototype = {
         }
       } else {
         reject('type');
-      }
+      }}).then(function() {
 
       var index = self.whitelist[type].indexOf(site);
       if (index === -1) {
@@ -66,7 +66,7 @@ StateManager.prototype = {
       self.isAllowed = true;
       var data = {whitelist: {remote: self.whitelist.remote, local: self.whitelist.local}};
       chrome.storage.sync.set(data, function () {
-        resolve();
+        Promise.resolve();
       });
     });
   },
@@ -234,7 +234,7 @@ function newInputEntry(type) {
   emptyEntry.getElementsByClassName('entry')[0].appendChild(input);
 
   // TODO: Check correct values
-  input.onkeyup = function(event) {
+  input.addEventListener('keyup', function handler(event) {
     if (event.keyCode === 13) {
       if(event.target.value) {
         var site = event.target.value;
@@ -253,7 +253,7 @@ function newInputEntry(type) {
         // TODO: Catch
       }
     }
-  };
+  }, false);
   input.focus();
   console.log(emptyEntry);
 }
