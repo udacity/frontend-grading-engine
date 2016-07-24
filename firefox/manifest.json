@@ -45,7 +45,8 @@
     }
   ],
   "web_accessible_resources": [
-    "app/js/*.js",
+    "app/css/common.css",
+    "app/css/fonts/fontawesome-webfont.ttf",
     "app/js/libs/GE.js",
     "app/js/libs/jsgrader.js",
     "app/templates/components.js"
