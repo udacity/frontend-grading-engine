@@ -23,6 +23,10 @@ function StateManager() {
 };
 
 StateManager.prototype = {
+  /**
+   * Get the whitelist from the storage.
+   * @returns {Promise} A promise that resolves when the data is received.
+   */
   getWhitelist: function() {
     var self = this;
     return new Promise(function (resolve, reject) {
@@ -35,7 +39,13 @@ StateManager.prototype = {
       });
     });
   },
-  addSiteToWhitelist: function(site) {
+  /**
+   * Add a given site to the stored whitelist and the {@link StateManager.whitelist}.
+   * @param {string} site - A URL to add to the whitelist.
+   * @param {string} type - The type of site. It either be: `remote` or `local`.
+   * @returns {Promise} A promise that resolves when the data is set.
+   */
+  addSiteToWhitelist: function(site, type) {
     var self = this;
     return new Promise(function (resolve, reject) {
       var index = self.whitelist.indexOf(site);
@@ -49,7 +59,13 @@ StateManager.prototype = {
       });
     });
   },
-  removeSiteFromWhitelist: function(site) {
+  /**
+   * Remove a given site from the stored whitelist and the {@link StateManager.whitelist}.
+   * @param {string} site - A URL to remove from the whitelist.
+   * @param {string} type - The type of site. It either be: `remote` or `local`.
+   * @returns {Promise} A promise when the data is set.
+   */
+  removeSiteFromWhitelist: function(site, type) {
     var self = this;
     return new Promise(function (resolve, reject) {
       var index = self.whitelist.indexOf(site);
