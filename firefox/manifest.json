@@ -17,6 +17,9 @@
     "64": "icons/udacity-official64.png",
     "128": "icons/udacity-official128.png"
   },
+  "options_ui": {
+    "page": "app/options/index.html"
+  },
   "browser_action": {
     "default_icon": "icons/udacity-official48.png",
     "default_title": "Udacity Feedback",

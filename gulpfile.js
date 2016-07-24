@@ -117,7 +117,7 @@ gulp.task('components', function() {
     .pipe(debug({title: 'built components: '}));
 });
 
-// "inject" = Generate the inject script for the current browser.
+// "inject" = Generate the inject script for the current browser and copy.
 gulp.task('inject', function() {
   var files = inject.src.map(function(x) {
     return x.replace('%target%', currentBrowser);

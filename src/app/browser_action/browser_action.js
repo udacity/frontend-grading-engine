@@ -25,15 +25,15 @@ function handleFileSelect(evt) {
 
   reader.onerror = function (e) {
     alert.style.display = 'block';
-    alert.innerHTML = "Error. Cannot load file.";
+    alert.textContent = "Error. Cannot load file.";
     console.log(e);
   };
 
   if (file.type && (file.type.match('application/json') || file.type.match('text/json'))) {
-    alert.innerHTML = "JSON found!";
+    alert.textContent = "JSON found!";
     reader.readAsText(file);
   } else {
-    alert.innerHTML = "File found";
+    alert.textContent = "File found";
     alert.style.color = "#a48700";
     reader.readAsText(file);
   }

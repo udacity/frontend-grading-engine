@@ -63,7 +63,7 @@ StateManager.prototype = {
 function refreshDisplay() {
 	siteToAdd.value = '';
 
-	removeSitesDatalist.innerHTML = '';
+	removeSitesDatalist.textContent = '';
 	siteToRemove.value = '';
 
 	stateManager.whitelist.forEach(function (val) {
@@ -73,7 +73,7 @@ function refreshDisplay() {
 	  removeSitesDatalist.appendChild(o);
 	});
 	if (stateManager.whitelist.length > 0) {
-		wlSites.innerHTML = stateManager.whitelist.join(', ');
+		wlSites.textContent = stateManager.whitelist.join(', ');
 	};
 };
 
