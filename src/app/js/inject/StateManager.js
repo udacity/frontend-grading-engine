@@ -13,17 +13,20 @@
 function StateManager() {
   this.whitelist = [];
   this.hostIsAllowed = false;
-  // Site is on file://*
-  this.isFileProtocol = false;
   this.host = window.location.origin;
 
-  if(this.host === 'null') {
+  if(this.host.search(/^(?:https?:)\/\/[^\s\.]/) !== -1)
+  {
+    this.type = 'remote';
+  } else if(this.host === 'null') {
     if(window.location.protocol === 'file:') {
       this.host = removeFileNameFromPath(window.location.pathname);
-      this.isFileProtocol = true;
+      this.type = 'local';
     } else {
       throw new Error('Unknown URL formatting error');
     }
+  } else {
+    throw new Error('Unknown URL formatting error');
   }
 
   this.geInjected = false;
@@ -70,6 +73,7 @@ function StateManager() {
     var self = this;
     self.isAllowed = false;
     return new Promise(function(resolve, reject) {
+      var type = self.type;
       chrome.storage.sync.get('whitelist', function(response) {
         self.whitelist = response.whitelist;
         // console.log(self.whitelist);
@@ -93,7 +97,8 @@ function StateManager() {
   this.addSiteToWhitelist = function() {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var index = self.whitelist.indexOf(self.host);
+      var type = self.type;
+      var index = self.whitelist[type].indexOf(self.host);
       if (index === -1) {
         self.whitelist.push(self.host);
       }
@@ -116,6 +121,7 @@ function StateManager() {
     var self = this;
     return new Promise(function(resolve, reject) {
       var index = self.whitelist.indexOf(self.host);
+      var type = self.type;
       if (index > -1) {
         self.whitelist.splice(index, 1);
       }
