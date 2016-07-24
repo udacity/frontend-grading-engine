@@ -145,4 +145,8 @@ siteToRemove.onkeyup = function(e) {
   }
 };
 
+window.addEventListener('remove', function handler(event) {
+  stateManager.removeSiteFromWhitelist(event.detail.data);
+}, false);
+
 // options.js<options> ends here
