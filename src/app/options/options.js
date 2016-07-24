@@ -51,24 +51,26 @@ StateManager.prototype = {
         if(site.search(/^(?:https?:)\/\/[^\s\.]/) === -1) {
           reject('The site is not a valid URL. The URL must at least contains the http:// or https:// scheme');
         }
+        resolve();
       } else if(type === 'local') {
         if(site.search(/^file:\/\/\/?[^\s\.]/) === -1) {
           reject('The site is not a valid local URL. The URL must at least contains the file:// scheme');
         }
+        resolve();
       } else {
         reject('type');
       }}).then(function() {
 
-      var index = self.whitelist[type].indexOf(site);
-      if (index === -1) {
-        self.whitelist[type].push(site);
-      }
-      self.isAllowed = true;
-      var data = {whitelist: {remote: self.whitelist.remote, local: self.whitelist.local}};
-      chrome.storage.sync.set(data, function () {
-        Promise.resolve();
+        var index = self.whitelist[type].indexOf(site);
+        if (index === -1) {
+          self.whitelist[type].push(site);
+        }
+        self.isAllowed = true;
+        var data = {whitelist: {remote: self.whitelist.remote, local: self.whitelist.local}};
+        chrome.storage.sync.set(data, function () {
+          Promise.resolve();
+        });
       });
-    });
   },
   /**
    * Remove a given site from the stored whitelist and the {@link StateManager.whitelist}.
@@ -147,7 +149,7 @@ function refreshDisplay() {
     var whitelist = stateManager.whitelist[type];
     var isEmpty = true,
         newTypeEntry = type === 'remote' ? newRemoteEntry : newLocalEntry,
-    whitelistElem;
+        whitelistElem;
 
     for(var i=0, len=whitelist.length; i<len; i++) {
       if(whitelist[i]) {
@@ -250,7 +252,6 @@ function newInputEntry(type) {
             // TODO: Implement something less annoying
             window.alert(message);
           });
-        // TODO: Catch
       }
     }
   }, false);
