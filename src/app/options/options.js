@@ -116,10 +116,18 @@ function newOriginEntry(url) {
   originWhitelist.appendChild(newEntry(url, 'origin'));
 }
 
+function chromiumInit() {
+  if(isChromium) {
+    var localPlaceholder = document.querySelector('#local-whitelist td .whitelist-message');
+    localPlaceholder.textContent = 'Chrome doesn’t support loading local files asynchronously. You must manually load the test file. Sorry for the inconvenience ';
+  }
+}
+
 var stateManager = new StateManager();
 stateManager.getWhitelist()
   .then(refreshDisplay)
-  .then(_refreshDisplay);
+  .then(_refreshDisplay)
+  .then(chromiumInit);
 
 siteToAdd.onkeyup = function(e) {
   if (e.keyCode === 13) {
