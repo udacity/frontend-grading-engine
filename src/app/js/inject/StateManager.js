@@ -14,11 +14,12 @@ function StateManager() {
   this.whitelist = {remote: [], local: []};
   this.hostIsAllowed = false;
   this.host = window.location.origin;
+  this.isChromium = window.navigator.vendor.toLocaleLowerCase().indexOf('google') !== -1;
 
   if(this.host.search(/^(?:https?:)\/\/[^\s\.]/) !== -1)
   {
     this.type = 'remote';
-  } else if(this.host === 'null') {
+  } else if(this.host === 'null' || this.host.search('file://') !== -1) {
     if(window.location.protocol === 'file:') {
       this.host = removeFileNameFromPath(window.location.pathname);
       this.type = 'local';
@@ -97,6 +98,9 @@ function StateManager() {
   this.addSiteToWhitelist = function() {
     var self = this;
     return new Promise(function(resolve, reject) {
+      if(self.isChromium) {
+        resolve();
+      }
       var type = self.type;
       if(!type) {
         reject();
@@ -143,6 +147,9 @@ function StateManager() {
    }
    */
   this.getIsAllowed = function() {
+    if(this.isChromium && this.type === 'local') {
+      return 'chrome_local_exception';
+    }
     return this.isAllowed;
   };
 

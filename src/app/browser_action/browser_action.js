@@ -85,10 +85,24 @@ document.querySelector('#ud-file-loader').addEventListener('change', handleFileS
 function checkSiteStatus () {
   // talk to background script
   sendDataToTab(true, 'background-wake', function (response) {
-    if (response) {
+    if(response === true) {
       allowFeedback.checked = true;
+    } else if(response === 'chrome_local_exception'){
+      addWarning('Chrome doesn’t support loading local files automatically.');
+    } else if(response === undefined) {
+      // response is undefined if there’s no content-script active (so it’s an unsupported URL scheme)
+      addWarning('Unsupported URL scheme. Supported URL schemes are: http://, https://, or file://');
+      document.getElementsByClassName('loader')[0].remove();
     }
   });
+
+  function addWarning(message) {
+    var form = document.getElementsByClassName('autorun')[0];
+    document.getElementById('warning-text').textContent = message;
+    document.getElementsByClassName('warning-block')[0].style.display = 'block';
+    form.classList = form.classList + ' disabled';
+    allowFeedback.disabled = true;
+  }
 };
 
 function initDisplay() {
