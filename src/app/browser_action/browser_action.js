@@ -4,6 +4,7 @@
  * @fileOverview This file contains the browser_action logic.
  * @name browser_action.js<browser_action>
  * @author Cameron Pittman
+ * @author Etienne Prud’homme
  * @license GPLv3
  */
 
@@ -90,6 +91,14 @@ function checkSiteStatus () {
   });
 };
 
+function initDisplay() {
+  var configs = document.getElementById('configs');
+  configs.addEventListener('click', function handler(event) {
+    chrome.runtime.openOptionsPage();
+  });
+}
+
 checkSiteStatus();
+initDisplay();
 
 // browser_action.js<browser_action> ends here
