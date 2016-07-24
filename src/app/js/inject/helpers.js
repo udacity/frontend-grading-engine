@@ -2,6 +2,10 @@
 
 /**
  * @fileoverview This file contains various functions that aren’t specific to the current extension.
+ * @name inject.js<inject>
+ * @author Cameron Pittman
+ * @author Etienne Prud’homme
+ * @license GPLv3
  */
 
 /**
@@ -66,4 +70,4 @@ function removeFileNameFromPath(path) {
   return path;
 }
 
-// helpers.js ends here
+// helpers.js<inject> ends here

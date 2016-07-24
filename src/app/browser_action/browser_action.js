@@ -80,14 +80,14 @@ allowFeedback.onchange = function () {
 document.querySelector('#ud-file-loader').addEventListener('change', handleFileSelect, false);
 
 /**
- * Make checkbox `checked` if the website is allowed.
+ * Makes checkbox `checked` if the website is allowed.
  */
 function checkSiteStatus () {
   // talk to background script
   sendDataToTab(true, 'background-wake', function (response) {
     if(response === true) {
       allowFeedback.checked = true;
-    } else if(response === 'chrome_local_exception'){
+    } else if(response === 'chrome_local_exception') {
       addWarning('Chrome doesn’t support loading local files automatically.');
     } else if(response === undefined) {
       // response is undefined if there’s no content-script active (so it’s an unsupported URL scheme)
@@ -96,6 +96,10 @@ function checkSiteStatus () {
     }
   });
 
+  /**
+   * Adds a custom warning message and disable the checkbox.
+   * @param {string} message - The custom message.
+   */
   function addWarning(message) {
     var form = document.getElementsByClassName('autorun')[0];
     document.getElementById('warning-text').textContent = message;
@@ -105,6 +109,9 @@ function checkSiteStatus () {
   }
 };
 
+/**
+ * Adds the gear EventListener for opening configurations.
+ */
 function initDisplay() {
   var configs = document.getElementById('configs');
   configs.addEventListener('click', function handler(event) {

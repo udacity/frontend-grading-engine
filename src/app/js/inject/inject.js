@@ -2,10 +2,10 @@
 
 /**
  * @fileoverview This file manages the injection of several JavaScript files. It contains most procedure for injecting those files, but doesn’t handle the conditional injection part.
- * @name inject.js
+ * @name inject.js<inject>
  * @author Cameron Pittman
- *         Etienne Prud’homme
- * @license MIT
+ * @author Etienne Prud’homme
+ * @license GPLv3
  */
 
 /**
@@ -49,7 +49,7 @@ function injectGradingEngine() {
 }
 
 /**
- * Load custom libraries for the Grading Engine (i.e. jsgrader.js).
+ * Load custom libraries for the Grading Engine (i.e. jsgrader.js). Currently only `jsgrader.js` is supported and allowed in the manifest.
  * @returns {Promise}
  */
 function loadLibraries() {
@@ -91,7 +91,6 @@ function loadJSONTestsFromFile() {
           url = currentBase + url;
         } else {
           // If it’s protocol relative URL (i.e. //example.com)
-          // May be useless, but I don’t want to take chances
           url = window.location.protocol + ':' + url;
         }
       }
@@ -205,14 +204,6 @@ function waitForTestRegistrations() {
 
 var stateManager = new StateManager();
 
-// Check if the site is on the Whitelist on page load
-stateManager.isSiteOnWhitelist()
-  .then(function(isAllowed) {
-    if (isAllowed) {
-      stateManager.turnOn();
-    }
-  });
-
 /**
  * Wait for messages from browser action.
  * @param {Object} message - Object containing a `data` and a `type` property.
@@ -222,9 +213,11 @@ stateManager.isSiteOnWhitelist()
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   switch (message.type) {
   case 'json':
+    // A JSON test file was passed to the action page
     registerTestSuites(message.data);
     break;
   case 'on-off':
+    // The action page checkbox was toggled
     if (message.data === 'on') {
       stateManager.addSiteToWhitelist()
         .then(stateManager.turnOn);
@@ -234,9 +227,11 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     }
     break;
   case 'background-wake':
+    // The action page is requesting infos about the current host
     sendResponse(stateManager.getIsAllowed());
     break;
   default:
+    // Just in case of future bad implementation
     console.log('invalid message type for: %s from %s', message, sender);
     break;
   }
@@ -250,5 +245,13 @@ window.addEventListener('GE-on', function() {
     stateManager.turnOn();
   }
 });
+
+// Check if the site is on the Whitelist on page load
+stateManager.isSiteOnWhitelist()
+  .then(function(isAllowed) {
+    if (isAllowed) {
+      stateManager.turnOn();
+    }
+  });
 
 // inject.js ends here

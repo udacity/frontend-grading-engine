@@ -1,6 +1,12 @@
+/*global chrome */
+
 /**
- * @fileoverview This file contains the opening statements of `inject.js`.
+ * @fileOverview This file contains the Firefox opening statements for the content script prepended to the main file.
+ * @name intro.js<inject>
+ * @author Etienne Prud’homme
+ * @license GPLv3
  */
+
 // chrome = browser;
 chrome.storage = {
   sync: {
@@ -46,4 +52,4 @@ chrome.storage = {
   }
 };
 
-// intro.js ends here
+// intro.js<inject> ends here

@@ -1,10 +1,13 @@
 /**
-The Teaching Assistant (TA) is responsible for:
-  * collecting data from the page and creating a tree of Targets (called a bullseye) representing the information
-  * traverseing the bullseye and reporting relevant data from Targets and grading instructions into a GradeBook.
-  * All collectors return the instance of the TA object for chaining.
-  * Collectors register their operations with the GradeBook, which actually checks the results of the tests.
-*/
+ * @fileOverview The Teaching Assistant (TA) is responsible for:
+   * collecting data from the page and creating a tree of Targets (called a bullseye) representing the information
+   * traverseing the bullseye and reporting relevant data from Targets and grading instructions into a GradeBook.
+   * All collectors return the instance of the TA object for chaining.
+   * Collectors register their operations with the GradeBook, which actually checks the results of the tests.
+ * @name TACollectors.js<js>
+ * @author Cameron Pittman
+ * @license GPLv3
+ */
 
 /**
  * The TA constructor sets default values and instantiates a GradeBook.
@@ -567,4 +570,4 @@ TA.prototype.waitForEvent = function(eventName) {
   return this;
 };
 
-// TACollectors.js ends here
+// TACollectors.js<js> ends here

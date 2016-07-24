@@ -1,6 +1,12 @@
+/*global chrome, browser */
+
 /**
- * @fileoverview This file contains the opening statements of `options.js`.
+ * @fileOverview This file contains the Firefox opening statements for the options page script prepended to the main file.
+ * @name intro.js<options>
+ * @author Etienne Prud’homme
+ * @license GPLv3
  */
+
 chrome = browser;
 chrome.storage = {
   sync: {
@@ -46,4 +52,4 @@ chrome.storage = {
   }
 };
 
-// intro.js ends here
+// intro.js<options> ends here
