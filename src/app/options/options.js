@@ -81,26 +81,22 @@ StateManager.prototype = {
   }
 };
 
-function refreshDisplay() {
-  siteToAdd.value = '';
-
-  removeSitesDatalist.textContent = '';
-  siteToRemove.value = '';
-
-  stateManager.whitelist.forEach(function (val) {
-    var o = document.createElement('option');
-    o.for = "remove-site";
-    o.value = val;
-    removeSitesDatalist.appendChild(o);
+/**
+ * Adds buttons to add entries.
+ */
+function initDisplay() {
+  var remoteAdd = document.getElementById('remote-add');
+  remoteAdd.addEventListener('click', function handler(event) {
+    newInputEntry('remote');
   });
-  if (stateManager.whitelist.length > 0) {
-    wlSites.textContent = stateManager.whitelist.join(', ');
-  };
-};
 
-function _refreshDisplay() {
-  var whitelist = stateManager.whitelist;
-  var isEmpty = true, whitelistElem;
+  var localAdd = document.getElementById('local-add');
+  if(localAdd !== null) {
+    localAdd.addEventListener('click', function handler(event) {
+      newInputEntry('local');
+    });
+  }
+}
 
   for(var i=0, len=whitelist.length; i<len; i++) {
     if(whitelist[i]) {
