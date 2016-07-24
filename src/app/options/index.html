@@ -3,22 +3,15 @@
   <head>
     <title>Udacity Feedback</title>
     <style>
-     #wl-sites::before {
-         content: "Whitelisted Domains: "
-     }
-
      #whitelist-entry-template {
          display: none;
      }
     </style>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../css/common.css" />
   </head>
   <body>
-    <div id="wl-sites">none</div>
-
-    <br>
-
     <table class="whitelist">
       <colgroup><col><col></colgroup>
       <thead>
@@ -26,10 +19,10 @@
           <th colspan="2">Whitelist</th>
         </tr>
         <tr class="whitelist-type">
-          <th colspan="2">Remote hosts</th>
+          <th colspan="2">Remote hosts<span id="remote-add" class="add-remote-entry button fa" title="Add remote host">&#xf196;</span></th>
         </tr>
       </thead>
-      <tbody id="origin-whitelist">
+      <tbody id="remote-whitelist">
         <tr id="whitelist-entry-template" class="whitelist-row">
           <td class="entry">host</td>
           <td class="remove"><span class="remove-entry button fa" title="Remove">&#xf00d;</span></td>
@@ -40,7 +33,7 @@
       </tbody>
       <thead>
         <tr class="whitelist-type">
-          <th colspan="2">Local directories</th>
+          <th colspan="2">Local directories<span id="local-add" class="add-remote-entry button fa" title="Add local directory">&#xf196;</span></th>
         </tr>
       </thead>
       <tbody id="local-whitelist">
@@ -49,15 +42,6 @@
         </tr>
       </tbody>
     </table>
-    <label for="add-site"><span>Add Domain: </span><input id="add-site" type="url">
-    </label>
-
-    <br><br>
-
-    <label for="remove-site"><span>Remove Domain: </span>
-      <input list="remove-site" name="remove-site" id="site-to-remove">
-      <datalist id="remove-site"></datalist>
-    </label>
     <script src="options.js"></script>
   </body>
 </html>
