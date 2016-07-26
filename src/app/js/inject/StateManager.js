@@ -102,9 +102,6 @@ function StateManager() {
   this.addSiteToWhitelist = function() {
     var self = this;
     return new Promise(function(resolve, reject) {
-      if(self.isChromium) {
-        resolve();
-      }
       var type = self.type;
       if(!type) {
         reject();
