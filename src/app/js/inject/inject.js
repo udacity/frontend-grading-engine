@@ -80,24 +80,38 @@ function loadJSONTestsFromFile() {
     return new Promise(function(resolve, reject) {
       // http://stackoverflow.com/a/14274828
       var xmlhttp = new XMLHttpRequest();
-      var currentBase = removeFileNameFromPath(document.URL);
+      // The complete path to the document excluding the file name (http://example.com/mydir/ for http://example.com/mydir/file.html)
+      var documentBase = removeFileNameFromPath(document.URL);
       var url = metaTag.content,
           fileBase = '';
 
-      // If it’s a relative URL
-      if(url.search(/^(?:https?:|file:)\/\//) === -1) {
+      // If it’s not an absolute URL
+      if(url.search(/^(?:https?|file):\/\//) === -1) {
         // If it’s protocol relative URL (i.e. //example.com)
-        if(url.search(/^\/\/:/) === -1) {
-          url = currentBase + url;
+        if(url.search(/^\/\//)) {
+          // The window must at least use one of those protocols
+          switch(window.location.protocol) {
+          case 'http:':
+          case 'https:':
+          case 'file:':
+            url = window.location.protocol + ':' + url;
+            break;
+          default:
+            console.warn('Unknown URL protocol. Supported protocols are: http, https and (local) file');
+            reject(false);
+          }
         } else {
-          // If it’s protocol relative URL (i.e. //example.com)
-          url = window.location.protocol + ':' + url;
+          // it’s probably a relative path (may be garbage)
+          url = documentBase + url;
         }
       }
-      fileBase = url.substr(0, document.URL.lastIndexOf('/') + 1);
 
-      if(fileBase !== currentBase) {
-        throw new Error('Invalid JSON file origin');
+      // Extract the file path (http://example.com/mydir/ for http://example.com/mydir/file.html)
+      fileBase = url.substr(0, url.lastIndexOf('/') + 1);
+
+      if(fileBase !== documentBase) {
+        console.warn('Invalid JSON file origin');
+        reject(false);
       }
 
       xmlhttp.onreadystatechange = function() {
