@@ -38,6 +38,10 @@ var jsFiles = {
     concat: 'GE.js',
     dest: build + 'app/js/libs/'
   },
+  libraries: {
+    src: 'lib/*',
+    dest: build + 'lib/'
+  },
   background: {
     src: '%target%/background.js',
     dest: build + 'app/js/'
@@ -55,18 +59,19 @@ var jsFiles = {
   },
   components: {
     src: [
-      'src/app/test_widget/js/components.js',
       'src/app/test_widget/js/test_suite.js',
       'src/app/test_widget/js/test_results.js',
       'src/app/test_widget/js/active_test.js',
       'src/app/test_widget/js/test_widget.js'
     ],
-    concat: 'components.js',
+    concat: 'templates.js',
     dest: build + 'app/templates/'
   }
 };
 
 var gradingEngine = jsFiles.gradingEngine;
+// Third-party libraries
+var libraries = jsFiles.libraries;
 var ge_libs = gradingEngine.libraries;
 var background = jsFiles.background;
 var inject = jsFiles.inject;
@@ -132,6 +137,13 @@ gulp.task('GE_libs', function() {
   return gulp.src(ge_libs.src)
     .pipe(gulp.dest(ge_libs.dest))
     .pipe(debug({title: 'copied grading engine libraries:'}));
+});
+
+// "libraries" = Copy third-party libraries.
+gulp.task('libraries', function() {
+  return gulp.src(libraries.src)
+    .pipe(gulp.dest(libraries.dest))
+    .pipe(debug({title: 'copied libraries:'}));
 });
 
 // "components" = Generate the native components. There were
@@ -229,7 +241,7 @@ gulp.task('assets', ['icons', 'styles', 'fonts']);
 gulp.task('app', ['components', 'inject', 'pageAction', 'pageOptions', 'assets']);
 
 // "extension" = Executes tasks that are mostly not browser specific.
-gulp.task('extension', ['app', 'GE', 'GE_libs']);
+gulp.task('extension', ['app', 'GE', 'GE_libs', 'libraries']);
 
 // "background-script" = Copy the background script for the
 // `currentBrowser` (if any).

@@ -49,6 +49,7 @@
     "app/css/fonts/fontawesome-webfont.ttf",
     "app/js/libs/GE.js",
     "app/js/libs/jsgrader.js",
-    "app/templates/components.js"
+    "app/templates/templates.js",
+    "lib/components.js"
   ]
 }

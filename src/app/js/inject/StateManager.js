@@ -1,4 +1,4 @@
-/*global removeFileNameFromPath, importFeedbackWidget, injectGradingEngine, loadLibraries, loadJSONTestsFromFile, registerTestSuites, turnOn, waitForTestRegistrations, loadUnitTests, chrome, injectedElementsOnPage, injectIntoDocument */
+/*global removeFileNameFromPath, importFeedbackWidget, injectGradingEngine, loadLibraries, loadJSONTestsFromFile, registerTestSuites, turnOn, waitForTestRegistrations, loadUnitTests, chrome, injectedElementsOnPage, injectIntoDocument, importComponentsLibrary */
 
 /**
  * @fileoverview This file contains the StateManager Class.
@@ -47,7 +47,8 @@ function StateManager() {
     var self = this;
     if (!currentlyInjecting || self.geInjected) {
       currentlyInjecting = true;
-      return importFeedbackWidget()
+      return importComponentsLibrary()
+        .then(importFeedbackWidget())
         .then(injectGradingEngine)
         .then(loadLibraries)
         .then(loadJSONTestsFromFile)

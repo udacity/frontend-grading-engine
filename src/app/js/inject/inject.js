@@ -20,6 +20,19 @@ var injectedElementsOnPage = [];
  */
 var metaTag = document.querySelector('meta[name="udacity-grader"]');
 
+function importComponentsLibrary() {
+  var cScript = document.querySelector('script#components-lib');
+
+  if(!cScript) {
+    return injectIntoDocument('script', {
+      src: chrome.extension.getURL('lib/components.js'),
+      id: 'components-lib'
+    }, 'head');
+  } else {
+    return Promise.resolve();
+  }
+}
+
 /**
  * Finds Web Components templates.
  * @returns {Promise}
@@ -29,7 +42,7 @@ function importFeedbackWidget() {
 
   if (!twScript) {
     return injectIntoDocument('script', {
-      src: chrome.extension.getURL('app/templates/components.js'),
+      src: chrome.extension.getURL('app/templates/templates.js'),
       id: 'udacity-test-widget'
     }, 'head');
   } else {
