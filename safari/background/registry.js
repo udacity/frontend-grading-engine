@@ -1,5 +1,6 @@
 /**
- * @fileOverview This adds a module to record windows and tabs in Safari. Otherwise, there’s no way to select a tab (or window) with an ID.
+ * @fileOverview This adds a module to record windows and tabs in
+ * Safari. Otherwise, there’s no way to select a tab (or window) with an ID.
  * @name registry.js<background>
  * @author Etienne Prud’homme
  * @license GPLv3
@@ -33,7 +34,8 @@ var registry = (function() {
   };
 
   /**
-   * Returns the window registered as `active`. It may not conform to the Chrome specs.
+   * Returns the window registered as `active`. It may not conform to the Chrome
+   * specs.
    * @returns {SafariBrowserWindow} The active window.
    */
   exports.getActiveWindow = function() {
@@ -41,7 +43,8 @@ var registry = (function() {
   };
 
   /**
-   * Returns the last window that had focus (activated from Safari specifications).
+   * Returns the last window that had focus (activated from Safari
+   * specifications).
    * @returns {SafariBrowserWindow} The last window that had focus.
    */
   exports.getLastFocused = function() {
@@ -70,8 +73,10 @@ var registry = (function() {
    * Returns a random property that isn’t found in an Object.
    * @param {object} obj - Object to find uniqueness of a property name.
    * @param {object} [options] - Options for generating the property.
-   * @param {int} [options.precision=100000000] - Number that will be multiplied to a random number between 0 and 1.
-   * @param {int|string} [options.prefix=0] - Number or string that will add the property to itself. It may add the number vlaue or concatenate the String.
+   * @param {int} [options.precision=100000000] - Number that will be multiplied
+   * to a random number between 0 and 1.
+   * @param {int|string} [options.prefix=0] - Number or string that will add the
+   * property to itself. It may add the number vlaue or concatenate the String.
    * @returns {int} Unique Identifier.
    */
   function getUniqueProperty(obj, options) {
@@ -88,8 +93,10 @@ var registry = (function() {
 
   // Windows
   /**
-   * Register a given window by assigning a new random id. When the window is closed, it removes the id from available windows.
-   * @todo Check if tabs from the registry are also removed when the window is closed.
+   * Register a given window by assigning a new random id. When the window is
+   * closed, it removes the id from available windows.
+   * @todo Check if tabs from the registry are also removed when the window is
+   * closed.
    * @param {SafariBrowserWindow} _window - The new window to register.
    */
   function registerWindow(_window) {
@@ -108,7 +115,8 @@ var registry = (function() {
   }
 
   /**
-   * Removes the given {@link SafariBrowserWindow} from the registered windows in {@link _windows}.
+   * Removes the given {@link SafariBrowserWindow} from the registered windows
+   * in {@link _windows}.
    * @param {SafariBrowserWindow} _window - The window to remove.
    */
   function removeWindow(_window) {
@@ -117,7 +125,8 @@ var registry = (function() {
   }
 
   /**
-   * Register all available windows with a new random unique id. Its purpose is to be called on the extension startup.
+   * Register all available windows with a new random unique id. Its purpose is
+   * to be called on the extension startup.
    */
   function registerWindows() {
     var browserWindows = safari.application.browserWindows;
@@ -135,7 +144,8 @@ var registry = (function() {
   // Tabs
 
   /**
-   * Register a given tab by assigning a new random id in the tabs registry. When the tab is closed, it removes the id from the tabs registry.
+   * Register a given tab by assigning a new random id in the tabs
+   * registry. When the tab is closed, it removes the id from the tabs registry.
    * @param {SafariBrowserTab} _tab - The new tab to register.
    */
   function registerTab(_tab) {
@@ -155,7 +165,8 @@ var registry = (function() {
   }
 
   /**
-   * Removes the given {@link SafariBrowserTab} from the registered windows in {@link _tabs}.
+   * Removes the given {@link SafariBrowserTab} from the registered windows in
+   * {@link _tabs}.
    * @param {SafariBrowserTab} tab - The Tab to remove.
    */
   function removeTab(tab) {
@@ -164,7 +175,8 @@ var registry = (function() {
   }
 
   /**
-   * Search for {@link SafariBrowserTab} without an id and set a new random unique id.
+   * Search for {@link SafariBrowserTab} without an id and set a new random
+   * unique id.
    */
   function registerTabs() {
     var status = 0,
@@ -184,7 +196,9 @@ var registry = (function() {
   }
   // Tabs ends here
 
-  // There’s no way to specify for windows or tabs (it must be guessed). It seems that when a window is created it first fires the event for the tab and then the window.
+  // There’s no way to specify for windows or tabs (it must be guessed). It
+  // seems that when a window is created it first fires the event for the tab
+  // and then the window.
   safari.application.addEventListener('open', function(ev) {
     // If a new window was created
     if(ev.target instanceof SafariBrowserWindow) {

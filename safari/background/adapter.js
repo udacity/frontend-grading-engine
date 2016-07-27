@@ -18,6 +18,7 @@ var wrapper = {
       /**
        * Emulates the chrome storage behavior (getter) by using the {@link safari.extension.settings} mechanism.
        * @param {string|string[]|object} keys - A single key to get, list of keys to get, or a dictionary specifying default values (see description of the object). An empty list or object will return an empty result object. Pass in null to get the entire contents of storage.
+       * @todo transform to a Promise
        * @returns {object} Object with items in their key-value mappings.
        * @throws {error} Error in the {@link keys} argument and sets {@link wrapper.runtime.lastError}.
        */
@@ -102,7 +103,10 @@ var wrapper = {
   },
   tabs: {
     /**
-     * Sends a single message to the content script(s) in the specified tab, with an optional callback to run when a response is sent back. The {@link chrome.runtime.onMessage} event is fired in each content script running in the specified tab for the current extension.
+     * Sends a single message to the content script(s) in the specified tab,
+     * with an optional callback to run when a response is sent back. The
+     * {@link injected.runtime.onMessage} event is fired in each content script
+     * running in the specified tab for the current extension.
      * @param {int} tabId - The tab to send the message to.
      * @param {*} message - Any object that can be serialized.
      * @returns {Promise} A promise to be fulfilled when it has been received.
@@ -121,10 +125,14 @@ var wrapper = {
     },
 
     /**
-     * Gets all tabs that have the specified properties, or all tabs if no properties are specified.
+     * Gets all tabs that have the specified properties, or all tabs if no
+     * properties are specified.
      * @param {object} queryInfo
-     * @param {bool} [queryInfo.active] - TODO Whether the tabs are active in their windows. (Does not necessarily mean the window is focused.)
-     * @param {bool} [queryInfo.currentWindow] - TODO Whether the tabs are in the /current window/. Note: the current window doesn’t mean it’s the active one. It means that the window is currently executing.
+     * @param {bool} [queryInfo.active] - TODO Whether the tabs are active in
+     * their windows. (Does not necessarily mean the window is focused.)
+     * @param {bool} [queryInfo.currentWindow] - TODO Whether the tabs are in
+     * the /current window/. Note: the current window doesn’t mean it’s the
+     * active one. It means that the window is currently executing.
      * @returns {int|Object[]} Result of the query of -1 on error.
      */
     query: function(queryInfo) {
@@ -136,7 +144,12 @@ var wrapper = {
         if(Object.prototype.toString.call(queryInfo) === '[object Object]') {
           // queryInfo.currentWindow
           if(queryInfo.currentWindow) {
-            // Because there’s no way I know to select the window currently running in Safari, the active window (or `lastFocusedWindow` one if null) will be used instead. If someone successfully thriggers an action page that isn’t focused, it’s an undefined behavior.
+            /** Because there’s no way I know to select the window currently
+             * running in Safari, the active window (or
+             * {@link lastFocusedWindow} one if null) will be used instead. If
+             * someone successfully thriggers an action page that isn’t focused,
+             * it’s an undefined behavior.
+             */
             windows = registry.getActiveWindow();
             if(windows === null) {
               windows = registry.getLastFocused();
@@ -156,8 +169,10 @@ var wrapper = {
         }
 
         /**
-         * Gets all active {@link SafariBrowserTab} from given an array {@link SafariBrowserWindow},
-         * @param {SafariBrowserWindow[]} windows - Windows to get all active tabs.
+         * Gets all active {@link SafariBrowserTab} from given an array
+         * {@link SafariBrowserWindow}.=
+         * @param {SafariBrowserWindow[]} windows - Windows to get all active
+         * tabs.
          * @returns {SafariBrowserTabs[]} Array of active tabs.
          */
         function activeTabs(windows) {
@@ -172,7 +187,8 @@ var wrapper = {
 
         /**
          * Gets all tabs from given windows.
-         * @param {SafariBrowserWindow[]} windows - An array of {@link SafariBrowserWindow}.
+         * @param {SafariBrowserWindow[]} windows - An array of
+         * {@link SafariBrowserWindow}.
          * @returns {SafariBrowserTab[]} List of tabs from {@link windows}.
          */
         function getTabs(windows) {

@@ -1,5 +1,6 @@
 /**
- * @fileOverview This file contains the closing statements of `inject.js`.
+ * @fileOverview This file contains the closing statements of
+ * `inject.js`.
  * @name outro.js<Safari>
  * @author Etienne Prud’homme
  * @license MIT

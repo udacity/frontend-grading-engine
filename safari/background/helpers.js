@@ -10,7 +10,8 @@
 /**
  * Store logging informations in the extension settings.
  * @param {string|error} message - The message to log as a String or an Error.
- * @throws {Error} Error in the arguments of the function (not a String nor an Error).
+ * @throws {Error} Error in the arguments of the function (not a String nor an
+ * Error).
  */
 function extensionLog(log) {
   // Cache logs to append a single log
@@ -38,7 +39,8 @@ function extensionLog(log) {
 
   // Record the new logs
   safari.extension.settings.logs = logs;
-  // This should be in the Background script and shouldn’t conflict with page scripts
+  // This should be in the Background script and shouldn’t conflict with page
+  // scripts
   console.warn(log);
 
   // Actually throw that error
