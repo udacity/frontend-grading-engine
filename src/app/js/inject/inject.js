@@ -14,6 +14,8 @@
  */
 var injectedElementsOnPage = [];
 
+var runtimeError = null;
+
 /**
  * The meta tag that is used to load and activate a file of tests.
  * @type {Element}
@@ -110,6 +112,7 @@ function loadJSONTestsFromFile() {
             url = window.location.protocol + url;
             break;
           default:
+            runtimeError = 'unknown_protocol';
             console.warn('Unknown URL protocol. Supported protocols are: http, https and (local) file');
             reject(false);
           }
@@ -123,6 +126,7 @@ function loadJSONTestsFromFile() {
       fileBase = url.substr(0, url.lastIndexOf('/') + 1);
 
       if(fileBase !== documentBase) {
+        runtimeError = 'invalid_origin';
         console.warn('Invalid JSON file origin');
         reject(false);
       }
@@ -131,6 +135,7 @@ function loadJSONTestsFromFile() {
         if (xmlhttp.status == 200 && xmlhttp.readyState == 4) {
           // DANGER! Checks if that it wasn’t a redirection
           if(xmlhttp.responseURL !== url) {
+            runtimeError = 'redirection';
             console.warn('The JSON request received a redirection. Possible cross-origin request attempt');
             reject(false);
           }
@@ -257,6 +262,9 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     }
     break;
   case 'background-wake':
+    if(runtimeError) {
+      sendResponse(runtimeError);
+    }
     // The action page is requesting infos about the current host
     sendResponse(stateManager.getIsAllowed());
     break;

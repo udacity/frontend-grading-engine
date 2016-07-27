@@ -85,14 +85,26 @@ document.querySelector('#ud-file-loader').addEventListener('change', handleFileS
 function checkSiteStatus () {
   // talk to background script
   sendDataToTab(true, 'background-wake', function (response) {
-    if(response === true) {
+    switch(response) {
+    case true:
       allowFeedback.checked = true;
-    } else if(response === 'chrome_local_exception') {
-      addWarning('Chrome doesn’t support loading local files automatically.');
-    } else if(response === undefined) {
+      break;
+    case 'chrome_local_exception':
+      addWarning('Chrome doesn’t support loading local files automatically.', true, true);
+      break;
+    case 'unknown_protocol':
+      addWarning('Unsupported protocol. Supported protocols are: http, https and (local) file', true, true);
+      break;
+    case 'invalid_origin':
+      addWarning('The linked JSON page isn’t at the same origin and directory as the document.', true, true);
+      break;
+    case undefined:
       // response is undefined if there’s no content-script active (so it’s an unsupported URL scheme)
       addWarning('Unsupported URL scheme. Supported URL schemes are: http://, https://, or file://');
       document.getElementsByClassName('loader')[0].remove();
+      break;
+    default:
+      break;
     }
   });
 
@@ -100,12 +112,18 @@ function checkSiteStatus () {
    * Adds a custom warning message and disable the checkbox.
    * @param {string} message - The custom message.
    */
-  function addWarning(message) {
+  function addWarning(message, enableCheckbox, checked, moreInfos) {
     var form = document.getElementsByClassName('autorun')[0];
     document.getElementById('warning-text').textContent = message;
     document.getElementsByClassName('warning-block')[0].style.display = 'block';
-    form.classList = form.classList + ' disabled';
-    allowFeedback.disabled = true;
+
+    if(enableCheckbox !== true) {
+      form.classList = form.classList + ' disabled';
+      allowFeedback.disabled = true;
+    }
+    if(checked === true) {
+      allowFeedback.checked = true;
+    }
   }
 };
 
