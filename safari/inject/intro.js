@@ -184,7 +184,7 @@ if (window.top === window) {
         // won’t be fired)
         safari.self.addEventListener('message', function responseHandler(ev) {
           var data = JSON.parse(ev.message);
-          channel = channel.replace('wrapper.', 'chrome.');
+          channel = channel.replace('wrapper.', 'injected.');
           // Remove self since just ask --> response
           safari.self.removeEventListener('message', responseHandler);
           if(ev.name === channel) {
@@ -207,9 +207,8 @@ if (window.top === window) {
       safari.self.tab.dispatchMessage(channel, JSONmessage);
     }
 
-    // Receives messages from the background script
+    // The injected script receives messages
     safari.self.addEventListener('message', function handler(event) {
-
     }, false);
 
     /**
@@ -267,4 +266,5 @@ if (window.top === window) {
      */
   })();
 
+  chrome = injected;
   // intro.js<safari> ends here

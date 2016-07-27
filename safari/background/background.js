@@ -16,26 +16,26 @@ safari.extension.settings.logs = safari.extension.settings.logs || [];
  * @returns {object} The chrome namespace.
  * @throws {Error} TO FIX. We should set `lastError` instead.
  */
-var chrome = function() {
+var global = function() {
   var exports = {
     tabs: {
       /**
        * Sends a single message to the content script(s) in the specified tab,
        * with an optional callback to run when a response is sent back. The
-       * {@link chrome.runtime.onMessage} event is fired in each content script
+       * {@link global.runtime.onMessage} event is fired in each content script
        * running in the specified tab for the current extension.
        * @param {int} tabId - The tab to send the message to.
        * @param {*} message - Any object that can be serialized.
        * @param {object} [options]
        * @param {int} [options.frameId] - Send a message to a specific frame
        * identified by {@link frameId} instead of all frames in the tabn.
-       * @param {chrome.tabs.sendMessage~responseCallback} [responseCallback] -
+       * @param {global.tabs.sendMessage~responseCallback} [responseCallback] -
        * Function called when there’s a response. Note: The response can be any
        * object.
        */
       sendMessage: function(tabId, message, options, responseCallback) {
-        var sender = Math.floor(Math.random() * 100000000);
-        wrapper.tabs.sendMessage(tabId, message, options, sender)
+        var channel = Math.floor(Math.random() * 100000000);
+        wrapper.tabs.sendMessage(tabId, message, options, channel)
           .then(function(response) {
             if(typeof(responseCallback) === typeof(Function)) {
               responseCallback(response);
@@ -134,12 +134,12 @@ var chrome = function() {
        * @todo @param {string|string[]} [queryInfo.url] - Match tabs against one
        * or more /URL patterns/. Note that fragment identifiers are not matched.
        * @param {int} [queryInfo.windowId] - The ID of the parent window, or
-       * {@link chrome.windows.WINDOW_ID_CURRENT} for the current window.
+       * {@link global.windows.WINDOW_ID_CURRENT} for the current window.
        * @todo @param {windowType} [queryInfo.windowType] - The type of window
        * the tabs are in.
        * @todo @param {int} [queryInfo.index] - The position of the tabs within
        * their windows.
-       * @param {chrome.tabs.query~callback} callback - Threats returned tabs.
+       * @param {global.tabs.query~callback} callback - Threats returned tabs.
        */
       query: function(queryInfo, callback) {
         try {

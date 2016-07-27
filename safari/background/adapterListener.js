@@ -20,25 +20,25 @@ safari.application.addEventListener('message', function(event) {
   case 'wrapper.storage.sync.get':
     // Returns -1 on error otherwise the response
     status = wrapper.storage.sync.get(message.keys);
-    respondBack('chrome.storage.sync.get', status);
+    respondBack('injected.storage.sync.get', status);
     break;
   case 'wrapper.storage.sync.set':
     // Returns -1 on error otherwise the response
     status = wrapper.storage.sync.set(message.keys);
-    respondBack('chrome.storage.sync.set', status);
+    respondBack('injected.storage.sync.set', status);
     break;
   case 'wrapper.runtime.sendMessage':
     // TODO
     // Returns -1 on error otherwise the response
     status = wrapper.runtime.sendMessage();
-    respondBack('chrome.runtime.sendMessage', status);
+    respondBack('injected.runtime.sendMessage', status);
     break;
   case 'wrapper.tabs.query':
     // Returns -1 on error otherwise the responsenn
     status = wrapper.tabs.query(message.query);
 
     // Note: The docs don’t officially specify throwing lastError
-    respondBack('chrome.tabs.query', status);
+    respondBack('injected.tabs.query', status);
     break;
   }
 
