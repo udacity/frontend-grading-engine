@@ -209,6 +209,9 @@ function turnOn() {
   // console.log('Turned on from turnOn()');
   return injectIntoDocument('script', {
     id: 'ud-grader-options',
+    // Reviewer: Because we need to access the window script context, it’s
+    // necessary to inject the script that way. A content-script doesn’t have
+    // access to the window scripting context.
     innerHTML: 'UdacityFEGradingEngine.turnOn();'
   }, 'head');
 }

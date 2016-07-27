@@ -46,7 +46,7 @@ var testResults = (function() {
       if (hideShowButton.disabled === true) {
         hideShowButton.removeAttribute('disabled');
       }
-      placeholder.innerHTML = '';
+      placeholder.textContent = '';
 
       // actually create the suite
       var _testSuiteFragment = components.createElement('test-suite');
@@ -83,9 +83,9 @@ var testResults = (function() {
       placeholder.classList.toggle('hide');
 
       if (this.classList.contains('hidden')) {
-        placeholder.innerHTML = "Tests hidden";
+        placeholder.textContent = "Tests hidden";
       } else {
-        placeholder.innerHTML = "";
+        placeholder.textContent = '';
       }
     };
   };

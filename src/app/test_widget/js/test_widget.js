@@ -137,13 +137,12 @@ var testWidget = (function() {
         'content: "Show";' +
         '}' +
 
-        '.suite-code {' +
+        '.suite-code-container {' +
         'background: rgba(0,0,0,0.6);' +
         'color: #eee;' +
-        'margin: 0.5em -0.5em;' +
-        '}' +
-        '.suite-code > div {' +
+        'display: none;' +
         'padding: 6px 0.5em;' +
+        'margin: 0.5em -0.5em;' +
         'text-align: center;' +
         '}' +
 
@@ -269,10 +268,12 @@ var testWidget = (function() {
     return _buildFrame().then(function() {
       var testWidgetDisplay = _frameDocument();
 
+      // Reviewer: This is safe
       testWidgetDisplay.head.innerHTML = template.head;
       testWidgetDisplay.body.innerHTML = template.body;
 
       var outerCSS = document.createElement('style');
+      // Reviewer: This is safe
       outerCSS.innerHTML = outerStyles;
       document.head.appendChild(outerCSS);
 
