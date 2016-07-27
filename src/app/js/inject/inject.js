@@ -88,13 +88,13 @@ function loadJSONTestsFromFile() {
       // If it’s not an absolute URL
       if(url.search(/^(?:https?|file):\/\//) === -1) {
         // If it’s protocol relative URL (i.e. //example.com)
-        if(url.search(/^\/\//)) {
+        if(url.search(/^\/\//) !== -1) {
           // The window must at least use one of those protocols
           switch(window.location.protocol) {
           case 'http:':
           case 'https:':
           case 'file:':
-            url = window.location.protocol + ':' + url;
+            url = window.location.protocol + url;
             break;
           default:
             console.warn('Unknown URL protocol. Supported protocols are: http, https and (local) file');

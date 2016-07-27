@@ -31,11 +31,11 @@ var jsFiles = {
       'src/js/registrar.js',
       'src/js/outro.js'
     ],
+    libraries: {
+      src: 'src/app/js/libs/*.js',
+      dest: build + 'app/js/libs/'
+    },
     concat: 'GE.js',
-    dest: build + 'app/js/libs/'
-  },
-  libraries: {
-    src: 'src/app/js/libs/*.js',
     dest: build + 'app/js/libs/'
   },
   background: {
@@ -67,7 +67,7 @@ var jsFiles = {
 };
 
 var gradingEngine = jsFiles.gradingEngine;
-var libraries = jsFiles.libraries;
+var ge_libs = gradingEngine.libraries;
 var background = jsFiles.background;
 var inject = jsFiles.inject;
 var components = jsFiles.components;
@@ -127,10 +127,10 @@ gulp.task('GE', function() {
     .pipe(debug({title: 'built dev grading engine:'}));
 });
 
-// "libraries" = Copy libraries of the application.
-gulp.task('libraries', function() {
-  return gulp.src(libraries.src)
-    .pipe(gulp.dest(libraries.dest))
+// "GE_libs" = Copy libraries of the Grading Engine.
+gulp.task('GE_libs', function() {
+  return gulp.src(ge_libs.src)
+    .pipe(gulp.dest(ge_libs.dest))
     .pipe(debug({title: 'copied grading engine libraries:'}));
 });
 
@@ -229,7 +229,7 @@ gulp.task('assets', ['icons', 'styles', 'fonts']);
 gulp.task('app', ['components', 'inject', 'pageAction', 'pageOptions', 'assets']);
 
 // "extension" = Executes tasks that are mostly not browser specific.
-gulp.task('extension', ['app', 'GE', 'libraries']);
+gulp.task('extension', ['app', 'GE', 'GE_libs']);
 
 // "background-script" = Copy the background script for the
 // `currentBrowser` (if any).
