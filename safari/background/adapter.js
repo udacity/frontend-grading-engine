@@ -1,10 +1,21 @@
 /*global registry, safari, extensionLog */
 
 /**
- * @fileOverview This file contains the adaptee (Adapter inner working) for emulating the WebExtension API. Only methods available to content scripts are implemented.
+ * @fileOverview This file contains the adaptee (Adapter inner working) for emulating the WebExtension API.
  * @name adapter.js<background>
  * @author Etienne Prud’homme
  * @license GPLv3
+ *
+ * Injected Scripts don’t have access to the `chrome.*` API with the exception
+ * of:
+ * * `extension` (`getURL`, `inIncognitoContext`, `lastError`, `onRequest`,
+ *    `sendRequest`)
+ * * `i18n`
+ * * `runtime` (`connect`, `getManifest`, `getURL`, `id`, `onConnect`,
+ *    `onMessage`, `sendMessage`)
+ * * `storage`
+ *
+ * This is wĥy this background script is created.
  */
 
 /**
@@ -113,6 +124,7 @@ var wrapper = {
      */
     sendMessage: function(tabId, message, options, sender) {
       return new Promise(function(resolve, reject) {
+        var sender = sender || Math.floor(Math.random() * 100000000);
         var tab = registry.getTabById(tabId);
 
         safari.application.addEventListener('message', function handler(event) {
@@ -120,7 +132,7 @@ var wrapper = {
             resolve(event.message);
           }
         }, false);
-        tab.page.dispatchMessage('_chrome.runtime.onMessage', {message: message, MessageSender: null});
+        tab.page.dispatchMessage('injected.runtime.onMessage', {message: message, sender: sender});
       });
     },
 

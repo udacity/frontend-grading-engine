@@ -21,7 +21,7 @@ function extensionLog(log) {
   if(log instanceof Error) {
     logMessage = log.message;
     stack = log.stack;
-  } else if (logMessage instanceof String || typeof logMessage === 'string'){
+  } else if (logMessage instanceof String || typeof logMessage === 'string') {
     logMessage = log;
     stack = new Error().stack;
   } else {

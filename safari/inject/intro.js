@@ -5,15 +5,16 @@
  * Safari.
  * @name intro.js<safari>
  * @author Etienne Prud’homme
- * @license MIT
+ * @license GPLv3
  */
 
 /* jshint ignore:start */
 // Injected scripts in Safari get also injected in iFrames
 if (window.top === window) {
   /* jshint ignore: end*/
-  chrome = (function(){
-    /**
+  var injected = (function(){
+    var pageListener = [];
+   /**
      * @namespace
     * @property {object} injected.runtime.lastError - This will be defined
     * during an API method callback if there was an error
@@ -105,7 +106,7 @@ if (window.top === window) {
             askAdapter('wrapper.storage.sync.get', {keys: keys})
               .then(function(values) {
                 if(callback instanceof Function) {
-                  console.log('In `chrome.storage.sync.get` returning: ' + values.toString());
+                  console.log('In `injected.storage.sync.get` returning: ' + values.toString());
                   callback(values);
                 }
               }).catch(function(error) {

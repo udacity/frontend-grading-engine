@@ -1,24 +1,11 @@
 /*global safari, SafariBrowserTab, SafariBrowserWindow, wrapper */
 
 /**
- * @fileOverview This file adds Safari support for those APIs:
-
- * TODO
+ * @fileOverview This file adds support for the Chrome API in the global page
+ * script context.
  * @name background.js<safari>
  * @author Etienne Prud’homme
- * @license MIT
- * Note:
- *
- * Injected Scripts don’t have access to the `chrome.*` API with the exception
- * of:
- * * `extension` (`getURL`, `inIncognitoContext`, `lastError`, `onRequest`,
- *    `sendRequest`)
- * * `i18n`
- * * `runtime` (`connect`, `getManifest`, `getURL`, `id`, `onConnect`,
- *    `onMessage`, `sendMessage`)
- * * `storage`
- *
- * This is wĥy this background script is created.
+ * @license GPLv3
  */
 
 // Initializes the logs if not created

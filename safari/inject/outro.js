@@ -3,7 +3,7 @@
  * `inject.js`.
  * @name outro.js<Safari>
  * @author Etienne Prud’homme
- * @license MIT
+ * @license GPLv3
  */
 
 /* jshint ignore:start */
