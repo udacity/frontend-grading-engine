@@ -15,4 +15,4 @@ Further information for installing the Add-ons SDK can be found at the [official
 * TODO
 
 ## License
-This directory and the whole project is subject to the [MIT License](../license).
+This directory and the whole project is subject to the [GPLv3 License](../license).

@@ -1,8 +1,11 @@
+/*global removeFileNameFromPath, importFeedbackWidget, injectGradingEngine, loadLibraries, loadJSONTestsFromFile, registerTestSuites, turnOn, waitForTestRegistrations, loadUnitTests, chrome, injectedElementsOnPage, injectIntoDocument, importComponentsLibrary */
+
 /**
  * @fileOverview This file contains the StateManager Class.
  * @name StateManager.js<inject>
  * @author Cameron Pittman
- * @license MIT
+ * @author Etienne Prud’homme
+ * @license GPLv3
  * @todo Add a warning if the widget fails to initialize.
  */
 
@@ -12,9 +15,25 @@
  * @throws {Error} An error coming from a Promise.
  */
 function StateManager() {
-  this.whitelist = [];
+  this.whitelist = {remote: [], local: []};
   this.hostIsAllowed = false;
-  this.host = location.hostname;
+  this.host = window.location.origin;
+  this.isChromium = window.navigator.vendor.toLocaleLowerCase().indexOf('google') !== -1;
+
+  if(this.host.search(/^(?:https?:)\/\/[^\s\.]/) !== -1)
+  {
+    this.type = 'remote';
+  } else if(this.host === 'null' || this.host.search('file://') !== -1) {
+    if(window.location.protocol === 'file:') {
+      this.host = removeFileNameFromPath(window.location.pathname);
+      this.type = 'local';
+    } else {
+      throw new Error('Unknown URL formatting error');
+    }
+  } else {
+    throw new Error('Unknown URL formatting error');
+  }
+
   this.geInjected = false;
 
   var currentlyInjecting = false;
@@ -28,7 +47,8 @@ function StateManager() {
     var self = this;
     if (!currentlyInjecting || self.geInjected) {
       currentlyInjecting = true;
-      return importFeedbackWidget()
+      return importComponentsLibrary()
+        .then(importFeedbackWidget())
         .then(injectGradingEngine)
         .then(loadLibraries)
         .then(loadJSONTestsFromFile)
@@ -59,13 +79,14 @@ function StateManager() {
     var self = this;
     self.isAllowed = false;
     return new Promise(function(resolve, reject) {
+      var type = self.type;
       chrome.storage.sync.get('whitelist', function(response) {
-        self.whitelist = response.whitelist;
+        self.whitelist = response.whitelist || {remote: [], local: []};
         // console.log(self.whitelist);
-        if (!(self.whitelist instanceof Array)) {
-          self.whitelist = [self.whitelist];
+        if (!(self.whitelist[type] instanceof Array)) {
+          self.whitelist[type] = [self.whitelist[type]];
         }
-        if (self.whitelist.indexOf(self.host) > -1) {
+        if (self.whitelist[type].indexOf(self.host) > -1) {
           self.isAllowed = true;
         } else {
           self.isAllowed = false;
@@ -77,17 +98,21 @@ function StateManager() {
 
   /**
    * Adds the current Document host to the whitelist (local storage).
-   * @param {string} site - unused
    * @returns {Promise}
    */
-  this.addSiteToWhitelist = function(site) {
+  this.addSiteToWhitelist = function() {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var index = self.whitelist.indexOf(self.host);
+      var type = self.type;
+      if(!type) {
+        reject();
+      }
+      var index = self.whitelist[type].indexOf(self.host);
       if (index === -1) {
-        self.whitelist.push(self.host);
+        self.whitelist[type].push(self.host);
       }
       self.isAllowed = true;
+
       var data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
         // debugger;
@@ -104,9 +129,10 @@ function StateManager() {
   this.removeSiteFromWhitelist = function(site) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var index = self.whitelist.indexOf(self.host);
+      var type = self.type;
+      var index = self.whitelist[type].indexOf(self.host);
       if (index > -1) {
-        self.whitelist.splice(index, 1);
+        self.whitelist[type].splice(index, 1);
       }
       self.isAllowed = false;
       var data = {whitelist: self.whitelist};
@@ -123,6 +149,9 @@ function StateManager() {
    }
    */
   this.getIsAllowed = function() {
+    if(this.isChromium && this.type === 'local') {
+      return 'chrome_local_exception';
+    }
     return this.isAllowed;
   };
 
@@ -157,6 +186,7 @@ function StateManager() {
     }
     return injectIntoDocument('script', {
       id: 'ud-grader-options',
+      // Reviewer: This is safe to pass.
       innerHTML: 'UdacityFEGradingEngine.turnOff();delete window.UdacityFEGradingEngine;'
     }, 'head')
       .then(function() {

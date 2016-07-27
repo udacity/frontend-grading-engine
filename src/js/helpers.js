@@ -1,8 +1,8 @@
 /**
- * @fileOverview Helpers not related to the Grading Engine itself.
- * @name helpers.js<GE>
+ * @fileOverview This file contains helpers for the Grading Engine.
+ * @name helpers.js<js>
  * @author Cameron Pittman
- * @license MIT
+ * @license GPLv3
  */
 
 // http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
@@ -84,4 +84,4 @@ function getUnitlessMeasurement(measurement) {
   }
 }
 
-// helper.js<GE> ends here
+// helper.js<js> ends here

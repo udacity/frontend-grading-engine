@@ -1,3 +1,5 @@
+/*global components */
+
 /**
  * @fileOverview This file registers the `active-test` component. This file doesn’t depend on other components.
  * @name active_test.js
@@ -84,7 +86,11 @@
 
     var markRightOrWrong = self.querySelector('.mark');
     var descriptionDisplay = self.querySelector('.test-desc');
-    descriptionDisplay.innerHTML = testDescription;
+
+    // Simple fix for backward compatibility
+    descriptionDisplay.textContent = testDescription.replace(/&lt;|&gt;/g, function(match) {
+      return {'&lt;': '<', '&gt;': '>'}[match];
+    });
 
     if (testPassed === 'true') {
       _testHasPassed(markRightOrWrong);

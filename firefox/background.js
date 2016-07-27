@@ -1,8 +1,10 @@
+/*global chrome */
+
 /**
  * @fileOverview This file adds support for the {@link chrome.storage.local} API in Firefox. This API isn’t implemented until Firefox version 48 for content-scripts.
  * @name background.js<firefox>
  * @author Etienne Prud’homme
- * @license MIT
+ * @license GPLv3
  */
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {

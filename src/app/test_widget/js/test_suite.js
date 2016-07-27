@@ -1,3 +1,5 @@
+/*global components */
+
 /**
  * @fileOverview This file registers the `test-suite` component. {@link test-results} and {@link test-widget} should have executed already.
  * @name test_suite.js
@@ -17,7 +19,7 @@
         '<div class="suite">' +
         '  <div class="suite-title"></div>' +
         '  <div class="active-tests"></div>' +
-        '  <div class="suite-code"></div>' +
+        '  <div class="suite-code-container"><span class="suite-name"></span> Code:<br><span class="suite-code"></span></div>' +
         '</div>' +
         '<!-- test-suite component ends here -->';
 
@@ -46,14 +48,15 @@
     var numberOfTests = self.dataset.numberOfTests;
 
     var suite = self;
-    var sc = self.querySelector('.suite-code');
+    var codeContainer = {
+      container: self.getElementsByClassName('suite-code-container')[0],
+      suiteName: self.getElementsByClassName('suite-name')[0],
+      suiteCode: self.getElementsByClassName('suite-code')[0]
+    };
 
-    var titleEnd = " Test";
-    if (numberOfTests > 1) {
-      titleEnd = " Tests";
-    }
+    var titleEnd = numberOfTests > 1 ? " Tests" : " Test";
 
-    self.querySelector('.suite-title').innerHTML = suiteName + titleEnd;
+    self.querySelector('.suite-title').textContent = suiteName + titleEnd;
 
     // Redefinition at each update?
     /**
@@ -62,9 +65,13 @@
      */
     function displayCode (show) {
       if (show) {
-        sc.innerHTML = "<div>" + suiteName + " Code:<br>" + suiteCode + "</div>";
+        codeContainer.container.style.display = 'block';
+        codeContainer.suiteName.textContent = suiteName;
+        codeContainer.suiteCode.textContent = suiteCode;
       } else {
-        sc.innerHTML = "";
+        codeContainer.container.style.display = 'none';
+        codeContainer.suiteName.textContent = '';
+        codeContainer.suiteCode.textContent = '';
       }
     };
 

@@ -34,8 +34,9 @@
   ],
   "web_accessible_resources": [
     "app/js/*.js",
-    "app/js/libs/*.js",
-    "app/test_widget/**",
-    "app/templates/*.js"
+    "app/js/libs/GE.js",
+    "app/js/libs/jsgrader.js",
+    "app/templates/templates.js",
+    "lib/components.js"
   ]
 }

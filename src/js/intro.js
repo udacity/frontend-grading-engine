@@ -1,8 +1,8 @@
 /**
  * @fileOverview Udacity’s library for immediate front-end feedback.
- * @name intro.js<GE>
+ * @name intro.js<js>
  * @author Cameron Pittman
- * @license MIT
+ * @license GPLv3
  */
 
 /**
@@ -13,4 +13,4 @@
   'use strict';
   var exports = {};
 
-// intro.js<GE> ends here
+// intro.js<js> ends here

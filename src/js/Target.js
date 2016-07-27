@@ -6,7 +6,7 @@
  *  The top-level target living directly on the TA will not map to any element. But it contains children which do map 1:1 with elements.
  * @name Target.js<GE>
  * @author Cameron Pittman
- * @license MIT
+ * @license GPLv3
  */
 
 /**
@@ -64,4 +64,4 @@ Object.defineProperties(Target.prototype, {
   }
 });
 
-// Target.js<GE> ends here
+// Target.js<js> ends here

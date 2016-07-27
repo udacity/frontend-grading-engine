@@ -1,3 +1,9 @@
+/**
+ * @fileOverview This file contains the JSGrader library to test the JavaScript context.
+ * @name jsgrader.js<libs>
+ * @author Cameron Pittman
+ * @license GPLv3
+ */
 var Grader = (function() {
 
   // http://stackoverflow.com/questions/1068834/object-comparison-in-javascript?lq=1
@@ -614,3 +620,5 @@ var Grader = (function() {
   };
   return Grader;
 })();
+
+// jsgrader.js<libs> ends here

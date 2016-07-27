@@ -1,6 +1,6 @@
 {
   "name": "Udacity Front End Feedback",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "applications": {
     "gecko": {
       "id": "udacityfeedback@udacity.com",
@@ -16,6 +16,9 @@
     "48": "icons/udacity-official48.png",
     "64": "icons/udacity-official64.png",
     "128": "icons/udacity-official128.png"
+  },
+  "options_ui": {
+    "page": "app/options/index.html"
   },
   "browser_action": {
     "default_icon": "icons/udacity-official48.png",
@@ -42,9 +45,11 @@
     }
   ],
   "web_accessible_resources": [
-    "app/js/*.js",
+    "app/css/common.css",
+    "app/css/fonts/fontawesome-webfont.ttf",
     "app/js/libs/GE.js",
     "app/js/libs/jsgrader.js",
-    "app/templates/components.js"
+    "app/templates/templates.js",
+    "lib/components.js"
   ]
 }

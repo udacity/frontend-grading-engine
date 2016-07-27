@@ -31,12 +31,16 @@ var jsFiles = {
       'src/js/registrar.js',
       'src/js/outro.js'
     ],
+    libraries: {
+      src: 'src/app/js/libs/*.js',
+      dest: build + 'app/js/libs/'
+    },
     concat: 'GE.js',
     dest: build + 'app/js/libs/'
   },
   libraries: {
-    src: 'src/app/js/libs/*.js',
-    dest: build + 'app/js/libs/'
+    src: 'lib/*',
+    dest: build + 'lib/'
   },
   background: {
     src: '%target%/background.js',
@@ -55,30 +59,47 @@ var jsFiles = {
   },
   components: {
     src: [
-      'src/app/test_widget/js/components.js',
       'src/app/test_widget/js/test_suite.js',
       'src/app/test_widget/js/test_results.js',
       'src/app/test_widget/js/active_test.js',
       'src/app/test_widget/js/test_widget.js'
     ],
-    concat: 'components.js',
+    concat: 'templates.js',
     dest: build + 'app/templates/'
   }
 };
 
 var gradingEngine = jsFiles.gradingEngine;
+// Third-party libraries
 var libraries = jsFiles.libraries;
+var ge_libs = gradingEngine.libraries;
 var background = jsFiles.background;
 var inject = jsFiles.inject;
 var components = jsFiles.components;
 
 var browserPageFiles = {
   pageAction: {
-    src: 'src/app/browser_action/browser_action.*',
+    html: 'src/app/browser_action/browser_action.html',
+    js: {
+      src: [
+        '%target%/browser_action/intro.js',
+        'src/app/browser_action/browser_action.js',
+        '%target%/browser_action/intro.js'
+      ],
+      concat: 'browser_action.js'
+    },
     dest: build + 'app/browser_action/'
   },
   pageOptions: {
-    src: ['src/app/options/index.html', 'src/app/options/options.js'],
+    html: 'src/app/options/index.html',
+    js: {
+      src: [
+        '%target%/options/intro.js',
+        'src/app/options/options.js',
+        '%target%/options/outro.js'
+      ],
+      concat: 'options.js'
+    },
     dest: build + 'app/options/'
   }
 };
@@ -88,6 +109,16 @@ var pageOptions = browserPageFiles.pageOptions;
 var iconFiles = {
   src: 'src/icons/*.png',
   dest: build + 'icons/'
+};
+
+var styleFiles = {
+  src: 'src/app/css/common.css',
+  dest: build + 'app/css/'
+};
+
+var fontFiles = {
+  src: 'src/app/css/fonts/fontawesome-webfont.ttf',
+  dest: build + 'app/css/fonts/'
 };
 
 // Files to watch
@@ -101,11 +132,18 @@ gulp.task('GE', function() {
     .pipe(debug({title: 'built dev grading engine:'}));
 });
 
-// "libraries" = Copy libraries of the application.
+// "GE_libs" = Copy libraries of the Grading Engine.
+gulp.task('GE_libs', function() {
+  return gulp.src(ge_libs.src)
+    .pipe(gulp.dest(ge_libs.dest))
+    .pipe(debug({title: 'copied grading engine libraries:'}));
+});
+
+// "libraries" = Copy third-party libraries.
 gulp.task('libraries', function() {
   return gulp.src(libraries.src)
     .pipe(gulp.dest(libraries.dest))
-    .pipe(debug({title: 'copied grading engine libraries:'}));
+    .pipe(debug({title: 'copied libraries:'}));
 });
 
 // "components" = Generate the native components. There were
@@ -117,7 +155,7 @@ gulp.task('components', function() {
     .pipe(debug({title: 'built components: '}));
 });
 
-// "inject" = Generate the inject script for the current browser.
+// "inject" = Generate the inject script for the current browser and copy.
 gulp.task('inject', function() {
   var files = inject.src.map(function(x) {
     return x.replace('%target%', currentBrowser);
@@ -128,32 +166,82 @@ gulp.task('inject', function() {
     .pipe(debug({title: 'built inject.js:'}));
 });
 
-// "pageAction" = Copy the `browser_action` page.
-gulp.task('pageAction', function() {
-  return gulp.src(pageAction.src)
+/*** PAGEACTION ***/
+// "_pageAction_html" = Copy HTML options page.
+gulp.task('_pageAction_html', function() {
+  return gulp.src(pageAction.html)
     .pipe(gulp.dest(pageAction.dest))
     .pipe(debug({title: 'copied action page:'}));
+  ;
 });
 
-// "pageOptions" = Copy the options page.
-gulp.task('pageOptions', function() {
-  return gulp.src(pageOptions.src)
+// "_pageAction_js" = Generate the pageAction script for the current browser and copy.
+gulp.task('_pageAction_js', function() {
+  var files = pageAction.js.src.map(function(x) {
+    return x.replace('%target%', currentBrowser);
+  });
+  return gulp.src(files)
+    .pipe(concat(pageAction.js.concat))
+    .pipe(gulp.dest(pageAction.dest))
+    .pipe(debug({title: 'built action page script:'}));
+});
+
+// "pageAction" = Copy the `browser_action` files.
+gulp.task('pageAction', ['_pageAction_html', '_pageAction_js']);
+/*** PAGEACTION ends here ***/
+
+/*** PAGEOPTIONS ***/
+// "_pageOptions_html" = Copy HTML options page.
+gulp.task('_pageOptions_html', function() {
+  return gulp.src(pageOptions.html)
     .pipe(gulp.dest(pageOptions.dest))
     .pipe(debug({title: 'copied options page:'}));
 });
 
-// "icons" = Copy the icons.
+// "_pageOptions_js" = Generate the pageAction script for the current browser and copy.
+gulp.task('_pageOptions_js', function() {
+  var files = pageOptions.js.src.map(function(x) {
+    return x.replace('%target%', currentBrowser);
+  });
+  return gulp.src(files)
+    .pipe(concat(pageOptions.js.concat))
+    .pipe(gulp.dest(pageOptions.dest))
+    .pipe(debug({title: 'built options page script:'}));
+});
+
+// "pageOptions" = Copy the options page.
+gulp.task('pageOptions', ['_pageOptions_html', '_pageOptions_js']);
+/*** PAGEOPTIONS ends here ***/
+
+
+// "icons" = Copy icons.
 gulp.task('icons', function() {
   return gulp.src(iconFiles.src)
     .pipe(gulp.dest(iconFiles.dest))
     .pipe(debug({title: 'copied icons:'}));
 });
 
+// "styles" = Copy styles.
+gulp.task('styles', function() {
+  return gulp.src(styleFiles.src)
+    .pipe(gulp.dest(styleFiles.dest))
+    .pipe(debug({title: 'copied styles:'}));
+});
+
+// "fonts" = Copy fonts.
+gulp.task('fonts', function() {
+  return gulp.src(fontFiles.src)
+    .pipe(gulp.dest(fontFiles.dest))
+    .pipe(debug({title: 'copied fonts:'}));
+});
+
+gulp.task('assets', ['icons', 'styles', 'fonts']);
+
 // "app" = Executes tasks for the app (view).
-gulp.task('app', ['components', 'inject', 'pageAction', 'pageOptions', 'icons']);
+gulp.task('app', ['components', 'inject', 'pageAction', 'pageOptions', 'assets']);
 
 // "extension" = Executes tasks that are mostly not browser specific.
-gulp.task('extension', ['app', 'GE', 'libraries']);
+gulp.task('extension', ['app', 'GE', 'GE_libs', 'libraries']);
 
 // "background-script" = Copy the background script for the
 // `currentBrowser` (if any).
@@ -204,7 +292,7 @@ gulp.task('firefox', gulpsync.sync(['_firefox', ['manifest', 'background-script'
 
 // "clean" = Clean the build directory. Otherwise `mv` would throw an error.
 gulp.task('clean', function() {
-log('Cleaned the build directory');
+  log('Cleaned the build directory');
   return gulp.src('./build/', {read: false})
     .pipe(clean())
     .pipe(debug({title: 'cleaned ' + build}));

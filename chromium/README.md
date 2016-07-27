@@ -5,4 +5,4 @@ This directory contains files needed to build the extension for Chromium based b
 While the WebExtension API is well supported in Chromium, there still needs to be specific quirks.
 
 ## License
-This directory and the whole project is subject to the [MIT License](../license).
+This directory and the whole project is subject to the [GPLv3 License](../license).

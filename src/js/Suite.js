@@ -1,8 +1,8 @@
 /**
  * @fileOverview This file contains the constructor for a `Suite` of tests.
- * @name Suite.js<GE>
+ * @name Suite.js<js>
  * @author Cameron Pittman
- * @license MIT
+ * @license GPLv3
  */
 
 function Suite(rawSuite) {
@@ -148,4 +148,4 @@ Suite.prototype.checkTests = function() {
   this.element.dataset.numberOfTests = this.activeTests.length;
 };
 
-// Suite.js<GE> ends here
+// Suite.js<js> ends here

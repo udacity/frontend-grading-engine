@@ -1,3 +1,5 @@
+/*global components */
+
 /**
  * @fileOverview This file registers the `test-results` component. This component is the main container and contains procedures for creating new `suites`. {@link test-results.js}, {@link test-widget.js}, {@link test-suite.js} should have executed already.
  * @name test_results.js
@@ -47,7 +49,7 @@ var testResults = (function() {
       if (hideShowButton.disabled === true) {
         hideShowButton.removeAttribute('disabled');
       }
-      placeholder.innerHTML = '';
+      placeholder.textContent = '';
 
       // actually create the suite
       var _testSuiteFragment = components.createElement('test-suite');
@@ -84,9 +86,9 @@ var testResults = (function() {
       placeholder.classList.toggle('hide');
 
       if (this.classList.contains('hidden')) {
-        placeholder.innerHTML = "Tests hidden";
+        placeholder.textContent = "Tests hidden";
       } else {
-        placeholder.innerHTML = "";
+        placeholder.textContent = '';
       }
     };
   };

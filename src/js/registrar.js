@@ -1,9 +1,11 @@
 /**
  * @fileOverview  Expose functions that create and monitor tests.
- * @name registrar.js<GE>
+ * @name registrar.js<js>
  * @author Cameron Pittman
- * @license MIT
+ * @author Etienne Prud’homme
+ * @license GPLv3
  */
+
 var numberOfTests = 0,
     registeredTests = 0;
 /*
@@ -173,4 +175,4 @@ exports.turnOn = turnOn;
 exports.turnOff = turnOff;
 exports.registerSuites = registerSuites;
 
-// registrar.js<GE> ends here
+// registrar.js<js> ends here

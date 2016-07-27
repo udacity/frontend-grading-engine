@@ -1,9 +1,11 @@
+/*global removeFileNameFromPath, injectIntoDocument, chrome, StateManager */
+
 /**
  * @fileoverview This file manages the injection of several JavaScript files. It contains most procedure for injecting those files, but doesn’t handle the conditional injection part.
  * @name inject.js<inject>
  * @author Cameron Pittman
- *         Etienne Prud’homme
- * @license MIT
+ * @author Etienne Prud’homme
+ * @license GPLv3
  */
 
 /**
@@ -12,11 +14,26 @@
  */
 var injectedElementsOnPage = [];
 
+var runtimeError = null;
+
 /**
  * The meta tag that is used to load and activate a file of tests.
  * @type {Element}
  */
 var metaTag = document.querySelector('meta[name="udacity-grader"]');
+
+function importComponentsLibrary() {
+  var cScript = document.querySelector('script#components-lib');
+
+  if(!cScript) {
+    return injectIntoDocument('script', {
+      src: chrome.extension.getURL('lib/components.js'),
+      id: 'components-lib'
+    }, 'head');
+  } else {
+    return Promise.resolve();
+  }
+}
 
 /**
  * Finds Web Components templates.
@@ -27,7 +44,7 @@ function importFeedbackWidget() {
 
   if (!twScript) {
     return injectIntoDocument('script', {
-      src: chrome.extension.getURL('app/templates/components.js'),
+      src: chrome.extension.getURL('app/templates/templates.js'),
       id: 'udacity-test-widget'
     }, 'head');
   } else {
@@ -47,7 +64,7 @@ function injectGradingEngine() {
 }
 
 /**
- * Load custom libraries for the Grading Engine (i.e. jsgrader.js).
+ * Load custom libraries for the Grading Engine (i.e. jsgrader.js). Currently only `jsgrader.js` is supported and allowed in the manifest.
  * @returns {Promise}
  */
 function loadLibraries() {
@@ -78,9 +95,50 @@ function loadJSONTestsFromFile() {
     return new Promise(function(resolve, reject) {
       // http://stackoverflow.com/a/14274828
       var xmlhttp = new XMLHttpRequest();
-      var url = document.URL.substr(0, document.URL.lastIndexOf('/') + 1) + metaTag.content;
+      // The complete path to the document excluding the file name (http://example.com/mydir/ for http://example.com/mydir/file.html)
+      var documentBase = removeFileNameFromPath(document.URL);
+      var url = metaTag.content,
+          fileBase = '';
+
+      // If it’s not an absolute URL
+      if(url.search(/^(?:https?|file):\/\//) === -1) {
+        // If it’s protocol relative URL (i.e. //example.com)
+        if(url.search(/^\/\//) !== -1) {
+          // The window must at least use one of those protocols
+          switch(window.location.protocol) {
+          case 'http:':
+          case 'https:':
+          case 'file:':
+            url = window.location.protocol + url;
+            break;
+          default:
+            runtimeError = 'unknown_protocol';
+            console.warn('Unknown URL protocol. Supported protocols are: http, https and (local) file');
+            reject(false);
+          }
+        } else {
+          // it’s probably a relative path (may be garbage)
+          url = documentBase + url;
+        }
+      }
+
+      // Extract the file path (http://example.com/mydir/ for http://example.com/mydir/file.html)
+      fileBase = url.substr(0, url.lastIndexOf('/') + 1);
+
+      if(fileBase !== documentBase) {
+        runtimeError = 'invalid_origin';
+        console.warn('Invalid JSON file origin');
+        reject(false);
+      }
+
       xmlhttp.onreadystatechange = function() {
         if (xmlhttp.status == 200 && xmlhttp.readyState == 4) {
+          // DANGER! Checks if that it wasn’t a redirection
+          if(xmlhttp.responseURL !== url) {
+            runtimeError = 'redirection';
+            console.warn('The JSON request received a redirection. Possible cross-origin request attempt');
+            reject(false);
+          }
           resolve(xmlhttp.responseText);
         } else if (xmlhttp.status >= 400) {
           reject(false);
@@ -156,6 +214,9 @@ function turnOn() {
   // console.log('Turned on from turnOn()');
   return injectIntoDocument('script', {
     id: 'ud-grader-options',
+    // Reviewer: Because we need to access the window script context, it’s
+    // necessary to inject the script that way. A content-script doesn’t have
+    // access to the window scripting context.
     innerHTML: 'UdacityFEGradingEngine.turnOn();'
   }, 'head');
 }
@@ -178,14 +239,6 @@ function waitForTestRegistrations() {
 
 var stateManager = new StateManager();
 
-// Check if the site is on the Whitelist on page load
-stateManager.isSiteOnWhitelist()
-  .then(function(isAllowed) {
-    if (isAllowed) {
-      stateManager.turnOn();
-    }
-  });
-
 /**
  * Wait for messages from browser action.
  * @param {Object} message - Object containing a `data` and a `type` property.
@@ -195,9 +248,11 @@ stateManager.isSiteOnWhitelist()
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   switch (message.type) {
   case 'json':
+    // A JSON test file was passed to the action page
     registerTestSuites(message.data);
     break;
   case 'on-off':
+    // The action page checkbox was toggled
     if (message.data === 'on') {
       stateManager.addSiteToWhitelist()
         .then(stateManager.turnOn);
@@ -207,9 +262,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     }
     break;
   case 'background-wake':
+    if(runtimeError) {
+      sendResponse(runtimeError);
+    }
+    // The action page is requesting infos about the current host
     sendResponse(stateManager.getIsAllowed());
     break;
   default:
+    // Just in case of future bad implementation
     console.log('invalid message type for: %s from %s', message, sender);
     break;
   }
@@ -223,5 +283,13 @@ window.addEventListener('GE-on', function() {
     stateManager.turnOn();
   }
 });
+
+// Check if the site is on the Whitelist on page load
+stateManager.isSiteOnWhitelist()
+  .then(function(isAllowed) {
+    if (isAllowed) {
+      stateManager.turnOn();
+    }
+  });
 
 // inject.js<inject> ends here

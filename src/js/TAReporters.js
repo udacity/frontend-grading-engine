@@ -1,10 +1,10 @@
 /**
  * @fileOverview Reporters live on the TA and are responsible for:
- *  • giving the GradeBook instructions for evaluating the questions it has collected.
- *  • instantiating the grading process by calling gradebook.grade()
- * @name TAReporters.js<GE>
+   * giving the GradeBook instructions for evaluating the questions it has collected.
+   * instantiating the grading process by calling gradebook.grade()
+ * @name TAReporters.js<js>
  * @author Cameron Pittman
- * @license MIT
+ * @license GPLv3
  */
 
 /**
@@ -442,4 +442,4 @@ TA.prototype._translateConfigToMethods = function(config) {
   return methods;
 };
 
-// TAReporters.js<GE> ends here
+// TAReporters.js<js> ends here

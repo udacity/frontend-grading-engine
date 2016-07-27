@@ -6,7 +6,7 @@
  *  • Collectors register their operations with the GradeBook, which actually checks the results of the tests.
  * @name TACollectors.js<GE>
  * @author Cameron Pittman
- * @license MIT
+ * @license GPLv3
  */
 
 /**
@@ -570,4 +570,4 @@ TA.prototype.waitForEvent = function(eventName) {
   return this;
 };
 
-// TACollectors.js<GE> ends here
+// TACollectors.js<js> ends here
