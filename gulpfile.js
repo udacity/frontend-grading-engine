@@ -86,7 +86,7 @@ var pageFiles = {
     },
     html: {
       src: [
-        '%target%/background.html'
+        '%target%/background/background.html'
       ],
       concat: 'background.html'
     },
@@ -155,7 +155,7 @@ gulp.task('GE', function() {
   return gulp.src(gradingEngine.src)
     .pipe(concat(gradingEngine.concat))
     .pipe(gulp.dest(gradingEngine.dest))
-    .pipe(debug({title: 'built dev geLibsgeLibsgrading engine:'}));
+    .pipe(debug({title: 'built the grading engine:'}));
 });
 
 // "GE_libs" = Copy libraries of the Grading Engine.
