@@ -43,7 +43,12 @@ var jsFiles = {
     dest: build + 'lib/'
   },
   background: {
-    src: '%target%/background.js',
+    js: {
+      src: [
+        '%target%/background.js'
+      ],
+      concat: build + 'app'
+    },
     dest: build + 'app/js/'
   },
   inject: {
@@ -57,7 +62,7 @@ var jsFiles = {
     concat: 'inject.js',
     dest: build + 'app/js/'
   },
-  components: {
+  templates: {
     src: [
       'src/app/test_widget/js/test_suite.js',
       'src/app/test_widget/js/test_results.js',
@@ -66,6 +71,26 @@ var jsFiles = {
     ],
     concat: 'templates.js',
     dest: build + 'app/templates/'
+  },
+  // Safari background script
+  globalPage: {
+    js: {
+      src: [
+        '%target%/background/helpers.js',
+        '%target%/background/registry.js',
+        '%target%/background/adapter.js',
+        '%target%/background/adapterListener.js',
+        '%target%/background/background.js'
+      ],
+      concat: 'background.js'
+    },
+    html: {
+      src: [
+        '%target%/background.html'
+      ],
+      concat: 'background.html'
+    },
+    dest: build + 'app/js/'
   }
 };
 
@@ -74,8 +99,9 @@ var gradingEngine = jsFiles.gradingEngine;
 var libraries = jsFiles.libraries;
 var ge_libs = gradingEngine.libraries;
 var background = jsFiles.background;
+var global = jsFiles.globalPage;
 var inject = jsFiles.inject;
-var components = jsFiles.components;
+var templates = jsFiles.templates;
 
 var browserPageFiles = {
   pageAction: {
@@ -122,7 +148,7 @@ var fontFiles = {
 };
 
 // Files to watch
-var allFiles = gradingEngine.src.concat(components.src, inject.src);
+var allFiles = gradingEngine.src.concat(templates.src, inject.src, background.js.src, global.js.src);
 
 // "GE" = Build the GradingEngine library.
 gulp.task('GE', function() {
@@ -146,13 +172,13 @@ gulp.task('libraries', function() {
     .pipe(debug({title: 'copied libraries:'}));
 });
 
-// "components" = Generate the native components. There were
-// previously Web Components.
-gulp.task('components', function() {
-  return gulp.src(components.src)
-    .pipe(concat(components.concat))
-    .pipe(gulp.dest(components.dest))
-    .pipe(debug({title: 'built components: '}));
+// "templates" = Generate the native templates. There were
+// previously Web Templates.
+gulp.task('templates', function() {
+  return gulp.src(templates.src)
+    .pipe(concat(templates.concat))
+    .pipe(gulp.dest(templates.dest))
+    .pipe(debug({title: 'built templates: '}));
 });
 
 // "inject" = Generate the inject script for the current browser and copy.
@@ -238,7 +264,7 @@ gulp.task('fonts', function() {
 gulp.task('assets', ['icons', 'styles', 'fonts']);
 
 // "app" = Executes tasks for the app (view).
-gulp.task('app', ['components', 'inject', 'pageAction', 'pageOptions', 'assets']);
+gulp.task('app', ['templates', 'inject', 'pageAction', 'pageOptions', 'assets']);
 
 // "extension" = Executes tasks that are mostly not browser specific.
 gulp.task('extension', ['app', 'GE', 'GE_libs', 'libraries']);
@@ -246,14 +272,34 @@ gulp.task('extension', ['app', 'GE', 'GE_libs', 'libraries']);
 // "background-script" = Copy the background script for the
 // `currentBrowser` (if any).
 gulp.task('background-script', function() {
-  return gulp.src(background.src.replace('%target%', currentBrowser))
-    .pipe(gulp.dest(background.dest))
+  var _background = currentBrowser === 'safari' ? global : background;
+  _background.js.src = _background.js.src.map(function(x) {
+    return x.replace('%target%', currentBrowser);
+  });
+  log(_background);
+  return gulp.src(_background.js.src)
+    .pipe(concat(_background.js.concat))
+    .pipe(gulp.dest(_background.dest))
     .pipe(debug({title: 'copied ' + currentBrowser + '’s background script:'}));
+});
+
+// "background-page" = Copy the background page for the
+// `currentBrowser` (if any).
+gulp.task('background-page', function() {
+  var _background = currentBrowser === 'safari' ? global : background;
+  _background.html.src = _background.html.src.map(function(x) {
+    return x.replace('%target%', currentBrowser);
+  });
+  return gulp.src(_background.html.src)
+    .pipe(concat(_background.html.concat))
+    .pipe(gulp.dest(_background.dest))
+    .pipe(debug({title: 'copied ' + currentBrowser + '’s background page:'}));
 });
 
 // "manifest" = Copy the manifest for the current browser
 gulp.task('manifest', function() {
-  return gulp.src(currentBrowser + '/manifest.json')
+  var manifest = currentBrowser === 'safari' ? 'Info.plist' : 'manifest.json';
+  return gulp.src(currentBrowser + '/' + manifest)
     .pipe(gulp.dest(build))
     .pipe(debug({title: 'copied ' + currentBrowser +'’s manifest:'}));
 });
@@ -267,6 +313,12 @@ gulp.task('_chromium', function() {
 // "_firefox" = Sets currentBrowser to firefox
 gulp.task('_firefox', function() {
   currentBrowser = 'firefox';
+  return log('Set ' + currentBrowser + ' as the current browser');
+});
+
+// "_safari" = Sets currentBrowser to safari
+gulp.task('_safari', function() {
+  currentBrowser = 'safari';
   return log('Set ' + currentBrowser + ' as the current browser');
 });
 
@@ -290,6 +342,17 @@ gulp.task('firefox', gulpsync.sync(['_firefox', ['manifest', 'background-script'
   return log('Moved ' + currentBrowser + ' files to: ' + browserBuild);
 });
 
+// "safari" = First run dependencies to build the extension and then
+// move those files to `build/safari` instead of `build/%target%/`.
+gulp.task('safari', gulpsync.sync(['_safari', ['manifest', 'background-script', 'background-page', 'extension']]), function() {
+  var browserBuild = build.replace('%target%/ext/', 'safari/');
+  mv(build.replace('ext/', ''), browserBuild, {mkdirp: true}, function(err) {
+    console.log(err);
+  });
+  return log('Moved ' + currentBrowser + ' files to: ' + browserBuild);
+});
+
+
 // "clean" = Clean the build directory. Otherwise `mv` would throw an error.
 gulp.task('clean', function() {
   log('Cleaned the build directory');
@@ -298,7 +361,7 @@ gulp.task('clean', function() {
     .pipe(debug({title: 'cleaned ' + build}));
 });
 
-gulp.task('default', gulpsync.sync(['clean', 'firefox', 'chromium']));
+gulp.task('default', gulpsync.sync(['clean', 'firefox', 'chromium', 'safari']));
 
 gulp.task('watch', function() {
   gulp.start('default');

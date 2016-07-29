@@ -1,6 +1,6 @@
 /**
- * @fileOverview This file contains the closing statements of
- * `inject.js`.
+ * @fileOverview This file contains the closing statements of `inject.js` for
+ * Safari.
  * @name outro.js<Safari>
  * @author Etienne Prud’homme
  * @license GPLv3
@@ -10,5 +10,5 @@
 }
 /* jshint ignore:end */
 
-// outro.js<firefox> ends here
-// inject.js<firefox> ends here
+// outro.js<safari> ends here
+// inject.js<safari> ends here
