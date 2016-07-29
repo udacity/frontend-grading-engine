@@ -209,6 +209,42 @@ if (window.top === window) {
 
     // The injected script receives messages
     safari.self.addEventListener('message', function handler(event) {
+      var data = JSON.parse(event.message);
+      // To prevent listening to the same event. It may be useless, but Safari
+      // always have weird behavior.
+      var channel = 0 - parseInt(data.channel);
+
+      /**
+       * Set to true when a listener call {@link sendResponse}. The Chrome
+       * specs only allow a call to that function.
+       */
+      var activeResponse = false;
+
+      // The injected script receives messages from a sendMessage method
+      if(event.name === 'injected.runtime.onMessage' &&
+         pageListener.length > 0) {
+        // For each listener, pass the message
+        for(var i=0, len=pageListener.length; i<len; i++) {
+          // TODO: Add support to the MessageSender field
+          pageListener[i](data.message, undefined, sendResponse);
+        }
+
+        // If no listeners called sendResponse
+        if(activeResponse !== true) {
+          sendResponse();
+        }
+      }
+
+      /**
+       * Sends a response from the listener. Can only be called once.
+       * @param {*} response - Any JSON-ifiable objects.
+       */
+      function sendResponse(response) {
+        if(activeResponse !== true) {
+          activeResponse = true;
+          safari.self.tab.dispatchMessage('injected.runtime.onMessage~response', JSON.stringify({response: response, channel: channel}));
+        }
+      }
     }, false);
 
     return exports;
