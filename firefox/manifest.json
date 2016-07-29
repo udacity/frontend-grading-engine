@@ -26,7 +26,7 @@
     "default_popup": "app/browser_action/browser_action.html"
   },
   "background": {
-    "scripts": ["app/js/background.js"]
+    "scripts": ["background.js"]
   },
   "permissions": [
     "tabs",

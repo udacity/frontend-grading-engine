@@ -49,7 +49,7 @@ var jsFiles = {
       ],
       concat: build + 'app'
     },
-    dest: build + 'app/js/'
+    dest: build
   },
   inject: {
     src: [
@@ -90,7 +90,7 @@ var jsFiles = {
       ],
       concat: 'background.html'
     },
-    dest: build + 'app/js/'
+    dest: build
   }
 };
 

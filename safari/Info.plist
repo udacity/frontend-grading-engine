@@ -17,7 +17,7 @@
         <key>Chrome</key>
         <dict>
             <key>Global Page</key>
-            <string>app/js/background.js</string>
+            <string>background.html</string>
             <key>Popovers</key>
             <array>
                 <dict>
