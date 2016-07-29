@@ -189,12 +189,12 @@ if (window.top === window) {
           safari.self.removeEventListener('message', responseHandler);
           if(ev.name === channel) {
             if(data.name === 'ok') {
-              return resolve(data.response);
+              resolve(data.response);
             } else if(data.name === 'error') {
               // runtime.lastError
-              return reject(data.response);
+              reject(data.response);
             } else {
-              return reject('The Global Page sent an invalid response');
+              reject('The Global Page sent an invalid response');
             }
           }
         }, false);
