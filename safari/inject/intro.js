@@ -14,14 +14,14 @@ if (window.top === window) {
   /* jshint ignore: end*/
   var injected = (function(){
     var pageListener = [];
-   /**
+    /**
      * @namespace
-    * @property {object} injected.runtime.lastError - This will be defined
-    * during an API method callback if there was an error
-    * @property {string} [injected.runtime.lastError.message] - Details about
-    * the error which occurred.
+     * @property {object} injected.runtime.lastError - This will be defined
+     * during an API method callback if there was an error
+     * @property {string} [injected.runtime.lastError.message] - Details about
+     * the error which occurred.
      */
-    return {
+    var exports =  {
       runtime: {
         /**
          * Sends a single message to event listeners within the extension/app or
@@ -211,6 +211,7 @@ if (window.top === window) {
     safari.self.addEventListener('message', function handler(event) {
     }, false);
 
+    return exports;
     /**
      * Callback when there’s a message sent to the extension channel (can be
      * both the extension or a /content-script/).
