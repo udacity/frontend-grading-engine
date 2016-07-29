@@ -1,4 +1,4 @@
-/*global safari, SafariBrowserTab, SafariBrowserWindow, wrapper */
+/*global safari, SafariBrowserTab, SafariBrowserWindow, wrapper, extensionLog */
 
 /**
  * @fileOverview This file adds support for the Chrome API in the global page
@@ -16,7 +16,7 @@ safari.extension.settings.logs = safari.extension.settings.logs || [];
  * @returns {object} The chrome namespace.
  * @throws {Error} TO FIX. We should set `lastError` instead.
  */
-var global = function() {
+var global = (function() {
   var exports = {
     tabs: {
       /**
@@ -157,6 +157,8 @@ var global = function() {
     }
   };
   return exports;
-};
+})();
+
+var chrome = global;
 
 // background.js<safari>
