@@ -4,7 +4,7 @@ var watch = require('gulp-watch');
 var concat = require('gulp-concat');
 var debug = require('gulp-debug');
 var batch = require('gulp-batch');
-var uglify = require('gulp-uglify');
+// var uglify = require('gulp-uglify');
 var clean = require('gulp-clean');
 var mv = require('mv');
 
@@ -16,7 +16,7 @@ var log = function(message) {
   console.log('\x1b[37;46m####       ' + message + '\x1b[0;m');
 };
 
-var jsFiles = {
+var pageFiles = {
   gradingEngine: {
     src: [
       'src/js/intro.js',
@@ -94,14 +94,14 @@ var jsFiles = {
   }
 };
 
-var gradingEngine = jsFiles.gradingEngine;
+var gradingEngine = pageFiles.gradingEngine;
 // Third-party libraries
-var libraries = jsFiles.libraries;
-var ge_libs = gradingEngine.libraries;
-var background = jsFiles.background;
-var global = jsFiles.globalPage;
-var inject = jsFiles.inject;
-var templates = jsFiles.templates;
+var libraries = pageFiles.libraries;
+var geLibs = gradingEngine.libraries;
+var background = pageFiles.background;
+var global = pageFiles.globalPage;
+var inject = pageFiles.inject;
+var templates = pageFiles.templates;
 
 var browserPageFiles = {
   pageAction: {
@@ -155,13 +155,13 @@ gulp.task('GE', function() {
   return gulp.src(gradingEngine.src)
     .pipe(concat(gradingEngine.concat))
     .pipe(gulp.dest(gradingEngine.dest))
-    .pipe(debug({title: 'built dev grading engine:'}));
+    .pipe(debug({title: 'built dev geLibsgeLibsgrading engine:'}));
 });
 
 // "GE_libs" = Copy libraries of the Grading Engine.
 gulp.task('GE_libs', function() {
-  return gulp.src(ge_libs.src)
-    .pipe(gulp.dest(ge_libs.dest))
+  return gulp.src(geLibs.src)
+    .pipe(gulp.dest(geLibs.dest))
     .pipe(debug({title: 'copied grading engine libraries:'}));
 });
 
@@ -198,7 +198,6 @@ gulp.task('_pageAction_html', function() {
   return gulp.src(pageAction.html)
     .pipe(gulp.dest(pageAction.dest))
     .pipe(debug({title: 'copied action page:'}));
-  ;
 });
 
 // "_pageAction_js" = Generate the pageAction script for the current browser and copy.
