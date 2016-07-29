@@ -40,6 +40,8 @@ var global = (function() {
             if(typeof(responseCallback) === typeof(Function)) {
               responseCallback(response);
             }
+          }).catch(function(reason) {
+            extensionLog(reason);
           });
       },
       /**

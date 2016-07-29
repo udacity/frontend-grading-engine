@@ -122,17 +122,25 @@ var wrapper = {
      * @param {*} message - Any object that can be serialized.
      * @returns {Promise} A promise to be fulfilled when it has been received.
      */
-    sendMessage: function(tabId, message, options, sender) {
-      return new Promise(function(resolve, reject) {
-        var sender = sender || Math.floor(Math.random() * 100000000);
+    sendMessage: function(tabId, message, options, channel) {
+      try {
         var tab = registry.getTabById(tabId);
 
-        safari.application.addEventListener('message', function handler(event) {
-          if(event.name === '_chrome.tabs.sendMessage~response') {
-            resolve(event.message);
+        channel = channel || Math.floor(Math.random() * 100000000);
+        tab.page.dispatchMessage('injected.runtime.onMessage', JSON.stringify({message: message, channel: channel}));
+      } catch(e) {
+        return Promise.reject(e.message);
+      }
+      return new Promise(function(resolve, reject) {
+        tab.addEventListener('message', function handler(event) {
+          var message = JSON.parse(event.message);
+          // The injected script response
+          if(event.name === 'injected.runtime.onMessage~response' &&
+             parseInt(message.channel) === (0 - channel)) {
+            tab.removeEventListener('message', handler, false);
+            resolve(message.response);
           }
         }, false);
-        tab.page.dispatchMessage('injected.runtime.onMessage', {message: message, sender: sender});
       });
     },
 
