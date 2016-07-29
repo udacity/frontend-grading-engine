@@ -26,19 +26,19 @@ function handleFileSelect(evt) {
 
   reader.onerror = function (e) {
     alert.style.display = 'block';
-    alert.textContent = "Error. Cannot load file.";
+    alert.textContent = 'Error. Cannot load file.';
     console.log(e);
   };
 
   if (file.type && (file.type.match('application/json') || file.type.match('text/json'))) {
-    alert.textContent = "JSON found!";
+    alert.textContent = 'JSON found!';
     reader.readAsText(file);
   } else {
-    alert.textContent = "File found";
-    alert.style.color = "#a48700";
+    alert.textContent = 'File found';
+    alert.style.color = '#a48700';
     reader.readAsText(file);
   }
-};
+}
 
 /**
  * Custom function for sending messages to the current tab.
@@ -66,7 +66,7 @@ function sendDataToTab(data, type, callback) {
       }
     });
   }
-};
+}
 
 var allowFeedback = document.querySelector('#allow-feedback');
 allowFeedback.onchange = function () {
@@ -125,14 +125,14 @@ function checkSiteStatus () {
       allowFeedback.checked = true;
     }
   }
-};
+}
 
 /**
  * Adds the gear EventListener for opening configurations.
  */
 function initDisplay() {
   var configs = document.getElementById('configs');
-  configs.addEventListener('click', function handler(event) {
+  configs.addEventListener('click', function handler() {
     chrome.runtime.openOptionsPage();
   });
 }
