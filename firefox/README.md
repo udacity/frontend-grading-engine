@@ -1,15 +1,20 @@
 # Firefox interface
 ## Description
-This directory contains files needed to build the extension for Chromium based browsers (Google Chrome).
+This directory contains files needed to build the extension for Firefox based browsers (may include IceWeasel or IceCat).
 
-While the WebExtension API is well supported in Chromium, there still needs to be specific quirks.
+While the WebExtensions API is well supported in Chromium, Firefox needs to have specific quirks.
+
+## Incompatibilities
+Because Firefox doesn’t yet support some features and that backward compatibility was preferred, here are some issues:
+
+* Firefox doesn’t support the `sync` `StorageArea` (i.e. `chrome.storage.sync.*`). A wrapper was made to instead `local` `StorageArea`.
+  - Before version 48, Firefox didn’t support the `chrome.storage` API in /content scripts/. The above wrapper is replaced with a message channel between the /event page/ (background page) and the /content script/.
+* Before version 48, Firefox didn’t support the /options page/ (or `options_ui`). An icon is added in the /action page/ to access a page to modify the settings. That’s currently the only way to access the options prior to version 48.
+
+* Firefox and Chromium don’t seem to handle promises the same way. For example, Firefox couldn’t load the JSON tests before the execution of unit tests.
 
 ## Prerequisites
-To build the extension you first need [Node.js](https://nodejs.org/). The second step is to install the [Add-ons SDK](https://www.npmjs.com/package/jpm). Using NPM, it can be installed as follow:
-
-> npm install jpm --global
-
-Further information for installing the Add-ons SDK can be found at the [official documentation.](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/jpm#Installation).
+Firefox 45 or higher is needed to support WebExtensions.
 
 ## Building
 * TODO

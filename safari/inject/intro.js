@@ -304,4 +304,5 @@ if (window.top === window) {
   })();
 
   chrome = injected;
-  // intro.js<safari> ends here
+
+// intro.js<safari> ends here
