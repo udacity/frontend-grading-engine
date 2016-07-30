@@ -5,15 +5,15 @@
         <key>Builder Version</key>
         <string>11601.7.7</string>
         <key>CFBundleDisplayName</key>
-        <string>test</string>
+        <string>Udacity Feedback</string>
         <key>CFBundleIdentifier</key>
-        <string>com.yourcompany.test</string>
+        <string>com.udacity.frontend-grading-engine</string>
         <key>CFBundleInfoDictionaryVersion</key>
         <string>6.0</string>
         <key>CFBundleShortVersionString</key>
-        <string>1.0</string>
+        <string>0.2.4</string>
         <key>CFBundleVersion</key>
-        <string>1</string>
+        <string>0.2.4</string>
         <key>Chrome</key>
         <dict>
             <key>Global Page</key>
