@@ -110,7 +110,7 @@ var browserPageFiles = {
       src: [
         '%target%/browser_action/intro.js',
         'src/app/browser_action/browser_action.js',
-        '%target%/browser_action/intro.js'
+        '%target%/browser_action/outro.js'
       ],
       concat: 'browser_action.js'
     },
