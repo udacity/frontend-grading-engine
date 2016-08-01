@@ -10,5 +10,24 @@
 }
 /* jshint ignore:end */
 
+window.setInterval(function handler() {
+  try {
+    if(typeof(global.chrome) === typeof(Function)) {
+      chrome = global.chrome();
+      window.clearInterval(handler);
+      waitChromeNS();
+    } else {
+      if(global.chrome.initialized === true) {
+        window.clearInterval(handler);
+        waitChromeNS();
+      } else {
+        return;
+      }
+    }
+  } catch(e) {
+    return;
+  }
+}, 100);
+
 // outro.js<browser_action> ends here
 // browser_action.js ends here

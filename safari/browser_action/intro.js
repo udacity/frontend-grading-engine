@@ -10,24 +10,6 @@
 
 var global = safari.extension.globalPage.contentWindow, chrome;
 
-window.setInterval(function handler() {
-  try {
-    if(typeof(global.chrome) === typeof(Function)) {
-      chrome = global.chrome();
-      window.clearInterval(handler);
-      waitChromeNS();
-    } else {
-      if(global.chrome.initialized === true) {
-        waitChromeNS();
-      } else {
-        return;
-      }
-    }
-  } catch(e) {
-    return;
-  }
-}, 100);
-
 /**
  * Blocks execution until the Chrome namespace is fully loaded.
  */
