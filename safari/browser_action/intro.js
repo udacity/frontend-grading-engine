@@ -8,14 +8,20 @@
  * @license GPLv3
  */
 
+var global = safari.extension.globalPage.contentWindow, chrome;
+
 window.setInterval(function handler() {
   try {
-    if(typeof(safari.extension.globalPage.contentWindow.chrome) === typeof(Function)) {
-      chrome = safari.extension.globalPage.contentWindow.chrome();
+    if(typeof(global.chrome) === typeof(Function)) {
+      chrome = global.chrome();
       window.clearInterval(handler);
       waitChromeNS();
     } else {
-      return;
+      if(global.chrome.initialized === true) {
+        waitChromeNS();
+      } else {
+        return;
+      }
     }
   } catch(e) {
     return;
