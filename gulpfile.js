@@ -47,7 +47,7 @@ var pageFiles = {
       src: [
         '%target%/background.js'
       ],
-      concat: build + 'app'
+      concat: 'background.js'
     },
     dest: build
   },
