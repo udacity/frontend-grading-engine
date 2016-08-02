@@ -1,7 +1,9 @@
 /**
  * @fileOverview This file contains the "Source Sans Pro" font as base64. Because the `template.js` file is an injected script, it doesn’t have access to the extension path. Furthermore, sharing the path could be dangerous.
  * @name font.js<test_widget>
- * @author Etienne Prud’homme
+ * @author Copyright 2010, 2012, 2014 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. All Rights Reserved. Source is a trademark of Adobe Systems Incorporated in the United States and/or other countries.
+
+ This Font Software is licensed under the SIL Open Font License, Version 1.1.
  * @license GPLv3
  */
 
