@@ -133,7 +133,13 @@ var pageAction = browserPageFiles.pageAction;
 var pageOptions = browserPageFiles.pageOptions;
 
 var iconFiles = {
-  src: 'src/icons/*.png',
+  src: [
+    'src/icons/icon.png',
+    'src/icons/Icon-32.png',
+    'src/icons/Icon-48.png',
+    'src/icons/Icon-64.png',
+    'src/icons/Icon-128.png'
+  ],
   dest: build + 'icons/'
 };
 
@@ -242,6 +248,7 @@ gulp.task('pageOptions', ['_pageOptions_html', '_pageOptions_js']);
 // "icons" = Copy icons.
 gulp.task('icons', function() {
   if(currentBrowser === 'safari') {
+    iconFiles.src.push('safari/toolbar_icon.png');
     iconFiles.dest = build;
   }
   return gulp.src(iconFiles.src)
