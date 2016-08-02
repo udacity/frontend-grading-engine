@@ -76,7 +76,6 @@ if (window.top === window) {
       },
       extension: {
         /**
-
          * Converts a relative path within an extension install directory to a
          * fully-qualified URL.
          * @param {string} path - A path to a resource within an extension
@@ -91,7 +90,6 @@ if (window.top === window) {
         sync: {
           /**
            * Gets one or more items from storage.
-
            * @param {string|string[]|object} [keys] - A single key to get, list
            * of keys to get, or a dictionary specifying default values (see
            * description of the object). An empty list or object will return an
@@ -115,7 +113,6 @@ if (window.top === window) {
           },
           /**
            * Sets multiple items.
-
            * @param {object} keys - An object which gives each key/value pair to
            * update storage with. Any other key/value pairs in storage will not
            * be affected.

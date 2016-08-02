@@ -99,6 +99,13 @@ tbody .whitelist-row:last-child td {
   text-align: right;
 }
 
+#back-button {
+  display: none;
+  left: .5em;
+  position: absolute;
+  top: .5em;
+}
+
 /* I designed the button with: http://charliepark.org/bootstrap_buttons/ */
 button.custom {
   padding: 0.6em 1em;
