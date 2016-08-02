@@ -14,13 +14,14 @@
  */
 var testWidget = (function() {
   'use strict';
+
   var exports = {};
   var frameId = null;
   var frameElement = null;
   var lastFrameHeight = 0;
   var lastWindowHeight = null;
 
-  // TODO: Should it be included in
+  // TODO: Should we use a link element instead?
   var outerStyles = '/* The iFrame class. Note that an iFrame acts like a normal element */' +
         '.test-widget-display {' +
         'resize: both;' +
@@ -182,6 +183,34 @@ var testWidget = (function() {
   };
 
   /**
+   * Returns the frame context.
+   * @returns {Document} The current
+   * @throws {Error} Errors about bad initialization.
+   * @private
+   */
+  var _frameContext = function () {
+    if(frameId === null) {
+      throw new Error('The widget must first be created.');
+    }
+    var tw = document.getElementById(frameId);
+
+    if(tw === null) {
+      throw new Error('The “' + frameId + '” iframe doesn’t exist.');
+    }
+
+    // Compatibility fix
+    return tw.contentWindow || tw.contentDocument.document || tw.contentDocument;
+  };
+
+  /**
+   * Get the widget document. It prevents direct access to the iFrame.
+   * @returns {Document}
+   */
+  var _frameDocument = function() {
+    return _frameContext().document;
+  };
+
+  /**
    * Calculate the height of the test-widget could have. It can’t be bigger than the window since it has position of fixed.
    * @returns {}
    */
@@ -218,7 +247,7 @@ var testWidget = (function() {
       // debugger;
       // console.log('Inside _onFrameChange MutationObserver. Mutation: ', mutations[i]);
       // console.log('Callback: ', callback.toString());
-      callback();
+      callback(mutations);
     });
     observer.observe(frameDocument, {childList: true, attributes: true, characterData: true, subtree: true});
   };
@@ -257,7 +286,7 @@ var testWidget = (function() {
           reject(e);
         };
       }).catch(function(e) {
-        throw new Error('Couldn’t load the test widget.');
+        throw new Error('Couldn’t load the test widget: ' + e.message);
       });
 
     return promise;
@@ -272,13 +301,15 @@ var testWidget = (function() {
     return _buildFrame().then(function() {
       var testWidgetDisplay = _frameDocument();
 
-      // Reviewer: This is safe
+      // Reviewer: This is only local
       testWidgetDisplay.head.innerHTML = template.head;
       testWidgetDisplay.body.innerHTML = template.body;
 
       var outerCSS = document.createElement('style');
-      // Reviewer: This is safe
-      outerCSS.innerHTML = outerStyles;
+      outerCSS.id = 'outer-styles';
+
+      // Reviewer: This is only local
+      outerCSS.textContent = outerStyles;
       document.head.appendChild(outerCSS);
 
       // console.log("testWidgetDisplay = ", testWidgetDisplay);
@@ -295,46 +326,22 @@ var testWidget = (function() {
    */
   var _killWidget = function() {
     var tw = document.getElementById(frameId);
+    var styles = document.getElementById('outer-styles');
 
     document.body.removeChild(tw);
+    document.body.removeChild(styles);
     frameId = null;
   };
 
-  /**
-   * Get the widget document. It prevents direct access to the iFrame.
-   * @returns {Document}
-   */
-  var _frameDocument = function() {
-    return _frameContext().document;
-  };
-
-  /**
-   * Returns the frame context.
-   * @returns {Document} The current
-   * @throws {Error} Errors about bad initialization.
-   * @private
-   */
-  var _frameContext = function () {
-    if(frameId === null) {
-      throw new Error('The widget must first be created.');
-    }
-    var tw = document.getElementById(frameId);
-
-    if(tw === null) {
-      throw new Error('The “' + frameId + '” iframe doesn’t exist.');
-    }
-
-    // Compatibility fix
-    return tw.contentWindow || tw.contentDocument.document || tw.contentDocument;
-  };
-
-  return {
+  exports = {
     buildWidget: _buildWidget,
     killWidget: _killWidget,
 
     // TODO: Doesn’t seem to be used outside
     frameDocument: _frameDocument
   };
+
+  return exports;
 })();
 
 // test-widget.js ends here
