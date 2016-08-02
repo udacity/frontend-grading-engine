@@ -11,15 +11,12 @@
 // Initializes the logs if not created
 safari.extension.settings.logs = safari.extension.settings.logs || [];
 
-var initialized = false;
-
 /**
  * Chrome adapter module for the global page context.
  * @returns {object} The chrome namespace.
  * @throws {Error} TO FIX. We should set `lastError` instead.
  */
 var global = (function() {
-  initialized = true;
   var exports = {
     tabs: {
       /**
@@ -161,6 +158,9 @@ var global = (function() {
       }
     }
   };
+
+  // The module was intialized
+  exports.initialized = true;
   return exports;
 })();
 

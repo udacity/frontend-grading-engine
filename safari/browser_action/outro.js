@@ -1,6 +1,11 @@
+/*global waitChromeNS, chrome, safari */
+
 /**
  * @fileOverview This file contains the Safari closing statements for the
- * browser action page appended to the main file.
+ * browser action page appended to the main file. This file contains a function
+ * executed each 100ms to check if the `chrome` module/namespace is fully
+ * loaded. If it’s already initialized, it assign the _globalPage_ namespace as
+ * `chrome`, otherwise it initializes it.
  * @name outro.js<browser_action>
  * @author Etienne Prud’homme
  * @license GPLv3
@@ -10,14 +15,17 @@
 }
 /* jshint ignore:end */
 
-window.setInterval(function handler() {
+var handler = window.setInterval(function() {
   try {
-    if(typeof(global.chrome) === typeof(Function)) {
-      chrome = global.chrome();
+    // If the module isn’t initialized, intialize it
+    if(typeof(safari.extension.globalPage.contentWindow.chrome) === typeof(Function)) {
+      chrome = safari.extension.globalPage.contentWindow.chrome();
       window.clearInterval(handler);
       waitChromeNS();
     } else {
-      if(global.chrome.initialized === true) {
+      // If the module is initialized, assign the module
+      if(safari.extension.globalPage.contentWindow.chrome.initialized === true) {
+        chrome = safari.extension.globalPage.contentWindow.chrome;
         window.clearInterval(handler);
         waitChromeNS();
       } else {
