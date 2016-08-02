@@ -156,6 +156,54 @@ var global = (function() {
           throw e;
         }
       }
+    },
+    runtime: {
+      lastError: null,
+      openOptionsPage: function() {
+        window.location.href = safari.extension.baseURI + 'app/options/index.html';
+      }
+    },
+    storage: {
+      sync: {
+          /**
+           * Gets one or more items from storage.
+           * @param {string|string[]|object} [keys] - A single key to get, list
+           * of keys to get, or a dictionary specifying default values (see
+           * description of the object). An empty list or object will return an
+           * empty result object. Pass in null to get the entire contents of
+           * storage.
+           * @param {injected.storage.sync.get~callback} callback - Callback
+           * with storage items, or on failure (in which case
+           * {@link injected.runtime.lastError} will be set).
+           * @returns {object} Object with items in their key-value mappings.
+           */
+          get: function(keys, callback) {
+            var values = wrapper.storage.sync.get(keys);
+            if(typeof (callback) === typeof(Function)) {
+              callback(values);
+            }
+          },
+          /**
+           * Sets multiple items.
+           * @param {object} keys - An object which gives each key/value pair to
+           * update storage with. Any other key/value pairs in storage will not
+           * be affected.
+           *
+           * Primitive values such as numbers will serialize as expected. Values
+           * with a typeof `object` and `function` will typically serialize to
+           * `{}`, with the exception of `Array` (serializes as expected), Date,
+           * and Regex (serialize using their `String` representation).
+           * @param {injected.storage.sync.set~callback} [callback] - Callback
+           * on success, or on failure (in which case
+           * {@link injected.runtime.lastError} will be set).
+           */
+          set: function(keys, callback) {
+            wrapper.storage.sync.set(keys);
+            if(typeof(callback) === typeof(Function)) {
+              callback();
+            }
+          }
+      }
     }
   };
 
