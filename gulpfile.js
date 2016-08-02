@@ -146,7 +146,9 @@ var iconFiles = {
 var styleFiles = {
   src: [
     'src/app/css/common.css',
-    'src/app/css/fonts.css'
+    'src/app/css/fonts.css',
+    'src/app/css/ui.css',
+    'src/app/css/options.css'
   ],
   dest: build + 'app/css/'
 };
