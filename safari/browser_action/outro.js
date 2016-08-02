@@ -11,6 +11,12 @@
  * @license GPLv3
  */
 
+  chrome.runtime = {
+    openOptionsPage: function() {
+      window.location.href = safari.extension.baseURI + 'app/options/index.html';
+    }
+  };
+
   safari.application.addEventListener('popover', function() {
     checkSiteStatus();
   });
