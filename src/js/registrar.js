@@ -1,3 +1,5 @@
+/*global testWidget, Suite, testResults */
+
 /**
  * @fileOverview  Expose functions that create and monitor tests.
  * @name registrar.js<js>

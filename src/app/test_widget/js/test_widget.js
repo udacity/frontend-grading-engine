@@ -1,4 +1,4 @@
-/*global MutationObserver, components */
+/*global MutationObserver, components, sourceSansProFont */
 
 /**
  * @fileOverview This file provides the test widget module. It injects an iFrame inside the current document to display a list of tests.
@@ -48,7 +48,13 @@ var testWidget = (function() {
         'opacity: 1;' +
         '}';
 
-  var innerStyles = '* {' +
+  var innerStyles = '@font-face{' +
+        'font-family: "Source Sans Pro";' +
+        'src: url(data:font/ttf;base64,' +
+        sourceSansProFont +
+        ') format("truetype");' +
+        '} ' +
+        '* {' +
         'font-family: "Source Sans Pro", sans-serif;' +
         '}' +
         'body {' +
@@ -169,7 +175,9 @@ var testWidget = (function() {
   var template = {
     head: '    <title>Udacity Feedback</title>' +
       '    <meta charset="UTF-8">' +
-      '    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">' +
+      // Disabled until a solution is found. Because it’s an injected script, it
+      // wouldn’t be secure to pass the extension path.
+      // '    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">' +
       '    <style>' + innerStyles + '</style>' +
       '  </head>',
     body: '  <body>' +

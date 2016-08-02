@@ -64,6 +64,7 @@ var pageFiles = {
   },
   templates: {
     src: [
+      'src/app/test_widget/js/font.js',
       'src/app/test_widget/js/test_suite.js',
       'src/app/test_widget/js/test_results.js',
       'src/app/test_widget/js/active_test.js',
