@@ -33,7 +33,7 @@
                     <key>Identifier</key>
                     <string>actionPageButton</string>
                     <key>Image</key>
-                    <string>icons/udacity-official32.png</string>
+                    <string>toolbar_icon.png</string>
                     <key>Include By Default</key>
                     <true/>
                     <key>Label</key>
