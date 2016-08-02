@@ -36,9 +36,6 @@ var testResults = (function() {
     var hideShowButton = self.querySelector('button.toggle-display');
     var placeholder = self.querySelector('em.placeholder');
 
-    // Unused
-    var maxHeight = null;
-
     /**
      * Builds a new suite of tests.
      * @param {suite} newSuite - The suite to build
@@ -86,7 +83,7 @@ var testResults = (function() {
       placeholder.classList.toggle('hide');
 
       if (this.classList.contains('hidden')) {
-        placeholder.textContent = "Tests hidden";
+        placeholder.textContent = 'Tests hidden';
       } else {
         placeholder.textContent = '';
       }

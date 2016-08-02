@@ -24,23 +24,6 @@
         '<!-- active-test ends here -->';
 
   /**
-   * Called when the element gets attached to the document
-   */
-  proto.attachedCallback = function() {
-    self = this;
-    self.dataset.testPassed = false;
-    updateView();
-  };
-
-  /**
-   * Called when any attribute on the element changes
-   */
-  proto.attributeChangedCallback = function () {
-    self = this;
-    updateView();
-  };
-
-  /**
    * Function to mark a test as `Passed`.
    * @param {HTMLElement} markRightOrWrong - The element containing the mark.
    * @private
@@ -49,7 +32,7 @@
     markRightOrWrong.classList.remove('incorrect');
     markRightOrWrong.classList.remove('error');
     markRightOrWrong.classList.add('correct');
-  };
+  }
 
   /**
    * Function to mark a test as `Failed`.
@@ -60,7 +43,7 @@
     markRightOrWrong.classList.add('incorrect');
     markRightOrWrong.classList.remove('correct');
     markRightOrWrong.classList.remove('error');
-  };
+  }
 
   /**
    * Function to mark a test as `Erred` (is not valid).
@@ -71,15 +54,16 @@
     markRightOrWrong.classList.remove('correct');
     markRightOrWrong.classList.remove('incorrect');
     markRightOrWrong.classList.add('error');
-  };
+  }
 
   /**
    * Main function for updating member elements.
    */
   function updateView() {
+    var testPassed, testDescription;
     try {
-      var testDescription = self.dataset.description;
-      var testPassed = self.dataset.testPassed;
+      testDescription = self.dataset.description;
+      testPassed = self.dataset.testPassed;
     } catch (e) {
       console.log(e);
     }
@@ -99,6 +83,23 @@
     } else if (testPassed === 'error') {
       _testHasErred(markRightOrWrong);
     }
+  }
+
+  /**
+   * Called when the element gets attached to the document
+   */
+  proto.attachedCallback = function() {
+    self = this;
+    self.dataset.testPassed = false;
+    updateView();
+  };
+
+  /**
+   * Called when any attribute on the element changes
+   */
+  proto.attributeChangedCallback = function () {
+    self = this;
+    updateView();
   };
 
   components.registerElement('active-test', template, proto);

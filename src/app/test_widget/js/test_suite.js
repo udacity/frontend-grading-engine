@@ -23,30 +23,13 @@
         '</div>' +
         '<!-- test-suite component ends here -->';
 
-  /**
-   * Called when the component is attached to the DOM.
-   */
-  proto.attachedCallback = function() {
-    var suite = this.suite;     // Is it ever used?
-    self = this;
-    updateView();
-  };
-
-
-  /**
-   * Called when the main container changed its attributes.
-   */
-  proto.attributeChangedCallback = function() {
-    self = this;
-    updateView();
-  };
-
   function updateView() {
     var suiteName = self.dataset.name;
     var suitePassed = self.dataset.suitePassed;
     var suiteCode = self.code;
     var numberOfTests = self.dataset.numberOfTests;
 
+    // Is it ever used?
     var suite = self;
     var codeContainer = {
       container: self.getElementsByClassName('suite-code-container')[0],
@@ -54,7 +37,7 @@
       suiteCode: self.getElementsByClassName('suite-code')[0]
     };
 
-    var titleEnd = numberOfTests > 1 ? " Tests" : " Test";
+    var titleEnd = numberOfTests > 1 ? ' Tests' : ' Test';
 
     self.querySelector('.suite-title').textContent = suiteName + titleEnd;
 
@@ -73,13 +56,31 @@
         codeContainer.suiteName.textContent = '';
         codeContainer.suiteCode.textContent = '';
       }
-    };
+    }
 
     if (suitePassed === 'true') {
       displayCode(true);
     } else {
       displayCode(false);
     }
+  }
+
+  /**
+   * Called when the component is attached to the DOM.
+   */
+  proto.attachedCallback = function() {
+    var suite = this.suite;     // Is it ever used?
+    self = this;
+    updateView();
+  };
+
+
+  /**
+   * Called when the main container changed its attributes.
+   */
+  proto.attributeChangedCallback = function() {
+    self = this;
+    updateView();
   };
 
   components.registerElement('test-suite', template, proto);
