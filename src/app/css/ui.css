@@ -1,0 +1,67 @@
+/**
+ * This file contains the User Interface styles of the extension.
+ */
+
+button.custom {
+  padding: 0.6em 1em;
+  border: 1px solid transparent;
+  border-color: #ccc #ccc #bbb #bbb;
+  border-radius: 3px;
+  background-color: hsl(216, 0%, 75%);
+  background-image: linear-gradient(#f2f2f2, #dddddd);
+  background-repeat: repeat-x;
+  color: #000;
+  opacity: 0.8;
+}
+
+button.custom.disabled,
+button.custom[disabled] {
+  border-color: #ddd #ddd hsl(36, 0%, 85%);
+  background-color: hsl(36, 0%, 72%);
+  background-image: linear-gradient(#f2f2f2, #dddddd);
+  color: #666;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+button.custom:hover {
+  opacity: 1.0;
+}
+
+button.important {
+  padding: 0.6em 1em;
+  border: 1px solid transparent;
+  border-color: #ffcc7f #ffcc7f hsl(36, 100%, 73%);
+  border-radius: 3px;
+  background-color: hsl(36, 100%, 75%);
+  background-image: linear-gradient(#ffdca8, #ffcc7f);
+  background-repeat: repeat-x;
+  color: #222;
+  opacity: 0.8;
+}
+
+button.important:hover {
+  opacity: 1.0;
+}
+
+/* Not to be confused with button */
+.button {
+  border: none;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 150%;
+  margin: 0;
+  padding: 8px;
+}
+
+.fa {
+  display: inline-block;
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* ui.css<css> ends here */
