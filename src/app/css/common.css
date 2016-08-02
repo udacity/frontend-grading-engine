@@ -1,12 +1,7 @@
 /**
- * This file was taken in part from uBlock Origin
+ * This file was taken in part from uBlock Origin. It contains styles common
+ * to the extension.
  */
-@font-face {
-  font-family: 'FontAwesome';
-  font-weight: normal;
-  font-style: normal;
-  src: url('fonts/fontawesome-webfont.ttf') format('truetype');
-}
 
 * {
   box-sizing: border-box;

@@ -144,7 +144,10 @@ var iconFiles = {
 };
 
 var styleFiles = {
-  src: 'src/app/css/common.css',
+  src: [
+    'src/app/css/common.css',
+    'src/app/css/fonts.css'
+  ],
   dest: build + 'app/css/'
 };
 

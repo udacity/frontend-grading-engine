@@ -1,0 +1,19 @@
+/**
+ * This file contains custom fonts for the extension.
+ */
+
+@font-face {
+  font-family: 'FontAwesome';
+  font-weight: normal;
+  font-style: normal;
+  src: url('fonts/fontawesome-webfont.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Source Sans Pro'), local('SourceSansPro-Regular'), url('fonts/SourceSansPro-Regular.ttf') format('truetype');
+}
+
+/* fonts.css<css> ends here */
