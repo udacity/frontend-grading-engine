@@ -83,27 +83,6 @@ function registerSuite(rawSuite) {
 var userData = [];
 var isOn = false;
 
-/**
- * For use only when loading a new JSON with user data about the tests they want to run
- * @param  {JSON} suitesJSON Everything the GE needs to know about your tests
- */
-function registerSuites(suitesJSON) {
-  try {
-    if (suitesJSON.length > 0) {
-      userData = JSON.parse(suitesJSON);
-    }
-  } catch (e) {
-    throw new Error('Invalid JSON format.');
-  }
-  if (userData instanceof Array !== true) {
-    throw new TypeError('Invalid test format. Tests must be wrapped in an array.');
-  }
-  if (isOn) {
-    startTests();
-    console.log('startTests');
-  }
-};
-
 function startTests() {
 
   userData.forEach(function(_suite) {
@@ -132,7 +111,28 @@ function startTests() {
       });
     });
   });
-};
+}
+
+/**
+ * For use only when loading a new JSON with user data about the tests they want to run
+ * @param  {JSON} suitesJSON Everything the GE needs to know about your tests
+ */
+function registerSuites(suitesJSON) {
+  try {
+    if (suitesJSON.length > 0) {
+      userData = JSON.parse(suitesJSON);
+    }
+  } catch (e) {
+    throw new Error('Invalid JSON format.');
+  }
+  if (userData instanceof Array !== true) {
+    throw new TypeError('Invalid test format. Tests must be wrapped in an array.');
+  }
+  if (isOn) {
+    startTests();
+    console.log('startTests');
+  }
+}
 
 function turnOn() {
   if (!isOn) {
@@ -151,7 +151,7 @@ function turnOn() {
       console.log('leaves startTests');
     });
   }
-};
+}
 
 function turnOff () {
   hotel.occupiedSuites.forEach(function (suite) {
@@ -162,7 +162,7 @@ function turnOff () {
   hotel.occupiedSuites = [];
   testWidget.killWidget();
   isOn = false;
-};
+}
 
 function debug() {
   hotel.occupiedSuites.forEach(function (suite) {
@@ -170,7 +170,7 @@ function debug() {
     suite.getIncorrectInfo();
     suite.getValues();
   });
-};
+}
 
 exports.debug = debug;
 exports.turnOn = turnOn;
