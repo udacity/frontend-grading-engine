@@ -20,6 +20,7 @@ var testWidget = (function() {
   var lastFrameHeight = 0;
   var lastWindowHeight = null;
 
+  // TODO: Should it be included in
   var outerStyles = '/* The iFrame class. Note that an iFrame acts like a normal element */' +
         '.test-widget-display {' +
         'resize: both;' +
