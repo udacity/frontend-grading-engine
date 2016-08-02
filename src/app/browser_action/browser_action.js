@@ -89,6 +89,9 @@ function checkSiteStatus () {
     case true:
       allowFeedback.checked = true;
       break;
+    case false:
+      allowFeedback.checked = false;
+      break
     case 'chrome_local_exception':
       addWarning('Chrome doesn’t support loading local files automatically.', true, true);
       break;

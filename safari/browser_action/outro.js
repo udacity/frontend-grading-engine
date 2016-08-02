@@ -1,4 +1,4 @@
-/*global waitChromeNS, chrome, safari */
+/*global waitChromeNS, chrome, safari, checkSiteStatus */
 
 /**
  * @fileOverview This file contains the Safari closing statements for the
@@ -11,7 +11,10 @@
  * @license GPLv3
  */
 
-/* jshint ignore:start */
+  safari.application.addEventListener('popover', function() {
+    checkSiteStatus();
+  });
+  /* jshint ignore:start */
 }
 /* jshint ignore:end */
 
