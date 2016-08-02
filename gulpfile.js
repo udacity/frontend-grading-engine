@@ -241,6 +241,9 @@ gulp.task('pageOptions', ['_pageOptions_html', '_pageOptions_js']);
 
 // "icons" = Copy icons.
 gulp.task('icons', function() {
+  if(currentBrowser === 'safari') {
+    iconFiles.dest = build;
+  }
   return gulp.src(iconFiles.src)
     .pipe(gulp.dest(iconFiles.dest))
     .pipe(debug({title: 'copied icons:'}));
