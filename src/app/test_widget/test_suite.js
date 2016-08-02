@@ -2,7 +2,7 @@
 
 /**
  * @fileOverview This file registers the `test-suite` component. {@link test-results} and {@link test-widget} should have executed already.
- * @name test_suite.js
+ * @name test_suite.js<test_widget>
  * @author Etienne Prud’homme
  * @license MIT
  */
@@ -86,4 +86,4 @@
   components.registerElement('test-suite', template, proto);
 })();
 
-// test_suite.js ends here
+// test_suite.js<test_widget> ends here

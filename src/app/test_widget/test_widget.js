@@ -2,7 +2,7 @@
 
 /**
  * @fileOverview This file provides the test widget module. It injects an iFrame inside the current document to display a list of tests.
- * @name test_widget.js
+ * @name test_widget.js<test_widget>
  * @author Etienne Prud’homme
  * @license MIT
  */
@@ -352,4 +352,4 @@ var testWidget = (function() {
   return exports;
 })();
 
-// test-widget.js ends here
+// test-widget.js<test_widget> ends here

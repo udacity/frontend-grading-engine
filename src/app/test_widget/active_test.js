@@ -2,7 +2,7 @@
 
 /**
  * @fileOverview This file registers the `active-test` component. This file doesn’t depend on other components.
- * @name active_test.js
+ * @name active_test.js<test_widget>
  * @author Etienne Prud’homme
  * @license MIT
  */
@@ -105,4 +105,4 @@
   components.registerElement('active-test', template, proto);
 })();
 
-// active_test.js ends here
+// active_test.js<test_widget> ends here

@@ -64,11 +64,11 @@ var pageFiles = {
   },
   templates: {
     src: [
-      'src/app/test_widget/js/font.js',
-      'src/app/test_widget/js/test_suite.js',
-      'src/app/test_widget/js/test_results.js',
-      'src/app/test_widget/js/active_test.js',
-      'src/app/test_widget/js/test_widget.js'
+      'src/app/test_widget/font.js',
+      'src/app/test_widget/test_suite.js',
+      'src/app/test_widget/test_results.js',
+      'src/app/test_widget/active_test.js',
+      'src/app/test_widget/test_widget.js'
     ],
     concat: 'templates.js',
     dest: build + 'app/templates/'

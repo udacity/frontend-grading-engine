@@ -2,7 +2,7 @@
 
 /**
  * @fileOverview This file registers the `test-results` component. This component is the main container and contains procedures for creating new `suites`. {@link test-results.js}, {@link test-widget.js}, {@link test-suite.js} should have executed already.
- * @name test_results.js
+ * @name test_results.js<test_widget>
  * @author Etienne Prud’homme
  * @license MIT
  */
@@ -96,4 +96,4 @@ var testResults = (function() {
   return exports;
 })();
 
-// test-results.js ends here
+// test-results.js<test_widget> ends here
