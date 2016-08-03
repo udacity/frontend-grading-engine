@@ -337,7 +337,7 @@ var testWidget = (function() {
     var styles = document.getElementById('outer-styles');
 
     document.body.removeChild(tw);
-    document.body.removeChild(styles);
+    document.head.removeChild(styles);
     frameId = null;
   };
 
