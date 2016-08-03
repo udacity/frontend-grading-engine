@@ -22,7 +22,7 @@
 
   // When the popover is closed (it actually loses focus, but it’s still there)
   window.addEventListener('blur', function() {
-    window.reload();
+    window.location.reload();
   });
 /* jshint ignore:start */
 }
