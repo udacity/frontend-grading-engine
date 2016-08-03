@@ -80,6 +80,42 @@ allowFeedback.onchange = function () {
 document.querySelector('#ud-file-loader').addEventListener('change', handleFileSelect, false);
 
 /**
+ * Adds a custom warning message and disable the checkbox.
+ * @param {string} message - The custom message.
+ */
+function addWarning(message, type, options) {
+  options = options || {};
+
+  var fileInput, label;
+  var form = document.getElementsByClassName('autorun')[0];
+  document.getElementById('warning-text').textContent = message;
+  document.getElementsByClassName('warning-block')[0].style.display = 'block';
+
+  if(type === 'disable') {
+    document.getElementsByClassName('loader')[0].remove();
+  } else if(type === 'checkbox') {
+    if(options.enableCheckbox !== true) {
+      form.classList.add('disabled');
+      allowFeedback.disabled = true;
+    }
+    if(options.checked === true) {
+      allowFeedback.checked = true;
+    }
+  } else if('fileInput') {
+    fileInput = document.getElementById('ud-file-loader');
+
+    if(options.enableFileInput === true) {
+      fileInput.disabled = false;
+    }
+    else {
+      label = document.getElementById('ud-label-loader');
+      label.classList.add('disabled');
+      fileInput.disabled = true;
+    }
+  }
+}
+
+/**
  * Makes checkbox `checked` if the website is allowed.
  */
 function checkSiteStatus () {
@@ -91,43 +127,24 @@ function checkSiteStatus () {
       break;
     case false:
       allowFeedback.checked = false;
-      break
+      break;
     case 'chrome_local_exception':
-      addWarning('Chrome doesn’t support loading local files automatically.', true, true);
+      addWarning('Chrome doesn’t support loading local files automatically', 'checkbox', {enableCheckbox: false, checked: false});
       break;
     case 'unknown_protocol':
-      addWarning('Unsupported protocol. Supported protocols are: http, https and (local) file', true, true);
+      addWarning('Unsupported protocol. Supported protocols are: http, https and (local) file', 'checkbox', {enableCheckbox: false, checked: false});
       break;
     case 'invalid_origin':
-      addWarning('The linked JSON page isn’t at the same origin and directory as the document.', true, true);
+      addWarning('The linked JSON page isn’t at the same origin and directory as the document', 'checkbox', {enableCheckbox: false, checked: false});
       break;
     case undefined:
       // response is undefined if there’s no content-script active (so it’s an unsupported URL scheme)
-      addWarning('Unsupported URL scheme. Supported URL schemes are: http://, https://, or file://');
-      document.getElementsByClassName('loader')[0].remove();
+      addWarning('Unsupported URL scheme. Supported URL schemes are: http://, https://, or file://', 'disable', {});
       break;
     default:
       break;
     }
   });
-
-  /**
-   * Adds a custom warning message and disable the checkbox.
-   * @param {string} message - The custom message.
-   */
-  function addWarning(message, enableCheckbox, checked, moreInfos) {
-    var form = document.getElementsByClassName('autorun')[0];
-    document.getElementById('warning-text').textContent = message;
-    document.getElementsByClassName('warning-block')[0].style.display = 'block';
-
-    if(enableCheckbox !== true) {
-      form.classList = form.classList + ' disabled';
-      allowFeedback.disabled = true;
-    }
-    if(checked === true) {
-      allowFeedback.checked = true;
-    }
-  }
 }
 
 /**

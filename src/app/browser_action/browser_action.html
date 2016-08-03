@@ -21,6 +21,9 @@
      .autorun.disabled {
          color: #ccc;
      }
+     #ud-label-loader.disabled {
+         color: #ccc;
+     }
      .warning-block {
          width: 80%;
          color: #e00;
@@ -42,7 +45,7 @@
         <div class="loader-description">
           Want to write tests? Here’s the <a href="https://github.com/udacity/frontend-grading-engine" target="_blank">API</a>.
         </div>
-        <label for="ud-file-loader"><strong>Load tests from file</strong>
+        <label id="ud-label-loader" for="ud-file-loader"><strong>Load tests from file</strong>
           <input id="ud-file-loader" type="file" accept=".json">
         </label>
         <div class="alert"></div>
