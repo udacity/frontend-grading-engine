@@ -129,7 +129,6 @@ function checkSiteStatus () {
   // If it’s Safari, the
   if(window.navigator.vendor.toLocaleLowerCase().indexOf('apple') !== -1) {
     addWarning('Safari doesn’t support the file input', 'fileInput', {});
-    return;
   }
 
   // talk to background script
