@@ -28,10 +28,12 @@ StateManager.prototype = {
       chrome.storage.sync.get('whitelist', function (response) {
         self.whitelist = response.whitelist || {remote: [], local: []};
 
-        if (!(self.whitelist.remote instanceof Array)) {
+        if (!(self.whitelist.remote instanceof Array ||
+              Object.prototype.toString.call(self.whitelist.remote) === '[object Array]')) {
           self.whitelist.remote = [self.whitelist.remote];
         }
-        if (!(self.whitelist.local instanceof Array)) {
+        if (!(self.whitelist.local instanceof Array ||
+              Object.prototype.toString.call(self.whitelist.remote) === '[object Array]')) {
           self.whitelist.local = [self.whitelist.local];
         }
         resolve(self.whitelist);
