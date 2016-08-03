@@ -88,7 +88,9 @@ document.querySelector('#ud-file-loader').addEventListener('change', handleFileS
  * {@link type}, it enables toggling the checkbox. Otherwise it does nothing.
  * @param {bool} options.checked - When using the `checkbox` {@link type}, it
  * checks the checkbox. Otherwise it does nothing.
- * @param {bool} options.enableFileInput - When using the `fileInput`,
+ * @param {bool} options.removeFileInput - When using the `fileInput`
+ * {@link type}, it removes the file input.
+ * @param {bool} options.disableFileInput - When using the `fileInput`,
  * {@link type}, it disables the file input.
  */
 function addWarning(message, type, options) {
@@ -109,12 +111,15 @@ function addWarning(message, type, options) {
     if(options.checked === true) {
       allowFeedback.checked = true;
     }
-  } else if('fileInput') {
+  } else if(type === 'fileInput') {
     fileInput = document.getElementById('ud-file-loader');
-    if(options.enableFileInput === true) {
+
+    if(options.removeFileInput === true) {
+      label = document.getElementById('ud-label-loader');
+      label.remove();
+    } else if(options.disableFileInput === true) {
       fileInput.disabled = false;
-    }
-    else {
+    } else {
       label = document.getElementById('ud-label-loader');
       label.classList.add('disabled');
       fileInput.disabled = true;
