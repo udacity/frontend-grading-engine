@@ -126,11 +126,6 @@ function addWarning(message, type, options) {
  * Makes checkbox `checked` if the website is allowed.
  */
 function checkSiteStatus () {
-  // If it’s Safari, the
-  if(window.navigator.vendor.toLocaleLowerCase().indexOf('apple') !== -1) {
-    addWarning('Safari doesn’t support the file input', 'fileInput', {});
-  }
-
   // talk to background script
   sendDataToTab(true, 'background-wake', function (response) {
     switch(response) {

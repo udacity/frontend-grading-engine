@@ -11,6 +11,12 @@
  * @license GPLv3
  */
 
+  var main = document.getElementById('main');
+  main.style.width = '400px';
+
+  var label = document.getElementById('ud-label-loader');
+  label.remove();
+
   chrome.runtime = {
     openOptionsPage: function() {
       window.location.href = safari.extension.baseURI + 'app/options/index.html';
