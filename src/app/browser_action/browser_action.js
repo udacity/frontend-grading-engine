@@ -82,6 +82,14 @@ document.querySelector('#ud-file-loader').addEventListener('change', handleFileS
 /**
  * Adds a custom warning message and disable the checkbox.
  * @param {string} message - The custom message.
+ * @param {string} type - The type of warning.
+ * @param {object} options - Object containing options.
+ * @param {bool} options.enableCheckbox - When using the `checkbox`,
+ * {@link type}, it enables toggling the checkbox. Otherwise it does nothing.
+ * @param {bool} options.checked - When using the `checkbox` {@link type}, it
+ * checks the checkbox. Otherwise it does nothing.
+ * @param {bool} options.enableFileInput - When using the `fileInput`,
+ * {@link type}, it disables the file input.
  */
 function addWarning(message, type, options) {
   options = options || {};
@@ -103,7 +111,6 @@ function addWarning(message, type, options) {
     }
   } else if('fileInput') {
     fileInput = document.getElementById('ud-file-loader');
-
     if(options.enableFileInput === true) {
       fileInput.disabled = false;
     }
