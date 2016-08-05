@@ -346,25 +346,25 @@ TA.prototype.children = TA.prototype.deepChildren;
 TA.prototype.get = function(typeOfValue) {
   var self = this;
   switch (typeOfValue) {
-    case 'count':
-      self.count;
-      break;
-    case 'childPosition':
-      self.childPosition;
-      break;
-    case 'innerHTML':
-      self.innerHTML;
-      break;
-    case 'UAString':
-      self.UAString;
-      break;
-    case 'DPR':
-      self.DPR;
-      break;
-    default:
-      self.onerror('Cannot “get”: “' + typeOfValue + '”. Options include: “count”, “childPosition”, “DPR”, “innerHTML”, and “UAString”.');
-      throw new Error();
-      break;
+  case 'count':
+    self.count;
+    break;
+  case 'childPosition':
+    self.childPosition;
+    break;
+  case 'innerHTML':
+    self.innerHTML;
+    break;
+  case 'UAString':
+    self.UAString;
+    break;
+  case 'DPR':
+    self.DPR;
+    break;
+  default:
+    self.onerror('Cannot “get”: “' + typeOfValue + '”. Options include: “count”, “childPosition”, “DPR”, “innerHTML”, and “UAString”.');
+    throw new Error();
+    break;
   }
 };
 
