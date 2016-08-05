@@ -34,7 +34,7 @@
       "definition": {
         "nodes": "div",
         "get": "count",
-        "equals": 17
+        "equals": 19
       }
     },
     {
@@ -163,6 +163,14 @@
         "nodes": ".output",
         "get": "innerHTML",
         "exists": true
+      }
+    },
+    {
+      "description": "The center box is on the middle",
+      "definition": {
+        "nodes": ".center",
+        "cssProperty": "marginLeft",
+        "equals": "100px"
       }
     }
   ]
