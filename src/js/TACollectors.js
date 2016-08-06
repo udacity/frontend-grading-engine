@@ -398,8 +398,7 @@ TA.prototype.cssProperty = function(property) {
       var style = null;
       try {
         // TODO: this causes a FSL that could affect framerate?
-        styles = window.getComputedStyle(elem);
-        style = styles[property];
+        style = self._getComputedValue(property, elem);
       } catch (e) {
         self.onerror('Cannot get CSS property: “' + property + '”.', true);
       }
@@ -407,6 +406,124 @@ TA.prototype.cssProperty = function(property) {
     });
   });
   return this;
+};
+
+/**
+ * Get a specified CSS property value.
+ * @param {string} property - The CSS property name.
+ * @param {HTMLElement} elem - The Element to get the CSS property value.
+ * @returns {string} Either the CSS computed value or a tweaked value (depending
+ * on the property name).
+ * @throws {Error} Bad arguments.
+ */
+TA.prototype._getComputedValue = function(property, elem) {
+  var self = this,
+      computedStyles = window.getComputedStyle(elem),
+      value = null;
+
+  /**
+   * Calculates the margin from a given side. It should only be used with
+   * element having a normal flow.
+   * @param {string} marginName - The margin side.
+   * @returns {string} The tweaked margin value.
+   * @throws {Error} Bad arguments or the CSS property is invalid.
+   * @todo Implement `marginRight` and `marginBottom`
+   */
+  function getMarginSide(marginName) {
+    var parent = elem.parentElement,
+        // An other container is used to prevent getting the parent padding
+        wrapper = document.createElement('div'),
+
+        // We need children for calculation (min/max)
+        clone = elem.cloneNode(true),
+        result;
+
+    // If the position is different than static, it may use the left property
+    // and it’s also hard to take them into account.
+    if(computedStyles.position !== 'static') {
+      // When both left and right are set, left has precedence over right when
+      // the direction is ltr or right when rtl.
+      throw new Error('“getMargin” only support the “static” position');
+    }
+
+    // Because the wrapper must be without any of those
+    wrapper.style.border = 'none';
+    wrapper.style.padding = '0';
+    wrapper.style.margin = '0';
+    wrapper.style.position = 'static';
+    wrapper.style.display = 'block';
+    wrapper.style.height = 'auto';
+    wrapper.style.width = 'auto';
+
+    wrapper.appendChild(clone);
+    // The parent element of `elem` will get `wrapper` before the `elem` Node
+    parent.insertBefore(wrapper, elem);
+
+    /**
+     * Calculate the offset from a given side. It thus give the margin if used
+     * We never know about custom styleswith a static position and if the actual
+     * We never know about custom stylesside was set.
+     * @param {string} marginName - The name of the margin as camel case.
+     * @returns {int} The calculated margin.
+     * @throws {Error} The {@link marginName} argument isn’t valid.
+     */
+    function calculateMarginForSide(marginName) {
+      var value;
+      switch(marginName) {
+      case 'marginLeft':
+        value = clone.offsetLeft - wrapper.offsetLeft;
+        break;
+      case 'marginTop':
+        value = clone.offsetTop - wrapper.offsetTop;
+        break;
+      case 'marginRight':
+        value = wrapper.clientWidth - (parseInt(window.getComputedStyle(clone).width) +
+                                       calculateMarginForSide('marginLeft'));
+        break;
+      case 'marginBottom':
+        value = wrapper.clientHeight - (parseInt(window.getComputedStyle(clone).height) +
+                                        calculateMarginForSide('marginTop'));
+        break;
+      default:
+        throw new Error('Wrong type of arguments for “marginName”');
+      }
+      return value;
+    }
+
+    // Cache the result if we want to remove the wrapper
+    result = calculateMarginForSide(marginName);
+    wrapper.remove();
+    return result;
+  }
+
+  // Specific tweaks for CSS properties
+  switch(property) {
+  case 'marginTop':
+  case 'marginRight':
+  case 'marginBottom':
+  case 'marginLeft':
+    // Firefox (and Safari?) don’t use the CSS2 specs to calculate the margin
+    // when set to `auto`
+    if(computedStyles[property] === '0px' && computedStyles.display === 'block') {
+      value = getMarginSide(property) + 'px';
+    }
+    break;
+  default:
+    break;
+  }
+
+  // No special tweaks
+  if(value === null) {
+    value = computedStyles[property];
+
+    // A valid CSS value should never be undefined
+    if(value === undefined) {
+      throw new Error();
+    }
+  }
+
+  // Return the tweaked computed value or the actual value if no tweaks
+  return value;
 };
 
 /**

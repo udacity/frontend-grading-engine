@@ -172,6 +172,14 @@
         "cssProperty": "marginLeft",
         "equals": "100px"
       }
+    },
+    {
+      "description": "The center box doesn’t have a margin at bottom",
+      "definition": {
+        "nodes": ".center",
+        "cssProperty": "marginBottom",
+        "equals": "0px"
+      }
     }
   ]
 },
