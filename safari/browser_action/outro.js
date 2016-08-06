@@ -17,12 +17,6 @@
   var label = document.getElementById('ud-label-loader');
   label.remove();
 
-  chrome.runtime = {
-    openOptionsPage: function() {
-      window.location.href = safari.extension.baseURI + 'app/options/index.html';
-    }
-  };
-
   safari.application.addEventListener('popover', function() {
     checkSiteStatus();
   });

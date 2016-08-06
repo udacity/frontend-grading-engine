@@ -7,6 +7,7 @@
 
 var chrome;
 
+var browserName = 'Safari';
 /**
  * Blocks execution until the Chrome namespace is fully loaded.
  */

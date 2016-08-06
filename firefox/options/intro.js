@@ -7,6 +7,8 @@
  * @license GPLv3
  */
 
+var browserName = 'Firefox';
+
 chrome = browser;
 chrome.storage = {
   sync: {

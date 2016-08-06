@@ -1,4 +1,4 @@
-/*global chrome */
+/*global chrome, browserName */
 
 /**
  * @fileOverview This file contains the option page for adding/removing websites from the whitelist.
@@ -104,6 +104,11 @@ StateManager.prototype = {
  * Adds buttons to add entries.
  */
 function initDisplay() {
+  var manifest = chrome.runtime.getManifest();
+  var extensionVersion = document.getElementById('extension-version');
+  extensionVersion.textContent = manifest.version;
+  document.getElementById('browser-name').textContent = browserName;
+
   var remoteAdd = document.getElementById('remote-add');
   remoteAdd.addEventListener('click', function handler(event) {
     newInputEntry('remote');
