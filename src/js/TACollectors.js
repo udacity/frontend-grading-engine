@@ -1,3 +1,5 @@
+/*global Target, GradeBook, Queue, getDomNodeArray */
+
 /**
  * @fileOverview The Teaching Assistant (TA) is responsible for:
  *  • collecting data from the page and creating a tree of Targets (called a bullseye) representing the information
@@ -20,7 +22,7 @@ function TA(description) {
   this.picky = false;
   this.queue = new Queue();
   this.description = description;
-};
+}
 
 Object.defineProperties(TA.prototype, {
   childPosition: {
@@ -190,7 +192,7 @@ TA.prototype._traverseTargets = function(callback) {
     node.children.forEach(function(child, index, arr) {
       visitDfs(child, callback);
     });
-  };
+  }
   visitDfs(this.target, callback);
 };
 
@@ -202,7 +204,8 @@ TA.prototype._runAgainstTopTargetOnly = function(callback) {
   var self = this;
   this.target.value = callback(this.target);
 
-  if (this.target.value != undefined) {
+  if (this.target.value !== undefined &&
+      this.target.value !== null) {
     self.gradebook.recordQuestion(this.target);
   } else {
     this.target.children.forEach(function(kid) {
@@ -224,14 +227,15 @@ TA.prototype._runAgainstBottomTargets = function(callback) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target);
 
-      if (target.value != undefined) {
+      if (target.value !== undefined &&
+          target.value !== null) {
         self.gradebook.recordQuestion(target);
       } else {
         target.children.forEach(function(kid) {
           self.gradebook.recordQuestion(kid);
         });
       }
-    };
+    }
   });
 };
 
@@ -248,14 +252,15 @@ TA.prototype._runAgainstBottomTargetElements = function(callback) {
     if (!target.hasChildren && allTargets.indexOf(target.id) > -1) {
       target.value = callback(target.element);
 
-      if (target.value != undefined) {
+      if (target.value !== undefined &&
+          target.value !== null) {
         self.gradebook.recordQuestion(target);
       } else {
         target.children.forEach(function(kid) {
           self.gradebook.recordQuestion(kid);
         });
       }
-    };
+    }
   });
 };
 
@@ -270,14 +275,15 @@ TA.prototype._runAgainstNextToBottomTargets = function(callback) {
     if (target.hasChildren && !target.hasGrandkids) {
       target.value = callback(target);
 
-      if (target.value != undefined) {
+      if (target.value !== undefined &&
+          target.value !== null) {
         self.gradebook.recordQuestion(target);
       } else {
         target.children.forEach(function(kid) {
           self.gradebook.recordQuestion(kid);
         });
       }
-    };
+    }
   });
 };
 
@@ -364,7 +370,6 @@ TA.prototype.get = function(typeOfValue) {
   default:
     self.onerror('Cannot “get”: “' + typeOfValue + '”. Options include: “count”, “childPosition”, “DPR”, “innerHTML”, and “UAString”.');
     throw new Error();
-    break;
   }
 };
 
@@ -394,7 +399,6 @@ TA.prototype.cssProperty = function(property) {
     self._registerOperation('cssProperty');
 
     self._runAgainstBottomTargetElements(function(elem) {
-      var styles = {};
       var style = null;
       try {
         // TODO: this causes a FSL that could affect framerate?
@@ -541,7 +545,7 @@ TA.prototype.attribute = function(attribute) {
       try {
         attrValue = elem.getAttribute(attribute);
       } catch (e) {
-        self.onerror("Cannot get attribute “" + attribute + "”.", true);
+        self.onerror('Cannot get attribute “' + attribute + '”.', true);
       }
       if (attrValue === '') {
         attrValue = true;
@@ -552,6 +556,7 @@ TA.prototype.attribute = function(attribute) {
   return this;
 };
 
+// TODO: Is this even used? Seems to be duplicate of {@link TA.prototype.attribute}
 /**
  * Get any property of an object.
  * @param  {string} attribute - the attribute under examination.
@@ -567,7 +572,7 @@ TA.prototype.property = function(key) {
       try {
         propertyValue = obj[key];
       } catch (e) {
-        self.onerror("Cannot get attribute “" + attribute + "”.", true);
+        self.onerror('Cannot get attribute “' + attribute + '”.', true);
       }
       if (propertyValue === '') {
         propertyValue = true;
@@ -594,9 +599,10 @@ TA.prototype.absolutePosition = function(side) {
     };
 
     function isValidSide(side) {
-      if(side === 'top' || side === 'left' || 'bottom' || 'right')
+      if(side === 'top' || side === 'left' || 'bottom' || 'right') {
         return true;
-      console.log("You didn’t pick a side for absolutePosition! Options are “top”, “left”, “bottom” and “right”.");
+      }
+      console.log('You didn’t pick a side for absolutePosition! Options are “top”, “left”, “bottom” and “right”.');
       return false;
     }
 
@@ -635,7 +641,7 @@ TA.prototype.absolutePosition = function(side) {
         value = getOffsetBySide(elem, side);
       } else if (displayType === 'inline') {
         value = elem.getBoundingClientRect()[side];
-      };
+      }
 
       // To get the widest size of the window, we need to get the biggest value of client<Size> and inner<Size>.
       if(side === 'bottom') {
@@ -656,7 +662,7 @@ TA.prototype.absolutePosition = function(side) {
       try {
         absPos = selectorFunc(elem);
       } catch (e) {
-        self.onerror("Cannot get absolute position of “" + side + "”.", true);
+        self.onerror('Cannot get absolute position of “' + side + '”.', true);
         throw new Error();
       }
       return absPos;
