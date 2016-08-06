@@ -5,4 +5,6 @@
  * @license GPLv3
  */
 
+var browserName = 'Chrome';
+
 // intro.js<options> ends here
