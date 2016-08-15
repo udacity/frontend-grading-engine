@@ -14,12 +14,6 @@
     window.history.back();
   });
 
-  chrome.runtime = {
-    openOptionsPage: function() {
-      window.location.href = safari.extension.baseURI + 'app/options/index.html';
-    }
-  };
-
   // When the popover is closed (it actually loses focus, but it’s still there)
   window.addEventListener('blur', function() {
     window.location.reload();

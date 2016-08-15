@@ -158,9 +158,28 @@ var global = (function() {
       }
     },
     runtime: {
+      /**
+       * Get keys from the `Info.plist` file. Only `version` is currently supported.
+       * @returns {Object} Object containing the manifest properties.
+       */
+      getManifest: function() {
+        return {
+          version: safari.extension.displayVersion
+        };
+      },
       lastError: null,
       openOptionsPage: function() {
-        window.location.href = safari.extension.baseURI + 'app/options/index.html';
+        // Find the active popover
+        var popovers = safari.extension.popovers;
+
+        // TODO: Find the last active popover
+        for(var i=popovers.length; --i >= 0;) {
+          // If none is found to be visible, te index 0 is taken
+          if(popovers[i].visible === true || i === 0) {
+            // Note: contentWindow is referring to the popover window itself
+            popovers[i].contentWindow.location.href = safari.extension.baseURI + 'app/options/index.html';
+          }
+        }
       }
     },
     storage: {
