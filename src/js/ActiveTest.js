@@ -1,3 +1,5 @@
+/*global TA */
+
 /**
  * @fileOverview This file contains the prototype of a single running test.
  * @name ActiveTest.js<js>
@@ -41,29 +43,32 @@ function ActiveTest(rawTest) {
   this.incorrectInfo = [];
 
   this.gradeRunner = function() {};
+  var self = this;
 
-  // validate the description.
-  if (typeof this.description !== 'string') {
-    throw new TypeError('Every test needs a description string.');
-  }
+  try {
+    // validate the description.
+    if (typeof this.description !== 'string') {
+      throw new TypeError('Every test needs a description string.');
+    }
 
-  // validate the flags
-  if (typeof this.flags !== 'object') {
-    throw new TypeError('If assigned, flags must be an object.');
-  }
+    // validate the flags
+    if (typeof this.flags !== 'object') {
+      throw new TypeError('If assigned, flags must be an object.');
+    }
 
-  if (typeof rawTest.definition !== 'object') {
-    throw new TypeError('Every test needs a definition');
-  }
+    if (typeof rawTest.definition !== 'object') {
+      throw new TypeError('Every test needs a definition');
+    }
 
-  // alwaysRun and noRepeat flags are mutually exclusive
-  if (this.flags.alwaysRun && this.flags.noRepeat) {
-    throw new TypeError('“alwaysRun” and “noRepeat” flags are mutually exclusive. Only one of them can be set.');
+    // alwaysRun and noRepeat flags are mutually exclusive
+    if (this.flags.alwaysRun && this.flags.noRepeat) {
+      throw new TypeError('“alwaysRun” and “noRepeat” flags are mutually exclusive. Only one of them can be set.');
+    }
+  } catch(e) {
+
   }
 
   this.ta = new TA(this.description);
-
-  var self = this;
 
   // translates json definitions to method calls
   self.queueUp = (function(config) {
@@ -80,7 +85,7 @@ function ActiveTest(rawTest) {
     };
 
   })(rawTest.definition);
-};
+}
 
 /**
  * Set off the fireworks! A test passed! Assumes you mean test passed unless didPass is false.
@@ -111,8 +116,8 @@ ActiveTest.prototype.hasErred = function() {
 };
 
 /**
-Run a synchronous activeTest every 1000 ms
-*/
+ Run a synchronous activeTest every 1000 ms
+ */
 ActiveTest.prototype.runTest = function() {
   var self = this;
 

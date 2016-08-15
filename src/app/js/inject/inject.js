@@ -270,7 +270,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     break;
   default:
     // Just in case of future bad implementation
-    console.log('invalid message type for: %s from %s', message, sender);
+    console.warn('invalid message type for: %s from %s', message, sender);
     break;
   }
 });

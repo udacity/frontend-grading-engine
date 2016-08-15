@@ -1,3 +1,5 @@
+/*global ActiveTest, components */
+
 /**
  * @fileOverview This file contains the constructor for a `Suite` of tests.
  * @name Suite.js<js>
@@ -26,7 +28,7 @@ function Suite(rawSuite) {
   this.activeTests = [];
   this.id = id;
   this.suitePassed = false; // put a setter on this to emit an event.
-};
+}
 
 Object.defineProperties(Suite.prototype, {
   numberOfTests: {
@@ -80,7 +82,7 @@ Object.defineProperties(Suite.prototype, {
 Suite.prototype.getDebugData = function() {
   this.activeTests.forEach(function(at) {
     if (at.debugData.length > 0) {
-      console.log('%c' + 'ERROR: ' + at.description + ': ' + at.debugData.join(' '), 'color: red;');
+      console.warn('%c' + 'ERROR: ' + at.description + ': ' + at.debugData.join(' '), 'color: red;');
     }
   });
 };
@@ -88,7 +90,7 @@ Suite.prototype.getDebugData = function() {
 Suite.prototype.getIncorrectInfo = function() {
   this.activeTests.forEach(function(at) {
     if (at.incorrectInfo.length > 0) {
-      console.log('Incorrect: ' + at.description + ': ' + at.incorrectInfo.join('\n'));
+      console.warn('Incorrect: ' + at.description + ': ' + at.incorrectInfo.join('\n'));
     }
   });
 };
@@ -96,7 +98,7 @@ Suite.prototype.getIncorrectInfo = function() {
 Suite.prototype.getValues = function() {
   this.activeTests.forEach(function(at) {
     if (at.values.length > 0) {
-      console.log('Collected Values: ' + at.description + ': ' + at.values.join('\n'));
+      console.warn('Collected Values: ' + at.description + ': ' + at.values.join('\n'));
     }
   });
 };

@@ -602,7 +602,7 @@ TA.prototype.absolutePosition = function(side) {
       if(side === 'top' || side === 'left' || 'bottom' || 'right') {
         return true;
       }
-      console.log('You didn’t pick a side for absolutePosition! Options are “top”, “left”, “bottom” and “right”.');
+      console.warn('You didn’t pick a side for absolutePosition! Options are “top”, “left”, “bottom” and “right”.');
       return false;
     }
 

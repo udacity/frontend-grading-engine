@@ -263,7 +263,7 @@ function newInputEntry(type) {
     }
   }, false);
   input.focus();
-  console.log(emptyEntry);
+  // console.log(emptyEntry);
 }
 
 /**

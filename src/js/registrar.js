@@ -44,8 +44,7 @@ Object.defineProperties(hotel, {
   },
   allCorrect: {
     get: function () {
-      var allCorrect = false;
-      (this.numberOfSuites === this.numberOfPassedSuites) ? allCorrect = true : allCorrect = false;
+      var allCorrect = (this.numberOfSuites === this.numberOfPassedSuites);
       // TODO: maybe emit an event if all of them pass?
       return allCorrect;
     }
@@ -98,7 +97,7 @@ function startTests() {
       _suite.tests.forEach(function (test) {
         registeredTests++;
 
-        console.log('test number: ', registeredTests);
+        // console.log('test number: ', registeredTests);
         try {
           newSuite.registerTest({
             description: test.description,
@@ -106,7 +105,7 @@ function startTests() {
             flags: test.flags
           });
         } catch(e) {
-          console.error(e.message);
+          console.warn(e.message);
         }
       });
     });
@@ -130,7 +129,7 @@ function registerSuites(suitesJSON) {
   }
   if (isOn) {
     startTests();
-    console.log('startTests');
+    // console.log('startTests');
   }
 }
 
@@ -138,7 +137,7 @@ function turnOn() {
   if (!isOn) {
     testWidget.buildWidget().then(function() {
       isOn = true;
-      console.log('enters startTests');
+      // console.log('enters startTests');
       startTests();
 
       if(registeredTests === numberOfTests) {
@@ -146,9 +145,9 @@ function turnOn() {
           numberOfTests: numberOfTests
         }));
       }
-      console.log('registeredTests = ', registeredTests);
-      console.log('numberOfTests = ', numberOfTests);
-      console.log('leaves startTests');
+      // console.log('registeredTests = ', registeredTests);
+      // console.log('numberOfTests = ', numberOfTests);
+      // console.log('leaves startTests');
     });
   }
 }

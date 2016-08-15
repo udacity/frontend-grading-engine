@@ -65,7 +65,7 @@
       testDescription = self.dataset.description;
       testPassed = self.dataset.testPassed;
     } catch (e) {
-      console.log(e);
+      console.warn(e);
     }
 
     var markRightOrWrong = self.querySelector('.mark');

@@ -30,7 +30,7 @@ var testResults = (function() {
 
   proto.attachedCallback = function() {
     var self = this;
-    console.log(self);
+    // console.log(self);
     var testSuites = self.querySelector('.test-suites');
 
     var hideShowButton = self.querySelector('button.toggle-display');
