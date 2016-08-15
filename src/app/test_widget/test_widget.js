@@ -148,6 +148,9 @@ var testWidget = (function() {
         'content: "Show";' +
         '}' +
 
+        '.suite-title {' +
+        'font-size: 1.25em;' +
+        '}' +
         '.suite-code-container {' +
         'background: rgba(0,0,0,0.6);' +
         'color: #eee;' +
