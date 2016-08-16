@@ -34,7 +34,7 @@
       "definition": {
         "nodes": "div",
         "get": "count",
-        "equals": 17
+        "equals": 19
       }
     },
     {
@@ -124,6 +124,8 @@
       "definition": {
         "waitForEvent": "ud-test",
         "exists": true
+      }, "flags": {
+        "noRepeat": true
       }
     },
     {
@@ -162,12 +164,28 @@
         "get": "innerHTML",
         "exists": true
       }
+    },
+    {
+      "description": "The center box is on the middle",
+      "definition": {
+        "nodes": ".center",
+        "cssProperty": "marginLeft",
+        "equals": "100px"
+      }
+    },
+    {
+      "description": "The center box doesn’t have a margin at bottom",
+      "definition": {
+        "nodes": ".center",
+        "cssProperty": "marginBottom",
+        "equals": "0px"
+      }
     }
   ]
 },
 {
   "name": "These should fail",
-  "code": "it's bad if you see this",
+  "code": "it’s bad if you see this",
   "tests": [
     {
       "description": "There are 15 divs (just delete one)",
@@ -237,7 +255,7 @@
       }
     },
     {
-      "description": "the box with just a b in it doesn't have a c or a p in it",
+      "description": "the box with just a b in it doesn’t have a c or a p in it",
       "definition": {
         "nodes": ".box2",
         "get": "innerHTML",

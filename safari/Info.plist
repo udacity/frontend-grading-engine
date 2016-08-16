@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Builder Version</key>
+        <string>11601.7.7</string>
+        <key>CFBundleDisplayName</key>
+        <string>Udacity Feedback</string>
+        <key>CFBundleIdentifier</key>
+        <string>com.udacity.frontend-grading-engine</string>
+        <key>CFBundleInfoDictionaryVersion</key>
+        <string>6.0</string>
+        <key>CFBundleShortVersionString</key>
+        <string>0.3.0</string>
+        <key>CFBundleVersion</key>
+        <string>0.3.0</string>
+        <key>Update From Gallery</key>
+        <true/>
+        <key>Chrome</key>
+        <dict>
+            <key>Global Page</key>
+            <string>background.html</string>
+            <key>Popovers</key>
+            <array>
+                <dict>
+                    <key>Filename</key>
+                    <string>app/browser_action/browser_action.html</string>
+                    <key>Identifier</key>
+                    <string>browserActionPage</string>
+                </dict>
+            </array>
+            <key>Toolbar Items</key>
+            <array>
+                <dict>
+                    <key>Identifier</key>
+                    <string>actionPageButton</string>
+                    <key>Image</key>
+                    <string>toolbar_icon.png</string>
+                    <key>Include By Default</key>
+                    <true/>
+                    <key>Label</key>
+                    <string>Udacity Feedback</string>
+                    <key>Popover</key>
+                    <string>browserActionPage</string>
+                    <key>Tool Tip</key>
+                    <string>Udacity Feedback</string>
+                </dict>
+            </array>
+        </dict>
+        <key>Content</key>
+        <dict>
+            <key>Scripts</key>
+            <dict>
+                <key>End</key>
+                <array>
+                    <string>app/js/inject.js</string>
+                </array>
+            </dict>
+        </dict>
+        <key>DeveloperIdentifier</key>
+        <string>AT7S4C746C</string>
+        <key>ExtensionInfoDictionaryVersion</key>
+        <string>1.0</string>
+        <key>Permissions</key>
+        <dict>
+            <key>Website Access</key>
+            <dict>
+                <key>Include Secure Pages</key>
+                <true/>
+                <key>Level</key>
+                <string>All</string>
+            </dict>
+        </dict>
+    </dict>
+</plist>

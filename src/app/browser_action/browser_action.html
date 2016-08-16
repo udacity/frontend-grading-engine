@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <style type="text/css">
+     #main {
+         padding: 1em;
+         height: 100%;
+         width: 800px;
+         font-family: Helvetica, Ubuntu, Arial, sans-serif;
+     }
+     .alert {
+         color: #78f;
+         display: none;
+     }
+     .loader {
+         margin-bottom: 1em;
+     }
+     .loader-description {
+         margin-bottom: 1em;
+     }
+     .autorun.disabled {
+         color: #ccc;
+     }
+     #ud-label-loader.disabled {
+         color: #ccc;
+     }
+     .warning-block {
+         width: 80%;
+         color: #e00;
+         font-weight: bold;
+     }
+     .warning-icon {
+         color: #e9d236;
+     }
+    </style>
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/fonts.css" />
+    <link rel="stylesheet" href="../css/ui.css" />
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <div id="main">
+      <h3>Udacity Feedback Settings<span id="configs" class="button fa" title="Configure">&#xf013;</span></h3>
+      <div class="loader">
+        <div class="loader-description">
+          Want to write tests? Here’s the <a href="https://github.com/udacity/frontend-grading-engine" target="_blank">API</a>.
+        </div>
+        <label id="ud-label-loader" for="ud-file-loader"><strong>Load tests from file</strong>
+          <input id="ud-file-loader" type="file" accept=".json">
+        </label>
+        <div class="alert"></div>
+      </div>
+      <div class="autorun">
+        <div class="warning-block" style="display: none"><span class="button fa warning-icon">&#xf071</span><span id="warning-text"></div>
+        <form>
+          <label for="allow-feedback">Allow feedback on this domain
+            <input id="allow-feedback" type="checkbox" value="yes">
+          </label>
+        </form>
+      </div>
+    </div>
+    <script src="browser_action.js"></script>
+  </body>
+</html>

@@ -1,0 +1,121 @@
+/**
+ * This file contains styles for the options page.
+ */
+
+table {
+  border: 3px solid #2c3b48;
+  border-spacing: 0;
+  color: #444;
+  line-height: 37px;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 620px;
+}
+
+.whitelist-title {
+  background-color: #2c3b48;
+  border: none;
+  color: #fff;
+}
+
+tbody tr:hover {
+  background-color: #cce2e9;
+}
+
+.whitelist-type th {
+  background-color: #7d97ad;
+  /* border-bottom: 3px solid #ccc; */
+  color: #2c3b48;
+  padding-left: 1em;
+  text-align: left;
+}
+
+.whitelist-row td {
+  border-bottom: 1px solid #00b4e4;
+}
+
+.whitelist-placeholder {
+  text-align: center;
+}
+.whitelist-placeholder:hover {
+  background: none;
+}
+
+.chromium-message {
+  text-align: left;
+  padding: 1em 1em 0 1em;
+  line-height: 1em;
+}
+
+tbody .whitelist-row:last-child td {
+  border-bottom: none;
+}
+
+.entry {
+  padding-left: 0.5em;
+}
+
+#add-entry input {
+  width: 100%;
+  height: 100%;
+}
+
+.remove {
+  text-align: right;
+}
+
+.hiddenFileInput {
+  height: 0;
+  visibility: hidden;
+  width: 0;
+}
+
+#back-button {
+  display: none;
+  left: .5em;
+  position: absolute;
+  top: .5em;
+}
+
+main, footer {
+  border: 3px solid #2c3b48;
+  border-spacing: 0;
+  color: #444;
+  line-height: 37px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 2em;
+  width: 100%;
+  max-width: 620px;
+
+}
+
+.title {
+  background-color: #2c3b48;
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+
+.description {
+  background-color: #7d97ad;
+  color: #2c3b48;
+  font-weight: 700;
+  padding-left: 1em;
+  margin: 0;
+  text-align: left;
+}
+
+.description a {
+  color: #2c3b48;
+}
+
+.about {
+  line-height: 2em;
+  padding: 0 1em;
+  text-align: left;
+}
+
+/* options.css<css> ends here */

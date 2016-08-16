@@ -1,3 +1,12 @@
+/*global ActiveTest, components */
+
+/**
+ * @fileOverview This file contains the constructor for a `Suite` of tests.
+ * @name Suite.js<js>
+ * @author Cameron Pittman
+ * @license GPLv3
+ */
+
 function Suite(rawSuite) {
   var name = rawSuite.name;
   var code = rawSuite.code;
@@ -19,7 +28,7 @@ function Suite(rawSuite) {
   this.activeTests = [];
   this.id = id;
   this.suitePassed = false; // put a setter on this to emit an event.
-};
+}
 
 Object.defineProperties(Suite.prototype, {
   numberOfTests: {
@@ -34,7 +43,7 @@ Object.defineProperties(Suite.prototype, {
         if (test.testPassed) {
           numberCorrect += 1;
         }
-      })
+      });
       return numberCorrect;
     }
   },
@@ -45,7 +54,7 @@ Object.defineProperties(Suite.prototype, {
         if (test.optional || test.testPassed) {
           numberCorrectOrOptional += 1;
         }
-      })
+      });
       return numberCorrectOrOptional;
     }
   },
@@ -56,7 +65,7 @@ Object.defineProperties(Suite.prototype, {
         if (test.optional) {
           numberOptional += 1;
         }
-      })
+      });
     }
   },
   allCorrect: {
@@ -67,50 +76,59 @@ Object.defineProperties(Suite.prototype, {
       }
       return allGood;
     }
-  },
-})
+  }
+});
 
 Suite.prototype.getDebugData = function() {
   this.activeTests.forEach(function(at) {
     if (at.debugData.length > 0) {
-      console.log('%c' + 'ERROR: ' + at.description + ': ' + at.debugData.join(' '), 'color: red;');
+      console.warn('%c' + 'ERROR: ' + at.description + ': ' + at.debugData.join(' '), 'color: red;');
     }
   });
-}
+};
 
 Suite.prototype.getIncorrectInfo = function() {
   this.activeTests.forEach(function(at) {
     if (at.incorrectInfo.length > 0) {
-      console.log('Incorrect: ' + at.description + ': ' + at.incorrectInfo.join('\n'));
+      console.warn('Incorrect: ' + at.description + ': ' + at.incorrectInfo.join('\n'));
     }
   });
-}
+};
 
 Suite.prototype.getValues = function() {
   this.activeTests.forEach(function(at) {
     if (at.values.length > 0) {
-      console.log('Collected Values: ' + at.description + ': ' + at.values.join('\n'));
+      console.warn('Collected Values: ' + at.description + ': ' + at.values.join('\n'));
     }
   });
-}
+};
 
 Suite.prototype.createTest = function(rawTest) {
   var activeTest = new ActiveTest(rawTest);
   activeTest.suite = this;
 
   function createTestElement(newTest) {
-    var activeTestElement = document.createElement('active-test');
+    var activeTestFragment = components.createElement('active-test');
+    var activeTestElement = '';
+
+    // When appending a fragment, it becomes void
+    for(var i=0, len=activeTestFragment.childNodes.length; i<len; i++) {
+      if(activeTestFragment.childNodes[i].nodeType !== 8) {
+        activeTestElement = activeTestFragment.childNodes[i];
+        break;
+      }
+    }
 
     // find the suite element to which the test belongs
-    var activeTestsContainer = activeTest.suite.element.shadowRoot.querySelector('.active-tests');
+    var activeTestsContainer = activeTest.suite.element.querySelector('.active-tests');
     // attributes get applied to the view
-    activeTestElement.setAttribute('description', newTest.description);
-    activeTestElement.setAttribute('test-passed', newTest.testPassed);
+    activeTestElement.dataset.description = newTest.description;
+    activeTestElement.dataset.testPassed = newTest.testPassed;
 
     // let the Test know which element belongs to it
     activeTest.element = activeTestElement;
 
-    activeTestsContainer.appendChild(activeTestElement);
+    activeTestsContainer.appendChild(activeTestFragment);
     return activeTestElement;
   }
 
@@ -127,7 +145,9 @@ Suite.prototype.createTest = function(rawTest) {
 Suite.prototype.checkTests = function() {
   var passed = this.allCorrect;
   this.suitePassed = passed;
-  this.element.suitePassed = passed;
-  this.element.setAttribute('suite-passed', passed);
-  this.element.setAttribute('number-of-tests', this.activeTests.length);
+  this.element.suitePassed = passed; // What’s that?
+  this.element.dataset.suitePassed = passed;
+  this.element.dataset.numberOfTests = this.activeTests.length;
 };
+
+// Suite.js<js> ends here

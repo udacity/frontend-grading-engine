@@ -1,6 +1,9 @@
-/*
-Udacity's library for immediate front-end feedback.
-*/
+/**
+ * @fileOverview Udacity’s library for immediate front-end feedback.
+ * @name intro.js<js>
+ * @author Cameron Pittman
+ * @license GPLv3
+ */
 
 /**
  * Exposes UdacityFEGradingEngine (Grading Engine) interface
@@ -9,3 +12,5 @@ Udacity's library for immediate front-end feedback.
 ;window.UdacityFEGradingEngine ? window.UdacityFEGradingEngine = window.UdacityFEGradingEngine : window.UdacityFEGradingEngine = (function(window, undefined) {
   'use strict';
   var exports = {};
+
+// intro.js<js> ends here

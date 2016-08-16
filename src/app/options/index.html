@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Udacity Feedback</title>
+    <style>
+     #whitelist-entry-template {
+         display: none;
+     }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/fonts.css" />
+    <link rel="stylesheet" href="../css/options.css" />
+    <link rel="stylesheet" href="../css/ui.css" />
+  </head>
+  <body>
+    <table class="whitelist">
+      <colgroup><col><col></colgroup>
+      <thead>
+        <tr class="whitelist-title">
+          <th colspan="2"><span id="back-button" class="button fa">&#xf112;</span>Whitelist</th>
+        </tr>
+        <tr class="whitelist-type">
+          <th colspan="2">Remote hosts<span id="remote-add" class="add-remote-entry button fa" title="Add remote host">&#xf196;</span></th>
+        </tr>
+      </thead>
+      <tbody id="remote-whitelist">
+        <tr id="whitelist-entry-template" class="whitelist-row">
+          <td class="entry">host</td>
+          <td class="remove"><span class="remove-entry button fa" title="Remove">&#xf00d;</span></td>
+        </tr>
+        <tr class="whitelist-placeholder">
+          <td colspan="2"><span class="whitelist-message">Nothing to show here</span><span class="button fa">&#xf119;</span></td>
+        </tr>
+      </tbody>
+      <thead>
+        <tr class="whitelist-type">
+          <th colspan="2">Local directories<span id="local-add" class="add-remote-entry button fa" title="Add local directory">&#xf196;</span></th>
+        </tr>
+      </thead>
+      <tbody id="local-whitelist">
+        <tr class="whitelist-placeholder">
+          <td colspan="2"><span class="whitelist-message">Nothing to show here</span><span class="button fa">&#xf119;</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <main>
+      <p class="title">Help</p>
+      <p class="description">Usage</p>
+      <p class="about">Not sure what how to make it work? Try the <a href="http://labs.udacity.com/udacity-feedback-extension/">walkthrough</a>.</p>
+      <p class="description">Reporting bugs</p>
+      <p class="about">Because this extension tries to supports multiple browsers, it’s not unusual to find bugs when a new browser version rolls out. For any suggestions or bug reports, please make a <a href="https://github.com/udacity/frontend-grading-engine/issues" href="">new issue</a> on the GitHub platform. Make sure to include your browser version and the currently installed version of the extension.</p>
+      <p class="description">Contact</p>
+      <p class="about">You can contact us at <code>udacityfeedback@udacity.com</code>.<p>
+    </main>
+    <footer>
+      <p class="title">About</p>
+      <p class="description"><a title="About the extension" href="https://github.com/udacity/frontend-grading-engine">Udacity Front End Feedback<span class="button fa">&#xf08e;</span></a></p>
+      <p class="about">Immediate, visual feedback about any website’s HTML, CSS and JavaScript.</p>
+      <p class="about">Version <code id="extension-version"></code> for <span id="browser-name"></span></p>
+    </footer>
+    <script src="options.js"></script>
+  </body>
+</html>

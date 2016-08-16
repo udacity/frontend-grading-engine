@@ -1,0 +1,55 @@
+{
+  "name": "Udacity Front End Feedback",
+  "version": "0.3.0",
+  "applications": {
+    "gecko": {
+      "id": "udacityfeedback@udacity.com",
+      "strict_min_version": "45.0"
+    }
+  },
+  "manifest_version": 2,
+  "description": "Immediate, visual feedback about any website's HTML, CSS and JavaScript",
+  "homepage_url": "http://github.com/udacity/frontend-grading-engine",
+  "icons": {
+    "16": "icons/icon.png",
+    "32": "icons/Icon-32.png",
+    "48": "icons/Icon-48.png",
+    "64": "icons/Icon-64.png",
+    "128": "icons/Icon-128.png"
+  },
+  "options_ui": {
+    "page": "app/options/index.html"
+  },
+  "browser_action": {
+    "default_icon": "icons/Icon-48.png",
+    "default_title": "Udacity Feedback",
+    "default_popup": "app/browser_action/browser_action.html"
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "file://*/*"
+      ],
+      "js": [
+        "app/js/inject.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    "app/css/common.css",
+    "app/css/fonts/fontawesome-webfont.ttf",
+    "app/js/libs/GE.js",
+    "app/js/libs/jsgrader.js",
+    "app/templates/templates.js",
+    "lib/components.js"
+  ]
+}

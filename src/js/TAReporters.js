@@ -1,8 +1,10 @@
 /**
-Reporters live on the TA and are responsible for:
-  * giving the GradeBook instructions for evaluating the questions it has collected.
-  * instantiating the grading process by calling gradebook.grade()
-
+ * @fileOverview Reporters live on the TA and are responsible for:
+   * giving the GradeBook instructions for evaluating the questions it has collected.
+   * instantiating the grading process by calling gradebook.grade()
+ * @name TAReporters.js<js>
+ * @author Cameron Pittman
+ * @license GPLv3
  */
 
 /**
@@ -53,8 +55,8 @@ TA.prototype.exists = function(bool) {
           if (!doesExist) {
             self.onincorrect('does not exist');
           }
-          return doesExist
-        }
+          return doesExist;
+        };
         break;
     }
 
@@ -65,12 +67,12 @@ TA.prototype.exists = function(bool) {
     });
     self.onresult(testResult);
   });
-}
+};
 
 
 /**
  * Used by the GradeBook to negate the correctness of a test.
- * @param  {Boolean} bool The gradeOpposite param gets set to this. Will default to true if it isn't present or is not specifically false.
+ * @param  {Boolean} bool The gradeOpposite param gets set to this. Will default to true if it isn’t present or is not specifically false.
  */
 TA.prototype.not = function(bool) {
   var self = this;
@@ -101,7 +103,7 @@ TA.prototype.equals = function(config) {
     }
 
     if (typeof expected !== 'string' && typeof expected !== 'number' && !(expected instanceof Array)) {
-      self.onerror('"equals" needs a string, a number, or an array of string and number values.');
+      self.onerror('“equals” needs a string, a number, or an array of string and number values.');
       throw new Error();
     }
 
@@ -131,7 +133,7 @@ TA.prototype.equals = function(config) {
     });
     self.onresult(testResult);
   });
-}
+};
 
 /**
  * Check that the target value is greater than the given value.
@@ -145,7 +147,7 @@ TA.prototype.isGreaterThan = function(config) {
     var orEqualTo = config.orEqualTo || false;
 
     if (typeof expected !== 'number') {
-      self.onerror('\'isGreaterThan\' needs a number.');
+      self.onerror('“isGreaterThan” needs a number.');
       throw new Error();
     }
 
@@ -161,7 +163,7 @@ TA.prototype.isGreaterThan = function(config) {
             self.onincorrect(target.value + ' is not greater than ' + expected);
           }
           return isGreaterThan;
-        }
+        };
         break;
       default:
         greaterThanFunc = function(target) {
@@ -173,7 +175,7 @@ TA.prototype.isGreaterThan = function(config) {
             self.onincorrect(target.value + ' is not greater than ' + expected);
           }
           return isGreaterThan;
-        }
+        };
         break;
     }
 
@@ -184,7 +186,7 @@ TA.prototype.isGreaterThan = function(config) {
     });
     self.onresult(testResult);
   });
-}
+};
 
 /**
  * Check that the target value is less than the given value.
@@ -198,7 +200,7 @@ TA.prototype.isLessThan = function(config) {
     var orEqualTo = config.orEqualTo || false;
 
     if (typeof expected !== 'number') {
-      self.onerror('\'isLessThan\' needs a value.');
+      self.onerror('“isLessThan” needs a value.');
       throw new Error();
     }
 
@@ -214,7 +216,7 @@ TA.prototype.isLessThan = function(config) {
             self.onincorrect(target.value + ' is not less than ' + expected);
           }
           return isLessThan;
-        }
+        };
         break;
       default:
         lessThanFunc = function(target) {
@@ -226,7 +228,7 @@ TA.prototype.isLessThan = function(config) {
             self.onincorrect(target.value + ' is not less than ' + expected);
           }
           return isLessThan;
-        }
+        };
         break;
     }
 
@@ -263,7 +265,7 @@ TA.prototype.isInRange = function(config) {
     };
 
     if (typeof lower !== 'number' || typeof upper !== 'number') {
-      self.onerror("'isInRange' needs an upper and a lower value in its config object.");
+      self.onerror("“isInRange” needs an upper and a lower value in its config object.");
       throw new Error();
     }
 
@@ -279,7 +281,7 @@ TA.prototype.isInRange = function(config) {
             self.onincorrect(target.value + ' is not less than ' + upper);
           }
           return isInRange;
-        }
+        };
         break;
       default:
         xIsLessThan = function(target) {
@@ -291,7 +293,7 @@ TA.prototype.isInRange = function(config) {
             self.onincorrect(target.value + ' is not less than ' + upper);
           }
           return isInRange;
-        }
+        };
         break;
     }
 
@@ -307,7 +309,7 @@ TA.prototype.isInRange = function(config) {
             self.onincorrect(target.value + ' is not greater than ' + lower);
           }
           return isInRange;
-        }
+        };
         break;
       default:
         xIsGreaterThan = function(target) {
@@ -319,7 +321,7 @@ TA.prototype.isInRange = function(config) {
             self.onincorrect(target.value + ' is not greater than ' + lower);
           }
           return isInRange;
-        }
+        };
         break;
     }
 
@@ -329,7 +331,7 @@ TA.prototype.isInRange = function(config) {
         isInRange = true;
       }
       return isInRange;
-    }
+    };
 
     var testResult = self.gradebook.grade({
       callback: inRangeFunc,
@@ -344,7 +346,7 @@ TA.prototype.isInRange = function(config) {
  * Check that the value includes at least one of the given expected values.
  * @param  {Array} expectedValues - search for one of the values in the array using regex
  * @param  {Object} config - includes: nValues, minValues, maxValues. Designate the number of values in expectedValues expected to be found in the target value. Defaults to at least one value needs to be found.
- * @return {object} result - the GradeBook's list of questions and overall correctness.
+ * @return {object} result - the GradeBook’s list of questions and overall correctness.
  */
 TA.prototype.hasSubstring = function(config) {
   var self = this;
@@ -367,12 +369,12 @@ TA.prototype.hasSubstring = function(config) {
     var maxValues    = config.maxValues || expectedValues.length;
 
     if (!expectedValues || expectedValues.length === 0) {
-      self.onerror('\'hasSubstring\' needs at least one regex comparison.');
+      self.onerror('“hasSubstring” needs at least one regex comparison.');
       throw new Error();
     };
 
     if (typeof minValues !== 'number' || typeof maxValues !== 'number') {
-      self.onerror('\'hasSubstring\' \'minValue\' and \'maxValue\' need to be numbers.');
+      self.onerror('“hasSubstring” “minValue” and “maxValue” need to be numbers.');
       throw new Error();
     };
 
@@ -409,9 +411,9 @@ TA.prototype.hasSubstring = function(config) {
     });
     self.onresult(testResult);
   });
-}
+};
 
-// get all the exposed methods so that the translator knows what's acceptable
+// get all the exposed methods so that the translator knows what’s acceptable
 var taAvailableMethods = Object.getOwnPropertyNames(TA.prototype).filter(function(key) {
   return key.indexOf('_') === -1 && key !== 'constructor';
 });
@@ -431,11 +433,13 @@ TA.prototype._translateConfigToMethods = function(config) {
       try {
         self[method](config[method]);
       } catch (e) {
-        self.onerror('Method \'' + method + '\' did not execute. ' + e);
+        self.onerror('Method “' + method + '” did not execute. ' + e);
         throw new Error();
       }
-    }
+    };
   });
 
   return methods;
 };
+
+// TAReporters.js<js> ends here

@@ -1,3 +1,10 @@
+/**
+ * @fileOverview This file contains helpers for the Grading Engine.
+ * @name helpers.js<js>
+ * @author Cameron Pittman
+ * @license GPLv3
+ */
+
 // http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
 function arrEquals(array1, array2) {
   if (!array1 || !array2) {
@@ -76,3 +83,5 @@ function getUnitlessMeasurement(measurement) {
     return NaN;
   }
 }
+
+// helper.js<js> ends here

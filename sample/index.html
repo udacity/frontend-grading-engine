@@ -1,3 +1,4 @@
+<!doctype html>
 <head>
   <title>Sample Tests</title>
   <meta name="udacity-grader" content="test.json" libraries="jsgrader" unit-tests="unit-tests.js">
@@ -64,11 +65,24 @@
     }
     .box4 {
       position: absolute;
+      /* Not all user-agents will make it 8px wide (font) */
+      width: 8px;
       left: calc(100% - 8px);
       /*bottom: 0;*/
     }
+    .center-box-container {
+      background-color: #fcf;
+      width: 300px;
+      height: 50px;
+    }
+    .center {
+      width: 100px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
     .output {
-      background: #ddd;
+      background: #ddd !important;
       border: 1px solid black;
       height: 5em;
       overflow-y: scroll;
@@ -90,11 +104,14 @@
   <div class="box box4">d</div>
   <div class="box box5" test>has test attr</div>
   <div class="box box6">f</div>
-  <div class="box box7 abs">looking at this one's abs pos</div>
+  <div class="box box7 abs">looking at this one’s abs pos</div>
   <div class="box box8">h</div>
   <div class="box box9">i</div>
   <div class="box box10">j</div>
-  <p>Hello, I'm a <code>p</code> tag.</p>
+  <div class="center-box-container">
+    <div class="box box11 center">center</div>
+  </div>
+  <p>Hello, I’m a <code>p</code> tag.</p>
   <div class="flex-container">
     <div class="flex flex1"></div>
     <div class="flex flex2"></div>

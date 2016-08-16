@@ -1,9 +1,12 @@
 /**
-Targets are:
-  * nested into a tree-like structure called a bullseye
-  * usually mapped 1:1 with DOM elements
-
-The top-level target living directly on the TA will not map to any element. But it contains children which do map 1:1 with elements.
+ * @fileOverview Targets are:
+ *  • nested into a tree-like structure called a bullseye
+ *  • usually mapped 1:1 with DOM elements
+ *
+ *  The top-level target living directly on the TA will not map to any element. But it contains children which do map 1:1 with elements.
+ * @name Target.js<GE>
+ * @author Cameron Pittman
+ * @license GPLv3
  */
 
 /**
@@ -48,7 +51,7 @@ Object.defineProperties(Target.prototype, {
   },
   hasGrandkids: {
     /**
-     * Public method for determining if a Target's children have children.
+     * Public method for determining if a Target’s children have children.
      * @return {Boolean} hasGrandKids - true if there are grandchildren, false otherwise.
      */
     get: function() {
@@ -60,3 +63,5 @@ Object.defineProperties(Target.prototype, {
     }
   }
 });
+
+// Target.js<js> ends here

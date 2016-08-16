@@ -1,3 +1,38 @@
+/*global TA */
+
+/**
+ * @fileOverview This file contains the prototype of a single running test.
+ * @name ActiveTest.js<js>
+ * @author Cameron Pittman
+ * @license GPLv3
+ */
+
+// Custom types documentation
+/**
+ * An object with collector and reporter properties.
+ * @typedef {Object} definition
+ * @property {string} nodes - String containing a CSS selector (i.e. jQuery style).
+ * @property {string} cssProperty - A CSS property written as camelCase (backgroundColor) that will be collected from {@link nodes}.
+ * @property {string} attribute - An HTML attribute will be collected from {@link node}.
+ * @property {AbsolutePosition} absolutePosition -
+ */
+
+/**
+ * An object containing boolean properties.
+ * @typedef {Object} flags
+ * @property {boolean} alwaysRun - The test continues to run even after it passes.
+ * @property {boolean} noRepeat  - The test runs only once rather than repeatedly.
+ */
+
+// Implementation
+/**
+ * Construct a single test that will be run once or repeatedly.
+ * @param {string} rawTest.description - Title that shows up in the test widget list.
+ * @param {flags} rawTest.flags - Flags controlling the test behaviour.
+ * @param {definition} rawTest.definition -
+ * @returns {}
+ * @throws {}
+ */
 function ActiveTest(rawTest) {
   // TODO: will need to validate all of these
   this.description = rawTest.description;
@@ -8,24 +43,32 @@ function ActiveTest(rawTest) {
   this.incorrectInfo = [];
 
   this.gradeRunner = function() {};
+  var self = this;
 
-  // validate the description.
-  if (typeof this.description !== 'string') {
-    throw new TypeError('Every test needs a description string.');
-  }
+  try {
+    // validate the description.
+    if (typeof this.description !== 'string') {
+      throw new TypeError('Every test needs a description string.');
+    }
 
-  // validate the flags
-  if (typeof this.flags !== 'object') {
-    throw new TypeError('If assigned, flags must be an object.');
-  }
+    // validate the flags
+    if (typeof this.flags !== 'object') {
+      throw new TypeError('If assigned, flags must be an object.');
+    }
 
-  if (typeof rawTest.definition !== 'object') {
-    throw new TypeError('Every test needs a definition');
+    if (typeof rawTest.definition !== 'object') {
+      throw new TypeError('Every test needs a definition');
+    }
+
+    // alwaysRun and noRepeat flags are mutually exclusive
+    if (this.flags.alwaysRun && this.flags.noRepeat) {
+      throw new TypeError('“alwaysRun” and “noRepeat” flags are mutually exclusive. Only one of them can be set.');
+    }
+  } catch(e) {
+
   }
 
   this.ta = new TA(this.description);
-
-  var self = this;
 
   // translates json definitions to method calls
   self.queueUp = (function(config) {
@@ -36,13 +79,13 @@ function ActiveTest(rawTest) {
           method();
         } catch (e) {
           self.hasErred();
-          throw new Error(self.description + ' has an invalid definition.')
+          console.error(self.description + ' has an invalid definition.');
         }
       });
     };
 
   })(rawTest.definition);
-};
+}
 
 /**
  * Set off the fireworks! A test passed! Assumes you mean test passed unless didPass is false.
@@ -63,18 +106,18 @@ ActiveTest.prototype.hasPassed = function(didPass) {
 
     window.dispatchEvent(new CustomEvent('ud-test-pass', {'detail': this.description}));
   }
-  this.element.setAttribute('test-passed', attribute);
+  this.element.dataset.testPassed = attribute;
   this.suite.checkTests();
 };
 
 ActiveTest.prototype.hasErred = function() {
   this.stopTest();
-  this.element.setAttribute('test-passed', 'error')
+  this.element.dataset.testPassed = 'error';
 };
 
 /**
-Run a synchronous activeTest every 1000 ms
-*/
+ Run a synchronous activeTest every 1000 ms
+ */
 ActiveTest.prototype.runTest = function() {
   var self = this;
 
@@ -102,7 +145,7 @@ ActiveTest.prototype.runTest = function() {
 
       self.ta.onincorrect = function(reason) {
         self.incorrectInfo.push(reason);
-      }
+      };
 
       // clean out the queue from the last run
       self.ta.queue.clear();
@@ -135,3 +178,5 @@ ActiveTest.prototype.stopTest = function() {
   var self = this;
   clearInterval(self.gradeRunner);
 };
+
+// ActiveTest.js<js> ends here

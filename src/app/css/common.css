@@ -1,0 +1,29 @@
+/**
+ * This file was taken in part from uBlock Origin. It contains styles common
+ * to the extension.
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #fafbfc;
+  color: #4f4f4f;
+  font: 14px/1.3 sans-serif;
+}
+
+a {
+  color: #02b3e4;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+code {
+  background-color: #f9f2f4;
+  border-radius: 4px;
+  color: #c7254e;
+  font-family: Lucida Console,Monaco,Courier,monospace;
+}
+
+/* common.css<css> ends here */

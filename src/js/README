@@ -1,3 +1,0 @@
-The files in this directory get concatted into ext/src/js/libs/GE.min.js See build script for order.
-
-Files as class definitions are capitalized.

@@ -1,6 +1,9 @@
 /**
-The GradeBook maintains and reports on the state of a set of questions registered by the TA. The GradeBook reports out on the final state of each active_test.
-*/
+ * @fileOverview The GradeBook maintains and reports on the state of a set of questions registered by the TA. The GradeBook reports out on the final state of each active_test.
+ * @name GradeBook.js<GE>
+ * @author Cameron Pittman
+ * @license GPLv3
+ */
 
 /**
  * The GradeBook constructor sets questions and passed to default values.
@@ -31,7 +34,7 @@ Object.defineProperties(GradeBook.prototype, {
         if (question.correct) {
           numberCorrect += 1;
         }
-      })
+      });
       return numberCorrect;
     }
   },
@@ -83,7 +86,7 @@ GradeBook.prototype.recordQuestion = function(target) {
 };
 
 /**
- * Empties the questions array and ensures that the test hasn't passed prematurely. Called each time a new question is registered.
+ * Empties the questions array and ensures that the test hasn’t passed prematurely. Called each time a new question is registered.
  */
 GradeBook.prototype.reset = function() {
   this.questions = [];
@@ -129,3 +132,5 @@ GradeBook.prototype.grade = function(config) {
   };
   return this.report;
 };
+
+// GradeBook.js<js> ends here
