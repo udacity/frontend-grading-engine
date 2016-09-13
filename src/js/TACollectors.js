@@ -60,12 +60,21 @@ Object.defineProperties(TA.prototype, {
     get: function() {
       var self = this;
       this.queue.add(function() {
-        // doing more than accessing a property on existing target because counting can move up the bullseye to past Targets. Need to reset operations
+        // doing more than accessing a property on existing target
+        // because counting can move up the bullseye to past
+        // Targets. Need to reset operations
         self._registerOperation('count');
         self._runAgainstNextToBottomTargets(function(target) {
           var length = null;
           try {
-            length = target.children.length;
+            // A `element` is the result of calling `children` (with a
+            // query) that didn’t contain any elements.
+            length = target.children.reduce(function(previous, current) {
+              if(current.element !== null) {
+                return previous + 1;
+              }
+              return previous;
+            }, 0);
           } catch (e) {
             length = 0;
           }
@@ -336,6 +345,12 @@ TA.prototype.deepChildren = function(selector) {
         self.onerror('Cannot find elements without a selector.', true);
         throw new Error();
       } else if (target.element) {
+        if(elems.length === 0) {
+          var childTarget = new Target();
+          childTarget.element = null;
+          childTarget.index = null;
+          target.children.push(childTarget);
+        }
         elems.forEach(function(newElem, index) {
           var childTarget = new Target();
           childTarget.element = newElem;
