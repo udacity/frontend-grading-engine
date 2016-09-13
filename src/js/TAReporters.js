@@ -36,14 +36,14 @@ TA.prototype.exists = function(bool) {
         break;
       case 'gatherDeepChildElements':
         doesExistFunc = function(target) {
-          var hasElement = false;
+          var doesExist = false;
           if (target.element) {
-            hasElement = true;
+            doesExist = true;
           }
           if (!doesExist) {
             self.onincorrect('does not exist');
           }
-          return hasElement;
+          return doesExist;
         };
         break;
       default:
