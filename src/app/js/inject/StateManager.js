@@ -186,8 +186,22 @@ function StateManager() {
     return injectIntoDocument('script', {
       id: 'ud-grader-options',
       // Reviewer: This is safe to pass.
-      innerHTML: 'UdacityFEGradingEngine.turnOff();delete window.UdacityFEGradingEngine;'
+      innerHTML: 'UdacityFEGradingEngine.turnOff();' +
+        'delete window.UdacityFEGradingEngine;' +
+        'window.addEventListener("killUdacityFEGradingEngine", function handler() {' +
+        '  window.removeEventListener("killUdacityFEGradingEngine", handler, false);' +
+        '  window.dispatchEvent(new Event("killedGradingEngine"));' +
+        '}, false);'
     }, 'head')
+      .then(function() {
+        return new Promise(function(resolve, reject) {
+          window.addEventListener('killedGradingEngine', function handler() {
+            window.removeEventListener('killedGradingEngine', handler, false);
+            resolve();
+          }, false);
+          window.dispatchEvent(new Event('killUdacityFEGradingEngine'));
+        });
+      })
       .then(function() {
         removeInjectedFromDocument();
         // wish I could unregister <test-widget>, but it doesn’t look like it’s possible at the moment
