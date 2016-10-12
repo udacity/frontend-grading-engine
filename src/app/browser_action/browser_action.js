@@ -169,7 +169,10 @@ function initDisplay() {
   });
 }
 
-checkSiteStatus();
-initDisplay();
+// Firefox dev edition seems to load a browser action script asynchronously (while having the async property set to false). Pretending it’s not a bug, that may be a workaround for future Firefox releases.
+window.addEventListener('DOMContentLoaded', function(event) {
+  checkSiteStatus();
+  initDisplay();
+});
 
 // browser_action.js<browser_action> ends here
