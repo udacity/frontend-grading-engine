@@ -23,6 +23,7 @@ function injectIntoDocument(tag, data, location) {
     // Firefox fix because it considers dynamically injected scripts as async
     if(tag === 'script') {
       newTag.async = false;
+      newTag.setAttribute('charset', 'utf-8');
     }
 
     if (data) {
