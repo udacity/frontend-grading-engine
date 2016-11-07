@@ -87,6 +87,25 @@ function loadLibraries() {
 }
 
 /**
+ * Adds a unique GET ID in order to make the browser ignore the cache.
+ * @param {String} url - A valid absolute URL.
+ * @returns {String} The absolute URL and a unique GET ID.
+ */
+function appendIDToURL(url) {
+  var _url = new URL(url);
+  var searchParams = _url.searchParams;
+  var paramName = 'udacityNoCache';
+
+  while(searchParams.has(paramName)) {
+    paramName += Math.floor(Math.random() * 10).toString();
+  }
+
+  searchParams.set(paramName, Math.floor(Math.random() * 100000000000).toString());
+  _url.searchParams = searchParams.toString;
+  return _url.toString();
+}
+
+/**
  * Loads asynchronously the JSON file containing the tests.
  * @returns {Promise}
  */
@@ -97,8 +116,8 @@ function loadJSONTestsFromFile() {
       var xmlhttp = new XMLHttpRequest();
       // The complete path to the document excluding the file name (http://example.com/mydir/ for http://example.com/mydir/file.html)
       var documentBase = removeFileNameFromPath(document.URL);
-      var url = metaTag.content,
-          fileBase = '';
+      var url = metaTag.content;
+      var fileBase = '';
 
       // If it’s not an absolute URL
       if(url.search(/^(?:https?|file):\/\//) === -1) {
@@ -122,6 +141,8 @@ function loadJSONTestsFromFile() {
         }
       }
 
+      url = appendIDToURL(url);
+
       // Extract the file path (http://example.com/mydir/ for http://example.com/mydir/file.html)
       fileBase = url.substr(0, url.lastIndexOf('/') + 1);
 
@@ -132,7 +153,7 @@ function loadJSONTestsFromFile() {
       }
 
       xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.status == 200 && xmlhttp.readyState == 4) {
+        if (xmlhttp.status === 200 && xmlhttp.readyState === 4) {
           // DANGER! Checks if that it wasn’t a redirection
           if(xmlhttp.responseURL !== url) {
             runtimeError = 'redirection';

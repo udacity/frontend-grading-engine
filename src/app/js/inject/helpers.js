@@ -23,17 +23,19 @@ function injectIntoDocument(tag, data, location) {
     // Firefox fix because it considers dynamically injected scripts as async
     if(tag === 'script') {
       newTag.async = false;
+      newTag.setAttribute('charset', 'utf-8');
     }
 
     if (data) {
-      for (a in data) {
-        newTag[a] = data[a];
+      for (var prop in data) {
+        newTag[prop] = data[prop];
       }
     }
 
     if (!newTag.id) {
       newTag.id = 'ud-' + Math.floor(Math.random() * 100000000).toString();
     }
+
     // for later removal
     injectedElementsOnPage.push(newTag.id);
 
@@ -50,8 +52,40 @@ function injectIntoDocument(tag, data, location) {
       document.head.appendChild(newTag);
     } else {
       document.body.appendChild(newTag);
-    };
+    }
   });
+}
+
+/**
+ * Removes all injected elements from the document.
+ */
+function removeInjectedFromDocument() {
+  injectedElementsOnPage.forEach(function(item) {
+    var element = document.getElementById(item);
+    var parent;
+
+    if(element !== null) {
+      parent = element.parentNode;
+      parent.removeChild(element);
+    }
+  });
+  injectedElementsOnPage = [];
+}
+
+
+/**
+ * Removes a single resource from {@link injectedElementsOnPage}.
+ * @param {String} id - The ID of the element.
+ */
+function removeFromDocument(id) {
+  var element = document.getElementById(id);
+  var parent;
+  injectedElementsOnPage.splice(injectedElementsOnPage.indexOf(id), 1);
+
+  if(element !== null) {
+    parent = element.parentNode;
+    parent.removeChild(element);
+  }
 }
 
 /**

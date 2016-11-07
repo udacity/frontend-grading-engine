@@ -1,4 +1,4 @@
-/*global removeFileNameFromPath, importFeedbackWidget, injectGradingEngine, loadLibraries, loadJSONTestsFromFile, registerTestSuites, turnOn, waitForTestRegistrations, loadUnitTests, chrome, injectedElementsOnPage, injectIntoDocument, importComponentsLibrary */
+/*global removeFileNameFromPath, importFeedbackWidget, injectGradingEngine, loadLibraries, loadJSONTestsFromFile, registerTestSuites, turnOn, waitForTestRegistrations, loadUnitTests, chrome, injectedElementsOnPage, injectIntoDocument, importComponentsLibrary, removeInjectedFromDocument, removeFromDocument */
 
 /**
  * @fileOverview This file contains the StateManager Class.
@@ -180,28 +180,30 @@ function StateManager() {
    * @throws {it’s cool} do nothing
    */
   this.turnOff = function() {
-    var g = document.querySelector('#ud-grader-options');
-    if (g) {
-      document.head.removeChild(g);
-    }
+    var self = this;
+
+    removeFromDocument('ud-grader-options');
     return injectIntoDocument('script', {
       id: 'ud-grader-options',
       // Reviewer: This is safe to pass.
-      innerHTML: 'UdacityFEGradingEngine.turnOff();delete window.UdacityFEGradingEngine;'
+      innerHTML: 'UdacityFEGradingEngine.turnOff();' +
+        'delete window.UdacityFEGradingEngine;' +
+        'window.addEventListener("killUdacityFEGradingEngine", function handler() {' +
+        '  window.removeEventListener("killUdacityFEGradingEngine", handler, false);' +
+        '  window.dispatchEvent(new Event("killedGradingEngine"));' +
+        '}, false);'
     }, 'head')
       .then(function() {
-        injectedElementsOnPage.forEach(function(id) {
-          var e = document.querySelector('#' + id);
-          if (e) {
-            try {
-              document.body.removeChild(e);
-              document.head.removeChild(e);
-            } catch (e) {
-              // it’s cool. do nothing
-            }
-          }
+        return new Promise(function(resolve, reject) {
+          window.addEventListener('killedGradingEngine', function handler() {
+            window.removeEventListener('killedGradingEngine', handler, false);
+            resolve();
+          }, false);
+          window.dispatchEvent(new Event('killUdacityFEGradingEngine'));
         });
-        injectedElementsOnPage = [];
+      })
+      .then(function() {
+        removeInjectedFromDocument();
         // wish I could unregister <test-widget>, but it doesn’t look like it’s possible at the moment
         self.geInjected = false;
       })

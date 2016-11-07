@@ -30,7 +30,7 @@
   "code": "you should see this",
   "tests": [
     {
-      "description": "There are 17 divs",
+      "description": "There are 19 divs",
       "definition": {
         "nodes": "div",
         "get": "count",
@@ -180,6 +180,34 @@
         "cssProperty": "marginBottom",
         "equals": "0px"
       }
+    },
+    {
+      "description": "The green box is the last child of “.flex-container”",
+      "definition": {
+        "nodes": ".flex-container",
+        "children": ".flex:last-child",
+        "attribute": "class",
+        "hasSubstring": "flex5"
+      }
+    },
+    {
+      "description": "The magenta box is not the last child of “.flex-container”",
+      "definition": {
+        "nodes": ".flex-container",
+        "children": ".flex:last-child",
+        "attribute": "class",
+        "not": true,
+        "hasSubstring": "flex4"
+      }
+    },
+      {
+      "description": "The number of “.flex-container:last-child” is 0",
+      "definition": {
+        "nodes": ".flex-container",
+        "children": ".flex-4:last-child",
+        "get": "count",
+        "equals": 0
+      }
     }
   ]
 },
@@ -297,6 +325,15 @@
         "nodes": ".output",
         "get": "innerHTML",
         "hasSubstring": "$^"
+      }
+    },
+    {
+      "description": "The magenta box is the last child of “.flex-container”",
+      "definition": {
+        "nodes": ".flex-container",
+        "children": ".flex:last-child",
+        "attribute": "class",
+        "hasSubstring": "flex4"
       }
     }
   ]
