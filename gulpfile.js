@@ -16,6 +16,11 @@ var log = function(message) {
   console.log('\x1b[37;46m####       ' + message + '\x1b[0;m');
 };
 
+function setBrowser(browser) {
+  currentBrowser = browser;
+  return log('Set ' + currentBrowser + ' as the current browser');
+}
+
 var pageFiles = {
   gradingEngine: {
     src: [
@@ -276,6 +281,7 @@ gulp.task('fonts', function() {
     .pipe(debug({title: 'copied fonts:'}));
 });
 
+// "assets" = Executes tasks for static assets.
 gulp.task('assets', ['icons', 'styles', 'fonts']);
 
 // "app" = Executes tasks for the app (view).
@@ -313,6 +319,7 @@ gulp.task('background-page', function() {
 
 // "manifest" = Copy the manifest for the current browser
 gulp.task('manifest', function() {
+  // Safari doesn’t have a `manifest.json`, but an `Info.plist`
   var manifest = currentBrowser === 'safari' ? 'Info.plist' : 'manifest.json';
   return gulp.src(currentBrowser + '/' + manifest)
     .pipe(gulp.dest(build))
@@ -321,25 +328,21 @@ gulp.task('manifest', function() {
 
 // "_chromium" = Sets currentBrowser to chromium.
 gulp.task('_chromium', function() {
-  currentBrowser = 'chromium';
-  return log('Set ' + currentBrowser + ' as the current browser');
+  return setBrowser('chromium');
 });
 
 // "_firefox" = Sets currentBrowser to firefox
 gulp.task('_firefox', function() {
-  currentBrowser = 'firefox';
-  return log('Set ' + currentBrowser + ' as the current browser');
+  return setBrowser('firefox');
 });
 
 // "_safari" = Sets currentBrowser to safari
 gulp.task('_safari', function() {
-  currentBrowser = 'safari';
-  return log('Set ' + currentBrowser + ' as the current browser');
+  return setBrowser('safari');
 });
 
-// "chromium" = First run dependencies to build the extension and then
-// move those files to `build/chromium` instead of `build/%target%/`.
-gulp.task('chromium', gulpsync.sync(['_chromium', ['manifest', 'extension']]), function() {
+// "move-build" = Move build files to its target directory.
+gulp.task('move-build', function() {
   var browserBuild = build.replace('%target%/ext/', currentBrowser + '/');
   mv(build.replace('ext/', ''), browserBuild, {mkdirp: true}, function(err) {
     console.log(err);
@@ -347,26 +350,14 @@ gulp.task('chromium', gulpsync.sync(['_chromium', ['manifest', 'extension']]), f
   return log('Moved ' + currentBrowser + ' files to: ' + browserBuild);
 });
 
-// "firefox" = First run dependencies to build the extension and then
-// move those files to `build/firefox` instead of `build/%target%/`.
-gulp.task('firefox', gulpsync.sync(['_firefox', ['manifest', 'background-script', 'extension']]), function() {
-  var browserBuild = build.replace('%target%/ext/', 'firefox/');
-  mv(build.replace('ext/', ''), browserBuild, {mkdirp: true}, function(err) {
-    console.log(err);
-  });
-  return log('Moved ' + currentBrowser + ' files to: ' + browserBuild);
-});
+// "chromium" = Run chromim dependencies to build the extension.
+gulp.task('chromium', gulpsync.sync(['_chromium', ['manifest', 'extension'], 'move-build']));
 
-// "safari" = First run dependencies to build the extension and then
-// move those files to `build/safari` instead of `build/%target%/`.
-gulp.task('safari', gulpsync.sync(['_safari', ['manifest', 'background-script', 'background-page', 'extension']]), function() {
-  var browserBuild = build.replace('%target%/ext/', 'safari/');
-  mv(build.replace('ext/', ''), browserBuild, {mkdirp: true}, function(err) {
-    console.log(err);
-  });
-  return log('Moved ' + currentBrowser + ' files to: ' + browserBuild);
-});
+// "firefox" = Run Firefox dependencies to build the extension.
+gulp.task('firefox', gulpsync.sync(['_firefox', ['manifest', 'background-script', 'extension'], 'move-build']));
 
+// "safari" = Run Safari dependencies to build the extension.
+gulp.task('safari', gulpsync.sync(['_safari', ['manifest', 'background-script', 'background-page', 'extension'], 'move-build']));
 
 // "clean" = Clean the build directory. Otherwise `mv` would throw an error.
 gulp.task('clean', function() {
