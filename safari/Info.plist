@@ -11,9 +11,9 @@
         <key>CFBundleInfoDictionaryVersion</key>
         <string>6.0</string>
         <key>CFBundleShortVersionString</key>
-        <string>0.3.0</string>
+        <string>0.3.1</string>
         <key>CFBundleVersion</key>
-        <string>0.3.0</string>
+        <string>0.3.1</string>
         <key>Update From Gallery</key>
         <true/>
         <key>Chrome</key>
