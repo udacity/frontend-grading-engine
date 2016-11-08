@@ -64,4 +64,77 @@ button.important:hover {
   vertical-align: middle;
 }
 
+.loader {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.5s, border 0.4s;
+}
+
+#main {
+  padding: 1em;
+  height: 100%;
+  width: 800px;
+  font-family: Helvetica, Ubuntu, Arial, sans-serif;
+}
+
+.alert {
+  color: #78f;
+  display: none;
+}
+
+.loader {
+  margin-top: 1em;
+  margin-left: 2em;
+}
+
+.input-container {
+  margin-bottom: 1em;
+}
+
+.autorun.disabled {
+  color: #ccc;
+}
+
+#ud-label-loader.disabled {
+  color: #ccc;
+}
+
+.warning-block {
+  width: 80%;
+  color: #e00;
+  font-weight: bold;
+}
+
+.warning-icon {
+  color: #e9d236;
+}
+
+.info-title {
+  margin-bottom: 15px;
+  padding: 0 3px;
+  transition: color 0.2s;
+}
+
+.info-title:hover {
+  color: #558abb;
+}
+
+.info-title-expanded {
+  color: #558abb;
+}
+
+.info-block {
+  width: 80%;
+  background-color: #dde4e9;
+}
+
+.info-icon {
+  color: #558abb;
+}
+
+.expand-block {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.5s, border 0.4s;
+}
 /* ui.css<css> ends here */
