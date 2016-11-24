@@ -9,12 +9,24 @@
  */
 
 // Utilities
+/**
+ * Expands a container according to its inner content (using `.expand-inner`)
+ * that was collapsed.
+ * @param {int} height
+ */
 HTMLElement.prototype.height = function(height) {
   this.style.height = height + 'px';
 };
 
+/**
+ * Link for subclasses shadowing.
+ */
 HTMLElement.prototype.super = HTMLElement.prototype;
 
+/**
+ * Expands an container according to its inner content (using `.expand-inner`)
+ * that was collapsed.
+ */
 HTMLElement.prototype.expand = function() {
   var inner = this.getElementsByClassName('expand-inner')[0];
 
@@ -24,14 +36,24 @@ HTMLElement.prototype.expand = function() {
   }
 };
 
+/**
+ * Sets the element Height to 0.
+ */
 HTMLElement.prototype.collapse = function() {
   this.height(0);
 };
 
+/**
+ * Checks if the element is collapsed.
+ */
 HTMLElement.prototype.isCollapsed = function() {
   return this.style.height === '0px' || this.style.height === '' || this.style.height === 0;
 };
 
+/**
+ * Disables a single or multiple `HTMLInputELement`.
+ * @param {...HTMLInputElement} arguments - An other {@link HTMLInputElement} to disable.
+ */
 HTMLInputElement.prototype.lock = function() {
   this.setAttribute('disabled', 'disabled');
 
@@ -42,6 +64,10 @@ HTMLInputElement.prototype.lock = function() {
   }
 };
 
+/**
+ * Enables a single or multiple `HTMLInputELement`.
+ * @param {...HTMLInputElement} arguments - An other {@link HTMLInputElement} to enable.
+ */
 HTMLInputElement.prototype.unlock = function() {
   this.removeAttribute('disabled');
 
@@ -53,45 +79,90 @@ HTMLInputElement.prototype.unlock = function() {
 };
 // Utilities ends here
 
-var siteOnWhitelist;
-
 (function() {
+  /**
+   * Container for the file input & the permanent whitelist permission.
+   * @type {@link HTMLElement}
+   */
   var loader = document.getElementsByClassName('loader')[0];
+
+  /**
+   * Temporary permission checkbox to allow the current website to use the
+   * extension.
+   * @type {@link HTMLInputElement}
+   */
   var allowFeedback = document.getElementById('allow-feedback');
+
+  /**
+   * File input to load a JSON test file from the local system.
+   * @type {@link HTMLInputElement}
+   */
   var fileLoader = document.getElementById('ud-file-loader');
-  siteOnWhitelist = document.getElementById('site-on-whitelist');
+
+  /**
+   * Permanent permission checkbox with the whitelist to use the extension.
+   * @type {@link HTMLInputElement}
+   */
+  var siteOnWhitelist = document.getElementById('site-on-whitelist');
+
+  /**
+   * If the an {@link infoTitle} animation is happening.
+   * @type {Boolean}
+   */
   var blockAnimation = false;
 
   // TODO: Unload tests when the file input is used
 
+  /**
+   * Disables (locks) the `.loader` (file input & whitelist checkbox).
+   */
   loader.lock = function() {
     HTMLInputElement.prototype.lock.call(fileLoader, siteOnWhitelist);
   };
 
+  /**
+   * Enables (unlocks) the `.loader` (file input & whitelist checkbox).
+   */
   loader.unlock = function() {
     HTMLInputElement.prototype.unlock.call(fileLoader, siteOnWhitelist);
   };
 
+  /**
+   * Expands the loader (animation).
+   */
   loader.expand = function() {
     this.super.expand.call(this);
     this.unlock();
   };
 
+  /**
+   * Collapses the loader (animation).
+   */
   loader.collapse = function() {
     this.super.collapse.call(this);
     this.lock();
   };
 
+  /**
+   * Activates the temporary permission procedure.
+   */
   allowFeedback.on = function() {
     this.checked = true;
     loader.expand();
   };
 
+  /**
+   * Deactivates the temporary permission procedure.
+   */
   allowFeedback.off = function() {
     this.checked = false;
     loader.collapse();
   };
 
+  /**
+   * Calls member methods on change of state. It was previously used for the
+   * permanent whitelist.
+   */
   allowFeedback.onchange = function () {
     if (this.checked) {
       this.on();
@@ -100,25 +171,40 @@ var siteOnWhitelist;
     }
   };
 
+  /**
+   * Locks the whitelist checkbox.
+   */
   siteOnWhitelist.lock = function() {
     this.setAttribute('disabled', 'disabled');
   };
 
+  /**
+   * Unlocks the whitelist checkbox.
+   */
   siteOnWhitelist.unlock = function() {
     this.removeAttribute('disabled');
   };
 
+  /**
+   * Adds the current website to the permanent whitelist.
+   */
   siteOnWhitelist.on = function() {
     this.checked = true;
     allowFeedback.on();
     allowFeedback.lock();
   };
 
+  /**
+   * Removes the current website from the permanent whitelist.
+   */
   siteOnWhitelist.off = function() {
     this.checked = false;
     allowFeedback.unlock();
   };
 
+  /**
+   * Calls member method (on or off) on change of state.
+   */
   siteOnWhitelist.onchange = function () {
     if (!this.checked) {
       this.off();
@@ -129,22 +215,38 @@ var siteOnWhitelist;
     }
   };
 
+  /**
+   * Makes `.info-block` animations and prevent the animation to fire twice.
+   * @param {String} text - The text to display in the `.info-block` element.
+   * @returns {Promise} A new {@link Promise} that resolves when the transition
+   * finishes
+   */
   function displayInfo(text) {
     return new Promise(function(resolve, reject) {
       var infoText = document.getElementsByClassName('info-text')[0];
       var infoBlock = document.getElementsByClassName('info-block')[0];
 
+      /**
+       * Manages the expand event for `.info-block`.
+       */
       function expandHandler() {
         infoBlock.removeEventListener('transitionend', expandHandler, false);
         resolve();
       }
 
+      /**
+       * Manages the collapse event for `.info-block`.
+       */
       function collapseHandler() {
         infoBlock.removeEventListener('transitionend', collapseHandler, false);
         infoText.textContent = text;
         resolve();
       }
 
+      /**
+       * Manages the collapse and expand event. It collapses and expands an
+       * already expanded `.info-block`.
+       */
       function collapseExpandHandler() {
         infoBlock.removeEventListener('transitionend', collapseExpandHandler, false);
         infoBlock.addEventListener('transitionend', expandHandler, false);
@@ -168,6 +270,11 @@ var siteOnWhitelist;
     });
   }
 
+  /**
+   * Displays or hides an element `title` attribute in the `.info-box` when
+   * clicked.
+   * @param {Event} event - The event for the element clicked.
+   */
   function infoTitle(event) {
     var target = event.target;
     var expandedClass = 'info-title-expanded';
