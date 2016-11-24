@@ -52,6 +52,188 @@ HTMLInputElement.prototype.unlock = function() {
   }
 };
 // Utilities ends here
+
+var siteOnWhitelist;
+
+(function() {
+  var loader = document.getElementsByClassName('loader')[0];
+  var allowFeedback = document.getElementById('allow-feedback');
+  var fileLoader = document.getElementById('ud-file-loader');
+  siteOnWhitelist = document.getElementById('site-on-whitelist');
+  var blockAnimation = false;
+
+  // TODO: Unload tests when the file input is used
+
+  loader.lock = function() {
+    HTMLInputElement.prototype.lock.call(fileLoader, siteOnWhitelist);
+  };
+
+  loader.unlock = function() {
+    HTMLInputElement.prototype.unlock.call(fileLoader, siteOnWhitelist);
+  };
+
+  loader.expand = function() {
+    this.super.expand.call(this);
+    this.unlock();
+  };
+
+  loader.collapse = function() {
+    this.super.collapse.call(this);
+    this.lock();
+  };
+
+  allowFeedback.on = function() {
+    this.checked = true;
+    loader.expand();
+  };
+
+  allowFeedback.off = function() {
+    this.checked = false;
+    loader.collapse();
+  };
+
+  allowFeedback.onchange = function () {
+    if (this.checked) {
+      this.on();
+    } else if (!this.checked) {
+      this.off();
+    }
+  };
+
+  siteOnWhitelist.lock = function() {
+    this.setAttribute('disabled', 'disabled');
+  };
+
+  siteOnWhitelist.unlock = function() {
+    this.removeAttribute('disabled');
+  };
+
+  siteOnWhitelist.on = function() {
+    this.checked = true;
+    allowFeedback.on();
+    allowFeedback.lock();
+  };
+
+  siteOnWhitelist.off = function() {
+    this.checked = false;
+    allowFeedback.unlock();
+  };
+
+  siteOnWhitelist.onchange = function () {
+    if (!this.checked) {
+      this.off();
+      sendDataToTab('off', 'whitelist');
+    } else if (this.checked) {
+      this.on();
+      sendDataToTab('on', 'whitelist');
+    }
+  };
+
+  function displayInfo(text) {
+    return new Promise(function(resolve, reject) {
+      var infoText = document.getElementsByClassName('info-text')[0];
+      var infoBlock = document.getElementsByClassName('info-block')[0];
+
+      function expandHandler() {
+        infoBlock.removeEventListener('transitionend', expandHandler, false);
+        resolve();
+      }
+
+      function collapseHandler() {
+        infoBlock.removeEventListener('transitionend', collapseHandler, false);
+        infoText.textContent = text;
+        resolve();
+      }
+
+      function collapseExpandHandler() {
+        infoBlock.removeEventListener('transitionend', collapseExpandHandler, false);
+        infoBlock.addEventListener('transitionend', expandHandler, false);
+        infoText.textContent = text;
+        infoBlock.expand();
+      }
+
+      if (text === '') {
+        infoBlock.addEventListener('transitionend', collapseHandler, false);
+        infoBlock.collapse();
+      } else {
+        if(!infoBlock.isCollapsed()) {
+          infoBlock.addEventListener('transitionend', collapseExpandHandler, false);
+          infoBlock.collapse();
+        } else {
+          infoBlock.addEventListener('transitionend', expandHandler, false);
+          infoText.textContent = text;
+          infoBlock.expand();
+        }
+      }
+    });
+  }
+
+  function infoTitle(event) {
+    var target = event.target;
+    var expandedClass = 'info-title-expanded';
+    var isInfoTitle = target.classList.contains('info-title');
+    var oldTarget = document.getElementsByClassName(expandedClass)[0];
+    oldTarget = oldTarget && oldTarget === target ? null : oldTarget;
+    var title = document.getElementsByClassName('info-text')[0].textContent;
+
+    if(blockAnimation === true) {
+      if(isInfoTitle === true) {
+        event.preventDefault();
+      }
+      return;
+    }
+
+    if (isInfoTitle === true) {
+      event.preventDefault();
+      title = target.title || '';
+
+      if (target.classList.contains(expandedClass)) {
+        title = '';
+        target.classList.remove(expandedClass);
+      } else {
+        target.classList.add(expandedClass);
+      }
+    } else {
+      if(title === '') {
+        return;
+      }
+      // Clicked somewhere else
+      title = '';
+    }
+    if (oldTarget) {
+      oldTarget.classList.remove(expandedClass);
+    }
+
+    blockAnimation = true;
+    displayInfo(title).then(function() {
+      blockAnimation = false;
+    });
+  }
+
+  /**
+   * Adds the gear EventListener for opening configurations.
+   */
+  function initDisplay() {
+    var configs = document.getElementById('configs');
+    configs.addEventListener('click', function handler() {
+      chrome.runtime.openOptionsPage();
+    });
+
+    var infoTitles = document.getElementsByClassName('info-title');
+    for(var i = 0, len = infoTitles.length; i<len; i++) {
+      infoTitles[i].active = false;
+    }
+    window.addEventListener('click', infoTitle, false);
+  }
+
+  // Firefox dev edition seems to load a browser action script asynchronously (while having the async property set to false). Pretending it’s not a bug, that may be a workaround for future Firefox releases.
+  window.addEventListener('DOMContentLoaded', function(event) {
+    checkSiteStatus();
+    initDisplay();
+  });
+}());
+
+
 // http://html5rocks.com/en/tutorials/file/dndfiles/
 /**
  * This function DOESN’T WORK because the browser action closes when the window looses focus. Handle the Drag-and-drop of custom JSON files.
@@ -112,15 +294,6 @@ function sendDataToTab(data, type, callback) {
   }
 }
 
-var allowFeedback = document.querySelector('#allow-feedback');
-allowFeedback.onchange = function () {
-  if (!this.checked) {
-    sendDataToTab('off', 'on-off');
-  } else if (this.checked) {
-    sendDataToTab('on', 'on-off');
-  }
-};
-
 document.querySelector('#ud-file-loader').addEventListener('change', handleFileSelect, false);
 
 /**
@@ -150,10 +323,10 @@ function addWarning(message, type, options) {
   } else if(type === 'checkbox') {
     if(options.enableCheckbox !== true) {
       form.classList.add('disabled');
-      allowFeedback.disabled = true;
+      siteOnWhitelist.disabled = true;
     }
     if(options.checked === true) {
-      allowFeedback.checked = true;
+      siteOnWhitelist.checked = true;
     }
   } else if(type === 'fileInput') {
     fileInput = document.getElementById('ud-file-loader');
@@ -179,10 +352,10 @@ function checkSiteStatus () {
   sendDataToTab(true, 'background-wake', function (response) {
     switch(response) {
     case true:
-      allowFeedback.checked = true;
+      siteOnWhitelist.on();
       break;
     case false:
-      allowFeedback.checked = false;
+      siteOnWhitelist.off();
       break;
     case 'chrome_local_exception':
       addWarning('Chrome doesn’t support loading local files automatically', 'checkbox', {enableCheckbox: false, checked: false});
@@ -202,21 +375,5 @@ function checkSiteStatus () {
     }
   });
 }
-
-/**
- * Adds the gear EventListener for opening configurations.
- */
-function initDisplay() {
-  var configs = document.getElementById('configs');
-  configs.addEventListener('click', function handler() {
-    chrome.runtime.openOptionsPage();
-  });
-}
-
-// Firefox dev edition seems to load a browser action script asynchronously (while having the async property set to false). Pretending it’s not a bug, that may be a workaround for future Firefox releases.
-window.addEventListener('DOMContentLoaded', function(event) {
-  checkSiteStatus();
-  initDisplay();
-});
 
 // browser_action.js<browser_action> ends here
