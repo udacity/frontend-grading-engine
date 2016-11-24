@@ -64,12 +64,6 @@ button.important:hover {
   vertical-align: middle;
 }
 
-.loader {
-  height: 0;
-  overflow: hidden;
-  transition: height 0.5s, border 0.4s;
-}
-
 #main {
   padding: 1em;
   height: 100%;
@@ -135,6 +129,13 @@ button.important:hover {
 .expand-block {
   height: 0;
   overflow: hidden;
+  transition: height 0.3s, border 0.2s;
+}
+
+.loader {
+  height: 0;
+  overflow: hidden;
   transition: height 0.5s, border 0.4s;
 }
+
 /* ui.css<css> ends here */
