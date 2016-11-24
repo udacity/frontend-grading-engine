@@ -8,6 +8,50 @@
  * @license GPLv3
  */
 
+// Utilities
+HTMLElement.prototype.height = function(height) {
+  this.style.height = height + 'px';
+};
+
+HTMLElement.prototype.super = HTMLElement.prototype;
+
+HTMLElement.prototype.expand = function() {
+  var inner = this.getElementsByClassName('expand-inner')[0];
+
+  if(inner) {
+    var height = inner.offsetHeight;
+    this.height(height);
+  }
+};
+
+HTMLElement.prototype.collapse = function() {
+  this.height(0);
+};
+
+HTMLElement.prototype.isCollapsed = function() {
+  return this.style.height === '0px' || this.style.height === '' || this.style.height === 0;
+};
+
+HTMLInputElement.prototype.lock = function() {
+  this.setAttribute('disabled', 'disabled');
+
+  for(var i=0, len=arguments.length; i<len; i++) {
+    if(arguments[i] instanceof HTMLInputElement) {
+      arguments[i].lock();
+    }
+  }
+};
+
+HTMLInputElement.prototype.unlock = function() {
+  this.removeAttribute('disabled');
+
+  for(var i=0, len=arguments.length; i<len; i++) {
+    if(arguments[i] instanceof HTMLInputElement) {
+      arguments[i].unlock();
+    }
+  }
+};
+// Utilities ends here
 // http://html5rocks.com/en/tutorials/file/dndfiles/
 /**
  * This function DOESN’T WORK because the browser action closes when the window looses focus. Handle the Drag-and-drop of custom JSON files.
