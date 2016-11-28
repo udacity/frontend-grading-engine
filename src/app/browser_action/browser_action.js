@@ -30,10 +30,10 @@ HTMLElement.prototype.super = HTMLElement.prototype;
 HTMLElement.prototype.expand = function() {
   var inner = this.getElementsByClassName('expand-inner')[0];
 
-  if(inner) {
-    var height = inner.offsetHeight;
-    this.height(height);
-  }
+   if(inner) {
+     var height = inner.offsetHeight;
+     this.height(height);
+   }
 };
 
 /**
@@ -45,14 +45,24 @@ HTMLElement.prototype.collapse = function() {
 
 /**
  * Checks if the element is collapsed.
+ * @returns {Boolean} True if collapsed, otherwise false.
  */
 HTMLElement.prototype.isCollapsed = function() {
   return this.style.height === '0px' || this.style.height === '' || this.style.height === 0;
 };
 
 /**
+ * Checks if the element is collapsed.
+ * @returns {Boolean} True if expanded, otherwise false.
+ */
+HTMLElement.prototype.isExpanded = function() {
+  return !this.isCollapsed();
+};
+
+/**
  * Disables a single or multiple `HTMLInputELement`.
- * @param {...HTMLInputElement} arguments - An other {@link HTMLInputElement} to disable.
+ * @param {...HTMLInputElement} arguments - An other {@link HTMLInputElement} to
+ * disable.
  */
 HTMLInputElement.prototype.lock = function() {
   this.setAttribute('disabled', 'disabled');
@@ -66,7 +76,8 @@ HTMLInputElement.prototype.lock = function() {
 
 /**
  * Enables a single or multiple `HTMLInputELement`.
- * @param {...HTMLInputElement} arguments - An other {@link HTMLInputElement} to enable.
+ * @param {...HTMLInputElement} arguments - An other {@link HTMLInputElement} to
+ * enable.
  */
 HTMLInputElement.prototype.unlock = function() {
   this.removeAttribute('disabled');
@@ -81,27 +92,54 @@ HTMLInputElement.prototype.unlock = function() {
 
 (function() {
   /**
+   * Custom function for sending messages to the current tab.
+   * @param {*} data - Any message or data that can be serialized
+   * @param {string} type - The type of the message.
+   * @param {function} [callback] - The function that will receive the response.
+   */
+  function sendDataToTab(data, type, callback) {
+    // actually post data to a tab
+    /**
+     * Sends the message to the current tab.
+     * @param {chrome.tabs.Tab[]} arrayOfTabs - An array of tabs.
+     */
+    function fireOffData (arrayOfTabs) {
+      var activeTab = arrayOfTabs[0];
+      var activeTabId = activeTab.id;
+      var message = {'data': data, 'type': type};
+      chrome.tabs.sendMessage(activeTabId, message, {}, function (response) {
+        if (callback) {
+          callback(response);
+        }
+      });
+    }
+
+    // get the current tab then send data to it
+    chrome.tabs.query({active: true, currentWindow: true}, fireOffData);
+  }
+
+  /**
    * Container for the file input & the permanent whitelist permission.
-   * @type {@link HTMLElement}
+   * @type {HTMLElement}
    */
   var loader = document.getElementsByClassName('loader')[0];
 
   /**
    * Temporary permission checkbox to allow the current website to use the
    * extension.
-   * @type {@link HTMLInputElement}
+   * @type {HTMLInputElement}
    */
   var allowFeedback = document.getElementById('allow-feedback');
 
   /**
    * File input to load a JSON test file from the local system.
-   * @type {@link HTMLInputElement}
+   * @type {HTMLInputElement}
    */
   var fileLoader = document.getElementById('ud-file-loader');
 
   /**
    * Permanent permission checkbox with the whitelist to use the extension.
-   * @type {@link HTMLInputElement}
+   * @type {HTMLInputElement}
    */
   var siteOnWhitelist = document.getElementById('site-on-whitelist');
 
@@ -163,12 +201,30 @@ HTMLInputElement.prototype.unlock = function() {
    * Calls member methods on change of state. It was previously used for the
    * permanent whitelist.
    */
-  allowFeedback.onchange = function () {
+  allowFeedback.onchange = function() {
     if (this.checked) {
+      sendDataToTab('on', 'allow');
       this.on();
     } else if (!this.checked) {
+      sendDataToTab('off', 'allow');
       this.off();
     }
+  };
+
+  /**
+   * Checks {@link allowFeedback} is on.
+   * @returns {Boolean} True if on, otherwise false.
+   */
+  allowFeedback.isOn = function() {
+    return this.checked;
+  };
+
+  /**
+   * Checks {@link allowFeedback} is off.
+   * @returns {Boolean} True if off, otherwise false.
+   */
+  allowFeedback.isOff = function() {
+    return !this.checked;
   };
 
   /**
@@ -186,20 +242,44 @@ HTMLInputElement.prototype.unlock = function() {
   };
 
   /**
-   * Adds the current website to the permanent whitelist.
+   * Marks the current website as in the permanent whitelist.
    */
   siteOnWhitelist.on = function() {
+    if(allowFeedback.isOff()) {
+      allowFeedback.on();
+    }
+
     this.checked = true;
-    allowFeedback.on();
     allowFeedback.lock();
+  };
+
+  /**
+   * Marks the current website as not in the permanent whitelist.
+   */
+  siteOnWhitelist.off = function() {
+    if(allowFeedback.isOff()) {
+      allowFeedback.off();
+    }
+
+    this.checked = false;
+    allowFeedback.unlock();
+    sendDataToTab('remove', 'whitelist');
+  };
+
+  /**
+   * Adds the current website to the permanent whitelist.
+   */
+  siteOnWhitelist.add = function() {
+    this.on();
+    allowFeedback.lock();
+    sendDataToTab('add', 'whitelist');
   };
 
   /**
    * Removes the current website from the permanent whitelist.
    */
-  siteOnWhitelist.off = function() {
-    this.checked = false;
-    allowFeedback.unlock();
+  siteOnWhitelist.remove = function() {
+    this.off();
   };
 
   /**
@@ -207,11 +287,9 @@ HTMLInputElement.prototype.unlock = function() {
    */
   siteOnWhitelist.onchange = function () {
     if (!this.checked) {
-      this.off();
-      sendDataToTab('off', 'whitelist');
-    } else if (this.checked) {
-      this.on();
-      sendDataToTab('on', 'whitelist');
+      this.remove();
+    } else {
+      this.add();
     }
   };
 
@@ -219,10 +297,10 @@ HTMLInputElement.prototype.unlock = function() {
    * Makes `.info-block` animations and prevent the animation to fire twice.
    * @param {String} text - The text to display in the `.info-block` element.
    * @returns {Promise} A new {@link Promise} that resolves when the transition
-   * finishes
+   * finishes.
    */
   function displayInfo(text) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       var infoText = document.getElementsByClassName('info-text')[0];
       var infoBlock = document.getElementsByClassName('info-block')[0];
 
@@ -258,7 +336,7 @@ HTMLInputElement.prototype.unlock = function() {
         infoBlock.addEventListener('transitionend', collapseHandler, false);
         infoBlock.collapse();
       } else {
-        if(!infoBlock.isCollapsed()) {
+        if(infoBlock.isExpanded()) {
           infoBlock.addEventListener('transitionend', collapseExpandHandler, false);
           infoBlock.collapse();
         } else {
@@ -333,154 +411,127 @@ HTMLInputElement.prototype.unlock = function() {
     window.addEventListener('click', infoTitle, false);
   }
 
-  // Firefox dev edition seems to load a browser action script asynchronously (while having the async property set to false). Pretending it’s not a bug, that may be a workaround for future Firefox releases.
-  window.addEventListener('DOMContentLoaded', function(event) {
+  /**
+   * This function DOESN’T WORK because the browser action closes when the
+   * window looses focus. Handle the Drag-and-drop of custom JSON files.
+   * @param {DragEvent} evt - The Drag-and-drop event.
+   * @see http://html5rocks.com/en/tutorials/file/dndfiles/
+   */
+  function handleFileSelect(evt) {
+    var files = evt.target.files;
+    var file = files[0];
+    var reader = new FileReader();
+    var alert = document.querySelector('.alert');
+    alert.style.display = 'block';
+
+    reader.onload = function (file) {
+      sendDataToTab(file.target.result, 'json');
+    };
+
+    reader.onerror = function (e) {
+      alert.style.display = 'block';
+      alert.textContent = 'Error. Cannot load file.';
+      console.log(e);
+    };
+
+    if (file.type && (file.type.match('application/json') || file.type.match('text/json'))) {
+      alert.textContent = 'JSON found!';
+      reader.readAsText(file);
+    } else {
+      alert.textContent = 'File found';
+      alert.style.color = '#a48700';
+      reader.readAsText(file);
+    }
+  }
+  document.querySelector('#ud-file-loader').addEventListener('change', handleFileSelect, false);
+
+  /**
+   * Adds a custom warning message and disable the checkbox.
+   * @param {string} message - The custom message.
+   * @param {string} type - The type of warning.
+   * @param {object} options - Object containing options.
+   * @param {bool} options.enableCheckbox - When using the `checkbox`,
+   * {@link type}, it enables toggling the checkbox. Otherwise it does nothing.
+   * @param {bool} options.checked - When using the `checkbox` {@link type}, it
+   * checks the checkbox. Otherwise it does nothing.
+   * @param {bool} options.removeFileInput - When using the `fileInput`
+   * {@link type}, it removes the file input.
+   * @param {bool} options.disableFileInput - When using the `fileInput`,
+   * {@link type}, it disables the file input.
+   */
+  function addWarning(message, type, options) {
+    options = options || {};
+
+    var fileInput, label;
+    var form = document.getElementsByClassName('autorun')[0];
+    document.getElementById('warning-text').textContent = message;
+    document.getElementsByClassName('warning-block')[0].style.display = 'block';
+
+    if(type === 'disable') {
+      document.getElementsByClassName('loader')[0].remove();
+    } else if(type === 'checkbox') {
+      if(options.enableCheckbox !== true) {
+        form.classList.add('disabled');
+        siteOnWhitelist.disabled = true;
+      }
+      if(options.checked === true) {
+        siteOnWhitelist.checked = true;
+      }
+    } else if(type === 'fileInput') {
+      fileInput = document.getElementById('ud-file-loader');
+
+      if(options.removeFileInput === true) {
+        label = document.getElementById('ud-label-loader');
+        label.remove();
+      } else if(options.disableFileInput === true) {
+        fileInput.disabled = false;
+      } else {
+        label = document.getElementById('ud-label-loader');
+        label.classList.add('disabled');
+        fileInput.disabled = true;
+      }
+    }
+  }
+
+  /**
+   * Makes checkbox `checked` if the website is allowed.
+   */
+  function checkSiteStatus () {
+    // talk to background script
+    sendDataToTab(true, 'background-wake', function (response) {
+      switch(response) {
+      case true:
+        siteOnWhitelist.on();
+        break;
+      case false:
+        siteOnWhitelist.off();
+        break;
+      case 'chrome_local_exception':
+        addWarning('Chrome doesn’t support loading local files automatically', 'checkbox', {enableCheckbox: false, checked: false});
+        break;
+      case 'unknown_protocol':
+        addWarning('Unsupported protocol. Supported protocols are: http, https and (local) file', 'checkbox', {enableCheckbox: false, checked: false});
+        break;
+      case 'invalid_origin':
+        addWarning('The linked JSON page isn’t at the same origin and directory as the document', 'checkbox', {enableCheckbox: false, checked: false});
+        break;
+      case undefined:
+        // response is undefined if there’s no content-script active (so it’s an unsupported URL scheme)
+        addWarning('Unsupported URL scheme. Supported URL schemes are: http://, https://, or file://', 'disable', {});
+        break;
+      default:
+        break;
+      }
+    });
+  }
+
+  // Firefox dev edition seems to load a browser action script asynchronously
+  // (while having the async property set to false). Pretending it’s not a bug,
+  // that may be a workaround for future Firefox releases.
+  window.addEventListener('DOMContentLoaded', function() {
     checkSiteStatus();
     initDisplay();
   });
 }());
-
-
-// http://html5rocks.com/en/tutorials/file/dndfiles/
-/**
- * This function DOESN’T WORK because the browser action closes when the window looses focus. Handle the Drag-and-drop of custom JSON files.
- * @param {DragEvent} evt - The Drag-and-drop event.
- */
-function handleFileSelect(evt) {
-  var files = evt.target.files;
-  var file = files[0];
-  var reader = new FileReader();
-  var alert = document.querySelector('.alert');
-  alert.style.display = 'block';
-
-  reader.onload = function (file) {
-    sendDataToTab(file.target.result, 'json');
-  };
-
-  reader.onerror = function (e) {
-    alert.style.display = 'block';
-    alert.textContent = 'Error. Cannot load file.';
-    console.log(e);
-  };
-
-  if (file.type && (file.type.match('application/json') || file.type.match('text/json'))) {
-    alert.textContent = 'JSON found!';
-    reader.readAsText(file);
-  } else {
-    alert.textContent = 'File found';
-    alert.style.color = '#a48700';
-    reader.readAsText(file);
-  }
-}
-
-/**
- * Custom function for sending messages to the current tab.
- * @param {*} data - Any message or data that can be serialized
- * @param {string} type - The type of the message.
- * @param {function} [callback] - The function that will receive the response.
- */
-function sendDataToTab(data, type, callback) {
-  // debugger;
-  // get the current tab then send data to it
-  chrome.tabs.query({active: true, currentWindow: true}, fireOffData);
-
-  // actually post data to a tab
-  /**
-   * Sends the message to the current tab.
-   * @param {chrome.tabs.Tab[]} arrayOfTabs - An array of tabs.
-   */
-  function fireOffData (arrayOfTabs) {
-    var activeTab = arrayOfTabs[0];
-    var activeTabId = activeTab.id;
-    var message = {'data': data, 'type': type};
-    chrome.tabs.sendMessage(activeTabId, message, {}, function (response) {
-      if (callback) {
-        callback(response);
-      }
-    });
-  }
-}
-
-document.querySelector('#ud-file-loader').addEventListener('change', handleFileSelect, false);
-
-/**
- * Adds a custom warning message and disable the checkbox.
- * @param {string} message - The custom message.
- * @param {string} type - The type of warning.
- * @param {object} options - Object containing options.
- * @param {bool} options.enableCheckbox - When using the `checkbox`,
- * {@link type}, it enables toggling the checkbox. Otherwise it does nothing.
- * @param {bool} options.checked - When using the `checkbox` {@link type}, it
- * checks the checkbox. Otherwise it does nothing.
- * @param {bool} options.removeFileInput - When using the `fileInput`
- * {@link type}, it removes the file input.
- * @param {bool} options.disableFileInput - When using the `fileInput`,
- * {@link type}, it disables the file input.
- */
-function addWarning(message, type, options) {
-  options = options || {};
-
-  var fileInput, label;
-  var form = document.getElementsByClassName('autorun')[0];
-  document.getElementById('warning-text').textContent = message;
-  document.getElementsByClassName('warning-block')[0].style.display = 'block';
-
-  if(type === 'disable') {
-    document.getElementsByClassName('loader')[0].remove();
-  } else if(type === 'checkbox') {
-    if(options.enableCheckbox !== true) {
-      form.classList.add('disabled');
-      siteOnWhitelist.disabled = true;
-    }
-    if(options.checked === true) {
-      siteOnWhitelist.checked = true;
-    }
-  } else if(type === 'fileInput') {
-    fileInput = document.getElementById('ud-file-loader');
-
-    if(options.removeFileInput === true) {
-      label = document.getElementById('ud-label-loader');
-      label.remove();
-    } else if(options.disableFileInput === true) {
-      fileInput.disabled = false;
-    } else {
-      label = document.getElementById('ud-label-loader');
-      label.classList.add('disabled');
-      fileInput.disabled = true;
-    }
-  }
-}
-
-/**
- * Makes checkbox `checked` if the website is allowed.
- */
-function checkSiteStatus () {
-  // talk to background script
-  sendDataToTab(true, 'background-wake', function (response) {
-    switch(response) {
-    case true:
-      siteOnWhitelist.on();
-      break;
-    case false:
-      siteOnWhitelist.off();
-      break;
-    case 'chrome_local_exception':
-      addWarning('Chrome doesn’t support loading local files automatically', 'checkbox', {enableCheckbox: false, checked: false});
-      break;
-    case 'unknown_protocol':
-      addWarning('Unsupported protocol. Supported protocols are: http, https and (local) file', 'checkbox', {enableCheckbox: false, checked: false});
-      break;
-    case 'invalid_origin':
-      addWarning('The linked JSON page isn’t at the same origin and directory as the document', 'checkbox', {enableCheckbox: false, checked: false});
-      break;
-    case undefined:
-      // response is undefined if there’s no content-script active (so it’s an unsupported URL scheme)
-      addWarning('Unsupported URL scheme. Supported URL schemes are: http://, https://, or file://', 'disable', {});
-      break;
-    default:
-      break;
-    }
-  });
-}
 
 // browser_action.js<browser_action> ends here

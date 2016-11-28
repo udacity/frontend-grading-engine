@@ -11,8 +11,8 @@
 var numberOfTests = 0,
     registeredTests = 0;
 /*
- The hotel simply changes the attributes on each web component
- */
+  The hotel simply changes the attributes on each web component
+*/
 var hotel = {
   occupiedSuites: [],
   createSuite: function (rawSuite) {
@@ -134,7 +134,6 @@ function registerSuites(suitesJSON) {
 }
 
 function turnOn() {
-  if (!isOn) {
     testWidget.buildWidget().then(function() {
       isOn = true;
       // console.log('enters startTests');
@@ -149,18 +148,17 @@ function turnOn() {
       // console.log('numberOfTests = ', numberOfTests);
       // console.log('leaves startTests');
     });
-  }
 }
 
 function turnOff () {
-  hotel.occupiedSuites.forEach(function (suite) {
-    suite.activeTests.forEach(function (activeTest) {
-      activeTest.stopTest();
+    hotel.occupiedSuites.forEach(function (suite) {
+      suite.activeTests.forEach(function (activeTest) {
+        activeTest.stopTest();
+      });
     });
-  });
-  hotel.occupiedSuites = [];
-  testWidget.killWidget();
-  isOn = false;
+    hotel.occupiedSuites = [];
+    testWidget.killWidget();
+    isOn = false;
 }
 
 function debug() {

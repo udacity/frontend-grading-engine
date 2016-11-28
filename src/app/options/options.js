@@ -15,7 +15,7 @@ var isChromium = window.navigator.vendor.toLocaleLowerCase().indexOf('google') !
 
 function StateManager() {
   this.whitelist = {remote: [], local: []};
-};
+}
 
 StateManager.prototype = {
   /**
@@ -24,7 +24,7 @@ StateManager.prototype = {
    */
   getWhitelist: function() {
     var self = this;
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
       chrome.storage.sync.get('whitelist', function (response) {
         self.whitelist = response.whitelist || {remote: [], local: []};
 
@@ -110,13 +110,13 @@ function initDisplay() {
   document.getElementById('browser-name').textContent = browserName;
 
   var remoteAdd = document.getElementById('remote-add');
-  remoteAdd.addEventListener('click', function handler(event) {
+  remoteAdd.addEventListener('click', function handler() {
     newInputEntry('remote');
   });
 
   var localAdd = document.getElementById('local-add');
   if(localAdd !== null) {
-    localAdd.addEventListener('click', function handler(event) {
+    localAdd.addEventListener('click', function handler() {
       newInputEntry('local');
     });
   }
@@ -288,6 +288,11 @@ stateManager.getWhitelist()
 window.addEventListener('remove', function handler(event) {
   stateManager.removeSiteFromWhitelist(event.detail.data, event.detail.type);
   refreshDisplay();
+}, false);
+
+// When switching tabs
+window.addEventListener('visibilitychange', function handler(event) {
+    refreshDisplay();
 }, false);
 
 // options.js<options> ends here

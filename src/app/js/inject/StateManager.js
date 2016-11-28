@@ -16,7 +16,7 @@
  */
 function StateManager() {
   this.whitelist = {remote: [], local: []};
-  this.hostIsAllowed = false;
+  this.isAllowed = false;
   this.host = window.location.origin;
   this.isChromium = window.navigator.vendor.toLocaleLowerCase().indexOf('google') !== -1;
 
@@ -54,7 +54,8 @@ function StateManager() {
         .then(loadJSONTestsFromFile)
         .then(registerTestSuites)
         .then(turnOn)
-      // This is to prevent UnitTests and other things in the page to execute before all tests are registered
+      // This is to prevent UnitTests and other things in the page to execute
+      // before all tests are registered
         .then(waitForTestRegistrations)
         .then(loadUnitTests)
         .then(function() {
@@ -72,12 +73,12 @@ function StateManager() {
   }
 
   /**
-   * Checks if the host is allowed to execute the Grading Engine (and arbitrary tests).
+   * Checks if the host is allowed to execute the Grading Engine (and arbitrary
+   * tests).
    * @returns {Promise}
    */
   this.isSiteOnWhitelist = function() {
     var self = this;
-    self.isAllowed = false;
     return new Promise(function(resolve, reject) {
       var type = self.type;
       chrome.storage.sync.get('whitelist', function(response) {
@@ -87,13 +88,44 @@ function StateManager() {
           self.whitelist[type] = [self.whitelist[type]];
         }
         if (self.whitelist[type].indexOf(self.host) > -1) {
-          self.isAllowed = true;
+          self.allowSite();
         } else {
-          self.isAllowed = false;
+          self.disallowSite();
         }
-        resolve(self.isAllowed);
+        resolve(self.getIsAllowed());
       });
     });
+  };
+
+  /**
+   * Temporary allow the extension to execute in a website. It will
+   * automatically be discarded after refresh.
+   * @returns {Promise}
+   */
+  this.allowSite = function() {
+    var self = this;
+    var type = self.type;
+
+    if(!type) {
+      throw new Error();
+    }
+
+    self.isAllowed = true;
+  };
+
+  /**
+   * Disallow the extension to execute in a website.
+   * @returns {Promise}
+   */
+  this.disallowSite = function() {
+    var self = this;
+    var type = self.type;
+
+    if(!type) {
+      throw new Error();
+    }
+
+    self.isAllowed = false;
   };
 
   /**
@@ -111,7 +143,7 @@ function StateManager() {
       if (index === -1) {
         self.whitelist[type].push(self.host);
       }
-      self.isAllowed = true;
+      self.allowSite();
 
       var data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
@@ -134,7 +166,7 @@ function StateManager() {
       if (index > -1) {
         self.whitelist[type].splice(index, 1);
       }
-      self.isAllowed = false;
+      self.disallowSite();
       var data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
         // debugger;
@@ -144,10 +176,11 @@ function StateManager() {
   };
 
   /**
-   * Getter for {@link isAllowed} property. This property shows if the website is on the whitelist.
+   * Getter for {@link isAllowed} property. This property shows if the website
+   * is on the whitelist.
    * @returns {boolean} The {@link isAllowed} property.
    }
-   */
+  */
   this.getIsAllowed = function() {
     if(this.isChromium && this.type === 'local') {
       return 'chrome_local_exception';
@@ -170,7 +203,8 @@ function StateManager() {
         Promise.resolve(true);
       });
     } else {
-      return Promise.resolve(true);
+      // The GradingEngine is already injected
+      return Promise.resolve(false);
     }
   };
 
@@ -204,7 +238,8 @@ function StateManager() {
       })
       .then(function() {
         removeInjectedFromDocument();
-        // wish I could unregister <test-widget>, but it doesn’t look like it’s possible at the moment
+        // wish I could unregister <test-widget>, but it doesn’t look like it’s
+        // possible at the moment
         self.geInjected = false;
       })
       .catch(function(e) {

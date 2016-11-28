@@ -268,18 +268,25 @@ var stateManager = new StateManager();
  */
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   switch (message.type) {
+  case 'allow':
+    if (message.data === 'on') {
+      stateManager.allowSite();
+      stateManager.turnOn();
+    } else if (message.data === 'off') {
+      stateManager.disallowSite();
+      stateManager.turnOff();
+    }
+    break;
   case 'json':
     // A JSON test file was passed to the action page
-    registerTestSuites(message.data);
+    // registerTestSuites(message.data);
     break;
-  case 'on-off':
+  case 'whitelist':
     // The action page checkbox was toggled
-    if (message.data === 'on') {
-      stateManager.addSiteToWhitelist()
-        .then(stateManager.turnOn);
-    } else if (message.data === 'off') {
-      stateManager.removeSiteFromWhitelist()
-        .then(stateManager.turnOff);
+    if (message.data === 'add') {
+      stateManager.addSiteToWhitelist();
+    } else if (message.data === 'remove') {
+      stateManager.removeSiteFromWhitelist();
     }
     break;
   case 'background-wake':
@@ -300,7 +307,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
  * for first load
  */
 window.addEventListener('GE-on', function() {
-  if (stateManager.isAllowed) {
+  if (stateManager.getIsAllowed()) {
     stateManager.turnOn();
   }
 });

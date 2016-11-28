@@ -308,8 +308,10 @@ var testWidget = (function() {
    * Calls {@link _buildFrame} and initialize {@link testResults}.
    */
   var _buildWidget = function() {
+    console.log('build widget');
     // Wait for the iFrame to load since it would return null
     return _buildFrame().then(function() {
+      console.log('build widget promise');
       var testWidgetDisplay = _frameDocument();
 
       // Reviewer: This is only local
@@ -336,6 +338,7 @@ var testWidget = (function() {
    * Removes the widget from the current Document.
    */
   var _killWidget = function() {
+    console.log('_kill widget');
     var tw = document.getElementById(frameId);
     var styles = document.getElementById('outer-styles');
 
