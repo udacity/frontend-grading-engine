@@ -1,7 +1,8 @@
 /*global MutationObserver, components, sourceSansProFont */
 
 /**
- * @fileOverview This file provides the test widget module. It injects an iFrame inside the current document to display a list of tests.
+ * @fileOverview This file provides the test widget module. It injects an iFrame
+ * inside the current document to display a list of tests.
  * @name test_widget.js<test_widget>
  * @author Etienne Prud’homme
  * @license MIT
@@ -9,7 +10,8 @@
 
 /**
  * Module to handle the test widget.
- * @returns {Object} Methods to build the widget ({@link buildWidget}) and kill it ({@link killWidget}).
+ * @returns {Object} Methods to build the widget ({@link buildWidget}) and kill
+ * it ({@link killWidget}).
  * @throws {Error} Initialization errors.
  */
 var testWidget = (function() {
@@ -178,9 +180,6 @@ var testWidget = (function() {
   var template = {
     head: '    <title>Udacity Feedback</title>' +
       '    <meta charset="UTF-8">' +
-      // Disabled until a solution is found. Because it’s an injected script, it
-      // wouldn’t be secure to pass the extension path.
-      // '    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">' +
       '    <style>' + innerStyles + '</style>' +
       '  </head>',
     body: '  <body>' +
@@ -222,7 +221,8 @@ var testWidget = (function() {
   };
 
   /**
-   * Calculate the height of the test-widget could have. It can’t be bigger than the window since it has position of fixed.
+   * Calculate the height of the test-widget could have. It can’t be bigger than
+   * the window since it has position of fixed.
    * @returns {}
    */
   var _calculateFrameHeight = function() {
@@ -232,7 +232,8 @@ var testWidget = (function() {
   };
 
   /**
-   * Set the `testWidget` frame element height to its inner height (height of child document).
+   * Set the `testWidget` frame element height to its inner height (height of
+   * child document).
    */
   var _setFrameHeight = function() {
     var frameHeight = _calculateFrameHeight();
@@ -250,7 +251,8 @@ var testWidget = (function() {
 
   /**
    * Execute a callback function when the iFrame document changes.
-   * @param {function} callback - The callback to call when the iFrame document changes.
+   * @param {function} callback - The callback to call when the iFrame document
+   * changes.
    */
   var _onFrameChange = function(callback) {
     var frameDocument = _frameDocument();
@@ -264,7 +266,8 @@ var testWidget = (function() {
   };
 
   /**
-   * Initializes the widget with its random ID (Not really useful) and append the widget to the current Document. The widget is an iFrame
+   * Initializes the widget with its random ID (Not really useful) and append
+   * the widget to the current Document. The widget is an iFrame
    * @returns {Document} The iFrame document.
    * @throws {Error} The test widget can’t be loaded.
    */

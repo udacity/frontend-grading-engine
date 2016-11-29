@@ -1,7 +1,10 @@
 /*global components */
 
 /**
- * @fileOverview This file registers the `test-results` component. This component is the main container and contains procedures for creating new `suites`. {@link test-results.js}, {@link test-widget.js}, {@link test-suite.js} should have executed already.
+ * @fileOverview This file registers the `test-results` component. This
+ * component is the main container and contains procedures for creating new
+ * `suites`. {@link test-results.js}, {@link test-widget.js}, {@link
+ * test-suite.js} should have executed already.
  * @name test_results.js<test_widget>
  * @author Etienne Prud’homme
  * @license MIT
@@ -62,7 +65,8 @@ var testResults = (function() {
 
       _testSuite.dataset.name = newSuite.name;
       _testSuite.dataset.suitePassed = false;
-      _testSuite.code = newSuite.code;  // to avoid leaving the code as an easy-to-spot attribute
+      // to avoid leaving the code as an easy-to-spot attribute
+      _testSuite.code = newSuite.code;
       _testSuite.suite = newSuite;
 
       testSuites.appendChild(_testSuiteFragment);

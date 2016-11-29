@@ -1,7 +1,8 @@
 /*global components */
 
 /**
- * @fileOverview This file registers the `active-test` component. This file doesn’t depend on other components.
+ * @fileOverview This file registers the `active-test` component. This file
+ * doesn’t depend on other components.
  * @name active_test.js<test_widget>
  * @author Etienne Prud’homme
  * @license MIT

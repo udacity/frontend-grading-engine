@@ -1,7 +1,8 @@
 /*global components */
 
 /**
- * @fileOverview This file registers the `test-suite` component. {@link test-results} and {@link test-widget} should have executed already.
+ * @fileOverview This file registers the `test-suite` component. {@link
+ * test-results} and {@link test-widget} should have executed already.
  * @name test_suite.js<test_widget>
  * @author Etienne Prud’homme
  * @license MIT
