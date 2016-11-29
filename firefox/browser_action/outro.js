@@ -1,5 +1,6 @@
 /**
- * @fileOverview This file contains the Firefox closing statements for the content script appended to the main file.
+ * @fileOverview This file contains the Firefox closing statements for
+ * the content script appended to the main file.
  * @name outro.js<browser_action>
  * @author Etienne Prud’homme
  * @license GPLv3
