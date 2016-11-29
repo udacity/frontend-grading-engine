@@ -53,7 +53,7 @@ function StateManager() {
         .then(loadLibraries)
         .then(loadJSONTestsFromFile)
         .then(registerTestSuites)
-        .then(turnOn)
+        .then(turnOnGA)
       // This is to prevent UnitTests and other things in the page to execute
       // before all tests are registered
         .then(waitForTestRegistrations)

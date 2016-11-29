@@ -240,7 +240,7 @@ function loadUnitTests() {
  * StateManager~runLoadSequence}.
  * @returns {Promise}
  */
-function turnOn() {
+function turnOnGA() {
   // console.log('Turned on from turnOn()');
   return injectIntoDocument('script', {
     id: 'ud-grader-options',
@@ -279,7 +279,7 @@ var stateManager = new StateManager();
  * @param {function} sendResponse - Function to call when a response is
  * received.
  */
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function handler(message, sender, sendResponse) {
   switch (message.type) {
   case 'allow':
     if (message.data === 'on') {
@@ -324,14 +324,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   return true;
 });
 
-/**
- * for first load
- */
-window.addEventListener('GE-on', function() {
-  if (stateManager.getIsAllowed()) {
-    stateManager.turnOn();
-  }
-});
+// /**
+//  * for first load (Is it ever called?)
+//  */
+// window.addEventListener('GE-on', function() {
+//   if (stateManager.getIsAllowed()) {
+//     stateManager.turnOn();
+//   }
+// });
 
 // Check if the site is on the Whitelist on page load
 stateManager.isSiteOnWhitelist()
