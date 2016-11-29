@@ -279,6 +279,7 @@ HTMLInputElement.prototype.unlock = function() {
    */
   siteOnWhitelist.remove = function() {
     this.off();
+    sendDataToTab('remove', 'whitelist');
   };
 
   /**
@@ -497,8 +498,8 @@ HTMLInputElement.prototype.unlock = function() {
    * Makes checkboxes `checked` if the website is allowed.
    */
   function checkSiteStatus () {
-    // talk to background script
-    sendDataToTab(true, 'background-wake', function (response) {
+    // Talk to background script.
+    sendDataToTab('get', 'whitelist', function (response) {
       switch(response) {
       case true:
         siteOnWhitelist.on();

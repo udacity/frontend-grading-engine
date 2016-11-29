@@ -300,6 +300,10 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
       stateManager.addSiteToWhitelist();
     } else if (message.data === 'remove') {
       stateManager.removeSiteFromWhitelist();
+    } else if (message.data === 'get') {
+      stateManager.isSiteOnWhitelist().then(function(value) {
+        sendResponse(value);
+      });
     }
     break;
   case 'background-wake':
@@ -307,13 +311,17 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
       sendResponse(runtimeError);
     }
     // The action page is requesting infos about the current host
-    sendResponse(stateManager.getIsAllowed());
+    stateManager.getIsAllowed().then(function(value) {
+
+      sendResponse(value);
+    });
     break;
   default:
     // Just in case of future bad implementation
     console.warn('invalid message type for: %s from %s', message, sender);
     break;
   }
+  return true;
 });
 
 /**

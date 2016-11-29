@@ -79,20 +79,21 @@ function StateManager() {
    */
   this.isSiteOnWhitelist = function() {
     var self = this;
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       var type = self.type;
+      var allowed = false;
       chrome.storage.sync.get('whitelist', function(response) {
         self.whitelist = response.whitelist || {remote: [], local: []};
         // console.log(self.whitelist);
         if (!(self.whitelist[type] instanceof Array)) {
           self.whitelist[type] = [self.whitelist[type]];
         }
-        if (self.whitelist[type].indexOf(self.host) > -1) {
+        allowed = self.whitelist[type].indexOf(self.host) > -1;
+
+        if(allowed) {
           self.allowSite();
-        } else {
-          self.disallowSite();
         }
-        resolve(self.getIsAllowed());
+        resolve(allowed);
       });
     });
   };
@@ -166,7 +167,6 @@ function StateManager() {
       if (index > -1) {
         self.whitelist[type].splice(index, 1);
       }
-      self.disallowSite();
       var data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
         // debugger;
@@ -182,10 +182,13 @@ function StateManager() {
    }
   */
   this.getIsAllowed = function() {
-    if(this.isChromium && this.type === 'local') {
-      return 'chrome_local_exception';
-    }
-    return this.isAllowed;
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      if(self.isChromium && self.type === 'local') {
+        reject('chrome_local_exception');
+      }
+      resolve(self.isAllowed === true);
+    });
   };
 
   /**
@@ -208,7 +211,7 @@ function StateManager() {
       });
     } else {
       // The GradingEngine is already injected
-      return Promise.resolve(false);
+      return Promise.reject(false);
     }
   };
 
@@ -240,12 +243,12 @@ function StateManager() {
           window.dispatchEvent(new Event('killUdacityFEGradingEngine'));
         });
       })
-      .then(function() {
-        removeInjectedFromDocument();
-        // wish I could unregister <test-widget>, but it doesn’t look like it’s
-        // possible at the moment
-        self.geInjected = false;
-      })
+        .then(function() {
+          removeInjectedFromDocument();
+          // wish I could unregister <test-widget>, but it doesn’t look like it’s
+          // possible at the moment
+          self.geInjected = false;
+        })
       .catch(function(e) {
         throw e;
       });
