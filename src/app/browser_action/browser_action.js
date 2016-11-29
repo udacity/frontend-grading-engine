@@ -98,24 +98,26 @@ HTMLInputElement.prototype.unlock = function() {
    * @param {function} [callback] - The function that will receive the response.
    */
   function sendDataToTab(data, type, callback) {
-    // actually post data to a tab
-    /**
-     * Sends the message to the current tab.
-     * @param {chrome.tabs.Tab[]} arrayOfTabs - An array of tabs.
-     */
-    function fireOffData (arrayOfTabs) {
-      var activeTab = arrayOfTabs[0];
-      var activeTabId = activeTab.id;
-      var message = {'data': data, 'type': type};
-      chrome.tabs.sendMessage(activeTabId, message, {}, function (response) {
-        if (callback) {
-          callback(response);
-        }
-      });
-    }
-
-    // get the current tab then send data to it
-    chrome.tabs.query({active: true, currentWindow: true}, fireOffData);
+    return new Promise(function(resolve) {
+      // actually post data to a tab
+      /**
+       * Sends the message to the current tab.
+       * @param {chrome.tabs.Tab[]} arrayOfTabs - An array of tabs.
+       */
+      function fireOffData (arrayOfTabs) {
+        var activeTab = arrayOfTabs[0];
+        var activeTabId = activeTab.id;
+        var message = {'data': data, 'type': type};
+        chrome.tabs.sendMessage(activeTabId, message, {}, function (response) {
+          if (callback) {
+            callback(response);
+          }
+          resolve();
+        });
+      }
+      // get the current tab then send data to it
+      chrome.tabs.query({active: true, currentWindow: true}, fireOffData);
+    });
   }
 
   /**
@@ -523,6 +525,19 @@ HTMLInputElement.prototype.unlock = function() {
       default:
         break;
       }
+    }).then(function() {
+      sendDataToTab(null, 'background-wake', function(response) {
+        switch(response) {
+        case true:
+          allowFeedback.on();
+          break;
+        case false:
+          allowFeedback.off();
+          break;
+        default:
+          addWarning('Unkown Error');
+        }
+      });
     });
   }
 
