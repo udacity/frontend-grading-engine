@@ -45,7 +45,8 @@ Object.defineProperties(hotel, {
   },
   allCorrect: {
     get: function () {
-      var allCorrect = (this.numberOfSuites === this.numberOfPassedSuites);
+      var allCorrect = (this.numberOfSuites ===
+                        this.numberOfPassedSuites);
       // TODO: maybe emit an event if all of them pass?
       return allCorrect;
     }
@@ -95,7 +96,7 @@ function startTests() {
     numberOfTests += _suite.tests.length;
   });
 
-  return new Promise(function(resolve, reject) {
+  return new Promise(function() {
     userData.forEach(function (_suite) {
       var newSuite = registerSuite({
         name: _suite.name,
@@ -134,7 +135,8 @@ function registerSuites(suitesJSON) {
     throw new Error('Invalid JSON format.');
   }
   if (userData instanceof Array !== true) {
-    throw new TypeError('Invalid test format. Tests must be wrapped in an array.');
+    throw new TypeError('Invalid test format. Tests must be ' +
+                        'wrapped in an array.');
   }
   if (isOn) {
     startTests();
@@ -143,6 +145,7 @@ function registerSuites(suitesJSON) {
 }
 
 function turnOn() {
+  if(!isOn) {
     testWidget.buildWidget().then(function() {
       isOn = true;
       // console.log('enters startTests');
@@ -157,17 +160,18 @@ function turnOn() {
       // console.log('numberOfTests = ', numberOfTests);
       // console.log('leaves startTests');
     });
+  }
 }
 
 function turnOff () {
-    hotel.occupiedSuites.forEach(function (suite) {
-      suite.activeTests.forEach(function (activeTest) {
-        activeTest.stopTest();
-      });
+  hotel.occupiedSuites.forEach(function (suite) {
+    suite.activeTests.forEach(function (activeTest) {
+      activeTest.stopTest();
     });
-    hotel.occupiedSuites = [];
-    testWidget.killWidget();
-    isOn = false;
+  });
+  hotel.occupiedSuites = [];
+  testWidget.killWidget();
+  isOn = false;
 }
 
 function debug() {

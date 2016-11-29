@@ -1,3 +1,5 @@
+/* global numberOfQuestions, numberCorrectQuestions */
+
 /**
  * @fileOverview The GradeBook maintains and reports on the state of a
  * set of questions registered by the TA. The GradeBook reports out on
@@ -14,7 +16,7 @@
 function GradeBook() {
   this.questions = [];
   this.passed = false;
-};
+}
 
 Object.defineProperties(GradeBook.prototype, {
   numberOfQuestions: {
@@ -127,9 +129,10 @@ GradeBook.prototype.grade = function(config) {
   });
 
   if (strictness === 'some') {
-    if (this.numberCorrectQuestions <= this.numberOfQuestions && this.numberCorrectQuestions > 0) {
+    if (this.numberCorrectQuestions <= this.numberOfQuestions &&
+        this.numberCorrectQuestions > 0) {
       this.passed = true;
-    };
+    }
   } else if (typeof strictness === 'number' && strictness > 0) {
     if (this.numberCorrectQuestions <= strictness && this.numberCorrectQuestions > 0) {
       this.passed = true;
@@ -141,7 +144,7 @@ GradeBook.prototype.grade = function(config) {
   // one last check to make sure there actually were questions
   if (this.numberOfQuestions === 0 && not) {
     this.passed = !this.passed;
-  };
+  }
   return this.report;
 };
 

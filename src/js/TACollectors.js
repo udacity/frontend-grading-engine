@@ -105,7 +105,8 @@ Object.defineProperties(TA.prototype, {
           try {
             html = element.innerHTML;
           } catch (e) {
-            self.onerror('Cannot get innerHTML. Element probably doesn’t exist.', true);
+            self.onerror('Cannot get innerHTML. Element probably ' +
+                         'doesn’t exist.', true);
           }
           return html;
         });
@@ -329,7 +330,8 @@ TA.prototype.theseElements = function(selector) {
       var elems = getDomNodeArray(selector);
 
       if (!selector) {
-        self.onerror('Cannot find elements without a selector.', true);
+        self.onerror('Cannot find elements without a selector.',
+                     true);
       } else if (elems.length > 0) {
         elems.forEach(function(elem, index, arr) {
           var target = new Target();
@@ -361,7 +363,8 @@ TA.prototype.deepChildren = function(selector) {
       var elems = getDomNodeArray(selector, target.element);
 
       if (!selector) {
-        self.onerror('Cannot find elements without a selector.', true);
+        self.onerror('Cannot find elements without a selector.',
+                     true);
         throw new Error();
       } else if (target.element) {
         if(elems.length === 0) {
@@ -402,7 +405,10 @@ TA.prototype.get = function(typeOfValue) {
     self.DPR;
     break;
   default:
-    self.onerror('Cannot “get”: “' + typeOfValue + '”. Options include: “count”, “childPosition”, “DPR”, “innerHTML”, and “UAString”.');
+    self.onerror('Cannot “get”: “' +
+                 typeOfValue +
+                 '”. Options include: “count”, “childPosition”, ' +
+                 '“DPR”, “innerHTML”, and “UAString”.');
     throw new Error();
   }
 };
@@ -411,7 +417,8 @@ TA.prototype.limit = function(limit) {
   var self = this;
 
   if (!limit || limit < 1) {
-    self.onerror('Illegal “limit”. Options include: any positive number, “all” or “some”. Defaults to “all”');
+    self.onerror('Illegal “limit”. Options include: any positive' +
+                 'number, “all” or “some”. Defaults to “all”');
     throw new Error();
   }
 
@@ -439,7 +446,8 @@ TA.prototype.cssProperty = function(property) {
         // TODO: this causes a FSL that could affect framerate?
         style = self._getComputedValue(property, elem);
       } catch (e) {
-        self.onerror('Cannot get CSS property: “' + property + '”.', true);
+        self.onerror('Cannot get CSS property: “' + property + '”.',
+                     true);
       }
       return style;
     });
@@ -521,12 +529,14 @@ TA.prototype._getComputedValue = function(property, elem) {
         value = clone.offsetTop - wrapper.offsetTop;
         break;
       case 'marginRight':
-        value = wrapper.clientWidth - (parseInt(window.getComputedStyle(clone).width) +
-                                       calculateMarginForSide('marginLeft'));
+        value = wrapper.clientWidth -
+          (parseInt(window.getComputedStyle(clone).width) +
+           calculateMarginForSide('marginLeft'));
         break;
       case 'marginBottom':
-        value = wrapper.clientHeight - (parseInt(window.getComputedStyle(clone).height) +
-                                        calculateMarginForSide('marginTop'));
+        value = wrapper.clientHeight -
+          (parseInt(window.getComputedStyle(clone).height) +
+           calculateMarginForSide('marginTop'));
         break;
       default:
         throw new Error('Wrong type of arguments for “marginName”');
@@ -546,9 +556,10 @@ TA.prototype._getComputedValue = function(property, elem) {
   case 'marginRight':
   case 'marginBottom':
   case 'marginLeft':
-    if(computedStyles[property] === '0px' && computedStyles.display === 'block') {
     // Firefox (and Safari?) don’t use the CSS2 specs to calculate the
     // margin when set to `auto`.
+    if(computedStyles[property] === '0px' &&
+       computedStyles.display === 'block') {
       value = getMarginSide(property) + 'px';
     }
     break;
@@ -567,7 +578,7 @@ TA.prototype._getComputedValue = function(property, elem) {
   }
 
   // Return the tweaked computed value or the actual value if no
-  // tweaks
+  // tweaks.
   return value;
 };
 
@@ -586,7 +597,8 @@ TA.prototype.attribute = function(attribute) {
       try {
         attrValue = elem.getAttribute(attribute);
       } catch (e) {
-        self.onerror('Cannot get attribute “' + attribute + '”.', true);
+        self.onerror('Cannot get attribute “' + attribute + '”.',
+                     true);
       }
       if (attrValue === '') {
         attrValue = true;
@@ -598,7 +610,7 @@ TA.prototype.attribute = function(attribute) {
 };
 
 // TODO: Is this even used? Seems to be duplicate of {@link
-// TA.prototype.attribute}
+// TA.prototype.attribute}.
 /**
  * Get any property of an object.
  * @param {string} attribute - The attribute under examination.
@@ -614,7 +626,8 @@ TA.prototype.property = function(key) {
       try {
         propertyValue = obj[key];
       } catch (e) {
-        self.onerror('Cannot get attribute “' + attribute + '”.', true);
+        self.onerror('Cannot get attribute “' + attribute + '”.',
+                     true);
       }
       if (propertyValue === '') {
         propertyValue = true;
@@ -637,7 +650,8 @@ TA.prototype.absolutePosition = function(side) {
     self._registerOperation('absolutePosition');
     // http://stackoverflow.com/questions/2880957/detect-inline-block-type-of-a-dom-element
     function getDisplayType (element) {
-      var cStyle = element.currentStyle || window.getComputedStyle(element, '');
+      var cStyle = element.currentStyle ||
+          window.getComputedStyle(element, '');
       return cStyle.display;
     };
 
@@ -645,7 +659,8 @@ TA.prototype.absolutePosition = function(side) {
       if(side === 'top' || side === 'left' || 'bottom' || 'right') {
         return true;
       }
-      console.warn('You didn’t pick a side for absolutePosition! Options are “top”, “left”, “bottom” and “right”.');
+      console.warn('You didn’t pick a side for absolutePosition! ' +
+                   'Options are “top”, “left”, “bottom” and “right”.');
       return false;
     }
 
@@ -690,11 +705,13 @@ TA.prototype.absolutePosition = function(side) {
       // biggest value of client<Size> and inner<Size>.
       if(side === 'bottom') {
         // Get the widest window height
-        maxSize = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+        maxSize = Math.max(document.documentElement.clientHeight,
+                           window.innerHeight || 0);
         value = value === maxSize ? 'max' : value ;
       } else if(side === 'right') {
         // Get the widest window width
-        maxSize = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+        maxSize = Math.max(document.documentElement.clientWidth,
+                           window.innerWidth || 0);
         value = value === maxSize ? 'max' : value;
       }
 
@@ -706,7 +723,9 @@ TA.prototype.absolutePosition = function(side) {
       try {
         absPos = selectorFunc(elem);
       } catch (e) {
-        self.onerror('Cannot get absolute position of “' + side + '”.', true);
+        self.onerror('Cannot get absolute position of “' +
+                     side +
+                     '”.', true);
         throw new Error();
       }
       return absPos;

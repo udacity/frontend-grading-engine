@@ -20,14 +20,14 @@ var testResults = (function() {
   var proto = {};
 
   var template = '<!-- test-results component starts here -->' +
-        '<div class="test-results">' +
-        '  <div class="upper-display">' +
-        '    <em class="placeholder">No tests loaded</em>' +
-        '    <button class="toggle-display shown" disabled> Test Results</button>' +
-        '  </div>' +
-        '  <div class="test-suites"></div>' +
-        '</div>' +
-        '<!-- test-results component ends here -->';
+      '<div class="test-results">' +
+      '  <div class="upper-display">' +
+      '    <em class="placeholder">No tests loaded</em>' +
+      '    <button class="toggle-display shown" disabled> Test Results</button>' +
+      '  </div>' +
+      '  <div class="test-suites"></div>' +
+      '</div>' +
+      '<!-- test-results component ends here -->';
 
   var buildSuiteElement = function() {};
 

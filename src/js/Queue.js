@@ -38,10 +38,11 @@ Queue.prototype = {
     }
 
     function executeInPromise(fn) {
-      return new Promise(function (resolve, reject) {
+      return new Promise(function (resolve) {
+        var ret;
         if (fn) {
           try {
-            var ret = fn();
+            ret = fn();
           } catch (e) {
             self.block();
           }
@@ -50,7 +51,7 @@ Queue.prototype = {
       });
     }
     if (!this._blocked) {
-      executeInPromise(this._methods.shift()).then(function(resolve) {
+      executeInPromise(this._methods.shift()).then(function() {
         if (self._methods.length > 0) {
           self.step();
         }

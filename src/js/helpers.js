@@ -39,7 +39,9 @@ function getDomNodeArray(selector, parent) {
     return [];
   }
   parent = parent || document;
-  var nodes = Array.prototype.slice.apply(parent.querySelectorAll(selector));
+  var nodes = Array.prototype.slice.apply(
+    parent.querySelectorAll(selector)
+  );
   return nodes;
 }
 

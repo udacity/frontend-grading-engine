@@ -1,3 +1,5 @@
+/* global getUnitlessMeasurement, TA */
+
 /**
  * @fileOverview Reporters live on the TA and are responsible for:
  *
@@ -26,42 +28,43 @@ TA.prototype.exists = function(bool) {
 
     var doesExistFunc = function() {};
     switch (typeOfOperation) {
-      case 'gatherElements':
-        doesExistFunc = function(topTarget) {
-          var doesExist = false;
-          if (topTarget.children.length > 0 || topTarget.element || topTarget.value) {
-            doesExist = true;
-          }
-          if (!doesExist) {
-            self.onincorrect('does not exist');
-          }
-          return doesExist;
-        };
-        break;
-      case 'gatherDeepChildElements':
-        doesExistFunc = function(target) {
-          var doesExist = false;
-          if (target.element) {
-            doesExist = true;
-          }
-          if (!doesExist) {
-            self.onincorrect('does not exist');
-          }
-          return doesExist;
-        };
-        break;
-      default:
-        doesExistFunc = function(target) {
-          var doesExist = false;
-          if (target.value || target.element) {
-            doesExist = true;
-          }
-          if (!doesExist) {
-            self.onincorrect('does not exist');
-          }
-          return doesExist;
-        };
-        break;
+    case 'gatherElements':
+      doesExistFunc = function(topTarget) {
+        var doesExist = false;
+        if (topTarget.children.length > 0 || topTarget.element ||
+            topTarget.value) {
+          doesExist = true;
+        }
+        if (!doesExist) {
+          self.onincorrect('does not exist');
+        }
+        return doesExist;
+      };
+      break;
+    case 'gatherDeepChildElements':
+      doesExistFunc = function(target) {
+        var doesExist = false;
+        if (target.element) {
+          doesExist = true;
+        }
+        if (!doesExist) {
+          self.onincorrect('does not exist');
+        }
+        return doesExist;
+      };
+      break;
+    default:
+      doesExistFunc = function(target) {
+        var doesExist = false;
+        if (target.value || target.element) {
+          doesExist = true;
+        }
+        if (!doesExist) {
+          self.onincorrect('does not exist');
+        }
+        return doesExist;
+      };
+      break;
     }
 
     var testResult = self.gradebook.grade({
@@ -110,8 +113,11 @@ TA.prototype.equals = function(config) {
       expected = config;
     }
 
-    if (typeof expected !== 'string' && typeof expected !== 'number' && !(expected instanceof Array)) {
-      self.onerror('“equals” needs a string, a number, or an array of string and number values.');
+    if (typeof expected !== 'string' &&
+        typeof expected !== 'number' &&
+        !(expected instanceof Array)) {
+      self.onerror('“equals” needs a string, a number, or an array ' +
+                   'of string and number values.');
       throw new Error();
     }
 
@@ -129,7 +135,10 @@ TA.prototype.equals = function(config) {
       });
 
       if (!isCorrect) {
-        self.onincorrect(target.value.toString() + ' is not one of: [' + expected.join(', ') + '].');
+        self.onincorrect(target.value.toString() +
+                         ' is not one of: [' +
+                         expected.join(', ') +
+                         '].');
       }
       return isCorrect;
     };
@@ -161,30 +170,36 @@ TA.prototype.isGreaterThan = function(config) {
 
     var greaterThanFunc = function() {};
     switch (orEqualTo) {
-      case true:
-        greaterThanFunc = function(target) {
-          var isGreaterThan = false;
-          if (getUnitlessMeasurement(target.value) >= getUnitlessMeasurement(expected)) {
-            isGreaterThan = true;
-          }
-          if (!isGreaterThan) {
-            self.onincorrect(target.value + ' is not greater than ' + expected);
-          }
-          return isGreaterThan;
-        };
-        break;
-      default:
-        greaterThanFunc = function(target) {
-          var isGreaterThan = false;
-          if (getUnitlessMeasurement(target.value) > getUnitlessMeasurement(expected)) {
-            isGreaterThan = true;
-          }
-          if (!isGreaterThan) {
-            self.onincorrect(target.value + ' is not greater than ' + expected);
-          }
-          return isGreaterThan;
-        };
-        break;
+    case true:
+      greaterThanFunc = function(target) {
+        var isGreaterThan = false;
+        if (getUnitlessMeasurement(target.value) >=
+            getUnitlessMeasurement(expected)) {
+          isGreaterThan = true;
+        }
+        if (!isGreaterThan) {
+          self.onincorrect(target.value +
+                           ' is not greater than ' +
+                           expected);
+        }
+        return isGreaterThan;
+      };
+      break;
+    default:
+      greaterThanFunc = function(target) {
+        var isGreaterThan = false;
+        if (getUnitlessMeasurement(target.value) >
+            getUnitlessMeasurement(expected)) {
+          isGreaterThan = true;
+        }
+        if (!isGreaterThan) {
+          self.onincorrect(target.value +
+                           ' is not greater than ' +
+                           expected);
+        }
+        return isGreaterThan;
+      };
+      break;
     }
 
     var testResult = self.gradebook.grade({
@@ -214,30 +229,36 @@ TA.prototype.isLessThan = function(config) {
 
     var lessThanFunc = function() {};
     switch (orEqualTo) {
-      case true:
-        lessThanFunc = function(target) {
-          var isLessThan = false;
-          if (getUnitlessMeasurement(target.value) <= getUnitlessMeasurement(expected)) {
-            isLessThan = true;
-          }
-          if (!isLessThan) {
-            self.onincorrect(target.value + ' is not less than ' + expected);
-          }
-          return isLessThan;
-        };
-        break;
-      default:
-        lessThanFunc = function(target) {
-          var isLessThan = false;
-          if (getUnitlessMeasurement(target.value) < getUnitlessMeasurement(expected)) {
-            isLessThan = true;
-          }
-          if (!isLessThan) {
-            self.onincorrect(target.value + ' is not less than ' + expected);
-          }
-          return isLessThan;
-        };
-        break;
+    case true:
+      lessThanFunc = function(target) {
+        var isLessThan = false;
+        if (getUnitlessMeasurement(target.value) <=
+            getUnitlessMeasurement(expected)) {
+          isLessThan = true;
+        }
+        if (!isLessThan) {
+          self.onincorrect(target.value +
+                           ' is not less than ' +
+                           expected);
+        }
+        return isLessThan;
+      };
+      break;
+    default:
+      lessThanFunc = function(target) {
+        var isLessThan = false;
+        if (getUnitlessMeasurement(target.value) <
+            getUnitlessMeasurement(expected)) {
+          isLessThan = true;
+        }
+        if (!isLessThan) {
+          self.onincorrect(target.value +
+                           ' is not less than ' +
+                           expected);
+        }
+        return isLessThan;
+      };
+      break;
     }
 
     var testResult = self.gradebook.grade({
@@ -274,67 +295,80 @@ TA.prototype.isInRange = function(config) {
       var temp = lower;
       lower = upper;
       upper = temp;
-    };
+    }
 
     if (typeof lower !== 'number' || typeof upper !== 'number') {
-      self.onerror("“isInRange” needs an upper and a lower value in its config object.");
+      self.onerror('“isInRange” needs an upper and a lower value ' +
+                   'in its config object.');
       throw new Error();
     }
 
     var xIsLessThan = function() {};
     switch (upperInclusive) {
-      case true:
-        xIsLessThan = function(target) {
-          var isInRange = false;
-          if (getUnitlessMeasurement(target.value) <= getUnitlessMeasurement(upper)) {
-            isInRange = true;
-          }
-          if (!isInRange) {
-            self.onincorrect(target.value + ' is not less than ' + upper);
-          }
-          return isInRange;
-        };
-        break;
-      default:
-        xIsLessThan = function(target) {
-          var isInRange = false;
-          if (getUnitlessMeasurement(target.value) < getUnitlessMeasurement(upper)) {
-            isInRange = true;
-          }
-          if (!isInRange) {
-            self.onincorrect(target.value + ' is not less than ' + upper);
-          }
-          return isInRange;
-        };
-        break;
+    case true:
+      xIsLessThan = function(target) {
+        var isInRange = false;
+        if (getUnitlessMeasurement(target.value) <=
+            getUnitlessMeasurement(upper)) {
+          isInRange = true;
+        }
+        if (!isInRange) {
+          self.onincorrect(target.value +
+                           ' is not less than ' +
+                           upper);
+        }
+        return isInRange;
+      };
+      break;
+    default:
+      xIsLessThan = function(target) {
+        var isInRange = false;
+        if (getUnitlessMeasurement(target.value) <
+            getUnitlessMeasurement(upper)) {
+          isInRange = true;
+        }
+        if (!isInRange) {
+          self.onincorrect(target.value +
+                           ' is not less than ' +
+                           upper);
+        }
+        return isInRange;
+      };
+      break;
     }
 
     var xIsGreaterThan = function() {};
     switch (lowerInclusive) {
-      case true:
-        xIsGreaterThan = function(target) {
-          var isInRange = false;
-          if (getUnitlessMeasurement(target.value) >= getUnitlessMeasurement(lower)) {
-            isInRange = true;
-          }
-          if (!isInRange) {
-            self.onincorrect(target.value + ' is not greater than ' + lower);
-          }
-          return isInRange;
-        };
-        break;
-      default:
-        xIsGreaterThan = function(target) {
-          var isInRange = false;
-          if (getUnitlessMeasurement(target.value) > getUnitlessMeasurement(lower)) {
-            isInRange = true;
-          }
-          if (!isInRange) {
-            self.onincorrect(target.value + ' is not greater than ' + lower);
-          }
-          return isInRange;
-        };
-        break;
+    case true:
+      xIsGreaterThan = function(target) {
+        var isInRange = false;
+        if (getUnitlessMeasurement(target.value) >=
+            getUnitlessMeasurement(lower)) {
+          isInRange = true;
+        }
+        if (!isInRange) {
+          self.onincorrect(target.value +
+                           ' is not greater than ' +
+                           lower);
+        }
+        return isInRange;
+      };
+      break;
+    default:
+      xIsGreaterThan = function(target) {
+        var isInRange = false;
+        if (getUnitlessMeasurement(target.value) >
+            getUnitlessMeasurement(lower)) {
+          isInRange = true;
+        }
+        if (!isInRange) {
+          self.onincorrect(target.value +
+                           ' is not greater than ' +
+                           lower);
+        }
+        return isInRange;
+      };
+      break;
     }
 
     var inRangeFunc = function(target) {
@@ -380,21 +414,24 @@ TA.prototype.hasSubstring = function(config) {
     // Make sure expectedValues is an array.
     if (!(expectedValues instanceof Array)) {
       expectedValues = [expectedValues];
-    };
+    }
 
     var nValues      = config.nValues || false;
     var minValues    = config.minValues || 1;
     var maxValues    = config.maxValues || expectedValues.length;
 
     if (!expectedValues || expectedValues.length === 0) {
-      self.onerror('“hasSubstring” needs at least one regex comparison.');
+      self.onerror('“hasSubstring” needs at least one regex ' +
+                   'comparison.');
       throw new Error();
-    };
+    }
 
-    if (typeof minValues !== 'number' || typeof maxValues !== 'number') {
-      self.onerror('“hasSubstring” “minValue” and “maxValue” need to be numbers.');
+    if (typeof minValues !== 'number' ||
+        typeof maxValues !== 'number') {
+      self.onerror('“hasSubstring” “minValue” and “maxValue” need ' +
+                   'to be numbers.');
       throw new Error();
-    };
+    }
 
     /**
      * Is there a substring in a string? This will answer that
@@ -411,15 +448,17 @@ TA.prototype.hasSubstring = function(config) {
         if (matches.length > 0) {
           hits += 1;
         } else {
-          self.onincorrect(val + ' did not hit against ' + target.value.slice(0, 20));
+          self.onincorrect(val +
+                           ' did not hit against ' +
+                           target.value.slice(0, 20));
         }
       });
 
       if (nValues) {
-        (hits === nValues) ? hasNumberOfValsExpected = true : hasNumberOfValsExpected = false;
+        hasNumberOfValsExpected = (hits === nValues);
       } else if (hits >= minValues && hits <= maxValues) {
         hasNumberOfValsExpected = true;
-      };
+      }
 
       return hasNumberOfValsExpected;
     };
@@ -433,11 +472,12 @@ TA.prototype.hasSubstring = function(config) {
   });
 };
 
-var taAvailableMethods = Object.getOwnPropertyNames(TA.prototype).filter(function(key) {
-  return key.indexOf('_') === -1 && key !== 'constructor';
-});
 // Get all the exposed methods so that the translator knows what’s
 // acceptable.
+var taAvailableMethods = Object.getOwnPropertyNames(TA.prototype)
+  .filter(function(key) {
+    return key.indexOf('_') === -1 && key !== 'constructor';
+  });
 
 TA.prototype._translateConfigToMethods = function(config) {
   var self = this;
@@ -445,8 +485,10 @@ TA.prototype._translateConfigToMethods = function(config) {
   // scope.
   var methods = [];
 
-  // so either nodes or elements works in config object
-  config['nodes'] = config['nodes'] || config['elements'];
+  // So either nodes or elements works in config object.
+  if(!config.nodes) {
+    config.nodes = config.elements;
+  }
 
   var definitions = Object.keys(config);
 

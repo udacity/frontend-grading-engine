@@ -30,10 +30,10 @@ HTMLElement.prototype.super = HTMLElement.prototype;
 HTMLElement.prototype.expand = function() {
   var inner = this.getElementsByClassName('expand-inner')[0];
 
-   if(inner) {
-     var height = inner.offsetHeight;
-     this.height(height);
-   }
+  if(inner) {
+    var height = inner.offsetHeight;
+    this.height(height);
+  }
 };
 
 /**
