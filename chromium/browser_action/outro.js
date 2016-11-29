@@ -1,5 +1,6 @@
 /**
- * @fileOverview This file contains the Chromium closing statements for the browser action script appended to the main file.
+ * @fileOverview This file contains the Chromium closing statements
+ * for the browser action script appended to the main file.
  * @name outro.js<browser_action>
  * @author Etienne Prud’homme
  * @license GPLv3
