@@ -1,7 +1,8 @@
 /*global chrome, browserName */
 
 /**
- * @fileOverview This file contains the option page for adding/removing websites from the whitelist.
+ * @fileOverview This file contains the option page for adding/removing websites
+ * from the whitelist.
  * @name options.js<options>
  * @author Cameron Pittman
  * @author Etienne Prud’homme
@@ -41,7 +42,8 @@ StateManager.prototype = {
     });
   },
   /**
-   * Add a given site to the stored whitelist and the {@link StateManager.whitelist}.
+   * Add a given site to the stored whitelist and the
+   * {@link StateManager.whitelist}.
    * @param {string} site - A URL to add to the whitelist.
    * @param {string} type - The type of site. It either be: `remote` or `local`.
    * @returns {Promise} A promise that resolves when the data is set.
@@ -75,7 +77,8 @@ StateManager.prototype = {
       });
   },
   /**
-   * Remove a given site from the stored whitelist and the {@link StateManager.whitelist}.
+   * Remove a given site from the stored whitelist and the
+   * {@link StateManager.whitelist}.
    * @param {string} site - A URL to remove from the whitelist.
    * @param {string} type - The type of site. It either be: `remote` or `local`.
    * @returns {Promise} A promise when the data is set.
@@ -172,9 +175,11 @@ function refreshDisplay() {
 }
 
 /**
- * Return a new entry for the whitelist created from a template. The entry should isn’t attached to the document.
+ * Return a new entry for the whitelist created from a template. The entry
+ * should isn’t attached to the document.
  * @param {string} data - The text node of the entry (`.entry`).
- * @param {string} type - The type of entry. It either be: `add-entry`, `remote` or `local`.
+ * @param {string} type - The type of entry. It either be: `add-entry`, `remote`
+ * or `local`.
  * @returns {HTMLElement} The newly created entry.
  */
 function newEntry(data, type) {
@@ -214,8 +219,10 @@ function newLocalEntry(url) {
 }
 
 /**
- * Creates an new empty entry with a text input to fill and remove an existing one if already present.
- * @param {string} type - The type of entry for the whitelist. It can either be: `local` or `remote`
+ * Creates an new empty entry with a text input to fill and remove an existing
+ * one if already present.
+ * @param {string} type - The type of entry for the whitelist. It can either be:
+ * `local` or `remote`
  * @todo
  */
 function newInputEntry(type) {
@@ -267,7 +274,8 @@ function newInputEntry(type) {
 }
 
 /**
- * Adds a warning to Chromium/Chrome users that loading a local file can’t work without doing it manually.
+ * Adds a warning to Chromium/Chrome users that loading a local file can’t work
+ * without doing it manually.
  */
 function chromiumInit() {
   if(isChromium) {
