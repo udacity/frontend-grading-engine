@@ -444,7 +444,7 @@ HTMLInputElement.prototype.unlock = function() {
       reader.readAsText(file);
     }
   }
-  document.querySelector('#ud-file-loader').addEventListener('change', handleFileSelect, false);
+  document.getElementById('ud-file-loader').addEventListener('change', handleFileSelect, false);
 
   /**
    * Adds a custom warning message and disable the checkbox.
