@@ -63,7 +63,6 @@ function StateManager() {
           currentlyInjecting = false;
           return Promise.resolve();
         }, function(e) {
-          // debugger;
           console.log(e);
           throw new Error('Something went wrong loading Udacity Feedback. Please reload.');
         });
@@ -84,7 +83,6 @@ function StateManager() {
       var allowed = false;
       chrome.storage.sync.get('whitelist', function(response) {
         self.whitelist = response.whitelist || {remote: [], local: []};
-        // console.log(self.whitelist);
         if (!(self.whitelist[type] instanceof Array)) {
           self.whitelist[type] = [self.whitelist[type]];
         }
@@ -148,7 +146,6 @@ function StateManager() {
 
       var data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
-        // debugger;
         resolve();
       });
     });
@@ -169,7 +166,6 @@ function StateManager() {
       }
       var data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
-        // debugger;
         resolve();
       });
     });

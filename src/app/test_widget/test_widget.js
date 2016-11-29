@@ -237,16 +237,12 @@ var testWidget = (function() {
    */
   var _setFrameHeight = function() {
     var frameHeight = _calculateFrameHeight();
-    // console.log("frameHeight = ", frameHeight);
 
     if(window.innerHeight !== lastWindowHeight || frameHeight !== lastFrameHeight) {
       lastWindowHeight = window.innerHeight;
       lastFrameHeight = frameHeight;
       frameElement.style.height =  frameHeight + 'px';
-      // console.log("frameElement.style.height = ", frameElement.style.height);
     }
-    // console.log("lastFrameHeight = ", lastFrameHeight);
-    // console.log("lastWindowHeight = ", lastWindowHeight);
   };
 
   /**
@@ -257,9 +253,6 @@ var testWidget = (function() {
   var _onFrameChange = function(callback) {
     var frameDocument = _frameDocument();
     var observer = new MutationObserver(function(mutations) {
-      // debugger;
-      // console.log('Inside _onFrameChange MutationObserver. Mutation: ', mutations[i]);
-      // console.log('Callback: ', callback.toString());
       callback(mutations);
     });
     observer.observe(frameDocument, {childList: true, attributes: true, characterData: true, subtree: true});
@@ -311,10 +304,8 @@ var testWidget = (function() {
    * Calls {@link _buildFrame} and initialize {@link testResults}.
    */
   var _buildWidget = function() {
-    console.log('build widget');
     // Wait for the iFrame to load since it would return null
     return _buildFrame().then(function() {
-      console.log('build widget promise');
       var testWidgetDisplay = _frameDocument();
 
       // Reviewer: This is only local
@@ -328,9 +319,7 @@ var testWidget = (function() {
       outerCSS.textContent = outerStyles;
       document.head.appendChild(outerCSS);
 
-      // console.log("testWidgetDisplay = ", testWidgetDisplay);
       var viewContainer = testWidgetDisplay.querySelector('.view-container');
-      // console.log("viewContainer = ", viewContainer);
       // initialize the view options
       var testResultsElem = components.createElement('test-results');
       viewContainer.appendChild(testResultsElem);
@@ -341,7 +330,6 @@ var testWidget = (function() {
    * Removes the widget from the current Document.
    */
   var _killWidget = function() {
-    console.log('_kill widget');
     var tw = document.getElementById(frameId);
     var styles = document.getElementById('outer-styles');
 

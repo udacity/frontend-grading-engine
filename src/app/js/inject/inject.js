@@ -241,7 +241,6 @@ function loadUnitTests() {
  * @returns {Promise}
  */
 function turnOnGA() {
-  // console.log('Turned on from turnOn()');
   return injectIntoDocument('script', {
     id: 'ud-grader-options',
     // Reviewer: Because we need to access the window script context, it’s
@@ -262,7 +261,6 @@ function turnOnGA() {
 function waitForTestRegistrations() {
   return new Promise(function(resolve, reject) {
     window.addEventListener('tests-registered', function(data) {
-      // console.log('tests-registered received');
       return resolve();
     });
   });

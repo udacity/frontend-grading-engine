@@ -105,7 +105,6 @@ function startTests() {
       _suite.tests.forEach(function (test) {
         registeredTests++;
 
-        // console.log('test number: ', registeredTests);
         try {
           newSuite.registerTest({
             description: test.description,
@@ -140,7 +139,6 @@ function registerSuites(suitesJSON) {
   }
   if (isOn) {
     startTests();
-    // console.log('startTests');
   }
 }
 
@@ -148,7 +146,6 @@ function turnOn() {
   if(!isOn) {
     testWidget.buildWidget().then(function() {
       isOn = true;
-      // console.log('enters startTests');
       startTests();
 
       if(registeredTests === numberOfTests) {
@@ -156,9 +153,6 @@ function turnOn() {
           numberOfTests: numberOfTests
         }));
       }
-      // console.log('registeredTests = ', registeredTests);
-      // console.log('numberOfTests = ', numberOfTests);
-      // console.log('leaves startTests');
     });
   }
 }
