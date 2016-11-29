@@ -9,7 +9,8 @@
  */
 
 /**
- * List of items id that were injected in the page. It is used to later remove them.
+ * List of items id that were injected in the page. It is used to later remove
+ * them.
  * @type {string[]}
  */
 var injectedElementsOnPage = [];
@@ -64,7 +65,8 @@ function injectGradingEngine() {
 }
 
 /**
- * Load custom libraries for the Grading Engine (i.e. jsgrader.js). Currently only `jsgrader.js` is supported and allowed in the manifest.
+ * Load custom libraries for the Grading Engine (i.e. jsgrader.js). Currently
+ * only `jsgrader.js` is supported and allowed in the manifest.
  * @returns {Promise}
  */
 function loadLibraries() {
@@ -114,7 +116,8 @@ function loadJSONTestsFromFile() {
     return new Promise(function(resolve, reject) {
       // http://stackoverflow.com/a/14274828
       var xmlhttp = new XMLHttpRequest();
-      // The complete path to the document excluding the file name (http://example.com/mydir/ for http://example.com/mydir/file.html)
+      // The complete path to the document excluding the file name
+      // (http://example.com/mydir/ for http://example.com/mydir/file.html)
       var documentBase = removeFileNameFromPath(document.URL);
       var url = metaTag.content;
       var fileBase = '';
@@ -143,7 +146,8 @@ function loadJSONTestsFromFile() {
 
       url = appendIDToURL(url);
 
-      // Extract the file path (http://example.com/mydir/ for http://example.com/mydir/file.html)
+      // Extract the file path (http://example.com/mydir/ for
+      // http://example.com/mydir/file.html)
       fileBase = url.substr(0, url.lastIndexOf('/') + 1);
 
       if(fileBase !== documentBase) {
@@ -173,7 +177,8 @@ function loadJSONTestsFromFile() {
   }
 }
 
-// You don’t have access to the GE here, but you can inject a script into the document that does.
+// You don’t have access to the GE here, but you can inject a script into the
+// document that does.
 /**
  * Register test suites from the JSON data.
  * @param {string} json - JSON containing tests for the Grading Engine.
@@ -228,7 +233,9 @@ function loadUnitTests() {
 }
 
 /**
- * Activates the Grading Engine by injecting itself in the Document. Not to be confused with {@link StateManager.turnOn}. This method is called from {@link StateManager~runLoadSequence}.
+ * Activates the Grading Engine by injecting itself in the Document. Not to be
+ * confused with {@link StateManager.turnOn}. This method is called from {@link
+ * StateManager~runLoadSequence}.
  * @returns {Promise}
  */
 function turnOn() {
@@ -243,8 +250,11 @@ function turnOn() {
 }
 
 /**
- * Stops {@link StateManager~runLoadSequence} until all tests are loaded. This is necessary because the Grading Engine is activated thought the page context. It isn’t a content script like this file.
- * @todo Add a timeout. If (for some reason) the event is never fired, it would probably block the widget.
+ * Stops {@link StateManager~runLoadSequence} until all tests are loaded. This
+ * is necessary because the Grading Engine is activated thought the page
+ * context. It isn’t a content script like this file.
+ * @todo Add a timeout. If (for some reason) the event is never fired, it would
+ * probably block the widget.
  * @returns {Promise} A `Promise` that fulfills when all tests are loaded
  */
 function waitForTestRegistrations() {
@@ -264,7 +274,8 @@ var stateManager = new StateManager();
  * Wait for messages from browser action.
  * @param {Object} message - Object containing a `data` and a `type` property.
  * @param {MessageSender} sender - Information about the Script context.
- * @param {function} sendResponse - Function to call when a response is received.
+ * @param {function} sendResponse - Function to call when a response is
+ * received.
  */
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   switch (message.type) {

@@ -194,10 +194,14 @@ function StateManager() {
    */
   this.turnOn = function() {
     var self = this;
+
+    // What’s that?
     var g = document.querySelector('#ud-grader-options');
+
     if (g) {
       document.head.removeChild(g);
     }
+
     if (!self.geInjected) {
       return runLoadSequence().then(function() {
         Promise.resolve(true);

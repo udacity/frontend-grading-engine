@@ -425,6 +425,7 @@ HTMLInputElement.prototype.unlock = function() {
     alert.style.display = 'block';
 
     reader.onload = function (file) {
+      // This is when we should load procedures. Not before
       sendDataToTab(file.target.result, 'json');
     };
 
@@ -494,7 +495,7 @@ HTMLInputElement.prototype.unlock = function() {
   }
 
   /**
-   * Makes checkbox `checked` if the website is allowed.
+   * Makes checkboxes `checked` if the website is allowed.
    */
   function checkSiteStatus () {
     // talk to background script
