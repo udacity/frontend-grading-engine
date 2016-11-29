@@ -1,12 +1,15 @@
 /**
- * @fileOverview The GradeBook maintains and reports on the state of a set of questions registered by the TA. The GradeBook reports out on the final state of each active_test.
+ * @fileOverview The GradeBook maintains and reports on the state of a
+ * set of questions registered by the TA. The GradeBook reports out on
+ * the final state of each active_test.
  * @name GradeBook.js<GE>
  * @author Cameron Pittman
  * @license GPLv3
  */
 
 /**
- * The GradeBook constructor sets questions and passed to default values.
+ * The GradeBook constructor sets questions and passed to default
+ * values.
  */
 function GradeBook() {
   this.questions = [];
@@ -41,7 +44,8 @@ Object.defineProperties(GradeBook.prototype, {
   allCorrect: {
     /**
      * Compares the total questions to total questions correct.
-     * @return {Boolean} isAllGood - true if all are correct and false otherwise.
+     * @return {Boolean} isAllGood - true if all are correct and false
+     * otherwise.
      */
     get: function() {
       var isAllGood = false;
@@ -64,8 +68,11 @@ Object.defineProperties(GradeBook.prototype, {
   },
   report: {
     /**
-     * Returns all questions and the overall correctness of the active_test. Note: this is the data returned to the active_test component.
-     * @return {Object} - contains a boolean indicating whether the test passes and an array of all questions.
+     * Returns all questions and the overall correctness of the
+     * active_test. Note: this is the data returned to the active_test
+     * component.
+     * @return {Object} - contains a boolean indicating whether the
+     * test passes and an array of all questions.
      */
     get: function() {
       return {
@@ -78,7 +85,8 @@ Object.defineProperties(GradeBook.prototype, {
 
 /**
  * Takes in a set of values from the target. Adds to gradebook.
- * @param {object} target - only what the GradeBook needs to know about the Target
+ * @param {object} target - only what the GradeBook needs to know
+ * about the Target
  */
 GradeBook.prototype.recordQuestion = function(target) {
   target.correct = false;
@@ -86,7 +94,8 @@ GradeBook.prototype.recordQuestion = function(target) {
 };
 
 /**
- * Empties the questions array and ensures that the test hasn’t passed prematurely. Called each time a new question is registered.
+ * Empties the questions array and ensures that the test hasn’t passed
+ * prematurely. Called each time a new question is registered.
  */
 GradeBook.prototype.reset = function() {
   this.questions = [];
@@ -94,9 +103,12 @@ GradeBook.prototype.reset = function() {
 };
 
 /**
- * Will iterate through all the questions and return if they meet grade criteria
- * @param  {Object} config - {String} config.strictness, {Boolean} config.not, {Function} config.callback
- * @return {Object} the report from the gradebook instance containing whether the test passed and all of the questions in consideration.
+ * Will iterate through all the questions and return if they meet
+ * grade criteria
+ * @param {Object} config - {String} config.strictness, {Boolean}
+ * config.not, {Function} config.callback
+ * @return {Object} the report from the gradebook instance containing
+ * whether the test passed and all of the questions in consideration.
  */
 GradeBook.prototype.grade = function(config) {
   var strictness;

@@ -19,7 +19,8 @@ function arrEquals(array1, array2) {
         return false;
       }
     } else if (array1[i] != array2[i]) {
-      // Warning - two different object instances will never be equal: {x:20} != {x:20}
+      // Warning - two different object instances will never be equal:
+      // {x:20} != {x:20}
       return false;
     }
   }
@@ -27,10 +28,11 @@ function arrEquals(array1, array2) {
 }
 
 /**
- * Creates an Array of DOM nodes that match the selector
- * @param selector {string} CSS selector - selector to match against
- * @param  {DOM node} parent - parent for starting point
- * @return {array} Array of DOM nodes
+ * Creates an Array of DOM nodes that match the selector.
+ * @param {string} selector - The CSS selector to match against.
+ * @param {HTMLElement} parent - The parent as starting point.
+ * @return {HTMLCollection} Array of DOM nodes.
+
  */
 function getDomNodeArray(selector, parent) {
   if (!selector) {
@@ -41,11 +43,14 @@ function getDomNodeArray(selector, parent) {
   return nodes;
 }
 
-// modified from http://stackoverflow.com/questions/7960335/javascript-is-given-function-empty
+// Modified from “Javascript : is given function empty?”:
+// http://stackoverflow.com/q/7960335
 Function.prototype.getBody = function() {
   // Get content between first { and last }
   var m = this.toString().match(/\{([\s\S]*)\}/m)[1];
-  // strip whitespace http://stackoverflow.com/questions/14540094/javascript-regular-expression-for-removing-all-spaces-except-for-what-between-do
+  // “Javascript Regular Expression for Removing all Spaces except for
+  // what between double quotes”:
+  // http://stackoverflow.com/q/14540094/
   m = m.replace(/([^"]+)|("[^"]+")/g, function($0, $1, $2) {
     if ($1) {
       return $1.replace(/\s/g, '');
@@ -57,7 +62,9 @@ Function.prototype.getBody = function() {
   return m.replace(/^\s*\/\/.*$/mg, '');
 };
 
-// http://stackoverflow.com/questions/359788/how-to-execute-a-javascript-function-when-i-have-its-name-as-a-string
+// “How to execute a JavaScript function when I have its name as a
+// string?”:
+// http://stackoverflow.com/q/359788/
 // Use only if necessary...
 function executeFunctionByName(functionName, context) {
   var args = [].slice.call(arguments).splice(2);
@@ -71,8 +78,8 @@ function executeFunctionByName(functionName, context) {
 
 /**
  * Get the actual number from a measurement.
- * @param  {String} measurement - the measurement to strip
- * @return {Number} - the number inside
+ * @param {String} measurement - The measurement to strip.
+ * @return {Number} - The number inside.
  */
 function getUnitlessMeasurement(measurement) {
   if (typeof measurement === 'number') {

@@ -1,5 +1,6 @@
 /**
- * @fileOverview This file contains the closing statements of the Grading Engine.
+ * @fileOverview This file contains the closing statements of the
+ * Grading Engine.
  * @name outro.js<js>
  * @author Cameron Pittman
  * @license GPLv3

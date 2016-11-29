@@ -1,7 +1,7 @@
 /*global testWidget, Suite, testResults */
 
 /**
- * @fileOverview  Expose functions that create and monitor tests.
+ * @fileOverview Expose functions that create and monitor tests.
  * @name registrar.js<js>
  * @author Cameron Pittman
  * @author Etienne Prud’homme
@@ -11,14 +11,15 @@
 var numberOfTests = 0,
     registeredTests = 0;
 /*
-  The hotel simply changes the attributes on each web component
+  The hotel simply changes the attributes on each web component.
 */
 var hotel = {
   occupiedSuites: [],
   createSuite: function (rawSuite) {
     var suite = new Suite(rawSuite);
 
-    // pass the whole suite to the testResults so you can modify it there later.
+    // Pass the whole suite to the testResults so you can modify it
+    // there later.
     suite.element = testResults.buildSuiteElement(suite);
     this.occupiedSuites.push(suite);
     return suite;
@@ -53,8 +54,10 @@ Object.defineProperties(hotel, {
 
 /**
  * Register a suite of tests with the grading engine.
- * @param  {Object} _suite - contains a test’s name and code to display upon completion.
- * @return {Function} registerTest - a method to register a single test with the grading engine.
+ * @param {Object} _suite - Contains a test’s name and code to display
+ * upon completion.
+ * @return {Function} A method to register a single test with the
+ * grading engine.
  */
 function registerSuite(rawSuite) {
   var self = this;
@@ -62,9 +65,13 @@ function registerSuite(rawSuite) {
   var newSuite = hotel.createSuite(rawSuite);
 
   /**
-   * Register a new test on a specific suite. The test will contain an activeTest. Each active test much return a boolean called isCorrect and an array of the targets in question.
-   * @param  {Object} _test - contains a description, activeTest and flags.
-   * @return {Object} self - for chaining tests registrations together (if you’re into that sort of syntax.)
+   * Register a new test on a specific suite. The test will contain an
+   * activeTest. Each active test much return a boolean called
+   * isCorrect and an array of the targets in question.
+   * @param {Object} _test - Contains a description, activeTest and
+   * flags.
+   * @return {Object} For chaining tests registrations together (if
+   * you’re into that sort of syntax).
    */
   function registerTest(_test) {
     newSuite.createTest({
@@ -113,8 +120,10 @@ function startTests() {
 }
 
 /**
- * For use only when loading a new JSON with user data about the tests they want to run
- * @param  {JSON} suitesJSON Everything the GE needs to know about your tests
+ * For use only when loading a new JSON with user data about the tests
+ * they want to run.
+ * @param {JSON} suitesJSON Everything the GE needs to know about your
+ * tests.
  */
 function registerSuites(suitesJSON) {
   try {

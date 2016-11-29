@@ -6,8 +6,8 @@
  */
 
 /**
- * Exposes UdacityFEGradingEngine (Grading Engine) interface
- * @return {Object} exports - the functions on the exports object
+ * Exposes UdacityFEGradingEngine (Grading Engine) interface.
+ * @return {Object} exports - The functions on the exports object.
  */
 ;window.UdacityFEGradingEngine ? window.UdacityFEGradingEngine = window.UdacityFEGradingEngine : window.UdacityFEGradingEngine = (function(window, undefined) {
   'use strict';

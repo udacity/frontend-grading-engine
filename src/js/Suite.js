@@ -1,7 +1,8 @@
 /*global ActiveTest, components */
 
 /**
- * @fileOverview This file contains the constructor for a `Suite` of tests.
+ * @fileOverview This file contains the constructor for a `Suite` of
+ * tests.
  * @name Suite.js<js>
  * @author Cameron Pittman
  * @license GPLv3
@@ -27,7 +28,8 @@ function Suite(rawSuite) {
   this.code = code;
   this.activeTests = [];
   this.id = id;
-  this.suitePassed = false; // put a setter on this to emit an event.
+  // put a setter on this to emit an event.
+  this.suitePassed = false;
 }
 
 Object.defineProperties(Suite.prototype, {

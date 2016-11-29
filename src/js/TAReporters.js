@@ -1,14 +1,18 @@
 /**
  * @fileOverview Reporters live on the TA and are responsible for:
-   * giving the GradeBook instructions for evaluating the questions it has collected.
-   * instantiating the grading process by calling gradebook.grade()
+ *
+ *   • Giving the GradeBook instructions for evaluating the questions
+ *     it has collected.
+ *   • Instantiating the grading process by calling
+ * {@link gradebook.grade}.
  * @name TAReporters.js<js>
  * @author Cameron Pittman
  * @license GPLv3
  */
 
 /**
- * Checks that either values or elements exist on questions in GradeBook.
+ * Checks that either values or elements exist on questions in
+ * GradeBook.
  */
 TA.prototype.exists = function(bool) {
   var self = this;
@@ -72,7 +76,9 @@ TA.prototype.exists = function(bool) {
 
 /**
  * Used by the GradeBook to negate the correctness of a test.
- * @param  {Boolean} bool The gradeOpposite param gets set to this. Will default to true if it isn’t present or is not specifically false.
+ * @param {Boolean} bool The gradeOpposite param gets set to
+ * this. Will default to true if it isn’t present or is not
+ * specifically false.
  */
 TA.prototype.not = function(bool) {
   var self = this;
@@ -89,8 +95,10 @@ TA.prototype.not = function(bool) {
 };
 
 /**
- * Check that question values match an expected value. Always uses strict equality.
- * @param  {*} expected - string, number or array of string and numbers.
+ * Check that question values match an expected value. Always uses
+ * strict equality.
+ * @param {*} expected - String, number or array of string and
+ * numbers.
  */
 TA.prototype.equals = function(config) {
   var self = this;
@@ -137,8 +145,8 @@ TA.prototype.equals = function(config) {
 
 /**
  * Check that the target value is greater than the given value.
- * @param  {Number} expected - the number for comparison
- * @param  {boolean} orEqualTo - if true, run as >= instead of >
+ * @param {Number} expected - The number for comparison.
+ * @param {boolean} orEqualTo - If true, run as >= instead of >.
  */
 TA.prototype.isGreaterThan = function(config) {
   var self = this;
@@ -190,8 +198,8 @@ TA.prototype.isGreaterThan = function(config) {
 
 /**
  * Check that the target value is less than the given value.
- * @param  {Number} expected - the number for comparison
- * @param  {boolean} orEqualTo - if true, run as <= instead of <
+ * @param {Number} expected - The number for comparison.
+ * @param {boolean} orEqualTo - If true, run as “<=” instead of “<”.
  */
 TA.prototype.isLessThan = function(config) {
   var self = this;
@@ -243,13 +251,17 @@ TA.prototype.isLessThan = function(config) {
 
 /**
  * Check that the target value is between upper and lower.
- * @param  {Number} lower - the lower bounds of the comparison
- * @param  {Number} upper - the upper bounds of the comparison
- * @param  {Boolean} lowerInclusive - if true, run lower check as >= instead of >
- * @param  {Boolean} upperInclusive - if true, run upper check as <= instead of <
+ * @param {Object} options - Object containing the following options:
+ * @param {Number} options.lower - The lower bounds of the comparison.
+ * @param {Number} options.upper - The upper bounds of the comparison.
+ * @param {Boolean} options.lowerInclusive - If true, run lower check
+ * as “>=” instead of “>”.
+ * @param {Boolean} options.upperInclusive - If true, run upper check
+ * as “<=” instead of “<”.
  */
 TA.prototype.isInRange = function(config) {
-  // TODO: would be fantastic to use isLessThan and isGreaterThan instead
+  // TODO: would be fantastic to use isLessThan and isGreaterThan
+  // instead
   var self = this;
   this.queue.add(function() {
     var lower = getUnitlessMeasurement(config.lower);
@@ -343,10 +355,16 @@ TA.prototype.isInRange = function(config) {
 };
 
 /**
- * Check that the value includes at least one of the given expected values.
- * @param  {Array} expectedValues - search for one of the values in the array using regex
- * @param  {Object} config - includes: nValues, minValues, maxValues. Designate the number of values in expectedValues expected to be found in the target value. Defaults to at least one value needs to be found.
- * @return {object} result - the GradeBook’s list of questions and overall correctness.
+ * Check that the value includes at least one of the given expected
+ * values.
+ * @param {Array} expectedValues - Search for one of the values in the
+ * array using regex.
+ * @param {Object} config - Includes: nValues, minValues,
+ * maxValues. Designate the number of values in expectedValues
+ * expected to be found in the target value. Defaults to at least one
+ * value needs to be found.
+ * @return {Object} result - The GradeBook’s list of questions and
+ * overall correctness.
  */
 TA.prototype.hasSubstring = function(config) {
   var self = this;
@@ -354,12 +372,12 @@ TA.prototype.hasSubstring = function(config) {
     config = config || '';
     var expectedValues = config.expected;
 
-    // this simplifies JSON syntax
+    // This simplifies JSON syntax.
     if (typeof config === 'string' || config instanceof Array) {
       expectedValues = config;
     }
 
-    // make sure expectedValues are an array
+    // Make sure expectedValues is an array.
     if (!(expectedValues instanceof Array)) {
       expectedValues = [expectedValues];
     };
@@ -379,9 +397,11 @@ TA.prototype.hasSubstring = function(config) {
     };
 
     /**
-     * Is there a substring in a string? This will answer that question.
-     * @param  {object} target - the Target in question
-     * @return {boolean} - whether or not expected substring is in target.value
+     * Is there a substring in a string? This will answer that
+     * question.
+     * @param {object} target - The Target in question.
+     * @return {boolean} - Whether or not expected substring is in
+     * {@link target.value}.
      */
     var substringFunc = function(target) {
       var hasNumberOfValsExpected = false;
@@ -413,14 +433,16 @@ TA.prototype.hasSubstring = function(config) {
   });
 };
 
-// get all the exposed methods so that the translator knows what’s acceptable
 var taAvailableMethods = Object.getOwnPropertyNames(TA.prototype).filter(function(key) {
   return key.indexOf('_') === -1 && key !== 'constructor';
 });
+// Get all the exposed methods so that the translator knows what’s
+// acceptable.
 
 TA.prototype._translateConfigToMethods = function(config) {
   var self = this;
-  // return an array of anonymous functions that are closed over this scope.
+  // Return an array of anonymous functions that are closed over this
+  // scope.
   var methods = [];
 
   // so either nodes or elements works in config object

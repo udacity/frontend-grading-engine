@@ -2,17 +2,22 @@
 
 /**
  * @fileOverview The Teaching Assistant (TA) is responsible for:
- *  • collecting data from the page and creating a tree of Targets (called a bullseye) representing the information
- *  • traverseing the bullseye and reporting relevant data from Targets and grading instructions into a GradeBook.
+ *
+ *  • collecting data from the page and creating a tree of Targets
+ *    (called a bullseye) representing the information.
+ *  • traverseing the bullseye and reporting relevant data from Targets
+ *    and grading instructions into a GradeBook.
  *  • All collectors return the instance of the TA object for chaining.
- *  • Collectors register their operations with the GradeBook, which actually checks the results of the tests.
+ *  • Collectors register their operations with the GradeBook, which
+ *    actually checks the results of the tests.
  * @name TACollectors.js<GE>
  * @author Cameron Pittman
  * @license GPLv3
  */
 
 /**
- * The TA constructor sets default values and instantiates a GradeBook.
+ * The TA constructor sets default values and instantiates a
+ * GradeBook.
  */
 function TA(description) {
   this.target = null;
@@ -27,7 +32,8 @@ function TA(description) {
 Object.defineProperties(TA.prototype, {
   childPosition: {
     /**
-     * To find a child node’s index in relation to its immediate siblings
+     * To find a child node’s index in relation to its immediate
+     * siblings.
      * @return {object} TA - the TA instance for chaining.
      */
     get: function() {
@@ -54,7 +60,8 @@ Object.defineProperties(TA.prototype, {
   },
   count: {
     /**
-     * To count the number of children at the bottom level of the bullseye
+     * To count the number of children at the bottom level of the
+     * bullseye.
      * @return {object} TA - the TA instance for chaining.
      */
     get: function() {
@@ -62,7 +69,7 @@ Object.defineProperties(TA.prototype, {
       this.queue.add(function() {
         // doing more than accessing a property on existing target
         // because counting can move up the bullseye to past
-        // Targets. Need to reset operations
+        // Targets. Need to reset operations.
         self._registerOperation('count');
         self._runAgainstNextToBottomTargets(function(target) {
           var length = null;
@@ -108,7 +115,9 @@ Object.defineProperties(TA.prototype, {
   },
   _targetIds: {
     /**
-     * Not a collector! Private use only. Get an array of all target ids.
+     * Not a collector! Private use only. Get an array of all target
+     * ids.
+     * @private
      * @return {array} ids of all targets in the bullseye.
      */
     get: function() {
@@ -173,8 +182,9 @@ Object.defineProperties(TA.prototype, {
 TA.prototype.onresult = function(testResult) {};
 
 /**
- * Let the TA know this just happened and refresh the questions in the GradeBook.
- * @param {string} operation - the thing that just happened
+ * Let the TA know this just happened and refresh the questions in the
+ * GradeBook.
+ * @param {string} operation - The thing that just happened.
  */
 TA.prototype._registerOperation = function(operation) {
   this.operations.push(operation);
@@ -183,15 +193,15 @@ TA.prototype._registerOperation = function(operation) {
 
 /**
  * Private method to traverse all targets in the bullseye.
- * @param  {Function} callback - method to call against each target
+ * @param {Function} callback - Method to call against each target.
+ * @see http://www.timlabonne.com/2013/07/tree-traversals-with-javascript/
  */
 TA.prototype._traverseTargets = function(callback) {
-  // http://www.timlabonne.com/2013/07/tree-traversals-with-javascript/
-
   /**
-   * Recursively dive into a tree structure from the top. Used on the Target structure here.
-   * @param  {object} node - a target of bullseye. Start with the top.
-   * @param  {function} callback - function to run against each node
+   * Recursively dive into a tree structure from the top. Used on the
+   * Target structure here.
+   * @param {object} node - A target of bullseye. Start with the top.
+   * @param {function} callback - Function to run against each node.
    */
   function visitDfs (node, callback) {
     if (callback) {
@@ -206,8 +216,9 @@ TA.prototype._traverseTargets = function(callback) {
 };
 
 /**
- * Run a function against the top-level Target in the bullseye
- * @param  {function} callback - the function to run against specified Targets
+ * Run a function against the top-level Target in the bullseye.
+ * @param {function} callback - The function to run against specified
+ * Targets.
  */
 TA.prototype._runAgainstTopTargetOnly = function(callback) {
   var self = this;
@@ -224,8 +235,9 @@ TA.prototype._runAgainstTopTargetOnly = function(callback) {
 };
 
 /**
- * Run a function against bottom targets in the bullseye
- * @param  {function} callback - the function to run against specified Targets
+ * Run a function against bottom targets in the bullseye.
+ * @param {function} callback - The function to run against specified
+ * Targets.
  */
 TA.prototype._runAgainstBottomTargets = function(callback) {
   var self = this;
@@ -249,8 +261,10 @@ TA.prototype._runAgainstBottomTargets = function(callback) {
 };
 
 /**
- * Run a function against the elements of the bottom targets in the bullseye
- * @param  {function} callback - the function to run against specified elements
+ * Run a function against the elements of the bottom targets in the
+ * bullseye.
+ * @param {function} callback - The function to run against specified
+ * elements.
  */
 TA.prototype._runAgainstBottomTargetElements = function(callback) {
   var self = this;
@@ -274,8 +288,9 @@ TA.prototype._runAgainstBottomTargetElements = function(callback) {
 };
 
 /**
- * Run a function against the next to bottom targets in the bullseye
- * @param  {function} callback - the function to run against specified elements
+ * Run a function against the next to bottom targets in the bullseye.
+ * @param {function} callback - the function to run against specified
+ * elements.
  */
 TA.prototype._runAgainstNextToBottomTargets = function(callback) {
   var self = this;
@@ -297,9 +312,11 @@ TA.prototype._runAgainstNextToBottomTargets = function(callback) {
 };
 
 /**
- * Generates the top-level target. Matched elements end up as children targets. It will not have a element.
- * @param  {string} CSS selector - the selector of the elements you want to query
- * @return {object} TA - the TA instance for chaining.
+ * Generates the top-level target. Matched elements end up as children
+ * targets. It will not have a element.
+ * @param {string} selector - The CSS selector of the elements you
+ * want to query.
+ * @return {object} TA - The TA instance for chaining.
  */
 TA.prototype.theseElements = function(selector) {
   var self = this;
@@ -329,8 +346,10 @@ TA.prototype.theseElements = function(selector) {
 TA.prototype.nodes = TA.prototype.theseElements;
 
 /**
- * Will run a query against the lowest level targets in the Target tree. Note it will traverse all the way down the DOM.
- * @param  {string} CSS selector - the selector of the children you want to query
+ * Will run a query against the lowest level targets in the Target
+ * tree. Note it will traverse all the way down the DOM.
+ * @param {string} selector - The CSS selector of the children you
+ * want to query.
  * @return {object} TA - the TA instance for chaining.
  */
 TA.prototype.deepChildren = function(selector) {
@@ -405,8 +424,9 @@ TA.prototype.limit = function(limit) {
 
 /**
  * Get any CSS style of any element.
- * @param  {string} property - the CSS property to examine. Should be camelCased.
- * @return {object} TA - the TA instance for chaining.
+ * @param {string} property - The CSS property to examine. Should be
+ * camelCased.
+ * @return {object} TA - The TA instance for chaining.
  */
 TA.prototype.cssProperty = function(property) {
   var self = this;
@@ -430,9 +450,10 @@ TA.prototype.cssProperty = function(property) {
 /**
  * Get a specified CSS property value.
  * @param {string} property - The CSS property name.
- * @param {HTMLElement} elem - The Element to get the CSS property value.
- * @returns {string} Either the CSS computed value or a tweaked value (depending
- * on the property name).
+ * @param {HTMLElement} elem - The Element to get the CSS property
+ * value.
+ * @returns {string} Either the CSS computed value or a tweaked value
+ * (depending on the property name).
  * @throws {Error} Bad arguments.
  */
 TA.prototype._getComputedValue = function(property, elem) {
@@ -441,8 +462,8 @@ TA.prototype._getComputedValue = function(property, elem) {
       value = null;
 
   /**
-   * Calculates the margin from a given side. It should only be used with
-   * element having a normal flow.
+   * Calculates the margin from a given side. It should only be used
+   * with element having a normal flow.
    * @param {string} marginName - The margin side.
    * @returns {string} The tweaked margin value.
    * @throws {Error} Bad arguments or the CSS property is invalid.
@@ -450,18 +471,19 @@ TA.prototype._getComputedValue = function(property, elem) {
    */
   function getMarginSide(marginName) {
     var parent = elem.parentElement,
-        // An other container is used to prevent getting the parent padding
+        // An other container is used to prevent getting the parent
+        // padding
         wrapper = document.createElement('div'),
 
         // We need children for calculation (min/max)
         clone = elem.cloneNode(true),
         result;
 
-    // If the position is different than static, it may use the left property
-    // and it’s also hard to take them into account.
+    // If the position is different than static, it may use the left
+    // property and it’s also hard to take them into account.
     if(computedStyles.position !== 'static') {
-      // When both left and right are set, left has precedence over right when
-      // the direction is ltr or right when rtl.
+      // When both left and right are set, left has precedence over
+      // right when the direction is ltr or right when rtl.
       throw new Error('“getMargin” only support the “static” position');
     }
 
@@ -475,14 +497,17 @@ TA.prototype._getComputedValue = function(property, elem) {
     wrapper.style.width = 'auto';
 
     wrapper.appendChild(clone);
-    // The parent element of `elem` will get `wrapper` before the `elem` Node
+    // The parent element of `elem` will get `wrapper` before the
+    // `elem` Node
     parent.insertBefore(wrapper, elem);
 
     /**
-     * Calculate the offset from a given side. It thus give the margin if used
-     * We never know about custom styleswith a static position and if the actual
-     * We never know about custom stylesside was set.
-     * @param {string} marginName - The name of the margin as camel case.
+     * Calculate the offset from a given side. It thus give the margin
+     * if used We never know about custom styleswith a static position
+     * and if the actual We never know about custom stylesside was
+     * set.
+     * @param {string} marginName - The name of the margin as camel
+     * case.
      * @returns {int} The calculated margin.
      * @throws {Error} The {@link marginName} argument isn’t valid.
      */
@@ -521,9 +546,9 @@ TA.prototype._getComputedValue = function(property, elem) {
   case 'marginRight':
   case 'marginBottom':
   case 'marginLeft':
-    // Firefox (and Safari?) don’t use the CSS2 specs to calculate the margin
-    // when set to `auto`
     if(computedStyles[property] === '0px' && computedStyles.display === 'block') {
+    // Firefox (and Safari?) don’t use the CSS2 specs to calculate the
+    // margin when set to `auto`
       value = getMarginSide(property) + 'px';
     }
     break;
@@ -541,7 +566,8 @@ TA.prototype._getComputedValue = function(property, elem) {
     }
   }
 
-  // Return the tweaked computed value or the actual value if no tweaks
+  // Return the tweaked computed value or the actual value if no
+  // tweaks
   return value;
 };
 
@@ -571,10 +597,11 @@ TA.prototype.attribute = function(attribute) {
   return this;
 };
 
-// TODO: Is this even used? Seems to be duplicate of {@link TA.prototype.attribute}
+// TODO: Is this even used? Seems to be duplicate of {@link
+// TA.prototype.attribute}
 /**
  * Get any property of an object.
- * @param  {string} attribute - the attribute under examination.
+ * @param {string} attribute - The attribute under examination.
  * @return {object} TA - the TA instance for chaining.
  */
 TA.prototype.property = function(key) {
@@ -599,9 +626,10 @@ TA.prototype.property = function(key) {
 };
 
 /**
- * Get the position of one side of an element relative to the viewport
- * @param  {string} side - the side of the element in question
- * @return {object} TA - the TA instance for chaining.
+ * Get the position of one side of an element relative to the
+ * viewport.
+ * @param {string} side - The side of the element in question.
+ * @return {object} TA - The TA instance for chaining.
  */
 TA.prototype.absolutePosition = function(side) {
   var self = this;
@@ -658,7 +686,8 @@ TA.prototype.absolutePosition = function(side) {
         value = elem.getBoundingClientRect()[side];
       }
 
-      // To get the widest size of the window, we need to get the biggest value of client<Size> and inner<Size>.
+      // To get the widest size of the window, we need to get the
+      // biggest value of client<Size> and inner<Size>.
       if(side === 'bottom') {
         // Get the widest window height
         maxSize = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
@@ -689,8 +718,8 @@ TA.prototype.absolutePosition = function(side) {
 /**
  * Must be used with noRepeat: true
  * Waits for an event. Grades against event.detail
- * @param  {String} eventName - custom event to listen for
- * @return {Object} TA for chaining
+ * @param  {String} eventName - Custom event to listen for.
+ * @return {Object} TA for chaining.
  */
 TA.prototype.waitForEvent = function(eventName) {
   var self = this;
