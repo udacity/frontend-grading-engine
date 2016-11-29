@@ -188,7 +188,9 @@ HTMLInputElement.prototype.unlock = function() {
    */
   allowFeedback.on = function() {
     this.checked = true;
-    loader.expand();
+    if(loader.isCollapsed()) {
+      loader.expand();
+    }
   };
 
   /**
@@ -259,13 +261,8 @@ HTMLInputElement.prototype.unlock = function() {
    * Marks the current website as not in the permanent whitelist.
    */
   siteOnWhitelist.off = function() {
-    if(allowFeedback.isOff()) {
-      allowFeedback.off();
-    }
-
     this.checked = false;
     allowFeedback.unlock();
-    sendDataToTab('remove', 'whitelist');
   };
 
   /**
