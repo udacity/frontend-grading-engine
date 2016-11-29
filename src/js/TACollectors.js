@@ -472,10 +472,10 @@ TA.prototype._getComputedValue = function(property, elem) {
   function getMarginSide(marginName) {
     var parent = elem.parentElement,
         // An other container is used to prevent getting the parent
-        // padding
+        // padding.
         wrapper = document.createElement('div'),
 
-        // We need children for calculation (min/max)
+        // We need children for calculation (min/max).
         clone = elem.cloneNode(true),
         result;
 
@@ -487,7 +487,7 @@ TA.prototype._getComputedValue = function(property, elem) {
       throw new Error('“getMargin” only support the “static” position');
     }
 
-    // Because the wrapper must be without any of those
+    // Because the wrapper must be without any of those:
     wrapper.style.border = 'none';
     wrapper.style.padding = '0';
     wrapper.style.margin = '0';
@@ -498,7 +498,7 @@ TA.prototype._getComputedValue = function(property, elem) {
 
     wrapper.appendChild(clone);
     // The parent element of `elem` will get `wrapper` before the
-    // `elem` Node
+    // `elem` Node.
     parent.insertBefore(wrapper, elem);
 
     /**
@@ -548,7 +548,7 @@ TA.prototype._getComputedValue = function(property, elem) {
   case 'marginLeft':
     if(computedStyles[property] === '0px' && computedStyles.display === 'block') {
     // Firefox (and Safari?) don’t use the CSS2 specs to calculate the
-    // margin when set to `auto`
+    // margin when set to `auto`.
       value = getMarginSide(property) + 'px';
     }
     break;
