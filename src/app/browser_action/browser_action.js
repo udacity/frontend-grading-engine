@@ -121,7 +121,7 @@ HTMLInputElement.prototype.unlock = function() {
   }
 
   /**
-   * Container for the file input & the permanent whitelist permission.
+   * The permanent whitelist permission.
    * @type {HTMLElement}
    */
   var loader = document.getElementsByClassName('loader')[0];
@@ -208,10 +208,10 @@ HTMLInputElement.prototype.unlock = function() {
    * permanent whitelist.
    */
   allowFeedback.onchange = function() {
-    if (this.checked) {
+    if (this.checked === true) {
       sendDataToTab('on', 'allow');
       this.on();
-    } else if (!this.checked) {
+    } else if (this.checked === false) {
       sendDataToTab('off', 'allow');
       this.off();
     }
@@ -416,47 +416,37 @@ HTMLInputElement.prototype.unlock = function() {
   /**
    * Adds a custom warning message and disable the checkbox.
    * @param {string} message - The custom message.
-   * @param {string} type - The type of warning.
+   * @param {string} type - The type of warning. `Disabled` disable the
+   * checkboxes and change the label color to light gray.
    * @param {object} options - Object containing options.
-   * @param {bool} options.enableCheckbox - When using the `checkbox`,
-   * {@link type}, it enables toggling the checkbox. Otherwise it does nothing.
-   * @param {bool} options.checked - When using the `checkbox` {@link type}, it
-   * checks the checkbox. Otherwise it does nothing.
-   * @param {bool} options.removeFileInput - When using the `fileInput`
-   * {@link type}, it removes the file input.
-   * @param {bool} options.disableFileInput - When using the `fileInput`,
-   * {@link type}, it disables the file input.
+   * @param {bool} options.allowFeedback - Mark {@link allowFeedback} as
+   * checked.
+   * @param {bool} options.siteOnWhitelist - Mark {@link siteOnWhitelist} as
+   * checked.
    */
   function addWarning(message, type, options) {
     options = options || {};
+    var warningBlock = document.getElementsByClassName('warning-block')[0];
 
-    var fileInput, label;
-    var form = document.getElementsByClassName('autorun')[0];
     document.getElementById('warning-text').textContent = message;
-    document.getElementsByClassName('warning-block')[0].style.display = 'block';
+    warningBlock.expand();
 
     if(type === 'disable') {
-      document.getElementsByClassName('loader')[0].remove();
-    } else if(type === 'checkbox') {
-      if(options.enableCheckbox !== true) {
-        form.classList.add('disabled');
-        siteOnWhitelist.disabled = true;
+      allowFeedback.disabled = true;
+      siteOnWhitelist.disabled = true;
+    }
+    if(options.allowFeedback !== undefined) {
+      if(options.allowFeedback === true) {
+        allowFeedback.on();
+      } else if(options.allowFeedback === false) {
+        allowFeedback.off();
       }
-      if(options.checked === true) {
-        siteOnWhitelist.checked = true;
-      }
-    } else if(type === 'fileInput') {
-      fileInput = document.getElementById('ud-file-loader');
-
-      if(options.removeFileInput === true) {
-        label = document.getElementById('ud-label-loader');
-        label.remove();
-      } else if(options.disableFileInput === true) {
-        fileInput.disabled = false;
-      } else {
-        label = document.getElementById('ud-label-loader');
-        label.classList.add('disabled');
-        fileInput.disabled = true;
+    }
+    if(options.siteOnWhitelist !== undefined) {
+      if(options.siteOnWhitelist === true) {
+        siteOnWhitelist.on();
+      } else if(options.siteOnWhitelist === false) {
+        siteOnWhitelist.off();
       }
     }
   }
