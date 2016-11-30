@@ -12,22 +12,20 @@
       <div class="autorun">
         <form>
           <div class="allow-container">
-            <label for="allow-feedback">Allow feedback on this domain<span class="button fa info-title" title="Allow injection of the feedback engine">&#xf059;</span>:
-              <input id="allow-feedback" type="checkbox" value="yes" />
-            </label>
+            <label for="allow-feedback">Allow feedback on this domain<span class="button fa info-title" title="Allow injection of the feedback engine">&#xf059;</span></label>:
+            <input id="allow-feedback" type="checkbox" value="yes" />
           </div>
           <div class="loader expand-block">
             <div class="expand-inner">
-              <div class="input-container">
-                <label id="ud-label-loader" for="ud-file-loader"><strong>Load tests from file</strong>
-                  <input id="ud-file-loader" type="file" accept=".json" disabled="disabled" />
-                </label>
-              </div>
+              <!-- <div class="input-container">
+                   <label id="ud-label-loader" for="ud-file-loader"><strong>Load tests from file</strong></label>
+                   <button id="ud-file-loader" data-type="file" data-accept=".json" disabled="disabled">Choose file</button>
+                   </div> -->
               <div class="alert"></div>
               <div class="input-container">
-                <label for="site-on-whitelist">Don’t ask on this domain<span class="button fa info-title" title="Permanently allow feedback on this domain">&#xf059;</span>:
-                  <input id="site-on-whitelist" type="checkbox" value="yes" disabled="disabled" />
-                </label>
+                <label for="site-on-whitelist">Don’t ask on this domain</label>
+                <span class="button fa info-title" title="Permanently allow feedback on this domain">&#xf059;</span>:
+                <input id="site-on-whitelist" type="checkbox" value="yes" disabled="disabled" />
               </div>
             </div>
           </div>

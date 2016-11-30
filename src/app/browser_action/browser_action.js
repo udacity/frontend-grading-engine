@@ -133,11 +133,11 @@ HTMLInputElement.prototype.unlock = function() {
    */
   var allowFeedback = document.getElementById('allow-feedback');
 
-  /**
-   * File input to load a JSON test file from the local system.
-   * @type {HTMLInputElement}
-   */
-  var fileLoader = document.getElementById('ud-file-loader');
+  // /**
+  //  * Button to load a JSON test file from the local system.
+  //  * @type {HTMLInputElement}
+  //  */
+  // var fileLoader = document.getElementById('ud-file-loader');
 
   /**
    * Permanent permission checkbox with the whitelist to use the extension.
@@ -157,14 +157,16 @@ HTMLInputElement.prototype.unlock = function() {
    * Disables (locks) the `.loader` (file input & whitelist checkbox).
    */
   loader.lock = function() {
-    HTMLInputElement.prototype.lock.call(fileLoader, siteOnWhitelist);
+    HTMLInputElement.prototype.lock.call(// fileLoader,
+      siteOnWhitelist);
   };
 
   /**
    * Enables (unlocks) the `.loader` (file input & whitelist checkbox).
    */
   loader.unlock = function() {
-    HTMLInputElement.prototype.unlock.call(fileLoader, siteOnWhitelist);
+    HTMLInputElement.prototype.unlock.call(// fileLoader,
+      siteOnWhitelist);
   };
 
   /**
@@ -410,41 +412,6 @@ HTMLInputElement.prototype.unlock = function() {
     }
     window.addEventListener('click', infoTitle, false);
   }
-
-  /**
-   * This function DOESN’T WORK because the browser action closes when the
-   * window looses focus. Handle the Drag-and-drop of custom JSON files.
-   * @param {DragEvent} evt - The Drag-and-drop event.
-   * @see http://html5rocks.com/en/tutorials/file/dndfiles/
-   */
-  function handleFileSelect(evt) {
-    var files = evt.target.files;
-    var file = files[0];
-    var reader = new FileReader();
-    var alert = document.querySelector('.alert');
-    alert.style.display = 'block';
-
-    reader.onload = function (file) {
-      // This is when we should load procedures. Not before
-      sendDataToTab(file.target.result, 'json');
-    };
-
-    reader.onerror = function (e) {
-      alert.style.display = 'block';
-      alert.textContent = 'Error. Cannot load file.';
-      console.log(e);
-    };
-
-    if (file.type && (file.type.match('application/json') || file.type.match('text/json'))) {
-      alert.textContent = 'JSON found!';
-      reader.readAsText(file);
-    } else {
-      alert.textContent = 'File found';
-      alert.style.color = '#a48700';
-      reader.readAsText(file);
-    }
-  }
-  document.getElementById('ud-file-loader').addEventListener('change', handleFileSelect, false);
 
   /**
    * Adds a custom warning message and disable the checkbox.
