@@ -1,4 +1,4 @@
-/*global removeFileNameFromPath, importFeedbackWidget, injectGradingEngine, loadLibraries, loadJSONTestsFromFile, registerTestSuites, turnOn, waitForTestRegistrations, loadUnitTests, chrome, injectedElementsOnPage, injectIntoDocument, importComponentsLibrary, removeInjectedFromDocument, removeFromDocument */
+/*global removeFileNameFromPath, importFeedbackWidget, injectGradingEngine, loadLibraries, loadJSONTestsFromFile, registerTestSuites, waitForTestRegistrations, loadUnitTests, chrome, injectIntoDocument, importComponentsLibrary, removeInjectedFromDocument, removeFromDocument */
 
 /**
  * @fileOverview This file contains the StateManager Class.
@@ -16,25 +16,58 @@
  */
 function StateManager() {
   this.whitelist = {remote: [], local: []};
-  this.isAllowed = false;
-  this.host = window.location.origin;
-  this.isChromium = window.navigator.vendor.toLocaleLowerCase().indexOf('google') !== -1;
+  this.gradingEngineInjected = false;
+
+  /**
+   * This variable stores private variables that shouldn’t be changed
+   * outside of the {@link StateManager}.
+   */
+  var protected = {
+    host: window.location.origin,
+    isAllowed: false,
+    type: null
+  };
+
+  Object.defineProperties(this, {
+    hasLocalFileAccess: {
+      configurable: false,
+      enumerable: false,
+      value: window.navigator.vendor.toLocaleLowerCase().indexOf('google') !== -1,
+      writable: false
+    },
+    host: {
+      get: function() {
+        return protected.host;
+      }
+      // No setters
+    },
+    isAllowed: {
+      get: function() {
+        return protected.isAllowed;
+      }
+      // No setters
+    },
+    type: {
+      get: function() {
+        return protected.type;
+      }
+      // No setters
+    }
+  });
 
   if(this.host.search(/^(?:https?:)\/\/[^\s\.]/) !== -1)
   {
-    this.type = 'remote';
+    protected.type = 'remote';
   } else if(this.host === 'null' || this.host.search('file://') !== -1) {
     if(window.location.protocol === 'file:') {
       this.host = removeFileNameFromPath(window.location.pathname);
-      this.type = 'local';
+      protected.type = 'local';
     } else {
       throw new Error('Unknown URL formatting error');
     }
   } else {
     throw new Error('Unknown URL formatting error');
   }
-
-  this.geInjected = false;
 
   var currentlyInjecting = false;
 
@@ -45,8 +78,10 @@ function StateManager() {
    */
   function runLoadSequence() {
     var self = this;
-    if (!currentlyInjecting || self.geInjected) {
+
+    if (!currentlyInjecting || self.gradingEngineInjected) {
       currentlyInjecting = true;
+
       return importComponentsLibrary()
         .then(importFeedbackWidget())
         .then(injectGradingEngine)
@@ -59,10 +94,10 @@ function StateManager() {
         .then(waitForTestRegistrations)
         .then(loadUnitTests)
         .then(function() {
-          self.geInjected = true;
+          self.gradingEngineInjected = true;
           currentlyInjecting = false;
           return Promise.resolve();
-        }, function(e) {
+        }).catch(function(e) {
           console.log(e);
           throw new Error('Something went wrong loading Udacity Feedback. Please reload.');
         });
@@ -78,8 +113,9 @@ function StateManager() {
    */
   this.isSiteOnWhitelist = function() {
     var self = this;
+    var type = self.type;
+
     return new Promise(function(resolve) {
-      var type = self.type;
       var allowed = false;
       chrome.storage.sync.get('whitelist', function(response) {
         self.whitelist = response.whitelist || {remote: [], local: []};
@@ -109,7 +145,7 @@ function StateManager() {
       throw new Error();
     }
 
-    self.isAllowed = true;
+    protected.isAllowed = true;
   };
 
   /**
@@ -124,7 +160,7 @@ function StateManager() {
       throw new Error();
     }
 
-    self.isAllowed = false;
+    protected.isAllowed = false;
   };
 
   /**
@@ -133,18 +169,24 @@ function StateManager() {
    */
   this.addSiteToWhitelist = function() {
     var self = this;
+    var type = self.type;
+
     return new Promise(function(resolve, reject) {
-      var type = self.type;
+      var index;
+      var data;
+
       if(!type) {
-        reject();
+        reject('Assertion failed: Unknow location type');
       }
-      var index = self.whitelist[type].indexOf(self.host);
+
+      index = self.whitelist[type].indexOf(self.host);
+
       if (index === -1) {
         self.whitelist[type].push(self.host);
       }
       self.allowSite();
 
-      var data = {whitelist: self.whitelist};
+      data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
         resolve();
       });
@@ -158,13 +200,16 @@ function StateManager() {
    */
   this.removeSiteFromWhitelist = function(site) {
     var self = this;
-    return new Promise(function(resolve, reject) {
-      var type = self.type;
+    var type = self.type;
+
+    return new Promise(function(resolve) {
       var index = self.whitelist[type].indexOf(self.host);
+      var data;
+
       if (index > -1) {
         self.whitelist[type].splice(index, 1);
       }
-      var data = {whitelist: self.whitelist};
+      data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
         resolve();
       });
@@ -179,11 +224,14 @@ function StateManager() {
   */
   this.getIsAllowed = function() {
     var self = this;
+
     return new Promise(function(resolve, reject) {
-      var isAllowed = (self.isAllowed === true);
-      if(self.isChromium && self.type === 'local') {
+      var isAllowed = (protected.isAllowed === true);
+
+      if(self.hasLocalFileAccess && self.type === 'local') {
         reject({status: 'chrome_local_exception', message: isAllowed});
       }
+
       resolve({status: 0, message: isAllowed});
     });
   };
@@ -202,7 +250,7 @@ function StateManager() {
       document.head.removeChild(g);
     }
 
-    if (!self.geInjected) {
+    if (!self.gradingEngineInjected) {
       return runLoadSequence().then(function() {
         Promise.resolve(true);
       });
@@ -221,6 +269,7 @@ function StateManager() {
     var self = this;
 
     removeFromDocument('ud-grader-options');
+
     return injectIntoDocument('script', {
       id: 'ud-grader-options',
       // Reviewer: This is safe to pass.
@@ -232,7 +281,7 @@ function StateManager() {
         '}, false);'
     }, 'head')
       .then(function() {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
           window.addEventListener('killedGradingEngine', function handler() {
             window.removeEventListener('killedGradingEngine', handler, false);
             resolve();
@@ -240,12 +289,12 @@ function StateManager() {
           window.dispatchEvent(new Event('killUdacityFEGradingEngine'));
         });
       })
-        .then(function() {
-          removeInjectedFromDocument();
-          // wish I could unregister <test-widget>, but it doesn’t look like it’s
-          // possible at the moment
-          self.geInjected = false;
-        })
+      .then(function() {
+        removeInjectedFromDocument();
+        // wish I could unregister <test-widget>, but it doesn’t look like it’s
+        // possible at the moment
+        self.gradingEngineInjected = false;
+      })
       .catch(function(e) {
         throw e;
       });
