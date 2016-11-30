@@ -91,7 +91,7 @@ function StateManager() {
         if(allowed) {
           self.allowSite();
         }
-        resolve(allowed);
+        resolve({message: allowed});
       });
     });
   };
@@ -180,10 +180,11 @@ function StateManager() {
   this.getIsAllowed = function() {
     var self = this;
     return new Promise(function(resolve, reject) {
+      var isAllowed = (self.isAllowed === true);
       if(self.isChromium && self.type === 'local') {
-        reject('chrome_local_exception');
+        reject({status: 'chrome_local_exception', message: isAllowed});
       }
-      resolve(self.isAllowed === true);
+      resolve({status: 0, message: isAllowed});
     });
   };
 

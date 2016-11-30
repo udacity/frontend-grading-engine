@@ -278,6 +278,10 @@ var stateManager = new StateManager();
  * received.
  */
 chrome.runtime.onMessage.addListener(function handler(message, sender, sendResponse) {
+  var response = {
+    status: undefined,
+    message: ''
+  };
   switch (message.type) {
   case 'allow':
     if (message.data === 'on') {
@@ -300,18 +304,24 @@ chrome.runtime.onMessage.addListener(function handler(message, sender, sendRespo
       stateManager.removeSiteFromWhitelist();
     } else if (message.data === 'get') {
       stateManager.isSiteOnWhitelist().then(function(value) {
+        response.status = runtimeError ? runtimeError : 0;
+        response.message = value.message;
         sendResponse(value);
+      }).catch(function(value) {
+        response = value;
+        sendResponse(response);
       });
     }
     break;
   case 'background-wake':
-    if(runtimeError) {
-      sendResponse(runtimeError);
-    }
     // The action page is requesting infos about the current host
     stateManager.getIsAllowed().then(function(value) {
-
-      sendResponse(value);
+      response.status = runtimeError ? runtimeError : 0;
+      response.message = value.message;
+      sendResponse(response);
+    }).catch(function(value) {
+      response = value;
+      sendResponse(response);
     });
     break;
   default:
@@ -333,8 +343,8 @@ chrome.runtime.onMessage.addListener(function handler(message, sender, sendRespo
 
 // Check if the site is on the Whitelist on page load
 stateManager.isSiteOnWhitelist()
-  .then(function(isAllowed) {
-    if (isAllowed) {
+  .then(function(value) {
+    if (value.message === true) {
       stateManager.turnOn();
     }
   });

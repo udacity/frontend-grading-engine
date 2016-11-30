@@ -457,40 +457,58 @@ HTMLInputElement.prototype.unlock = function() {
   function checkSiteStatus () {
     // Talk to background script.
     sendDataToTab('get', 'whitelist', function (response) {
-      switch(response) {
+      switch(response.message) {
       case true:
         siteOnWhitelist.on();
         break;
       case false:
         siteOnWhitelist.off();
         break;
-      case 'chrome_local_exception':
-        addWarning('Chrome doesn’t support loading local files automatically', 'checkbox', {enableCheckbox: false, checked: false});
-        break;
-      case 'unknown_protocol':
-        addWarning('Unsupported protocol. Supported protocols are: http, https and (local) file', 'checkbox', {enableCheckbox: false, checked: false});
-        break;
-      case 'invalid_origin':
-        addWarning('The linked JSON page isn’t at the same origin and directory as the document', 'checkbox', {enableCheckbox: false, checked: false});
-        break;
-      case undefined:
-        // response is undefined if there’s no content-script active (so it’s an unsupported URL scheme)
-        addWarning('Unsupported URL scheme. Supported URL schemes are: http://, https://, or file://', 'disable', {});
-        break;
       default:
+        addWarning('Unkown Error');
         break;
       }
     }).then(function() {
       sendDataToTab(null, 'background-wake', function(response) {
-        switch(response) {
-        case true:
-          allowFeedback.on();
+        // Not to be confused with the `allowFeedback` element. This is only a
+        // bool.
+        var _allowFeedback = (response.message === true);
+        switch(response.status) {
+        case 0:
+          if(_allowFeedback) {
+            allowFeedback.on();
+          } else {
+            allowFeedback.off();
+          }
           break;
-        case false:
-          allowFeedback.off();
+        case 'chrome_local_exception':
+          // We don’t know (and care) for the whitelist here.
+          addWarning('Chrome doesn’t support loading local files automatically',
+                     'warn',
+                     {allowFeedback: _allowFeedback});
+          break;
+        case 'invalid_origin':
+          // This is error in the document, not us or user.
+          addWarning('The linked JSON page isn’t at the same origin and directory as the document',
+                     'warn',
+                     {allowFeedback: _allowFeedback});
+          break;
+        case 'unknown_protocol':
+          // Shouldn’t be able to allow or even add to the whitelist.
+          // break left intentionally.
+        case undefined:
+          // Response is undefined if there’s no content-script active (so it’s an unsupported URL scheme).
+          addWarning('Unsupported URL scheme. Supported URL schemes are: http://, https://, or file://',
+                     'disable',
+                     {allowFeedback: false, siteOnWhitelist: false});
           break;
         default:
-          addWarning('Unkown Error');
+          addWarning('Unkown Error',
+                     'disable',
+                     {allowFeedback: false, siteOnWhitelist: false});
+          break;
+        }
+        switch(response) {
         }
       });
     });
