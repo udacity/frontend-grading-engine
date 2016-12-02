@@ -1,4 +1,4 @@
-/*global FileReader, chrome */
+/*global chrome */
 
 /**
  * @fileOverview This file contains the browser_action logic.

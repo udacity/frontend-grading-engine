@@ -279,7 +279,7 @@ function newInputEntry(type) {
 function chromiumInit() {
   if(isChromium) {
     var localPlaceholder = document.querySelector('#local-whitelist td .whitelist-message');
-    localPlaceholder.textContent = 'Chrome doesn’t support loading local files asynchronously. You must manually load the test file. Sorry for the inconvenience ';
+    localPlaceholder.textContent = 'Chrome doesn’t support loading local files asynchronously. Remember to manually load the test file. Sorry for the inconvenience';
     localPlaceholder.parentElement.classList = localPlaceholder.parentElement.classList + ' chromium-message';
     // Removes the plus sign
     document.getElementById('local-add').remove();

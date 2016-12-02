@@ -15,9 +15,6 @@
  * @throws {Error} An error coming from a Promise.
  */
 function StateManager() {
-  this.whitelist = {remote: [], local: []};
-  this.gradingEngineInjected = false;
-
   /**
    * This variable stores private variables that shouldn’t be changed
    * outside of the {@link StateManager}.
@@ -27,12 +24,16 @@ function StateManager() {
     isAllowed: false,
     type: null
   };
+  var currentlyInjecting = false;
+
+  this.whitelist = {remote: [], local: []};
+  this.gradingEngineInjected = false;
 
   Object.defineProperties(this, {
     hasLocalFileAccess: {
       configurable: false,
       enumerable: false,
-      value: window.navigator.vendor.toLocaleLowerCase().indexOf('google') !== -1,
+      value: window.navigator.vendor.toLocaleLowerCase().indexOf('google') === -1,
       writable: false
     },
     host: {
@@ -60,7 +61,12 @@ function StateManager() {
     protected.type = 'remote';
   } else if(this.host === 'null' || this.host.search('file://') !== -1) {
     if(window.location.protocol === 'file:') {
-      this.host = removeFileNameFromPath(window.location.pathname);
+      if(this.hasLocalFileAccess) {
+        protected.host = removeFileNameFromPath(window.location.pathname);
+      } else {
+        protected.host = location.href.substring(7, location.href.lastIndexOf('/') + 1);
+      }
+
       protected.type = 'local';
     } else {
       throw new Error('Unknown URL formatting error');
@@ -68,8 +74,6 @@ function StateManager() {
   } else {
     throw new Error('Unknown URL formatting error');
   }
-
-  var currentlyInjecting = false;
 
   /**
    * Run a sequence of Promises to activate the Grading Engine.
@@ -79,15 +83,30 @@ function StateManager() {
   function runLoadSequence() {
     var self = this;
 
-    if (!currentlyInjecting || self.gradingEngineInjected) {
+    if (!currentlyInjecting && !self.gradingEngineInjected) {
       currentlyInjecting = true;
 
       return importComponentsLibrary()
-        .then(importFeedbackWidget())
+        .then(importFeedbackWidget)
         .then(injectGradingEngine)
-        .then(loadLibraries)
         .then(loadJSONTestsFromFile)
+        .then(function(value){
+          return new Promise(function(resolve, reject) {
+            switch(value.status) {
+            case 'chrome_local_exception':
+            case 'no_meta_tag_exception':
+              // TODO: Don’t turn on when from whitelist?
+              turnOnGA().then(function(resolve, reject) {
+                reject(value);
+              });
+              break;
+            default:
+              resolve(value);
+            }
+          });
+        })
         .then(registerTestSuites)
+        .then(loadLibraries)
         .then(turnOnGA)
       // This is to prevent UnitTests and other things in the page to execute
       // before all tests are registered
@@ -96,13 +115,18 @@ function StateManager() {
         .then(function() {
           self.gradingEngineInjected = true;
           currentlyInjecting = false;
-          return Promise.resolve();
-        }).catch(function(e) {
-          console.log(e);
-          throw new Error('Something went wrong loading Udacity Feedback. Please reload.');
+          return Promise.resolve({
+            status: 0
+          });
+        }).catch(function(value) {
+          // Do nothing
         });
     } else {
-      return Promise.resolve();
+      return Promise.resolve({
+        status: 'no_meta_tag_exception',
+        message: 'This website doesn’t seem to contain a link to ' +
+          'the test file. Please load it manually.'
+      });
     }
   }
 
@@ -127,7 +151,10 @@ function StateManager() {
         if(allowed) {
           self.allowSite();
         }
-        resolve({message: allowed});
+        resolve({
+          status: 0,
+          message: allowed
+        });
       });
     });
   };
@@ -141,11 +168,19 @@ function StateManager() {
     var self = this;
     var type = self.type;
 
-    if(!type) {
-      throw new Error();
-    }
+    return new Promise(function(resolve, reject) {
+      if(!type) {
+        reject({
+          status: 'unknown_location_type_exception',
+          message: 'Assertion failed: Unknown location type (StateManager.allowSite)'
+        });
+      }
 
-    protected.isAllowed = true;
+      protected.isAllowed = true;
+      resolve({
+        status: 0
+      });
+    });
   };
 
   /**
@@ -156,11 +191,19 @@ function StateManager() {
     var self = this;
     var type = self.type;
 
-    if(!type) {
-      throw new Error();
-    }
+    return new Promise(function(resolve, reject) {
+      if(!type) {
+        reject({
+          status: 'unknown_location_type_exception',
+          message: 'Assertion failed: Unknown location type (StateManager.disallowSite)'
+        });
+      }
 
-    protected.isAllowed = false;
+      protected.isAllowed = false;
+      resolve({
+        status: 0
+      });
+    });
   };
 
   /**
@@ -176,7 +219,10 @@ function StateManager() {
       var data;
 
       if(!type) {
-        reject('Assertion failed: Unknow location type');
+        reject({
+          status: 'unknown_location_type_exception',
+          message: 'Assertion failed: Unknown location type (StateManager.addToWhitelist)'
+        });
       }
 
       index = self.whitelist[type].indexOf(self.host);
@@ -188,7 +234,9 @@ function StateManager() {
 
       data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
-        resolve();
+        resolve({
+          satus: 0
+        });
       });
     });
   };
@@ -211,7 +259,9 @@ function StateManager() {
       }
       data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
-        resolve();
+        resolve({
+          status: 0
+        });
       });
     });
   };
@@ -228,11 +278,17 @@ function StateManager() {
     return new Promise(function(resolve, reject) {
       var isAllowed = (protected.isAllowed === true);
 
-      if(self.hasLocalFileAccess && self.type === 'local') {
-        reject({status: 'chrome_local_exception', message: isAllowed});
+      if(!self.hasLocalFileAccess && self.type === 'local') {
+        reject({
+          status: 'chrome_local_exception',
+          message: isAllowed
+        });
       }
 
-      resolve({status: 0, message: isAllowed});
+      resolve({
+        status: 0,
+        message: isAllowed
+      });
     });
   };
 
@@ -252,11 +308,16 @@ function StateManager() {
 
     if (!self.gradingEngineInjected) {
       return runLoadSequence().then(function() {
-        Promise.resolve(true);
+        return Promise.resolve({
+          status: 0
+        });
       });
     } else {
       // The GradingEngine is already injected
-      return Promise.reject(false);
+      return Promise.reject({
+        status: 'already_injected_exception',
+        message: 'Cannot inject the Grading Engine since it’s already injected'
+      });
     }
   };
 
@@ -284,7 +345,9 @@ function StateManager() {
         return new Promise(function(resolve) {
           window.addEventListener('killedGradingEngine', function handler() {
             window.removeEventListener('killedGradingEngine', handler, false);
-            resolve();
+            resolve({
+              status: 0
+            });
           }, false);
           window.dispatchEvent(new Event('killUdacityFEGradingEngine'));
         });

@@ -41,15 +41,27 @@ function injectIntoDocument(tag, data, location) {
     // for later removal
     injectedElementsOnPage.push(newTag.id);
 
-    newTag.onload = function(e) {
-      resolve(e);
+    newTag.onload = function(element) {
+      resolve({
+        status: 0,
+        message: element
+      });
     };
-    newTag.onerror = function(e) {
-      reject(e);
+
+    newTag.onerror = function(error) {
+      reject({
+        status: 'injection_error_exception',
+        message: error
+      });
     };
-    if (tag === 'script' && !newTag.src && (newTag.text || newTag.innerHTML)) {
-      resolve();
+
+    if(tag === 'script' && !newTag.src && (newTag.text || newTag.innerHTML)) {
+      resolve({
+        status: 0,
+        element: newTag
+      });
     }
+
     if (location === 'head') {
       document.head.appendChild(newTag);
     } else {
@@ -104,6 +116,44 @@ function removeFileNameFromPath(path) {
     path = removeFileNameFromPath(path);
   }
   return path;
+}
+
+/**
+ * Adds a unique GET ID in order to make the browser ignore the cache.
+ * @param {String} url - A valid absolute URL.
+ * @returns {String} The absolute URL and a unique GET ID.
+ */
+function appendIDToURL(url) {
+  var _url = new URL(url);
+  var searchParams = _url.searchParams;
+  var paramName = 'udacityNoCache';
+
+  while(searchParams.has(paramName)) {
+    paramName += Math.floor(Math.random() * 10).toString();
+  }
+
+  searchParams.set(paramName,
+                   Math.floor(Math.random() * 100000000000).toString());
+  _url.searchParams = searchParams.toString;
+  return _url.toString();
+}
+
+/**
+ * Log error when on debugging mode.
+ * @param {*} error - Any {@link Object} that can be serialized.
+ */
+function debugStatus(error) {
+  if(error.status && error.message) {
+    console.log('%c%s %c%s: %c“%s” at %s', 'color: black', 'DEBUG',
+                'color: red; font-weight: bold', error.status,
+                'font-style: italic', error.message,
+                new Error().stack);
+  } else {
+    console.log('%c%s %c%s', 'color: black;', 'DEBUG',
+                'color: red; font-weight: bold', 'Status Object:');
+    console.log(error);
+    console.log('at ', new Error().stack);
+  }
 }
 
 // helpers.js<inject> ends here

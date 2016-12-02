@@ -1,9 +1,9 @@
-/*global removeFileNameFromPath, injectIntoDocument, chrome, StateManager */
+/*global removeFileNameFromPath, injectIntoDocument, chrome, StateManager, debugStatus, appendIDToURL */
 
 /**
- * @fileoverview This file manages the injection of several JavaScript files. It
- * contains most procedure for injecting those files, but doesn’t handle the
- * conditional injection part.
+ * @fileoverview This file manages the injection of several JavaScript
+ * files. It contains most procedure for injecting those files, but
+ * doesn’t handle the conditional injection part.
  * @name inject.js<inject>
  * @author Cameron Pittman
  * @author Etienne Prud’homme
@@ -11,13 +11,12 @@
  */
 
 /**
- * List of items id that were injected in the page. It is used to later remove
- * them.
+ * List of items id that were injected in the page. It is used to
+ * later remove them.
  * @type {string[]}
  */
 var injectedElementsOnPage = [];
-
-var runtimeError = null;
+var debugMode = false;
 
 /**
  * The meta tag that is used to load and activate a file of tests.
@@ -34,7 +33,9 @@ function importComponentsLibrary() {
       id: 'components-lib'
     }, 'head');
   } else {
-    return Promise.resolve();
+    return Promise.resolve({
+      status: 'components_already_loaded_exception'
+    });
   }
 }
 
@@ -51,7 +52,9 @@ function importFeedbackWidget() {
       id: 'udacity-test-widget'
     }, 'head');
   } else {
-    return Promise.resolve();
+    return Promise.resolve({
+      status: 'widget_already_loaded_exception'
+    });
   }
 }
 
@@ -60,53 +63,63 @@ function importFeedbackWidget() {
  * @returns {Promise}
  */
 function injectGradingEngine() {
-  return injectIntoDocument('script', {
-    src: chrome.extension.getURL('app/js/libs/GE.js'),
-    id: 'udacity-front-end-feedback'
-  }, 'head');
+  var ge = document.querySelector('script#udacity-front-end-feedback');
+
+  if(!ge) {
+    return injectIntoDocument('script', {
+      src: chrome.extension.getURL('app/js/libs/GE.js'),
+      id: 'udacity-front-end-feedback'
+    }, 'head');
+  } else {
+    return Promise.resolve({
+      status: 'grading_engine_already_loaded_exception'
+    });
+  }
 }
 
 /**
- * Load custom libraries for the Grading Engine (i.e. jsgrader.js). Currently
- * only `jsgrader.js` is supported and allowed in the manifest.
+ * Load custom libraries for the Grading Engine
+ * (i.e. jsgrader.js). Currently only `jsgrader.js` is supported and
+ * allowed in the manifest.
  * @returns {Promise}
  */
 function loadLibraries() {
-  if (metaTag) {
-    var libraries = metaTag.getAttribute('libraries');
-  }
+  return new Promise(function(resolve, reject) {
+    var libraries = null;
+    var loadedLibs = 0;
 
-  if (libraries) {
+    if(!metaTag) {
+      // XXX: Reject?
+      resolve({
+        status: 'no_meta_tag_exception',
+        message: 'Couldn’t find a valid test file to load automatically'
+      });
+    }
+
+    libraries = metaTag.getAttribute('libraries');
+    if(!libraries) {
+      return resolve({
+        status: 'no_library_specified_exception'
+      });
+    }
+
     libraries = libraries.split(' ');
-  } else {
-    return Promise.resolve();
-  }
-
-  var loadedLibs = 0;
-  return Promise.all(
-    libraries.map(function(lib) {
-      return injectIntoDocument('script', {src: chrome.extension.getURL('app/js/libs/' + lib + '.js')}, 'head');
-    })
-  );
-}
-
-/**
- * Adds a unique GET ID in order to make the browser ignore the cache.
- * @param {String} url - A valid absolute URL.
- * @returns {String} The absolute URL and a unique GET ID.
- */
-function appendIDToURL(url) {
-  var _url = new URL(url);
-  var searchParams = _url.searchParams;
-  var paramName = 'udacityNoCache';
-
-  while(searchParams.has(paramName)) {
-    paramName += Math.floor(Math.random() * 10).toString();
-  }
-
-  searchParams.set(paramName, Math.floor(Math.random() * 100000000000).toString());
-  _url.searchParams = searchParams.toString;
-  return _url.toString();
+    return Promise.all(
+      libraries.map(function(lib) {
+        return injectIntoDocument('script', {
+          src: chrome.extension.getURL('app/js/libs/' + lib + '.js')
+        }, 'head');
+      })).then(function() {
+        resolve({
+          status: 0
+        });
+      }).catch(function(error) {
+        reject({
+          status: 'error_loading_library_exception',
+          message: error
+        });
+      });
+  });
 }
 
 /**
@@ -114,108 +127,151 @@ function appendIDToURL(url) {
  * @returns {Promise}
  */
 function loadJSONTestsFromFile() {
-  if (metaTag) {
-    return new Promise(function(resolve, reject) {
-      // http://stackoverflow.com/a/14274828
-      var xmlhttp = new XMLHttpRequest();
-      // The complete path to the document excluding the file name
-      // (http://example.com/mydir/ for http://example.com/mydir/file.html)
-      var documentBase = removeFileNameFromPath(document.URL);
-      var url = metaTag.content;
-      var fileBase = '';
+  return new Promise(function(resolve, reject) {
+    if(!metaTag) {
+      return resolve({
+        status: 'no_meta_tag_exception',
+        message: 'Couldn’t find a valid test file to load automatically'
+      });
+    }
 
-      // If it’s not an absolute URL
-      if(url.search(/^(?:https?|file):\/\//) === -1) {
-        // If it’s protocol relative URL (i.e. //example.com)
-        if(url.search(/^\/\//) !== -1) {
-          // The window must at least use one of those protocols
-          switch(window.location.protocol) {
-          case 'http:':
-          case 'https:':
-          case 'file:':
-            url = window.location.protocol + url;
-            break;
-          default:
-            runtimeError = 'unknown_protocol';
-            console.warn('Unknown URL protocol. Supported protocols are: http, https and (local) file');
-            reject(false);
-          }
-        } else {
-          // it’s probably a relative path (may be garbage)
-          url = documentBase + url;
+    if(!stateManager.hasLocalFileAccess && stateManager.type === 'local') {
+      return resolve({
+        status: 'chrome_local_exception'
+      });
+    }
+
+    // http://stackoverflow.com/a/14274828
+    var xmlhttp = new XMLHttpRequest();
+    // The complete path to the document excluding the file name
+    // (http://example.com/mydir/ for http://example.com/mydir/file.html)
+    var documentBase = removeFileNameFromPath(document.URL);
+    var url = metaTag.content;
+    var fileBase = '';
+
+    // If it’s not an absolute URL
+    if(url.search(/^(?:https?|file):\/\//) === -1) {
+      // If it’s protocol relative URL (i.e. //example.com)
+      if(url.search(/^\/\//) !== -1) {
+        // The window must at least use one of those protocols
+        switch(window.location.protocol) {
+        case 'http:':
+        case 'https:':
+        case 'file:':
+          url = window.location.protocol + url;
+          break;
+        default:
+          reject({
+            status: 'unknown_protocol_exception',
+            message: 'Unknown URL protocol. Supported protocols ' +
+              'are: http, https and (local) file'
+          });
         }
+      } else {
+        // it’s probably a relative path (may be garbage)
+        url = documentBase + url;
       }
+    }
 
-      url = appendIDToURL(url);
+    url = appendIDToURL(url);
 
-      // Extract the file path (http://example.com/mydir/ for
-      // http://example.com/mydir/file.html)
-      fileBase = url.substr(0, url.lastIndexOf('/') + 1);
+    // Extract the file path (http://example.com/mydir/ for
+    // http://example.com/mydir/file.html)
+    fileBase = url.substr(0, url.lastIndexOf('/') + 1);
 
-      if(fileBase !== documentBase) {
-        runtimeError = 'invalid_origin';
-        console.warn('Invalid JSON file origin');
-        reject(false);
-      }
+    if(fileBase !== documentBase) {
+      reject({
+        status: 'invalid_origin_exception',
+        message: 'The test file doesn’t have the same origin as ' +
+          'the document'
+      });
+    }
 
-      xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.status === 200 && xmlhttp.readyState === 4) {
-          // DANGER! Checks if that it wasn’t a redirection
-          if(xmlhttp.responseURL !== url) {
-            runtimeError = 'redirection';
-            console.warn('The JSON request received a redirection. Possible cross-origin request attempt');
-            reject(false);
-          }
-          resolve(xmlhttp.responseText);
-        } else if (xmlhttp.status >= 400) {
-          reject(false);
+    xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.status === 200 && xmlhttp.readyState === 4) {
+        // DANGER! Checks if that it wasn’t a redirection
+        if(xmlhttp.responseURL !== url) {
+          reject({
+            status: 'redirection_exception',
+            message: 'The test file request received a ' +
+              'redirection. Possible cross-origin request attempt'
+          });
         }
-      };
-      xmlhttp.open('GET', url, true);
-      xmlhttp.send();
-    });
-  } else {
-    return Promise.resolve(false);
-  }
+        resolve({
+          status: 0,
+          message: xmlhttp.responseText
+        });
+      } else if (xmlhttp.status >= 400) {
+        reject({
+          status: 'http_error_code_exception',
+          message: 'The test file request returned an HTTP error'
+        });
+      }
+    };
+    xmlhttp.open('GET', url, true);
+    xmlhttp.send();
+  });
 }
 
-// You don’t have access to the GE here, but you can inject a script into the
-// document that does.
+// You don’t have access to the GE here, but you can inject a script
+// into the document that does.
 /**
  * Register test suites from the JSON data.
- * @param {string} json - JSON containing tests for the Grading Engine.
+ * @param {Object} data - An {@link Object} containing the following
+ * properties:
+ * @param {int|String} data.status - The status code of the last
+ * Promise or a title for the error. Any other value than 0 is
+ * considered an error/exception.
+ * @param {String} data.message - JSON containing tests for the
+ * Grading Engine.
  * @returns {Promise}
  * @throws {Error} Errors about the JSON file.
  */
-function registerTestSuites(json) {
-  if (!json) {
-    return Promise.resolve();
-  }
-  var errorMsg = null;
-  // validating the JSON
-  try {
-    if (json.length > 0) {
-      JSON.parse(json);
-    }
-  } catch (e) {
-    if (json.indexOf('\\') > -1) {
-      errorMsg = 'Are you trying to use “\\” in a RegEx? Try using \\\\ instead.';
-    } else {
-      errorMsg = 'Invalid JSON file format.';
-    }
-  }
-  try {
-    json = JSON.stringify(json);
-  } catch (e) {
-    errorMsg = 'Invalid JSON format.';
-  }
+function registerTestSuites(data) {
+  return new Promise(function(resolve, reject) {
+    var json = data.message;
+    var status = data.status;
 
-  if (errorMsg) {
-    alert(errorMsg);
-    throw new Error(errorMsg);
-  } else {
-    return injectIntoDocument('script', {text: 'UdacityFEGradingEngine.registerSuites(' + json + ');'}, 'head');
-  }
+    if(status !== 0) {
+      reject(data);
+    }
+
+    if (!json) {
+      // This is not a fatal exception.
+      return reject({
+        status: 'no_json_data_provided_exception'
+      });
+    }
+
+    try {
+      // Validating the JSON.
+      JSON.parse(json);
+      // Stringify the JSON to inject it in the page
+      json = JSON.stringify(json);
+    } catch(error) {
+      if (json.indexOf('\\') !== -1) {
+        reject({
+          status: 'regex_escape_characters_exception',
+          message: 'Are you trying to use “\\” in a RegEx? ' +
+            'Try using \\\\ instead'
+        });
+      } else {
+        reject({
+          status: 'invalid_json_exception',
+          message: 'Invalid JSON file format'
+        });
+      }
+    }
+    resolve({
+      status: 0,
+      message: json
+    });
+  }).then(function(data) {
+    var json = data.message;
+    return injectIntoDocument('script', {
+      text: 'UdacityFEGradingEngine.registerSuites(' + json + ');'
+    }, 'head');
+  });
 }
 
 /**
@@ -224,14 +280,32 @@ function registerTestSuites(json) {
  */
 function loadUnitTests() {
   var unitTests = null;
-  if (metaTag) {
+  return new Promise(function(resolve, reject) {
+    if(!metaTag) {
+      return resolve({
+        status: 'no_meta_tag_exception',
+        message: 'Couldn’t find a valid test file to load automatically'
+      });
+    }
     unitTests = metaTag.getAttribute('unit-tests');
-  }
-  if (!unitTests) {
-    return Promise.resolve();
-  }
 
-  return injectIntoDocument('script', {src: unitTests, defer: 'defer'});
+    if(!stateManager.hasLocalFileAccess && stateManager.type === 'local') {
+      return resolve({
+        status: 'chrome_local_exception'
+      });
+    }
+
+    if (!unitTests) {
+      return resolve({
+        status: 'no_unit_tests_exception'
+      });
+    }
+
+    return injectIntoDocument('script', {
+      src: unitTests,
+      defer: 'defer'
+    });
+  });
 }
 
 /**
@@ -261,7 +335,9 @@ function turnOnGA() {
 function waitForTestRegistrations() {
   return new Promise(function(resolve, reject) {
     window.addEventListener('tests-registered', function(data) {
-      return resolve();
+      return resolve({
+        status: 0
+      });
     });
   });
 }
@@ -278,6 +354,13 @@ var stateManager = new StateManager();
  * received.
  */
 chrome.runtime.onMessage.addListener(function handler(message, sender, sendResponse) {
+  function sendStatus(value) {
+    if(debugMode === true) {
+      debugStatus(value);
+    }
+    sendResponse(value);
+  }
+
   var response = {
     status: undefined,
     message: ''
@@ -299,34 +382,28 @@ chrome.runtime.onMessage.addListener(function handler(message, sender, sendRespo
   case 'whitelist':
     // The action page checkbox was toggled
     if (message.data === 'add') {
-      stateManager.addSiteToWhitelist();
+      stateManager.addSiteToWhitelist()
+        .catch(sendStatus);
     } else if (message.data === 'remove') {
-      stateManager.removeSiteFromWhitelist();
+      stateManager.removeSiteFromWhitelist()
+        .catch(sendStatus);
     } else if (message.data === 'get') {
-      stateManager.isSiteOnWhitelist().then(function(value) {
-        response.status = runtimeError ? runtimeError : 0;
-        response.message = value.message;
-        sendResponse(value);
-      }).catch(function(value) {
-        response = value;
-        sendResponse(response);
-      });
+      stateManager.isSiteOnWhitelist()
+        .then(sendStatus)
+        .catch(sendStatus);
     }
     break;
   case 'background-wake':
     // The action page is requesting infos about the current host
-    stateManager.getIsAllowed().then(function(value) {
-      response.status = runtimeError ? runtimeError : 0;
-      response.message = value.message;
-      sendResponse(response);
-    }).catch(function(value) {
-      response = value;
-      sendResponse(response);
-    });
+    stateManager.getIsAllowed()
+      .then(sendStatus)
+      .catch(sendStatus);
     break;
   default:
     // Just in case of future bad implementation
-    console.warn('invalid message type for: %s from %s', message, sender);
+    console.warn('Invalid message type for: %s from %s', message, sender);
+    // This could be anything, therefore it’s an unknown error
+    sendStatus(undefined);
     break;
   }
   return true;
@@ -347,6 +424,6 @@ stateManager.isSiteOnWhitelist()
     if (value.message === true) {
       stateManager.turnOn();
     }
-  });
+  }).catch(debugStatus);
 
 // inject.js<inject> ends here
