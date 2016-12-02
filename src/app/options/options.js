@@ -1,8 +1,8 @@
 /*global chrome, browserName */
 
 /**
- * @fileOverview This file contains the option page for adding/removing websites
- * from the whitelist.
+ * @fileOverview This file contains the option page for
+ * adding/removing websites from the whitelist.
  * @name options.js<options>
  * @author Cameron Pittman
  * @author Etienne Prud’homme
@@ -12,7 +12,8 @@
 
 var remoteWhitelist = document.querySelector('#remote-whitelist');
 var localWhitelist = document.querySelector('#local-whitelist');
-var isChromium = window.navigator.vendor.toLocaleLowerCase().indexOf('google') !== -1;
+var isChromium = window.navigator.vendor.toLocaleLowerCase()
+    .indexOf('google') !== -1;
 
 function StateManager() {
   this.whitelist = {remote: [], local: []};
@@ -27,14 +28,19 @@ StateManager.prototype = {
     var self = this;
     return new Promise(function (resolve) {
       chrome.storage.sync.get('whitelist', function (response) {
-        self.whitelist = response.whitelist || {remote: [], local: []};
+        self.whitelist = response.whitelist || {
+          remote: [],
+          local: []
+        };
 
         if (!(self.whitelist.remote instanceof Array ||
-              Object.prototype.toString.call(self.whitelist.remote) === '[object Array]')) {
+              Object.prototype.toString
+              .call(self.whitelist.remote) === '[object Array]')) {
           self.whitelist.remote = [self.whitelist.remote];
         }
         if (!(self.whitelist.local instanceof Array ||
-              Object.prototype.toString.call(self.whitelist.remote) === '[object Array]')) {
+              Object.prototype.toString
+              .call(self.whitelist.remote) === '[object Array]')) {
           self.whitelist.local = [self.whitelist.local];
         }
         resolve(self.whitelist);
@@ -44,8 +50,9 @@ StateManager.prototype = {
   /**
    * Add a given site to the stored whitelist and the
    * {@link StateManager.whitelist}.
-   * @param {string} site - A URL to add to the whitelist.
-   * @param {string} type - The type of site. It either be: `remote` or `local`.
+   * @param {String} site - A URL to add to the whitelist.
+   * @param {String} type - The type of site. It either be: `remote`
+   * or `local`.
    * @returns {Promise} A promise that resolves when the data is set.
    */
   addSiteToWhitelist: function(site, type) {
@@ -53,12 +60,14 @@ StateManager.prototype = {
     return new Promise(function (resolve, reject) {
       if(type === 'remote') {
         if(site.search(/^(?:https?:)\/\/[^\s\.]/) === -1) {
-          reject('The site is not a valid URL. The URL must at least contains the http:// or https:// scheme');
+          reject('The site is not a valid URL. The URL must at ' +
+                 'least contains the http:// or https:// scheme');
         }
         resolve();
       } else if(type === 'local') {
         if(site.search(/^file:\/\/\/?[^\s\.]/) === -1) {
-          reject('The site is not a valid local URL. The URL must at least contains the file:// scheme');
+          reject('The site is not a valid local URL. The URL must ' +
+                 'at least contains the file:// scheme');
         }
         resolve();
       } else {
@@ -70,7 +79,12 @@ StateManager.prototype = {
           self.whitelist[type].push(site);
         }
         self.isAllowed = true;
-        var data = {whitelist: {remote: self.whitelist.remote, local: self.whitelist.local}};
+        var data = {
+          whitelist: {
+            remote: self.whitelist.remote,
+            local: self.whitelist.local
+          }
+        };
         chrome.storage.sync.set(data, function () {
           Promise.resolve();
         });
@@ -79,23 +93,33 @@ StateManager.prototype = {
   /**
    * Remove a given site from the stored whitelist and the
    * {@link StateManager.whitelist}.
-   * @param {string} site - A URL to remove from the whitelist.
-   * @param {string} type - The type of site. It either be: `remote` or `local`.
+   * @param {String} site - A URL to remove from the whitelist.
+   * @param {String} type - The type of site. It either be: `remote`
+   * or `local`.
    * @returns {Promise} A promise when the data is set.
    */
   removeSiteFromWhitelist: function(site, type) {
     var self = this;
+
     return new Promise(function (resolve, reject) {
+      var data;
+      var index;
+
       if(type !== 'remote' && type !== 'local') {
         reject('type');
       }
 
-      var index = self.whitelist[type].indexOf(site);
+      index = self.whitelist[type].indexOf(site);
       if (index > -1) {
         self.whitelist[type].splice(index, 1);
       }
       self.isAllowed = false;
-      var data = {whitelist: {remote: self.whitelist.remote, local: self.whitelist.local}};
+      data = {
+        whitelist: {
+          remote: self.whitelist.remote,
+          local: self.whitelist.local
+        }
+      };
       chrome.storage.sync.set(data, function () {
         resolve();
       });
@@ -134,7 +158,7 @@ function cleanDisplay() {
 
   // An HTMLCollection would remove its item if we used
   // `entryCollection[i].remove()` thus decreasing the lenght. That’s why we
-  // convert the collection to an Array
+  // convert the collection to an Array.
   for(i=0, len=entryCollection.length; i<len; i++) {
     if(entryCollection[i].id !== 'whitelist-entry-template') {
       entries.push(entryCollection[i]);
@@ -177,8 +201,8 @@ function refreshDisplay() {
 /**
  * Return a new entry for the whitelist created from a template. The entry
  * should isn’t attached to the document.
- * @param {string} data - The text node of the entry (`.entry`).
- * @param {string} type - The type of entry. It either be: `add-entry`, `remote`
+ * @param {String} data - The text node of the entry (`.entry`).
+ * @param {String} type - The type of entry. It either be: `add-entry`, `remote`
  * or `local`.
  * @returns {HTMLElement} The newly created entry.
  */
@@ -201,8 +225,9 @@ function newEntry(data, type) {
 }
 
 /**
- * Adds and attach a new entry in the **remote** section of the whitelist table.
- * @param {string} url - The URL (text) of the entry.
+ * Adds and attach a new entry in the **remote** section of the
+ * whitelist table.
+ * @param {String} url - The URL (text) of the entry.
  * @returns {HTMLElement} A reference to the newly attached element.
  */
 function newRemoteEntry(url) {
@@ -210,8 +235,9 @@ function newRemoteEntry(url) {
 }
 
 /**
- * Adds and attach a new entry in the **local** section of the whitelist table.
- * @param {string} url - The URL (text) of the entry.
+ * Adds and attach a new entry in the *local* section of the whitelist
+ * table.
+ * @param {String} url - The URL (text) of the entry.
  * @returns {HTMLElement} A reference to the newly attached element.
  */
 function newLocalEntry(url) {
@@ -219,10 +245,10 @@ function newLocalEntry(url) {
 }
 
 /**
- * Creates an new empty entry with a text input to fill and remove an existing
- * one if already present.
- * @param {string} type - The type of entry for the whitelist. It can either be:
- * `local` or `remote`
+ * Creates an new empty entry with a text input to fill and remove an
+ * existing one if already present.
+ * @param {String} type - The type of entry for the whitelist. It can
+ * either be: `local` or `remote`
  * @todo
  */
 function newInputEntry(type) {
@@ -273,14 +299,21 @@ function newInputEntry(type) {
 }
 
 /**
- * Adds a warning to Chromium/Chrome users that loading a local file can’t work
- * without doing it manually.
+ * Adds a warning to Chromium/Chrome users that loading a local file
+ * can’t work without doing it manually.
  */
 function chromiumInit() {
+  var localPlaceholder;
+  var parent;
+
   if(isChromium) {
-    var localPlaceholder = document.querySelector('#local-whitelist td .whitelist-message');
-    localPlaceholder.textContent = 'Chrome doesn’t support loading local files asynchronously. Remember to manually load the test file. Sorry for the inconvenience';
-    localPlaceholder.parentElement.classList = localPlaceholder.parentElement.classList + ' chromium-message';
+    localPlaceholder = document.querySelector('#local-whitelist td ' +
+                                              '.whitelist-message');
+    parent = localPlaceholder.parentElement;
+    localPlaceholder.textContent = 'Chrome doesn’t support loading ' +
+      'local files asynchronously. Remember to manually load the ' +
+      'test file. Sorry for the inconvenience';
+    parent.classList = parent.classList + ' chromium-message';
     // Removes the plus sign
     document.getElementById('local-add').remove();
   }
@@ -293,7 +326,8 @@ stateManager.getWhitelist()
   .then(chromiumInit);
 
 window.addEventListener('remove', function handler(event) {
-  stateManager.removeSiteFromWhitelist(event.detail.data, event.detail.type);
+  stateManager.removeSiteFromWhitelist(event.detail.data,
+                                       event.detail.type);
   refreshDisplay();
 }, false);
 
