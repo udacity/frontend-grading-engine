@@ -143,49 +143,7 @@ function loadJSONTestsFromFile() {
 
     // http://stackoverflow.com/a/14274828
     var xmlhttp = new XMLHttpRequest();
-    // The complete path to the document excluding the file name
-    // (http://example.com/mydir/ for http://example.com/mydir/file.html)
-    var documentBase = removeFileNameFromPath(document.URL);
-    var url = metaTag.content;
-    var fileBase = '';
-
-    // If it’s not an absolute URL
-    if(url.search(/^(?:https?|file):\/\//) === -1) {
-      // If it’s protocol relative URL (i.e. //example.com)
-      if(url.search(/^\/\//) !== -1) {
-        // The window must at least use one of those protocols
-        switch(window.location.protocol) {
-        case 'http:':
-        case 'https:':
-        case 'file:':
-          url = window.location.protocol + url;
-          break;
-        default:
-          reject({
-            status: 'unknown_protocol_exception',
-            message: 'Unknown URL protocol. Supported protocols ' +
-              'are: http, https and (local) file'
-          });
-        }
-      } else {
-        // it’s probably a relative path (may be garbage)
-        url = documentBase + url;
-      }
-    }
-
-    url = appendIDToURL(url);
-
-    // Extract the file path (http://example.com/mydir/ for
-    // http://example.com/mydir/file.html)
-    fileBase = url.substr(0, url.lastIndexOf('/') + 1);
-
-    if(fileBase !== documentBase) {
-      reject({
-        status: 'invalid_origin_exception',
-        message: 'The test file doesn’t have the same origin as ' +
-          'the document'
-      });
-    }
+    url = getSameOriginURL(metaTag.content, true);
 
     xmlhttp.onreadystatechange = function() {
       if (xmlhttp.status === 200 && xmlhttp.readyState === 4) {

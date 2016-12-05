@@ -103,12 +103,29 @@ function removeFromDocument(id) {
 }
 
 /**
- * Removes a file name from a given path. It return the basename.
- * @param {string} path - The file path.
- * @returns {string} The basename of the path.
+ * Gets a file name from a given path and removes the hash part if
+ * present. It returns the filename.
+ * @param {String} path - The file path.
+ * @returns {String} The filename.
+ */
+function getFileNameFromPath(path) {
+  var _path = path.substring(path.lastIndexOf('/') + 1);
+
+  // If there’s a hashtag present, it can simulate a path
+  if(_path.indexOf('#') !== -1) {
+    // Remove another URL part until there’s no hashtags
+    _path = _path.substring(0, _path.indexOf('#'));
+  }
+  return _path;
+}
+
+/**
+ * Removes a file name from a given path. It returns the basename.
+ * @param {String} path - The file path.
+ * @returns {String} The basename of the path.
  */
 function removeFileNameFromPath(path) {
-  path = path.substr(0, path.lastIndexOf('/') + 1);
+  path = path.substring(0, path.lastIndexOf('/') + 1);
 
   // If there’s a hashtag present, it can simulate a path
   if(path.indexOf('#') !== -1) {
@@ -134,8 +151,65 @@ function appendIDToURL(url) {
 
   searchParams.set(paramName,
                    Math.floor(Math.random() * 100000000000).toString());
-  _url.searchParams = searchParams.toString;
   return _url.toString();
+}
+
+/**
+ * Get the URL in the same origin format as the document and supported
+ * protocols.
+ * @param {String} url - The URL in the absolute form or relative
+ * form.
+ * @param {bool} noCache - If the URL should get a unique ID to bypass
+ * the cache (recommended).
+ * @returns {Promise|String} A rejected {@link Promise} on error or
+ * the correctly formatted URL.
+ */
+function getSameOriginURL(url, noCache) {
+  // The complete path to the document excluding the file name
+  // (http://example.com/mydir/ for http://example.com/mydir/file.html)
+  var fileBase = '';
+  var documentBase = removeFileNameFromPath(document.URL);
+
+  // If it’s not an absolute URL
+  if(url.search(/^(?:https?|file):\/\//) === -1) {
+    // If it’s protocol relative URL (i.e. //example.com)
+    if(url.search(/^\/\//) !== -1) {
+      // The window must at least use one of those protocols
+      switch(window.location.protocol) {
+      case 'http:':
+      case 'https:':
+      case 'file:':
+        url = window.location.protocol + url;
+        break;
+      default:
+        return Promise.reject({
+          status: 'unknown_protocol_exception',
+          message: 'Unknown URL protocol. Supported protocols ' +
+            'are: http, https and (local) file'
+        });
+      }
+    } else {
+      // it’s probably a relative path (may be garbage)
+      url = documentBase + url;
+    }
+  }
+
+  if(noCache) {
+    url = appendIDToURL(url);
+  }
+
+  // Extract the file path (http://example.com/mydir/ for
+  // http://example.com/mydir/file.html)
+  fileBase = url.substr(0, url.lastIndexOf('/') + 1);
+
+  if(fileBase !== documentBase) {
+    return Promise.reject({
+      status: 'invalid_origin_exception',
+      message: 'The test file doesn’t have the same origin as ' +
+        'the document'
+    });
+  }
+  return url;
 }
 
 /**
