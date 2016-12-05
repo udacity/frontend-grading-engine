@@ -94,11 +94,17 @@ function StateManager() {
           return new Promise(function(resolve, reject) {
             switch(value.status) {
             case 'chrome_local_exception':
-            case 'no_meta_tag_exception':
               // TODO: Don’t turn on when from whitelist?
-              turnOnGA().then(function(resolve, reject) {
+              turnOnGA().then(function(value) {
+                debugger;
                 reject(value);
               });
+              break;
+            case 'no_meta_tag_exception':
+              turnOnGA().then(function(value) {
+
+              });
+
               break;
             default:
               resolve(value);

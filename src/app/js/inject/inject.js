@@ -213,21 +213,19 @@ function loadJSONTestsFromFile() {
   });
 }
 
-// You don’t have access to the GE here, but you can inject a script
-// into the document that does.
 /**
- * Register test suites from the JSON data.
+ * Check the validity of the JSON data to inject.
  * @param {Object} data - An {@link Object} containing the following
  * properties:
  * @param {int|String} data.status - The status code of the last
  * Promise or a title for the error. Any other value than 0 is
  * considered an error/exception.
- * @param {String} data.message - JSON containing tests for the
- * Grading Engine.
- * @returns {Promise}
- * @throws {Error} Errors about the JSON file.
+ * @param {String} data.message - JSON containing tests that will be
+ * registered with {@link registerTestSuites}.
+ * @returns {Promise} A {@link Promise} that resolve if the data is
+ * valid JSON or reject with a custom status code.
  */
-function registerTestSuites(data) {
+function checkJSONValidity(data) {
   return new Promise(function(resolve, reject) {
     var json = data.message;
     var status = data.status;
@@ -266,12 +264,56 @@ function registerTestSuites(data) {
       status: 0,
       message: json
     });
-  }).then(function(data) {
-    var json = data.message;
-    return injectIntoDocument('script', {
-      text: 'UdacityFEGradingEngine.registerSuites(' + json + ');'
-    }, 'head');
   });
+}
+
+function waitForFileInput(status) {
+  window.addEventListener('ud-content-script-proxy', function handler(event) {
+    debugger;
+    var eventType = event.detail.type;
+    var result = {
+      status: 0,
+      message: event.detail.message
+    };
+    // TODO
+
+    switch(eventType) {
+    case 'ud-upload-json-request':
+      return checkJSONValidity(result.fileData).then(function() {
+        alert('it works');
+      }).catch(function(status) {
+        alert('some error');
+        console.log(status);
+      });
+      break;
+    case 'ud-upload-javascript-request':
+      break;
+    default:
+      break;
+    }
+
+  }, false);
+}
+
+// You don’t have access to the GE here, but you can inject a script
+// into the document that does.
+/**
+ * Register test suites from the JSON data.
+ * @param {Object} data - An {@link Object} containing the following
+ * properties:
+ * @param {int|String} data.status - The status code of the last
+ * Promise or a title for the error. Any other value than 0 is
+ * considered an error/exception.
+ * @param {String} data.message - JSON containing tests for the
+ * Grading Engine.
+ * @returns {Promise}
+ * @throws {Error} Errors about the JSON file.
+ */
+function registerTestSuites(data) {
+  var json = data.message;
+  return injectIntoDocument('script', {
+    text: 'UdacityFEGradingEngine.registerSuites(' + json + ');'
+  }, 'head');
 }
 
 /**

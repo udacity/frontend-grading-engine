@@ -10,7 +10,7 @@
  */
 
 /**
- * Adds elements to the main page.
+ * Adds {@link HTMLElement} to the main page.
  * @param {String} tag Type of element
  * @param {Object} data Key/value pairs you want to be assigned to as
  * newTag[key] = value
