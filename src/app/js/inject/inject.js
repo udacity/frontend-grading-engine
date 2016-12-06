@@ -1,4 +1,4 @@
-/*global removeFileNameFromPath, injectIntoDocument, chrome, StateManager, debugStatus, appendIDToURL */
+/*global injectIntoDocument, chrome, StateManager, debugStatus, getSameOriginURL */
 
 /**
  * @fileoverview This file manages the injection of several JavaScript
@@ -38,9 +38,7 @@ function importComponentsLibrary() {
       id: 'components-lib'
     }, 'head');
   } else {
-    return Promise.resolve({
-      status: 'components_already_loaded_exception'
-    });
+    return Promise.reject('components_already_loaded_exception');
   }
 }
 
@@ -56,11 +54,9 @@ function importFeedbackWidget() {
       src: chrome.extension.getURL('app/templates/templates.js'),
       id: 'udacity-test-widget'
     }, 'head');
-  } else {
-    return Promise.resolve({
-      status: 'widget_already_loaded_exception'
-    });
   }
+
+  return Promise.reject('widget_already_loaded_exception');
 }
 
 /**
@@ -75,11 +71,8 @@ function injectGradingEngine() {
       src: chrome.extension.getURL('app/js/libs/GE.js'),
       id: 'udacity-front-end-feedback'
     }, 'head');
-  } else {
-    return Promise.resolve({
-      status: 'grading_engine_already_loaded_exception'
-    });
   }
+  return Promise.reject('grading_engine_already_loaded_exception');
 }
 
 /**
@@ -125,17 +118,18 @@ function loadLibraries() {
  */
 function loadJSONTestsFromFile() {
   return new Promise(function(resolve, reject) {
+    var url;
+
     if(!metaTag) {
-      return resolve({
-        status: 'no_meta_tag_exception',
-        message: 'Couldn’t find a valid test file to load automatically'
-      });
+      return reject('no_meta_tag_exception');
     }
 
     if(!stateManager.hasLocalFileAccess && stateManager.type === 'local') {
-      return resolve({
-        status: 'chrome_local_exception'
-      });
+      // filename: getFileNameFromPath(url)
+      // url = getSameOriginURL(metaTag.content);
+      // filepath: removeFileNameFromPath(url),
+
+      return reject('chrome_local_exception');
     }
 
     // http://stackoverflow.com/a/14274828
@@ -146,21 +140,11 @@ function loadJSONTestsFromFile() {
       if (xmlhttp.status === 200 && xmlhttp.readyState === 4) {
         // DANGER! Checks if that it wasn’t a redirection
         if(xmlhttp.responseURL !== url) {
-          reject({
-            status: 'redirection_exception',
-            message: 'The test file request received a ' +
-              'redirection. Possible cross-origin request attempt'
-          });
+          return reject('redirection_exception');
         }
-        resolve({
-          status: 0,
-          message: xmlhttp.responseText
-        });
+        resolve(xmlhttp.responseText);
       } else if (xmlhttp.status >= 400) {
-        reject({
-          status: 'http_error_code_exception',
-          message: 'The test file request returned an HTTP error'
-        });
+        return reject('http_error_code_exception');
       }
     };
     xmlhttp.open('GET', url, true);
@@ -175,20 +159,11 @@ function loadJSONTestsFromFile() {
  * @returns {Promise} A {@link Promise} that resolve if the data is
  * valid JSON or reject with a custom status code.
  */
-function checkJSONValidity(data) {
+function checkJSONValidity(json) {
   return new Promise(function(resolve, reject) {
-    var json = data.message;
-    var status = data.status;
-
-    if(status !== 0) {
-      reject(data);
-    }
-
     if (!json) {
       // This is not a fatal exception.
-      return reject({
-        status: 'no_json_data_provided_exception'
-      });
+      return reject('no_json_data_provided_exception');
     }
 
     try {
@@ -198,34 +173,22 @@ function checkJSONValidity(data) {
       json = JSON.stringify(json);
     } catch(error) {
       if (json.indexOf('\\') !== -1) {
-        reject({
-          status: 'regex_escape_characters_exception',
-          message: 'Are you trying to use “\\” in a RegEx? ' +
-            'Try using \\\\ instead'
-        });
-      } else {
-        reject({
-          status: 'invalid_json_exception',
-          message: 'Invalid JSON file format'
-        });
+        return reject('regex_escape_characters_exception');
       }
+
+      return reject('invalid_json_exception');
     }
-    resolve({
-      status: 0,
-      message: json
-    });
+
+    return resolve(json);
   });
 }
 
 function waitForFileInput(status) {
   window.addEventListener('ud-content-script-proxy', function handler(event) {
     var eventType = event.detail.type;
-    var result = {
-      status: 0,
-      message: event.detail.message
-    };
-    // TODO
+    var result = event.detail.data;
 
+    // TODO
     switch(eventType) {
     case 'ud-upload-json-request':
       return checkJSONValidity(result.fileData).then(function() {
@@ -261,7 +224,7 @@ function waitForFileInput(status) {
  * @returns {Promise}
  */
 function registerTestSuites(data) {
-  var json = data.message;
+  var json = JSON.stringify(data);
   return injectIntoDocument('script', {
     text: 'UdacityFEGradingEngine.registerSuites(' + json + ');'
   }, 'head');
@@ -273,31 +236,23 @@ function registerTestSuites(data) {
  */
 function loadUnitTests() {
   var unitTests = null;
-  return new Promise(function(resolve, reject) {
-    if(!metaTag) {
-      return resolve({
-        status: 'no_meta_tag_exception',
-        message: 'Couldn’t find a valid test file to load automatically'
-      });
-    }
-    unitTests = metaTag.getAttribute('unit-tests');
 
-    if(!stateManager.hasLocalFileAccess && stateManager.type === 'local') {
-      return resolve({
-        status: 'chrome_local_exception'
-      });
-    }
+  if(!metaTag) {
+    return Promise.reject('no_meta_tag_exception');
+  }
 
-    if (!unitTests) {
-      return resolve({
-        status: 'no_unit_tests_exception'
-      });
-    }
+  unitTests = metaTag.getAttribute('unit-tests');
 
-    return injectIntoDocument('script', {
-      src: unitTests,
-      defer: 'defer'
-    });
+  if (!unitTests) {
+    return Promise.resolve();
+  }
+  if(!stateManager.hasLocalFileAccess && stateManager.type === 'local') {
+    return Promise.reject('chrome_local_exception');
+  }
+
+  return injectIntoDocument('script', {
+    src: unitTests,
+    defer: 'defer'
   });
 }
 
@@ -356,24 +311,29 @@ chrome.runtime.onMessage.addListener(function handler(message, sender, sendRespo
    * @param {*} [value.message] - Any JSONifiable message.
    */
   function sendStatus(value) {
-    if(debugMode === true) {
-      debugStatus(value);
+    var _value = {};
+
+    if(!value || !value.status) {
+      _value.status = 0;
+      _value.message = value;
+    } else {
+      _value = value;
     }
-    sendResponse(value);
+
+    if(debugMode === true) {
+      debugStatus(_value);
+    }
+    sendResponse(_value);
   }
 
-  var response = {
-    status: undefined,
-    message: ''
-  };
   switch (message.type) {
   case 'allow':
     if (message.data === 'on') {
-      stateManager.allowSite();
-      stateManager.turnOn();
+      stateManager.allowSite()
+        .then(stateManager.turnOn);
     } else if (message.data === 'off') {
-      stateManager.disallowSite();
-      stateManager.turnOff();
+      stateManager.disallowSite()
+        .then(stateManager.turnOff);
     }
     break;
   case 'json':
@@ -422,9 +382,10 @@ chrome.runtime.onMessage.addListener(function handler(message, sender, sendRespo
 // Check if the site is on the Whitelist on page load
 stateManager.isSiteOnWhitelist()
   .then(function(value) {
-    if (value.message === true) {
+    if(value === true) {
       stateManager.turnOn();
     }
-  }).catch(debugStatus);
+  })
+  .catch(debugStatus);
 
 // inject.js<inject> ends here

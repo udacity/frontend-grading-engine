@@ -1,4 +1,4 @@
-/*global removeFileNameFromPath, importFeedbackWidget, injectGradingEngine, loadLibraries, loadJSONTestsFromFile, registerTestSuites, waitForTestRegistrations, loadUnitTests, chrome, injectIntoDocument, importComponentsLibrary, removeInjectedFromDocument, removeFromDocument */
+/*global removeFileNameFromPath, importFeedbackWidget, injectGradingEngine, loadLibraries, loadJSONTestsFromFile, registerTestSuites, waitForTestRegistrations, loadUnitTests, chrome, injectIntoDocument, importComponentsLibrary, removeInjectedFromDocument, removeFromDocument, turnOnGA, promptFileInput */
 
 /**
  * @fileOverview This file contains the StateManager Class.
@@ -108,25 +108,32 @@ function StateManager() {
         .then(importFeedbackWidget)
         .then(injectGradingEngine)
         .then(loadJSONTestsFromFile)
-        .then(function(value){
-          return new Promise(function(resolve, reject) {
-            switch(value.status) {
-            case 'chrome_local_exception':
-              // TODO: Don’t turn on when from whitelist?
-              turnOnGA().then(function(value) {
-                reject(value);
-              });
-              break;
-            case 'no_meta_tag_exception':
-              turnOnGA().then(function(value) {
-
-              });
-
-              break;
-            default:
-              resolve(value);
-            }
-          });
+        .catch(function(error){
+          switch(error) {
+          case 'chrome_local_exception':
+            return turnOnGA().then(function(value) {
+              /**
+               * Passes the captured status from the {@link Promise} returned
+               * by {@link loadJSONTestsFromFile}.
+               */
+              promptFileInput(value);
+              // We’ve executed the non-fatal recovery. Everything else should
+              // not be executed.
+              return Promise.reject(value);
+            });
+            break;
+          case 'no_meta_tag_exception':
+            return turnOnGA().then(function(value) {
+              /**
+               * Passes the captured status from the {@link Promise} returned
+               * by {@link loadJSONTestsFromFile}.
+               */
+              promptFileInput(value);
+            });
+            break;
+          default:
+            return Promise.reject(error);
+          }
         })
         .then(registerTestSuites)
         .then(loadLibraries)
@@ -138,11 +145,9 @@ function StateManager() {
         .then(function() {
           self.gradingEngineInjected = true;
           currentlyInjecting = false;
-          return Promise.resolve({
-            status: 0
-          });
-        }).catch(function(value) {
+        }).catch(function(error) {
           // Do nothing
+          console.log(error);
         });
     } else {
       return Promise.reject('grading_engine_already_loaded_exception');
