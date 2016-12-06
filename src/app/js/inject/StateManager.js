@@ -9,6 +9,24 @@
  * @todo Add a warning if the widget fails to initialize.
  */
 
+var warningCodes = {
+  'components_already_loaded_exception': 'The components library is already loaded',
+  'error_loading_library_exception': 'A required library couldn’t be loaded',
+  'file_input_already_pending_exception': 'Already waiting for the file input',
+  'grading_engine_already_loaded_exception': 'The Grading Engine library is already loaded',
+  'http_error_code_exception': 'The test file request returned an HTTP error',
+  'invalid_json_exception': 'Invalid JSON file format',
+  'no_json_data_provided_exception': '',
+  'no_library_specified_exception': '',
+  'no_meta_tag_exception': 'This website doesn’t seem to contain a link to the test file. Please load it manually.',
+  'no_unit_tests_exception': '',
+  'redirection_exception': 'The test file request received a redirection. Possible cross-origin request attempt',
+  'regex_escape_characters_exception': 'Are you trying to use “\\” in a RegEx? Try using \\\\ instead',
+  'unknown_location_type_exception': 'Assertion failed: Unknown location type',
+  'widget_already_loaded_exception': 'The Feedback Widget is already loaded',
+  'wrong_filetype_exception': 'The prompt doesn’t support the asked filetype'
+};
+
 /**
  * State of the current Document.
  * @returns {Promise}
@@ -96,7 +114,6 @@ function StateManager() {
             case 'chrome_local_exception':
               // TODO: Don’t turn on when from whitelist?
               turnOnGA().then(function(value) {
-                debugger;
                 reject(value);
               });
               break;
@@ -248,7 +265,8 @@ function StateManager() {
   };
 
   /**
-   * Removes the current document host from the whitelist (local storage).
+   * Removes the current document host from the whitelist (local
+   * storage).
    * @param {string} site - unused
    * @returns {Promise}
    */

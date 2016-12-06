@@ -24,6 +24,11 @@ var debugMode = false;
  */
 var metaTag = document.querySelector('meta[name="udacity-grader"]');
 
+/**
+ * Imports the Components library.
+ * @returns {Promise} - A {@link Promise} that resolves when the Components
+ * library was loaded.
+ */
 function importComponentsLibrary() {
   var cScript = document.querySelector('script#components-lib');
 
@@ -81,7 +86,7 @@ function injectGradingEngine() {
  * Load custom libraries for the Grading Engine
  * (i.e. jsgrader.js). Currently only `jsgrader.js` is supported and
  * allowed in the manifest.
- * @returns {Promise}
+ * @returns {Promise} TODO
  */
 function loadLibraries() {
   return new Promise(function(resolve, reject) {
@@ -120,6 +125,10 @@ function loadLibraries() {
         });
       });
   });
+/**
+ * Inject the file input inside the current Document.
+ * @returns {Promise} TODO
+ */
 }
 
 /**
@@ -172,13 +181,8 @@ function loadJSONTestsFromFile() {
 }
 
 /**
- * Check the validity of the JSON data to inject.
- * @param {Object} data - An {@link Object} containing the following
- * properties:
- * @param {int|String} data.status - The status code of the last
- * Promise or a title for the error. Any other value than 0 is
- * considered an error/exception.
- * @param {String} data.message - JSON containing tests that will be
+ * Check the validity of the JSON data to inject.n.
+ * @param {String} json - JSON containing tests that will be
  * registered with {@link registerTestSuites}.
  * @returns {Promise} A {@link Promise} that resolve if the data is
  * valid JSON or reject with a custom status code.
@@ -227,7 +231,6 @@ function checkJSONValidity(data) {
 
 function waitForFileInput(status) {
   window.addEventListener('ud-content-script-proxy', function handler(event) {
-    debugger;
     var eventType = event.detail.type;
     var result = {
       status: 0,
@@ -253,19 +256,21 @@ function waitForFileInput(status) {
   }, false);
 }
 
+/**
+ * TODO
+ * @param {String} file.type - Either `test-file` or `unit-tests`.
+ * @param {String} [file.filepath] - The filepath (basepath) of the
+ * required file to prompt.
+ * @param {String} [file.filename] - The filename of the required file
+ * to prompt.
+ */
 // You don’t have access to the GE here, but you can inject a script
 // into the document that does.
 /**
  * Register test suites from the JSON data.
- * @param {Object} data - An {@link Object} containing the following
- * properties:
- * @param {int|String} data.status - The status code of the last
- * Promise or a title for the error. Any other value than 0 is
- * considered an error/exception.
- * @param {String} data.message - JSON containing tests for the
- * Grading Engine.
+ * @param {String} data - JSON containing tests for the Grading
+ * Engine.
  * @returns {Promise}
- * @throws {Error} Errors about the JSON file.
  */
 function registerTestSuites(data) {
   var json = data.message;
@@ -309,28 +314,29 @@ function loadUnitTests() {
 }
 
 /**
- * Activates the Grading Engine by injecting itself in the Document. Not to be
- * confused with {@link StateManager.turnOn}. This method is called from {@link
- * StateManager~runLoadSequence}.
+ * Activates the Grading Engine by injecting itself in the
+ * Document. Not to be confused with {@link StateManager.turnOn}. This
+ * method is called from {@link StateManager~runLoadSequence}.
  * @returns {Promise}
  */
 function turnOnGA() {
   return injectIntoDocument('script', {
     id: 'ud-grader-options',
-    // Reviewer: Because we need to access the window script context, it’s
-    // necessary to inject the script that way. A content-script doesn’t have
-    // access to the window scripting context.
+    // Reviewer: Because we need to access the window script context,
+    // it’s necessary to inject the script that way. A content-script
+    // doesn’t have access to the window scripting context.
     innerHTML: 'UdacityFEGradingEngine.turnOn();'
   }, 'head');
 }
 
 /**
- * Stops {@link StateManager~runLoadSequence} until all tests are loaded. This
- * is necessary because the Grading Engine is activated thought the page
- * context. It isn’t a content script like this file.
- * @todo Add a timeout. If (for some reason) the event is never fired, it would
- * probably block the widget.
- * @returns {Promise} A `Promise` that fulfills when all tests are loaded
+ * Stops {@link StateManager~runLoadSequence} until all tests are
+ * loaded. This is necessary because the Grading Engine is activated
+ * thought the page context. It isn’t a content script like this file.
+ * @todo Add a timeout. If (for some reason) the event is never fired,
+ * it would probably block the widget.
+ * @returns {Promise} A `Promise` that fulfills when all tests are
+ * loaded
  */
 function waitForTestRegistrations() {
   return new Promise(function(resolve, reject) {
@@ -354,6 +360,13 @@ var stateManager = new StateManager();
  * received.
  */
 chrome.runtime.onMessage.addListener(function handler(message, sender, sendResponse) {
+  /**
+   * Utility function to send back response with a status. If
+   * {value.status} isn’t present, it sends a status of 0.
+   * @param {*} value - The value to send back.
+   * @param {String|int} [value.status] - The status to send back.
+   * @param {*} [value.message] - Any JSONifiable message.
+   */
   function sendStatus(value) {
     if(debugMode === true) {
       debugStatus(value);
