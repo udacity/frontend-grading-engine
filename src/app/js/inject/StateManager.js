@@ -145,11 +145,7 @@ function StateManager() {
           // Do nothing
         });
     } else {
-      return Promise.resolve({
-        status: 'no_meta_tag_exception',
-        message: 'This website doesn’t seem to contain a link to ' +
-          'the test file. Please load it manually.'
-      });
+      return Promise.reject('grading_engine_already_loaded_exception');
     }
   }
 
@@ -161,11 +157,13 @@ function StateManager() {
   this.isSiteOnWhitelist = function() {
     var self = this;
     var type = self.type;
+    var allowed = false;
+    var voidList = {remote: [], local: []};
 
     return new Promise(function(resolve) {
-      var allowed = false;
       chrome.storage.sync.get('whitelist', function(response) {
-        self.whitelist = response.whitelist || {remote: [], local: []};
+        self.whitelist = response.whitelist || voidList;
+
         if (!(self.whitelist[type] instanceof Array)) {
           self.whitelist[type] = [self.whitelist[type]];
         }
@@ -174,10 +172,7 @@ function StateManager() {
         if(allowed) {
           self.allowSite();
         }
-        resolve({
-          status: 0,
-          message: allowed
-        });
+        return resolve(allowed);
       });
     });
   };
@@ -191,19 +186,12 @@ function StateManager() {
     var self = this;
     var type = self.type;
 
-    return new Promise(function(resolve, reject) {
-      if(!type) {
-        reject({
-          status: 'unknown_location_type_exception',
-          message: 'Assertion failed: Unknown location type (StateManager.allowSite)'
-        });
-      }
+    if(!type) {
+      return Promise.reject('unknown_location_type_exception');
+    }
 
-      protected.isAllowed = true;
-      resolve({
-        status: 0
-      });
-    });
+    protected.isAllowed = true;
+    return Promise.resolve();
   };
 
   /**
@@ -214,19 +202,12 @@ function StateManager() {
     var self = this;
     var type = self.type;
 
-    return new Promise(function(resolve, reject) {
-      if(!type) {
-        reject({
-          status: 'unknown_location_type_exception',
-          message: 'Assertion failed: Unknown location type (StateManager.disallowSite)'
-        });
-      }
+    if(!type) {
+      return Promise.reject('unknown_location_type_exception');
+    }
 
-      protected.isAllowed = false;
-      resolve({
-        status: 0
-      });
-    });
+    protected.isAllowed = false;
+    return Promise.resolve();
   };
 
   /**
@@ -236,30 +217,24 @@ function StateManager() {
   this.addSiteToWhitelist = function() {
     var self = this;
     var type = self.type;
+    var index;
+    var data;
 
-    return new Promise(function(resolve, reject) {
-      var index;
-      var data;
+    if(!type) {
+      return Promise.reject('unknown_location_type_exception');
+    }
 
-      if(!type) {
-        reject({
-          status: 'unknown_location_type_exception',
-          message: 'Assertion failed: Unknown location type (StateManager.addToWhitelist)'
-        });
-      }
+    index = self.whitelist[type].indexOf(self.host);
 
-      index = self.whitelist[type].indexOf(self.host);
+    if (index === -1) {
+      self.whitelist[type].push(self.host);
+    }
+    self.allowSite();
 
-      if (index === -1) {
-        self.whitelist[type].push(self.host);
-      }
-      self.allowSite();
-
-      data = {whitelist: self.whitelist};
-      chrome.storage.sync.set(data, function() {
-        resolve({
-          satus: 0
-        });
+    data = {whitelist: self.whitelist};
+    return chrome.storage.sync.set(data, function() {
+      return Promise.resolve({
+        satus: 0
       });
     });
   };
@@ -273,15 +248,16 @@ function StateManager() {
   this.removeSiteFromWhitelist = function(site) {
     var self = this;
     var type = self.type;
+    var _site = site || self.host;
+    var index = self.whitelist[type].indexOf(_site);
+    var data;
+
+    if (index > -1) {
+      self.whitelist[type].splice(index, 1);
+    }
+    data = {whitelist: self.whitelist};
 
     return new Promise(function(resolve) {
-      var index = self.whitelist[type].indexOf(self.host);
-      var data;
-
-      if (index > -1) {
-        self.whitelist[type].splice(index, 1);
-      }
-      data = {whitelist: self.whitelist};
       chrome.storage.sync.set(data, function() {
         resolve({
           status: 0
@@ -298,22 +274,16 @@ function StateManager() {
   */
   this.getIsAllowed = function() {
     var self = this;
+    var isAllowed = (protected.isAllowed === true);
 
-    return new Promise(function(resolve, reject) {
-      var isAllowed = (protected.isAllowed === true);
-
-      if(!self.hasLocalFileAccess && self.type === 'local') {
-        reject({
-          status: 'chrome_local_exception',
-          message: isAllowed
-        });
-      }
-
-      resolve({
-        status: 0,
+    if(!self.hasLocalFileAccess && self.type === 'local') {
+      return Promise.reject({
+        status: 'chrome_local_exception',
         message: isAllowed
       });
-    });
+    }
+
+    return Promise.resolve(isAllowed);
   };
 
   /**
@@ -369,9 +339,7 @@ function StateManager() {
         return new Promise(function(resolve) {
           window.addEventListener('killedGradingEngine', function handler() {
             window.removeEventListener('killedGradingEngine', handler, false);
-            resolve({
-              status: 0
-            });
+            resolve();
           }, false);
           window.dispatchEvent(new Event('killUdacityFEGradingEngine'));
         });
