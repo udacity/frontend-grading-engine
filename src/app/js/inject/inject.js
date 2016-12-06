@@ -89,42 +89,30 @@ function injectGradingEngine() {
  * @returns {Promise} TODO
  */
 function loadLibraries() {
-  return new Promise(function(resolve, reject) {
-    var libraries = null;
-    var loadedLibs = 0;
+  var libraries = null;
+  var loadedLibs = 0;
 
-    if(!metaTag) {
-      // XXX: Reject?
-      resolve({
-        status: 'no_meta_tag_exception',
-        message: 'Couldn’t find a valid test file to load automatically'
-      });
-    }
+  if(!metaTag) {
+    return Promise.reject('no_meta_tag_exception');
+  }
+  libraries = metaTag.getAttribute('libraries');
 
-    libraries = metaTag.getAttribute('libraries');
-    if(!libraries) {
-      return resolve({
-        status: 'no_library_specified_exception'
-      });
-    }
+  if(!libraries) {
+    return Promise.resolve('no_library_specified_exception');
+  }
 
-    libraries = libraries.split(' ');
-    return Promise.all(
-      libraries.map(function(lib) {
-        return injectIntoDocument('script', {
-          src: chrome.extension.getURL('app/js/libs/' + lib + '.js')
-        }, 'head');
-      })).then(function() {
-        resolve({
-          status: 0
-        });
-      }).catch(function(error) {
-        reject({
-          status: 'error_loading_library_exception',
-          message: error
-        });
-      });
-  });
+  libraries = libraries.split(' ');
+
+  return Promise.all(
+    libraries.map(function(lib) {
+      return injectIntoDocument('script', {
+        src: chrome.extension.getURL('app/js/libs/' + lib + '.js')
+      }, 'head');
+    })).catch(function() {
+      return Promise.reject('error_loading_library_exception');
+    });
+}
+
 /**
  * Inject the file input inside the current Document.
  * @returns {Promise} TODO
