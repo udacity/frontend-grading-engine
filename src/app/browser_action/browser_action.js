@@ -112,7 +112,7 @@ HTMLInputElement.prototype.unlock = function() {
           if (callback) {
             callback(response);
           }
-          resolve();
+          return resolve();
         });
       }
       // get the current tab then send data to it
@@ -311,7 +311,7 @@ HTMLInputElement.prototype.unlock = function() {
        */
       function expandHandler() {
         infoBlock.removeEventListener('transitionend', expandHandler, false);
-        resolve();
+        return resolve();
       }
 
       /**
@@ -320,7 +320,7 @@ HTMLInputElement.prototype.unlock = function() {
       function collapseHandler() {
         infoBlock.removeEventListener('transitionend', collapseHandler, false);
         infoText.textContent = text;
-        resolve();
+        return resolve();
       }
 
       /**

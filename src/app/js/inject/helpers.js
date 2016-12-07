@@ -42,30 +42,21 @@ function injectIntoDocument(tag, data, location) {
     injectedElementsOnPage.push(newTag.id);
 
     newTag.onload = function(element) {
-      resolve({
-        status: 0,
-        message: element
-      });
+      return resolve(element);
     };
 
     newTag.onerror = function(error) {
-      reject({
-        status: 'injection_error_exception',
-        message: error
-      });
+      reject(['injection_error_exception', error]);
     };
-
-    if(tag === 'script' && !newTag.src && (newTag.text || newTag.innerHTML)) {
-      resolve({
-        status: 0,
-        element: newTag
-      });
-    }
 
     if (location === 'head') {
       document.head.appendChild(newTag);
     } else {
       document.body.appendChild(newTag);
+    }
+
+    if(tag === 'script' && !newTag.src && (newTag.text || newTag.innerHTML)) {
+      return resolve(newTag);
     }
   });
 }
@@ -182,11 +173,7 @@ function getSameOriginURL(url, noCache) {
         url = window.location.protocol + url;
         break;
       default:
-        return Promise.reject({
-          status: 'unknown_protocol_exception',
-          message: 'Unknown URL protocol. Supported protocols ' +
-            'are: http, https and (local) file'
-        });
+        return Promise.reject('unknown_protocol_exception');
       }
     } else {
       // it’s probably a relative path (may be garbage)
@@ -203,11 +190,7 @@ function getSameOriginURL(url, noCache) {
   fileBase = url.substr(0, url.lastIndexOf('/') + 1);
 
   if(fileBase !== documentBase) {
-    return Promise.reject({
-      status: 'invalid_origin_exception',
-      message: 'The test file doesn’t have the same origin as ' +
-        'the document'
-    });
+    return Promise.reject('invalid_origin_exception');
   }
   return url;
 }

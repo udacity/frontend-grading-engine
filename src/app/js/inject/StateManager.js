@@ -10,12 +10,16 @@
  */
 
 var warningCodes = {
+  'already_injected_exception': 'Cannot inject the Grading Engine since it’s already injected',
   'components_already_loaded_exception': 'The components library is already loaded',
   'error_loading_library_exception': 'A required library couldn’t be loaded',
   'file_input_already_pending_exception': 'Already waiting for the file input',
   'grading_engine_already_loaded_exception': 'The Grading Engine library is already loaded',
   'http_error_code_exception': 'The test file request returned an HTTP error',
+  'injection_error_exception': 'Cannot inject an element',
   'invalid_json_exception': 'Invalid JSON file format',
+  'invalid_file_query_exception': 'The passed file query is not valid',
+  'invalid_origin_exception': 'The test file doesn’t have the same origin as the document',
   'no_json_data_provided_exception': '',
   'no_library_specified_exception': '',
   'no_meta_tag_exception': 'This website doesn’t seem to contain a link to the test file. Please load it manually.',
@@ -23,6 +27,7 @@ var warningCodes = {
   'redirection_exception': 'The test file request received a redirection. Possible cross-origin request attempt',
   'regex_escape_characters_exception': 'Are you trying to use “\\” in a RegEx? Try using \\\\ instead',
   'unknown_location_type_exception': 'Assertion failed: Unknown location type',
+  'unknown_protocol_exception': 'Unknown URL protocol. Supported protocols are: http, https and (local) file',
   'widget_already_loaded_exception': 'The Feedback Widget is already loaded',
   'wrong_filetype_exception': 'The prompt doesn’t support the asked filetype'
 };
@@ -112,10 +117,6 @@ function StateManager() {
           switch(error) {
           case 'chrome_local_exception':
             return turnOnGA().then(function(value) {
-              /**
-               * Passes the captured status from the {@link Promise} returned
-               * by {@link loadJSONTestsFromFile}.
-               */
               promptFileInput(value);
               // We’ve executed the non-fatal recovery. Everything else should
               // not be executed.
@@ -124,11 +125,9 @@ function StateManager() {
             break;
           case 'no_meta_tag_exception':
             return turnOnGA().then(function(value) {
-              /**
-               * Passes the captured status from the {@link Promise} returned
-               * by {@link loadJSONTestsFromFile}.
-               */
-              promptFileInput(value);
+
+              // promptFileInput(value);
+              return Promise.reject('no_meta_tag_exception');
             });
             break;
           default:
@@ -145,9 +144,10 @@ function StateManager() {
         .then(function() {
           self.gradingEngineInjected = true;
           currentlyInjecting = false;
+          return Promise.resolve();
         }).catch(function(error) {
-          // Do nothing
           console.log(error);
+          // return Promise.reject(error);
         });
     } else {
       return Promise.reject('grading_engine_already_loaded_exception');
@@ -237,9 +237,9 @@ function StateManager() {
     self.allowSite();
 
     data = {whitelist: self.whitelist};
-    return chrome.storage.sync.set(data, function() {
-      return Promise.resolve({
-        satus: 0
+    return new Promise(function(resolve) {
+      chrome.storage.sync.set(data, function() {
+        return resolve();
       });
     });
   };
@@ -264,9 +264,7 @@ function StateManager() {
 
     return new Promise(function(resolve) {
       chrome.storage.sync.set(data, function() {
-        resolve({
-          status: 0
-        });
+        return resolve();
       });
     });
   };
@@ -282,10 +280,7 @@ function StateManager() {
     var isAllowed = (protected.isAllowed === true);
 
     if(!self.hasLocalFileAccess && self.type === 'local') {
-      return Promise.reject({
-        status: 'chrome_local_exception',
-        message: isAllowed
-      });
+      return Promise.reject(['chrome_local_exception', isAllowed]);
     }
 
     return Promise.resolve(isAllowed);
@@ -299,24 +294,18 @@ function StateManager() {
     var self = this;
 
     // What’s that?
-    var g = document.querySelector('#ud-grader-options');
+    // XXX:
+    // var g = document.querySelector('#ud-grader-options');
 
-    if (g) {
-      document.head.removeChild(g);
-    }
+    // if (g) {
+    //   document.head.removeChild(g);
+    // }
 
     if (!self.gradingEngineInjected) {
-      return runLoadSequence().then(function() {
-        return Promise.resolve({
-          status: 0
-        });
-      });
+      return runLoadSequence();
     } else {
       // The GradingEngine is already injected
-      return Promise.reject({
-        status: 'already_injected_exception',
-        message: 'Cannot inject the Grading Engine since it’s already injected'
-      });
+      return Promise.reject('already_injected_exception');
     }
   };
 
@@ -344,7 +333,7 @@ function StateManager() {
         return new Promise(function(resolve) {
           window.addEventListener('killedGradingEngine', function handler() {
             window.removeEventListener('killedGradingEngine', handler, false);
-            resolve();
+            return resolve();
           }, false);
           window.dispatchEvent(new Event('killUdacityFEGradingEngine'));
         });

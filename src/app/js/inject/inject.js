@@ -72,6 +72,7 @@ function injectGradingEngine() {
       id: 'udacity-front-end-feedback'
     }, 'head');
   }
+
   return Promise.reject('grading_engine_already_loaded_exception');
 }
 
@@ -142,7 +143,7 @@ function loadJSONTestsFromFile() {
         if(xmlhttp.responseURL !== url) {
           return reject('redirection_exception');
         }
-        resolve(xmlhttp.responseText);
+        return resolve(xmlhttp.responseText);
       } else if (xmlhttp.status >= 400) {
         return reject('http_error_code_exception');
       }
@@ -284,9 +285,7 @@ function turnOnGA() {
 function waitForTestRegistrations() {
   return new Promise(function(resolve, reject) {
     window.addEventListener('tests-registered', function(data) {
-      return resolve({
-        status: 0
-      });
+      return resolve();
     });
   });
 }
@@ -306,18 +305,28 @@ chrome.runtime.onMessage.addListener(function handler(message, sender, sendRespo
   /**
    * Utility function to send back response with a status. If
    * {value.status} isn’t present, it sends a status of 0.
-   * @param {*} value - The value to send back.
-   * @param {String|int} [value.status] - The status to send back.
-   * @param {*} [value.message] - Any JSONifiable message.
+   * @param {Object[]} value - The value to send back.
    */
   function sendStatus(value) {
+    debugger;
     var _value = {};
 
-    if(!value || !value.status) {
-      _value.status = 0;
-      _value.message = value;
+    if(!value || !value[0]) {
+      _value = {
+        status: 0,
+        // Necessary if it’s a falsy value
+        message: value
+      };
+    } else if(!value[1]) {
+      _value = {
+        status: 0,
+        message: value[0]
+      };
     } else {
-      _value = value;
+      _value = {
+        status: value[0],
+        message: value[1]
+      };
     }
 
     if(debugMode === true) {
