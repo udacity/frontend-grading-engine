@@ -181,28 +181,86 @@ function checkJSONValidity(json) {
   });
 }
 
-function waitForFileInput(status) {
-  window.addEventListener('ud-content-script-proxy', function handler(event) {
-    var eventType = event.detail.type;
-    var result = event.detail.data;
+function handleFileQueryResponse(detail) {
+  var filetype = detail.filetype;
+  var filename = detail.filename;
+  var data = detail.filedata;
 
-    // TODO
-    switch(eventType) {
-    case 'ud-upload-json-request':
-      return checkJSONValidity(result.fileData).then(function() {
-        alert('it works');
-      }).catch(function(status) {
-        alert('some error');
-        console.log(status);
+  switch(filetype) {
+  case 'application/json':
+    return checkJSONValidity(data)
+      .catch(function(error) {
+        return Promise.reject([error, filename]);
       });
-      break;
-    case 'ud-upload-javascript-request':
-      break;
-    default:
-      break;
+    break;
+  case 'application/javascript':
+    break;
+  default:
+    // TODO:
+    // Unknown messaging error
+    break;
+  }
+}
+
+function buildInputPromptWidget() {
+  return new Promise(function(resolve) {
+    /**
+     * Resolves the returned {@link Promise} of
+     * {@link buildInputPromptWidget} when the Prompt Widget is built.
+     * @returns {Promise} A resolved promise from {@link resolve}.
+     */
+    function handleBuildingResponse() {
+      // We can’t confirm everything is ok yet?
+      window.removeEventListener('ud-upload-file-prompt-built-response',
+                                 handleBuildingResponse, false);
+      return resolve();
     }
 
-  }, false);
+    window.addEventListener('ud-upload-file-prompt-built-response',
+                            handleBuildingResponse, false);
+    window.dispatchEvent(new Event('ud-upload-file-prompt-build'));
+  });
+}
+
+function sendFileQuery(detail) {
+  // Filename is mandatory
+  var filetype = detail.filetype;
+  var filename = detail.filename || null;
+  var filepath = detail.filepath || null;
+
+  return new Promise(function(resolve, reject) {
+    /**
+     * Handles the query response.
+     * @param {CustomEvent} event - An event containing the following property:
+     * @param {*} event.detail - The message of the file query.
+     * @returns {Promise} The resolved {@link Promise} of
+     * {@link sendFileQuery}.
+     */
+    function handleQueryResponse(event) {
+      return resolve(event.detail);
+    }
+
+    if(!detail || (detail.filetype !== 'application/json' &&
+                   detail.filetype !== 'application/javascript')) {
+      return reject('invalid_file_query_exception');
+    }
+
+    var request = new CustomEvent('ud-upload-file-prompt-request', {
+      detail: {
+        filetype: filetype,
+        filename: filename,
+        filepath: filepath
+      }
+    });
+    window.addEventListener('ud-upload-file-prompt-response', handleQueryResponse, false);
+    window.dispatchEvent(request);
+  });
+}
+function promptJSONFile(file) {
+  if(file.filetype !== 'application/json') {
+    return Promise.reject('wrong_filetype_exception');
+  }
+  return sendFileQuery(file);
 }
 
 /**
@@ -213,6 +271,23 @@ function waitForFileInput(status) {
  * @param {String} [file.filename] - The filename of the required file
  * to prompt.
  */
+function promptFileInput(file) {
+  var message = {};
+
+  switch(file.type) {
+  case 'tests-file':
+    message.filetype = 'application/json';
+    return promptJSONFile(message);
+    break;
+  case 'unit-tests':
+    message.filetype = 'application/javascript';
+    break;
+  default:
+    return Promise.reject('wrong_filetype_exception');
+    break;
+  }
+}
+
 // You don’t have access to the GE here, but you can inject a script
 // into the document that does.
 /**
