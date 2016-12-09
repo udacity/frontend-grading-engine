@@ -1,4 +1,4 @@
-/*global removeFileNameFromPath, importFeedbackWidget, injectGradingEngine, loadLibraries, loadJSONTestsFromFile, registerTestSuites, waitForTestRegistrations, loadUnitTests, chrome, injectIntoDocument, importComponentsLibrary, removeInjectedFromDocument, removeFromDocument, turnOnGA, promptFileInput */
+/*global removeFileNameFromPath, importFeedbackWidget, injectGradingEngine, loadLibraries, loadJSONTestsFromFile, registerTestSuites, waitForTestRegistrations, loadUnitTests, chrome, injectIntoDocument, importComponentsLibrary, removeInjectedFromDocument, removeFromDocument, turnOnGA, promptFileInput, handleFileQueryResponse */
 
 /**
  * @fileOverview This file contains the StateManager Class.
@@ -48,6 +48,8 @@ function StateManager() {
     type: null
   };
   var currentlyInjecting = false;
+
+  var that = this;
 
   this.whitelist = {remote: [], local: []};
   this.gradingEngineInjected = false;
@@ -104,9 +106,8 @@ function StateManager() {
    * @throws {Error} An error coming from a Promise.
    */
   function runLoadSequence() {
-    var self = this;
 
-    if (!currentlyInjecting && !self.gradingEngineInjected) {
+    if (!currentlyInjecting && !that.gradingEngineInjected) {
       currentlyInjecting = true;
 
       return importComponentsLibrary()
@@ -128,7 +129,7 @@ function StateManager() {
           case 'no_meta_tag_exception':
             return turnOnGA().then(function(value) {
 
-              self.gradingEngineInjected = true;
+              that.gradingEngineInjected = true;
               currentlyInjecting = false;
               // promptFileInput(value);
               return Promise.reject('no_meta_tag_exception');
@@ -146,7 +147,7 @@ function StateManager() {
         .then(waitForTestRegistrations)
         .then(loadUnitTests)
         .then(function() {
-          self.gradingEngineInjected = true;
+          that.gradingEngineInjected = true;
           currentlyInjecting = false;
           return Promise.resolve();
         }).catch(function(error) {
@@ -164,22 +165,21 @@ function StateManager() {
    * @returns {Promise}
    */
   this.isSiteOnWhitelist = function() {
-    var self = this;
-    var type = self.type;
+    var type = that.type;
     var allowed = false;
     var voidList = {remote: [], local: []};
 
     return new Promise(function(resolve) {
       chrome.storage.sync.get('whitelist', function(response) {
-        self.whitelist = response.whitelist || voidList;
+        that.whitelist = response.whitelist || voidList;
 
-        if (!(self.whitelist[type] instanceof Array)) {
-          self.whitelist[type] = [self.whitelist[type]];
+        if (!(that.whitelist[type] instanceof Array)) {
+          that.whitelist[type] = [that.whitelist[type]];
         }
-        allowed = self.whitelist[type].indexOf(self.host) > -1;
+        allowed = that.whitelist[type].indexOf(that.host) > -1;
 
         if(allowed) {
-          self.allowSite();
+          that.allowSite();
         }
         return resolve(allowed);
       });
@@ -192,8 +192,7 @@ function StateManager() {
    * @returns {Promise}
    */
   this.allowSite = function() {
-    var self = this;
-    var type = self.type;
+    var type = that.type;
 
     if(!type) {
       return Promise.reject('unknown_location_type_exception');
@@ -208,8 +207,7 @@ function StateManager() {
    * @returns {Promise}
    */
   this.disallowSite = function() {
-    var self = this;
-    var type = self.type;
+    var type = that.type;
 
     if(!type) {
       return Promise.reject('unknown_location_type_exception');
@@ -224,8 +222,7 @@ function StateManager() {
    * @returns {Promise}
    */
   this.addSiteToWhitelist = function() {
-    var self = this;
-    var type = self.type;
+    var type = that.type;
     var index;
     var data;
 
@@ -233,14 +230,14 @@ function StateManager() {
       return Promise.reject('unknown_location_type_exception');
     }
 
-    index = self.whitelist[type].indexOf(self.host);
+    index = that.whitelist[type].indexOf(that.host);
 
     if (index === -1) {
-      self.whitelist[type].push(self.host);
+      that.whitelist[type].push(that.host);
     }
-    self.allowSite();
+    that.allowSite();
 
-    data = {whitelist: self.whitelist};
+    data = {whitelist: that.whitelist};
     return new Promise(function(resolve) {
       chrome.storage.sync.set(data, function() {
         return resolve();
@@ -255,16 +252,15 @@ function StateManager() {
    * @returns {Promise}
    */
   this.removeSiteFromWhitelist = function(site) {
-    var self = this;
-    var type = self.type;
-    var _site = site || self.host;
-    var index = self.whitelist[type].indexOf(_site);
+    var type = that.type;
+    var _site = site || that.host;
+    var index = that.whitelist[type].indexOf(_site);
     var data;
 
     if (index > -1) {
-      self.whitelist[type].splice(index, 1);
+      that.whitelist[type].splice(index, 1);
     }
-    data = {whitelist: self.whitelist};
+    data = {whitelist: that.whitelist};
 
     return new Promise(function(resolve) {
       chrome.storage.sync.set(data, function() {
@@ -280,10 +276,9 @@ function StateManager() {
    }
   */
   this.getIsAllowed = function() {
-    var self = this;
     var isAllowed = (protected.isAllowed === true);
 
-    if(!self.hasLocalFileAccess && self.type === 'local') {
+    if(!that.hasLocalFileAccess && that.type === 'local') {
       return Promise.reject(['chrome_local_exception', isAllowed]);
     }
 
@@ -295,8 +290,6 @@ function StateManager() {
    * @returns {Promise}
    */
   this.turnOn = function() {
-    var self = this;
-
     // What’s that?
     // XXX:
     // var g = document.querySelector('#ud-grader-options');
@@ -305,7 +298,7 @@ function StateManager() {
     //   document.head.removeChild(g);
     // }
 
-    if (!self.gradingEngineInjected) {
+    if (!that.gradingEngineInjected) {
       return runLoadSequence();
     } else {
       // The GradingEngine is already injected
@@ -319,7 +312,6 @@ function StateManager() {
    * @throws {it’s cool} do nothing
    */
   this.turnOff = function() {
-    var self = this;
 
     removeFromDocument('ud-grader-options');
 
@@ -344,9 +336,9 @@ function StateManager() {
       })
       .then(function() {
         removeInjectedFromDocument();
+        that.gradingEngineInjected = false;
         // wish I could unregister <test-widget>, but it doesn’t look like it’s
         // possible at the moment
-        self.gradingEngineInjected = false;
       })
       .catch(function(e) {
         throw e;
