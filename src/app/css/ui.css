@@ -67,18 +67,13 @@ button.important:hover {
 #main {
   padding: 1em;
   height: 100%;
-  width: 800px;
+  width: 400px;
   font-family: Helvetica, Ubuntu, Arial, sans-serif;
 }
 
 .alert {
   color: #78f;
   display: none;
-}
-
-.loader {
-  margin-top: 1em;
-  margin-left: 2em;
 }
 
 .input-container {
@@ -118,7 +113,7 @@ button.important:hover {
 }
 
 .info-block {
-  width: 80%;
+  width: 90%;
   background-color: #dde4e9;
 }
 
@@ -136,6 +131,88 @@ button.important:hover {
   height: 0;
   overflow: hidden;
   transition: height 0.5s, border 0.4s;
+}
+/* .loader { */
+/*   margin-top: 1em; */
+/*   margin-left: 2em; */
+/* } */
+
+
+.checkbox-section {
+  padding-left: 60px;
+  font-family: 'PT Sans', sans-serif;
+  /* font-size: 1.3em; */
+  /* font-weight: bold; */
+}
+
+.checkbox-section input[type="checkbox"]{
+  display: none;
+}
+
+.checkbox-container {
+  margin-bottom: 10px;
+}
+
+.checkbox-container label {
+  position: relative;
+}
+
+.checkbox-container span::before,
+.checkbox-container span::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+/* Check-boxes */
+.checkbox-container .checkbox-label::before {
+  left: -53px;
+  width: 40px;
+  height: 20px;
+  background-color: #7d97ad;
+  border-radius: 50px;
+}
+
+.checkbox-container .checkbox-label:hover::before {
+}
+
+.checkbox-container .checkbox-label::after {
+  left: -55px;
+  top: 0px;
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+  border: 1px solid #7d97ad;
+  background-color: #fff;
+  box-shadow: 0 0 10px -5px black;
+  transition: left .25s, background-color .25s;
+}
+
+input[type="checkbox"]:checked + label .checkbox-label::before {
+  background-color: #2795ee;
+}
+
+input[type="checkbox"]:checked + label .checkbox-label::after {
+  left: -33px;
+  background-color: #fff;
+  border-color: #2795ee;
+}
+
+input[type="checkbox"]:disabled + label .checkbox-label::before {
+  background-color: #b2b3b3;
+}
+
+input[type="checkbox"]:disabled + label .checkbox-label::after {
+  left: -33px;
+  background-color: #fafbfc;
+  border-color: #adabab;
+  box-shadow: 0 0 black;
+}
+
+input[type="checkbox"]:disabled + label {
+
 }
 
 /* ui.css<css> ends here */
