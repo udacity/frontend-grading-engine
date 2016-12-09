@@ -12,6 +12,10 @@
 
 var debugMode = false;
 
+// StateManager() was here
+
+var stateManager = new StateManager();
+
 /**
  * The meta tag that is used to load and activate a file of tests.
  * @type {Element}
@@ -165,7 +169,6 @@ function checkJSONValidity(json) {
       // Validating the JSON.
       JSON.parse(json);
       // Stringify the JSON to inject it in the page
-      json = JSON.stringify(json);
     } catch(error) {
       if (json.indexOf('\\') !== -1) {
         return reject('regex_escape_characters_exception');
@@ -284,10 +287,6 @@ function waitForTestRegistrations() {
   });
 }
 
-// StateManager() was here
-
-var stateManager = new StateManager();
-
 /**
  * Wait for messages from browser action.
  * @param {Object} message - Object containing a `data` and a `type` property.
@@ -304,13 +303,17 @@ chrome.runtime.onMessage.addListener(function handler(message, sender, sendRespo
   function sendStatus(value) {
     var _value = {};
 
-    if(!value || !value[0]) {
+    if(!value || value[0] === undefined) {
       _value = {
         status: 0,
         // Necessary if it’s a falsy value
         message: value
       };
-    } else if(!value[1]) {
+    } else if(Object.prototype.toString.call(value) === '[object String]') {
+      _value = {
+        status: value
+      };
+    } else if(value[1] === undefined) {
       _value = {
         status: 0,
         message: value[0]
@@ -332,10 +335,12 @@ chrome.runtime.onMessage.addListener(function handler(message, sender, sendRespo
   case 'allow':
     if (message.data === 'on') {
       stateManager.allowSite()
-        .then(stateManager.turnOn);
+        .then(stateManager.turnOn)
+        .then(sendStatus, sendStatus);
     } else if (message.data === 'off') {
       stateManager.disallowSite()
-        .then(stateManager.turnOff);
+        .then(stateManager.turnOff)
+        .then(sendStatus, sendStatus);
     }
     break;
   case 'json':

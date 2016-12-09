@@ -150,9 +150,6 @@ function StateManager() {
           that.gradingEngineInjected = true;
           currentlyInjecting = false;
           return Promise.resolve();
-        }).catch(function(error) {
-          console.log(error);
-          // return Promise.reject(error);
         });
     } else {
       return Promise.reject('grading_engine_already_loaded_exception');
@@ -181,7 +178,7 @@ function StateManager() {
         if(allowed) {
           that.allowSite();
         }
-        return resolve(allowed);
+        return resolve([0, allowed]);
       });
     });
   };
@@ -337,6 +334,7 @@ function StateManager() {
       .then(function() {
         removeInjectedFromDocument();
         that.gradingEngineInjected = false;
+        return Promise.resolve(0);
         // wish I could unregister <test-widget>, but it doesn’t look like it’s
         // possible at the moment
       })

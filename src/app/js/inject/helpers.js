@@ -84,7 +84,6 @@ function removeInjectedFromDocument() {
   injectedElementsOnPage = [];
 }
 
-
 /**
  * Removes a single resource from {@link injectedElementsOnPage}.
  * @param {String} id - The ID of the element.
