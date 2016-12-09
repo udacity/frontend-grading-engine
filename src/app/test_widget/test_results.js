@@ -51,16 +51,7 @@ var testResults = (function() {
       placeholder.textContent = '';
 
       // actually create the suite
-      var _testSuiteFragment = components.createElement('test-suite');
-      var _testSuite = '';
-
-      // Take the first Node (not a comment)
-      for(var i=0, len=_testSuiteFragment.childNodes.length; i<len; i++) {
-        if(_testSuiteFragment.childNodes[i].nodeType !== 8) {
-          _testSuite = _testSuiteFragment.childNodes[i];
-          break;
-        }
-      }
+      var _testSuite = components.createElement('test-suite');
 
       _testSuite.dataset.name = newSuite.name;
       _testSuite.dataset.suitePassed = false;
@@ -68,7 +59,7 @@ var testResults = (function() {
       _testSuite.code = newSuite.code;
       _testSuite.suite = newSuite;
 
-      testSuites.appendChild(_testSuiteFragment);
+      testSuites.appendChild(_testSuite);
 
       return _testSuite;
     };

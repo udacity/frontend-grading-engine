@@ -110,16 +110,7 @@ Suite.prototype.createTest = function(rawTest) {
   activeTest.suite = this;
 
   function createTestElement(newTest) {
-    var activeTestFragment = components.createElement('active-test');
-    var activeTestElement = '';
-
-    // When appending a fragment, it becomes void
-    for(var i=0, len=activeTestFragment.childNodes.length; i<len; i++) {
-      if(activeTestFragment.childNodes[i].nodeType !== 8) {
-        activeTestElement = activeTestFragment.childNodes[i];
-        break;
-      }
-    }
+    var activeTestElement = components.createElement('active-test');
 
     // find the suite element to which the test belongs
     var activeTestsContainer = activeTest.suite.element.querySelector('.active-tests');
@@ -130,7 +121,7 @@ Suite.prototype.createTest = function(rawTest) {
     // let the Test know which element belongs to it
     activeTest.element = activeTestElement;
 
-    activeTestsContainer.appendChild(activeTestFragment);
+    activeTestsContainer.appendChild(activeTestElement);
     return activeTestElement;
   }
 
