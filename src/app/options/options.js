@@ -6,7 +6,7 @@
  * @name options.js<options>
  * @author Cameron Pittman
  * @author Etienne Prud’homme
- * @license GPLv3
+ * @license MIT
  * @todo remove trailing / from URLs
  */
 

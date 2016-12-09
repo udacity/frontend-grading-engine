@@ -5,7 +5,7 @@
  * working) for emulating the WebExtension API.
  * @name adapter.js<background>
  * @author Etienne Prud’homme
- * @license GPLv3
+ * @license MIT
  *
  * Injected Scripts don’t have access to the `chrome.*` API with the
  * exception of:

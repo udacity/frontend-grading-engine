@@ -6,7 +6,7 @@
  * methods need higher priviledge (but allowed from a global page).
  * @name adapterListener.js<background>
  * @author Etienne Prud’homme
- * @license GPLv3
+ * @license MIT
  */
 
 // Listens to the client adapter

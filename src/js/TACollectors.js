@@ -12,7 +12,7 @@
  *    actually checks the results of the tests.
  * @name TACollectors.js<GE>
  * @author Cameron Pittman
- * @license GPLv3
+ * @license MIT
  */
 
 /**

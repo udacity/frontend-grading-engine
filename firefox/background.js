@@ -6,7 +6,7 @@
  * until Firefox version 48 for content-scripts.
  * @name background.js<firefox>
  * @author Etienne Prud’homme
- * @license GPLv3
+ * @license MIT
  */
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {

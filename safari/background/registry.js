@@ -6,7 +6,7 @@
  * an ID.
  * @name registry.js<background>
  * @author Etienne Prud’homme
- * @license GPLv3
+ * @license MIT
  */
 
 /**

@@ -9,7 +9,7 @@
  * {@link gradebook.grade}.
  * @name TAReporters.js<js>
  * @author Cameron Pittman
- * @license GPLv3
+ * @license MIT
  */
 
 /**

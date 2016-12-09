@@ -34,4 +34,4 @@ Firefox 45 or higher is needed to support WebExtensions.
 
 ## License
 This directory and the whole project is subject to
-the [GPLv3 License](../license).
+the [MIT License](../license).

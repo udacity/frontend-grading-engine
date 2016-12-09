@@ -3,7 +3,7 @@
  * Grading Engine.
  * @name outro.js<js>
  * @author Cameron Pittman
- * @license GPLv3
+ * @license MIT
  */
 /* jshint ignore:start */
 return exports;

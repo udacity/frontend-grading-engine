@@ -1,4 +1,11 @@
-/*global injectedElementsOnPage */
+/**
+ * @fileOverview This file contains various functions that aren’t specific to
+ * the current extension.
+ * @name helpers.js<inject>
+ * @author Cameron Pittman
+ * @author Etienne Prud’homme
+ * @license MIT
+ */
 
 /**
  * List of items id that were injected in the page. It is used to
@@ -7,14 +14,6 @@
  */
 var injectedElementsOnPage = [];
 
-/**
- * @fileOverview This file contains various functions that aren’t specific to
- * the current extension.
- * @name helpers.js<inject>
- * @author Cameron Pittman
- * @author Etienne Prud’homme
- * @license GPLv3
- */
 
 /**
  * Adds {@link HTMLElement} to the main page.

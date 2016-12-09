@@ -3,7 +3,7 @@
  * the content script appended to the main file.
  * @name outro.js<browser_action>
  * @author Etienne Prud’homme
- * @license GPLv3
+ * @license MIT
  */
 
 // outro.js<browser_action> ends here

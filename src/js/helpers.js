@@ -2,7 +2,7 @@
  * @fileOverview This file contains helpers for the Grading Engine.
  * @name helpers.js<js>
  * @author Cameron Pittman
- * @license GPLv3
+ * @license MIT
  */
 
 // http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript

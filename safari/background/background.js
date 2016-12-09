@@ -5,7 +5,7 @@
  * global page script context.
  * @name background.js<safari>
  * @author Etienne Prud’homme
- * @license GPLv3
+ * @license MIT
  */
 
 // Initializes the logs if not created.

@@ -5,7 +5,7 @@
  * the browser action script prepended to the main file.
  * @name intro.js<browser_action>
  * @author Etienne Prud’homme
- * @license GPLv3
+ * @license MIT
  */
 
 chrome.runtime.openOptionsPage = function() {

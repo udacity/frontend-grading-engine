@@ -5,7 +5,7 @@
  * the options page script appended to the main file.
  * @name outro.js<options>
  * @author Etienne Prud’homme
- * @license GPLv3
+ * @license MIT
  */
 
 var backButton = document.getElementById('back-button');

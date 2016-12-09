@@ -20,4 +20,4 @@ Safari doesn’t support extension storage. Instead, we need to use the `safari.
 ##### Tabs and Windows
 Safari doesn’t provide a method to uniquely identify a window or a tab. The adapter adds a module called `registry` that assign an ID to each window or tab. It also provides several functions to retrieve a list of tabs or windows.
 ### License
-This directory and the whole project is subject to the [GPLv3 License](../license).
+This directory and the whole project is subject to the [MIT License](../license).

@@ -4,7 +4,7 @@
  * @fileOverview This file contains the prototype of a single running test.
  * @name ActiveTest.js<js>
  * @author Cameron Pittman
- * @license GPLv3
+ * @license MIT
  */
 
 // Custom types documentation

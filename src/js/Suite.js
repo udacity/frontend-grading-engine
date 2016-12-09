@@ -5,7 +5,7 @@
  * tests.
  * @name Suite.js<js>
  * @author Cameron Pittman
- * @license GPLv3
+ * @license MIT
  */
 
 function Suite(rawSuite) {

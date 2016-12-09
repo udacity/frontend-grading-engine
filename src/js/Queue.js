@@ -5,7 +5,7 @@
  * @see http://www.mattgreer.org/articles/promises-in-wicked-detail/
  * @name Queue.js<js>
  * @author Cameron Pittman
- * @license GPLv3
+ * @license MIT
  */
 
 /**

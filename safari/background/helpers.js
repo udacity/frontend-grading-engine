@@ -5,7 +5,7 @@
  * global page.
  * @name helpers.js<background>
  * @author Etienne Prud’homme
- * @license GPL
+ * @license MIT
  */
 
 /**

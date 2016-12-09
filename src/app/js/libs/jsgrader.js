@@ -3,7 +3,7 @@
  * context.
  * @name jsgrader.js<libs>
  * @author Cameron Pittman
- * @license GPLv3
+ * @license MIT
  */
 var Grader = (function() {
 

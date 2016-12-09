@@ -9,7 +9,7 @@
  * initializes it.
  * @name outro.js<browser_action>
  * @author Etienne Prud’homme
- * @license GPLv3
+ * @license MIT
  */
 
   var main = document.getElementById('main');

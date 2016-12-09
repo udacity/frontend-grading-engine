@@ -6,7 +6,7 @@
  * the final state of each active_test.
  * @name GradeBook.js<GE>
  * @author Cameron Pittman
- * @license GPLv3
+ * @license MIT
  */
 
 /**

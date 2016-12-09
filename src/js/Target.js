@@ -7,7 +7,7 @@
  *  element. But it contains children which do map 1:1 with elements.
  * @name Target.js<GE>
  * @author Cameron Pittman
- * @license GPLv3
+ * @license MIT
  */
 
 /**

@@ -5,7 +5,7 @@
  * `inject.js` for Safari.
  * @name intro.js<safari>
  * @author Etienne Prud’homme
- * @license GPLv3
+ * @license MIT
  */
 
 /* jshint ignore:start */

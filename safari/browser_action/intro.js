@@ -5,7 +5,7 @@
  * executing the code until the `chrome` namespace is fully loaded.
  * @name intro.js<action_page>
  * @author Etienne Prud’homme
- * @license GPLv3
+ * @license MIT
  */
 
 var chrome;

@@ -5,7 +5,7 @@
  * @name StateManager.js<inject>
  * @author Cameron Pittman
  * @author Etienne Prud’homme
- * @license GPLv3
+ * @license MIT
  * @todo Add a warning if the widget fails to initialize.
  */
 

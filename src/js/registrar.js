@@ -5,7 +5,7 @@
  * @name registrar.js<js>
  * @author Cameron Pittman
  * @author Etienne Prud’homme
- * @license GPLv3
+ * @license MIT
  */
 
 var numberOfTests = 0,
