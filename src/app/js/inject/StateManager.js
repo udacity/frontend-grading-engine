@@ -42,7 +42,7 @@ function StateManager() {
    * This variable stores private variables that shouldn’t be changed
    * outside of the {@link StateManager}.
    */
-  var protected = {
+  var _protected = {
     host: window.location.origin,
     isAllowed: false,
     type: null
@@ -63,19 +63,19 @@ function StateManager() {
     },
     host: {
       get: function() {
-        return protected.host;
+        return _protected.host;
       }
       // No setters
     },
     isAllowed: {
       get: function() {
-        return protected.isAllowed;
+        return _protected.isAllowed;
       }
       // No setters
     },
     type: {
       get: function() {
-        return protected.type;
+        return _protected.type;
       }
       // No setters
     }
@@ -83,16 +83,16 @@ function StateManager() {
 
   if(this.host.search(/^(?:https?:)\/\/[^\s\.]/) !== -1)
   {
-    protected.type = 'remote';
+    _protected.type = 'remote';
   } else if(this.host === 'null' || this.host.search('file://') !== -1) {
     if(window.location.protocol === 'file:') {
       if(this.hasLocalFileAccess) {
-        protected.host = removeFileNameFromPath(window.location.pathname);
+        _protected.host = removeFileNameFromPath(window.location.pathname);
       } else {
-        protected.host = location.href.substring(7, location.href.lastIndexOf('/') + 1);
+        _protected.host = location.href.substring(7, location.href.lastIndexOf('/') + 1);
       }
 
-      protected.type = 'local';
+      _protected.type = 'local';
     } else {
       throw new Error('Unknown URL formatting error');
     }
@@ -195,7 +195,7 @@ function StateManager() {
       return Promise.reject('unknown_location_type_exception');
     }
 
-    protected.isAllowed = true;
+    _protected.isAllowed = true;
     return Promise.resolve();
   };
 
@@ -210,7 +210,7 @@ function StateManager() {
       return Promise.reject('unknown_location_type_exception');
     }
 
-    protected.isAllowed = false;
+    _protected.isAllowed = false;
     return Promise.resolve();
   };
 
@@ -273,7 +273,7 @@ function StateManager() {
    }
   */
   this.getIsAllowed = function() {
-    var isAllowed = (protected.isAllowed === true);
+    var isAllowed = (_protected.isAllowed === true);
 
     if(!that.hasLocalFileAccess && that.type === 'local') {
       return Promise.reject(['chrome_local_exception', isAllowed]);
