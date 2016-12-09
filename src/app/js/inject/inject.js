@@ -41,8 +41,9 @@ function importComponentsLibrary() {
 }
 
 /**
- * Finds Web Components templates.
- * @returns {Promise}
+ * Injects the components templates.
+ * @returns {Promise} A {@link Promise} that resolves when the
+ * templates were successfully loaded.
  */
 function importFeedbackWidget() {
   var twScript = document.querySelector('script#udacity-test-widget');
@@ -59,7 +60,8 @@ function importFeedbackWidget() {
 
 /**
  * Inject the Grading Engine inside the current Document.
- * @returns {Promise}
+ * @returns {Promise} A {@link Promise} that resolves when the Grading
+ * Engine was successfully loaded.
  */
 function injectGradingEngine() {
   var ge = document.querySelector('script#udacity-front-end-feedback');
@@ -78,7 +80,8 @@ function injectGradingEngine() {
  * Load custom libraries for the Grading Engine
  * (i.e. jsgrader.js). Currently only `jsgrader.js` is supported and
  * allowed in the manifest.
- * @returns {Promise} TODO
+ * @returns {Promise} A {@link Promise} that resolves when the
+ * libraries were loaded successfully.
  */
 function loadLibraries() {
   var libraries = null;
@@ -106,14 +109,9 @@ function loadLibraries() {
 }
 
 /**
- * Inject the file input inside the current Document.
- * @returns {Promise} TODO
- */
-}
-
-/**
  * Loads asynchronously the JSON file containing the tests.
- * @returns {Promise}
+ * @returns {Promise} A {@link Promise} that resolves when the JSON
+ * tests were successfully loaded.
  */
 function loadJSONTestsFromFile() {
   return new Promise(function(resolve, reject) {
@@ -135,6 +133,11 @@ function loadJSONTestsFromFile() {
     var xmlhttp = new XMLHttpRequest();
     url = getSameOriginURL(metaTag.content, true);
 
+    /**
+     * Handles the XHR state.
+     * @returns {Promise} A {@link Promise} that resolves when the
+     * request response is valid.
+     */
     xmlhttp.onreadystatechange = function() {
       if (xmlhttp.status === 200 && xmlhttp.readyState === 4) {
         // DANGER! Checks if that it wasn’t a redirection
@@ -181,6 +184,17 @@ function checkJSONValidity(json) {
   });
 }
 
+/**
+ * Handles a file query response. TODO: What event?
+ * @param {Object} detail - An object containing the following
+ * properties:
+ * @param {String} detail.filedata - The data of the loaded file. TODO
+ * @param {String} detail.filetype - The mime/type of the loaded file.
+ * @param {String} detail.filename - The filename of the loaded file.
+ * @returns {Promise} A {@link Promise} that resolves if the data is
+ * of valid type. Otherwise the Promise is rejected with the filename
+ * as the second item of an array (first one is rejected value).
+ */
 function handleFileQueryResponse(detail) {
   var filetype = detail.filetype;
   var filename = detail.filename;
@@ -202,6 +216,11 @@ function handleFileQueryResponse(detail) {
   }
 }
 
+/**
+ * Builds the Prompt Widgit. Must be called before querying file.
+ * @returns {Promise} A {@link Promise} that resolves when the Prompt
+ * Widget has finished loading.
+ */
 function buildInputPromptWidget() {
   return new Promise(function(resolve) {
     /**
@@ -222,6 +241,19 @@ function buildInputPromptWidget() {
   });
 }
 
+
+/**
+ * Sends a file request to the Prompt Widget and handles the file
+ * response. The widget must first be built with
+ * {@link buildInputPromptWidget}
+ * @param {Object} detail - An Object containing the following
+ * properties:
+ * @param {String} detail.filetype - The file type of the loaded file.
+ * @param {String} [detail.filename] - The file name of the loaded file.
+ * @param {String} [detail.filepath] - The file path of the loaded file.
+ * @returns {Promise} A {@link Promise} that resolves when the file
+ * query gets a response.
+ */
 function sendFileQuery(detail) {
   // Filename is mandatory
   var filetype = detail.filetype;
@@ -256,6 +288,17 @@ function sendFileQuery(detail) {
     window.dispatchEvent(request);
   });
 }
+
+/**
+ * Query the File Prompt for a JSON file.
+ * @param {Object} file - An object containing the following
+ * poperties:
+ * @param {String} file.filetype - The file type of the file to load
+ * @param {String} [file.filename] - The file name of the file to load.
+ * @param {String} [file.filepath] - The file path of the file to load.
+ * @returns {Promise} A {@link Promise} that resolves when it receives
+ * a valid query response.
+ */
 function promptJSONFile(file) {
   if(file.filetype !== 'application/json') {
     return Promise.reject('wrong_filetype_exception');
@@ -305,7 +348,8 @@ function registerTestSuites(data) {
 
 /**
  * Checks and injects custom Unit Tests.
- * @returns {Promise}
+ * @returns {Promise} A {@link Promise} that resolves when the
+ * unit-tests file was successfully injected in the page.
  */
 function loadUnitTests() {
   var unitTests = null;
@@ -333,7 +377,8 @@ function loadUnitTests() {
  * Activates the Grading Engine by injecting itself in the
  * Document. Not to be confused with {@link StateManager.turnOn}. This
  * method is called from {@link StateManager~runLoadSequence}.
- * @returns {Promise}
+ * @returns {Promise} A {@link Promise} that resolves when the Grading
+ * Engine library was fully loaded.
  */
 function turnOnGA() {
   return injectIntoDocument('script', {
@@ -351,8 +396,8 @@ function turnOnGA() {
  * thought the page context. It isn’t a content script like this file.
  * @todo Add a timeout. If (for some reason) the event is never fired,
  * it would probably block the widget.
- * @returns {Promise} A `Promise` that fulfills when all tests are
- * loaded
+ * @returns {Promise} A {@link Promise} that fulfills when all tests
+ * are loaded
  */
 function waitForTestRegistrations() {
   return new Promise(function(resolve, reject) {
@@ -364,15 +409,19 @@ function waitForTestRegistrations() {
 
 /**
  * Wait for messages from browser action.
- * @param {Object} message - Object containing a `data` and a `type` property.
- * @param {MessageSender} sender - Information about the Script context.
- * @param {function} sendResponse - Function to call when a response is
- * received.
+ * @param {Object} message - Object containing the following
+ * properties:
+ * @param {*} message.data - The data of the message.
+ * @param {*} message.type - The type of message.
+ * @param {MessageSender} sender - Information about the Script
+ * context.
+ * @param {function} sendResponse - Function to call when a response
+ * is received.
  */
 chrome.runtime.onMessage.addListener(function handler(message, sender, sendResponse) {
   /**
    * Utility function to send back response with a status. If
-   * {value.status} isn’t present, it sends a status of 0.
+   * {@link value.status} isn’t present, it sends a status of 0.
    * @param {Object[]} value - The value to send back.
    */
   function sendStatus(value) {
