@@ -91,6 +91,8 @@ HTMLInputElement.prototype.unlock = function() {
 // Utilities ends here
 
 (function() {
+  var lastTimeError = null;
+
   /**
    * Custom function for sending messages to the current tab.
    * @param {*} data - Any message or data that can be serialized
@@ -209,10 +211,10 @@ HTMLInputElement.prototype.unlock = function() {
    */
   allowFeedback.onchange = function() {
     if (this.checked === true) {
-      sendDataToTab('on', 'allow');
+      sendDataToTab('on', 'allow', getStatusMessage);
       this.on();
     } else if (this.checked === false) {
-      sendDataToTab('off', 'allow');
+      sendDataToTab('off', 'allow', getStatusMessage);
       this.off();
     }
   };
@@ -452,6 +454,59 @@ HTMLInputElement.prototype.unlock = function() {
   }
 
   /**
+   * Gets the the message for a status and adds a warning.
+   * @param {Object} response - The status object containing the following:
+   * @param {String|int} response.status - The status.
+   * @param {*} response.message - Message of the status.
+   */
+  function getStatusMessage(response) {
+    var _allowFeedback = (response.message === true);
+
+    if(response.status === lastTimeError) {
+      return;
+    } else if(response !== 0) {
+      // No need add the warning
+      lastTimeError = response.status;
+    }
+
+    switch(response.status) {
+    case 0:
+      if(_allowFeedback) {
+        allowFeedback.on();
+      } else {
+        allowFeedback.off();
+      }
+      break;
+    case 'chrome_local_exception':
+      // We don’t know (and care) for the whitelist here.
+      addWarning('Chrome doesn’t support loading local files automatically. You must load the test file manually',
+                 'warn',
+                 {allowFeedback: _allowFeedback});
+      break;
+    case 'invalid_origin':
+      // This is error in the document, not us or user.
+      addWarning('The linked JSON page isn’t at the same origin and directory as the document',
+                 'warn',
+                 {allowFeedback: _allowFeedback});
+      break;
+    case 'unknown_protocol':
+      // Shouldn’t be able to allow or even add to the whitelist.
+      // break left intentionally.
+    case undefined:
+      // Response is undefined if there’s no content-script active (so it’s an unsupported URL scheme).
+      addWarning('Unsupported URL scheme. Supported URL schemes are: http://, https://, or file://',
+                 'disable',
+                 {allowFeedback: false, siteOnWhitelist: false});
+      break;
+    default:
+      debugger;
+      addWarning('Unkown Error',
+                 'disable',
+                 {allowFeedback: false, siteOnWhitelist: false});
+      break;
+    }
+  }
+  /**
    * Makes checkboxes `checked` if the website is allowed.
    */
   function checkSiteStatus () {
@@ -469,48 +524,7 @@ HTMLInputElement.prototype.unlock = function() {
         break;
       }
     }).then(function() {
-      sendDataToTab(null, 'background-wake', function(response) {
-        // Not to be confused with the `allowFeedback` element. This is only a
-        // bool.
-        var _allowFeedback = (response.message === true);
-        switch(response.status) {
-        case 0:
-          if(_allowFeedback) {
-            allowFeedback.on();
-          } else {
-            allowFeedback.off();
-          }
-          break;
-        case 'chrome_local_exception':
-          // We don’t know (and care) for the whitelist here.
-          addWarning('Chrome doesn’t support loading local files automatically',
-                     'warn',
-                     {allowFeedback: _allowFeedback});
-          break;
-        case 'invalid_origin':
-          // This is error in the document, not us or user.
-          addWarning('The linked JSON page isn’t at the same origin and directory as the document',
-                     'warn',
-                     {allowFeedback: _allowFeedback});
-          break;
-        case 'unknown_protocol':
-          // Shouldn’t be able to allow or even add to the whitelist.
-          // break left intentionally.
-        case undefined:
-          // Response is undefined if there’s no content-script active (so it’s an unsupported URL scheme).
-          addWarning('Unsupported URL scheme. Supported URL schemes are: http://, https://, or file://',
-                     'disable',
-                     {allowFeedback: false, siteOnWhitelist: false});
-          break;
-        default:
-          addWarning('Unkown Error',
-                     'disable',
-                     {allowFeedback: false, siteOnWhitelist: false});
-          break;
-        }
-        switch(response) {
-        }
-      });
+      sendDataToTab(null, 'background-wake', getStatusMessage);
     });
   }
 

@@ -10,12 +10,6 @@
  * @license GPLv3
  */
 
-/**
- * List of items id that were injected in the page. It is used to
- * later remove them.
- * @type {string[]}
- */
-var injectedElementsOnPage = [];
 var debugMode = false;
 
 /**
@@ -308,7 +302,6 @@ chrome.runtime.onMessage.addListener(function handler(message, sender, sendRespo
    * @param {Object[]} value - The value to send back.
    */
   function sendStatus(value) {
-    debugger;
     var _value = {};
 
     if(!value || !value[0]) {

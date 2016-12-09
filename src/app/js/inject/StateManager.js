@@ -120,12 +120,16 @@ function StateManager() {
               promptFileInput(value);
               // We’ve executed the non-fatal recovery. Everything else should
               // not be executed.
+              self.gradingEngineInjected = true;
+              currentlyInjecting = false;
               return Promise.reject(value);
             });
             break;
           case 'no_meta_tag_exception':
             return turnOnGA().then(function(value) {
 
+              self.gradingEngineInjected = true;
+              currentlyInjecting = false;
               // promptFileInput(value);
               return Promise.reject('no_meta_tag_exception');
             });
